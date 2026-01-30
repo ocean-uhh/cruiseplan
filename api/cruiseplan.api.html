@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>API Functions &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev3</title>
+  <title>API Functions &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev4</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=cf37dbc9"></script>
+      <script src="../_static/documentation_options.js?v=04be4b04"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -67,16 +67,26 @@
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">API Functions</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#cruiseplan.api.bathymetry"><code class="docutils literal notranslate"><span class="pre">bathymetry()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cruiseplan.api.bathymetry_with_config"><code class="docutils literal notranslate"><span class="pre">bathymetry_with_config()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cruiseplan.api.enrich"><code class="docutils literal notranslate"><span class="pre">enrich()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cruiseplan.api.enrich_with_config"><code class="docutils literal notranslate"><span class="pre">enrich_with_config()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cruiseplan.api.map"><code class="docutils literal notranslate"><span class="pre">map()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cruiseplan.api.map_with_config"><code class="docutils literal notranslate"><span class="pre">map_with_config()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cruiseplan.api.pangaea"><code class="docutils literal notranslate"><span class="pre">pangaea()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cruiseplan.api.pangaea_with_config"><code class="docutils literal notranslate"><span class="pre">pangaea_with_config()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cruiseplan.api.process"><code class="docutils literal notranslate"><span class="pre">process()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cruiseplan.api.process_with_config"><code class="docutils literal notranslate"><span class="pre">process_with_config()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cruiseplan.api.schedule"><code class="docutils literal notranslate"><span class="pre">schedule()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cruiseplan.api.schedule_with_config"><code class="docutils literal notranslate"><span class="pre">schedule_with_config()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cruiseplan.api.stations"><code class="docutils literal notranslate"><span class="pre">stations()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cruiseplan.api.stations_with_config"><code class="docutils literal notranslate"><span class="pre">stations_with_config()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cruiseplan.api.validate"><code class="docutils literal notranslate"><span class="pre">validate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cruiseplan.api.validate_with_config"><code class="docutils literal notranslate"><span class="pre">validate_with_config()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.api.data">cruiseplan.api.data module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.api.data.bathymetry"><code class="docutils literal notranslate"><span class="pre">bathymetry()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.api.data.bathymetry_with_config"><code class="docutils literal notranslate"><span class="pre">bathymetry_with_config()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.api.data.pangaea"><code class="docutils literal notranslate"><span class="pre">pangaea()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.api.data.pangaea_with_config"><code class="docutils literal notranslate"><span class="pre">pangaea_with_config()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.api.init_utils">cruiseplan.api.init_utils module</a><ul>
@@ -90,18 +100,23 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.api.map_cruise">cruiseplan.api.map_cruise module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.api.map_cruise.map"><code class="docutils literal notranslate"><span class="pre">map()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.api.map_cruise.map_with_config"><code class="docutils literal notranslate"><span class="pre">map_with_config()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.api.process_cruise">cruiseplan.api.process_cruise module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.api.process_cruise.enrich"><code class="docutils literal notranslate"><span class="pre">enrich()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.api.process_cruise.enrich_configuration"><code class="docutils literal notranslate"><span class="pre">enrich_configuration()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.api.process_cruise.enrich_with_config"><code class="docutils literal notranslate"><span class="pre">enrich_with_config()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.api.process_cruise.process"><code class="docutils literal notranslate"><span class="pre">process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.api.process_cruise.process_with_config"><code class="docutils literal notranslate"><span class="pre">process_with_config()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.api.process_cruise.validate"><code class="docutils literal notranslate"><span class="pre">validate()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.api.process_cruise.validate_configuration"><code class="docutils literal notranslate"><span class="pre">validate_configuration()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.api.process_cruise.validate_with_config"><code class="docutils literal notranslate"><span class="pre">validate_with_config()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.api.schedule_cruise">cruiseplan.api.schedule_cruise module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.api.schedule_cruise.schedule"><code class="docutils literal notranslate"><span class="pre">schedule()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.api.schedule_cruise.schedule_with_config"><code class="docutils literal notranslate"><span class="pre">schedule_with_config()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.api.stations_api">cruiseplan.api.stations_api module</a><ul>
@@ -109,6 +124,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.api.stations_api.determine_coordinate_bounds"><code class="docutils literal notranslate"><span class="pre">determine_coordinate_bounds()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.api.stations_api.load_pangaea_campaign_data"><code class="docutils literal notranslate"><span class="pre">load_pangaea_campaign_data()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.api.stations_api.stations"><code class="docutils literal notranslate"><span class="pre">stations()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.api.stations_api.stations_with_config"><code class="docutils literal notranslate"><span class="pre">stations_with_config()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.api.types">cruiseplan.api.types module</a><ul>
@@ -196,6 +212,42 @@ Users should import from the main cruiseplan module, not from here directly.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.api.bathymetry_with_config">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.api.</span></span><span class="sig-name descname"><span class="pre">bathymetry_with_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BathymetryDownloadConfig</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cruiseplan.api.types.BathymetryResult" title="cruiseplan.api.types.BathymetryResult"><span class="pre">BathymetryResult</span></a></span></span><a class="reference internal" href="../_modules/cruiseplan/api/data.html#bathymetry_with_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.api.bathymetry_with_config" title="Link to this definition"></a></dt>
+<dd><p>Download bathymetry data using configuration object.</p>
+<p>This is the modern API that uses a configuration object to reduce the number
+of function parameters. For backward compatibility, the legacy bathymetry()
+function with individual parameters is still available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>BathymetryDownloadConfig</em><em>, </em><em>optional</em>) – Configuration object containing all bathymetry download options.
+If None, default configuration is used.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Result object containing data file path, source information, and summary</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cruiseplan.api.types.BathymetryResult" title="cruiseplan.api.types.BathymetryResult">BathymetryResult</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Basic usage with defaults:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">bathymetry_with_config</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Custom configuration:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.api.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">BathymetryDownloadConfig</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">BathymetryDownloadConfig</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">source</span><span class="o">=</span><span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;my_data/bathymetry&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">citation</span><span class="o">=</span><span class="kc">True</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">bathymetry_with_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.api.enrich">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.api.</span></span><span class="sig-name descname"><span class="pre">enrich</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'data'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_depths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathy_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'etopo2022'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathy_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'data/bathymetry'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coord_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ddm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expand_sections</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cruiseplan.api.types.EnrichResult" title="cruiseplan.api.types.EnrichResult"><span class="pre">EnrichResult</span></a></span></span><a class="reference internal" href="../_modules/cruiseplan/api/process_cruise.html#enrich"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.api.enrich" title="Link to this definition"></a></dt>
 <dd><p>Enrich a cruise configuration file (mirrors: cruiseplan enrich).</p>
@@ -240,6 +292,45 @@ that was previously in the CLI layer.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.api.enrich_with_config">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.api.</span></span><span class="sig-name descname"><span class="pre">enrich_with_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">EnrichConfig</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cruiseplan.api.types.EnrichResult" title="cruiseplan.api.types.EnrichResult"><span class="pre">EnrichResult</span></a></span></span><a class="reference internal" href="../_modules/cruiseplan/api/process_cruise.html#enrich_with_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.api.enrich_with_config" title="Link to this definition"></a></dt>
+<dd><p>Enrich cruise configuration using configuration object.</p>
+<p>This is the modern API that uses a configuration object to reduce the number
+of function parameters. For backward compatibility, the legacy enrich()
+function with individual parameters is still available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_file</strong> (<em>str</em><em> or </em><em>Path</em>) – Input YAML configuration file</p></li>
+<li><p><strong>config</strong> (<em>EnrichConfig</em><em>, </em><em>optional</em>) – Configuration object containing all enrichment options.
+If None, default configuration is used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Result object containing enriched config and summary</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cruiseplan.api.types.EnrichResult" title="cruiseplan.api.types.EnrichResult">EnrichResult</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Basic usage with defaults:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">enrich_with_config</span><span class="p">(</span><span class="s2">&quot;cruise.yaml&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Custom configuration:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.api.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">EnrichConfig</span><span class="p">,</span> <span class="n">BathymetryConfig</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">EnrichConfig</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">add_depths</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">coord_format</span><span class="o">=</span><span class="s2">&quot;dd&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">bathymetry</span><span class="o">=</span><span class="n">BathymetryConfig</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;gebco2025&quot;</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">enrich_with_config</span><span class="p">(</span><span class="s2">&quot;cruise.yaml&quot;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.api.map">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.api.</span></span><span class="sig-name descname"><span class="pre">map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'data'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathy_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'etopo2022'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathy_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'data'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathy_stride</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_plot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_ports</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cruiseplan.api.types.MapResult" title="cruiseplan.api.types.MapResult"><span class="pre">MapResult</span></a></span></span><a class="reference internal" href="../_modules/cruiseplan/api/map_cruise.html#map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.api.map" title="Link to this definition"></a></dt>
 <dd><p>Generate cruise track map (mirrors: cruiseplan map).</p>
@@ -272,6 +363,44 @@ that was previously in the CLI layer.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cruiseplan</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">config_file</span><span class="o">=</span><span class="s2">&quot;cruise.yaml&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Generate KML map with custom size</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cruiseplan</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">config_file</span><span class="o">=</span><span class="s2">&quot;cruise.yaml&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;kml&quot;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.api.map_with_config">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.api.</span></span><span class="sig-name descname"><span class="pre">map_with_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MapConfig</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cruiseplan.api.types.MapResult" title="cruiseplan.api.types.MapResult"><span class="pre">MapResult</span></a></span></span><a class="reference internal" href="../_modules/cruiseplan/api/map_cruise.html#map_with_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.api.map_with_config" title="Link to this definition"></a></dt>
+<dd><p>Generate cruise track map using configuration object.</p>
+<p>This is the modern API that uses a configuration object to reduce the number
+of function parameters. For backward compatibility, the legacy map()
+function with individual parameters is still available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_file</strong> (<em>str</em><em> or </em><em>Path</em>) – Input YAML configuration file</p></li>
+<li><p><strong>config</strong> (<em>MapConfig</em><em>, </em><em>optional</em>) – Configuration object containing all map generation options.
+If None, default configuration is used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Result object containing list of generated map files</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cruiseplan.api.types.MapResult" title="cruiseplan.api.types.MapResult">MapResult</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Basic usage with defaults:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">map_with_config</span><span class="p">(</span><span class="s2">&quot;cruise.yaml&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Custom configuration:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.api.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">MapConfig</span><span class="p">,</span> <span class="n">BathymetryConfig</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">MapConfig</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">bathymetry</span><span class="o">=</span><span class="n">BathymetryConfig</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">visualization</span><span class="o">=</span><span class="n">VisualizationConfig</span><span class="p">(</span><span class="n">show_plot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">map_with_config</span><span class="p">(</span><span class="s2">&quot;cruise.yaml&quot;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -319,6 +448,46 @@ Summary contains metadata about the search and processing.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.api.pangaea_with_config">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.api.</span></span><span class="sig-name descname"><span class="pre">pangaea_with_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_terms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PangaeaConfig</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">PangaeaResult</span></span></span><a class="reference internal" href="../_modules/cruiseplan/api/data.html#pangaea_with_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.api.pangaea_with_config" title="Link to this definition"></a></dt>
+<dd><p>Search PANGAEA oceanographic database using configuration object.</p>
+<p>This is the modern API that uses a configuration object to reduce the number
+of function parameters. For backward compatibility, the legacy pangaea()
+function with individual parameters is still available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>query_terms</strong> (<em>str</em>) – Search terms for PANGAEA database query</p></li>
+<li><p><strong>config</strong> (<em>PangaeaConfig</em><em>, </em><em>optional</em>) – Configuration object containing all PANGAEA search options.
+If None, default configuration is used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Result object containing search results and metadata</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>PangaeaResult</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Basic usage with defaults:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">pangaea_with_config</span><span class="p">(</span><span class="s2">&quot;temperature CTD&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Custom configuration:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.api.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PangaeaConfig</span><span class="p">,</span> <span class="n">OutputConfig</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">PangaeaConfig</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">lat_bounds</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">60</span><span class="p">,</span> <span class="o">-</span><span class="mi">40</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">lon_bounds</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span> <span class="mi">180</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">limit</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">output</span><span class="o">=</span><span class="n">OutputConfig</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="s2">&quot;results&quot;</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">pangaea_with_config</span><span class="p">(</span><span class="s2">&quot;temperature CTD&quot;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.api.process">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.api.</span></span><span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'data'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathy_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'etopo2022'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathy_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'data/bathymetry'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_depths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expand_sections</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_validation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_map_generation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth_check</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathy_stride</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_port_map</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cruiseplan.api.types.ProcessResult" title="cruiseplan.api.types.ProcessResult"><span class="pre">ProcessResult</span></a></span></span><a class="reference internal" href="../_modules/cruiseplan/api/process_cruise.html#process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.api.process" title="Link to this definition"></a></dt>
 <dd><p>Process cruise configuration with unified workflow (mirrors: cruiseplan process).</p>
@@ -359,6 +528,44 @@ Summary contains metadata about the search and processing.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Files created: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">files_created</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Custom processing workflow</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">cruiseplan</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="s2">&quot;cruise.yaml&quot;</span><span class="p">,</span> <span class="n">run_map_generation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">depth_check</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.api.process_with_config">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.api.</span></span><span class="sig-name descname"><span class="pre">process_with_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ProcessConfig</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cruiseplan.api.types.ProcessResult" title="cruiseplan.api.types.ProcessResult"><span class="pre">ProcessResult</span></a></span></span><a class="reference internal" href="../_modules/cruiseplan/api/process_cruise.html#process_with_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.api.process_with_config" title="Link to this definition"></a></dt>
+<dd><p>Process cruise configuration with unified workflow using configuration object.</p>
+<p>This is the modern API that uses a configuration object to reduce the number
+of function parameters. For backward compatibility, the legacy process()
+function with individual parameters is still available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_file</strong> (<em>str</em><em> or </em><em>Path</em>) – Input YAML configuration file</p></li>
+<li><p><strong>config</strong> (<em>ProcessConfig</em><em>, </em><em>optional</em>) – Configuration object containing all processing options.
+If None, default configuration is used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Result object containing enriched config and list of output files</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cruiseplan.api.types.ProcessResult" title="cruiseplan.api.types.ProcessResult">ProcessResult</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Basic usage with defaults:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">process_with_config</span><span class="p">(</span><span class="s2">&quot;cruise.yaml&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Custom configuration:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.api.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessConfig</span><span class="p">,</span> <span class="n">BathymetryConfig</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">ProcessConfig</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">add_depths</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">bathymetry</span><span class="o">=</span><span class="n">BathymetryConfig</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">process_with_config</span><span class="p">(</span><span class="s2">&quot;cruise.yaml&quot;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -420,6 +627,45 @@ Summary contains metadata about the generation process.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.api.schedule_with_config">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.api.</span></span><span class="sig-name descname"><span class="pre">schedule_with_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ScheduleConfig</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cruiseplan.api.types.ScheduleResult" title="cruiseplan.api.types.ScheduleResult"><span class="pre">ScheduleResult</span></a></span></span><a class="reference internal" href="../_modules/cruiseplan/api/schedule_cruise.html#schedule_with_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.api.schedule_with_config" title="Link to this definition"></a></dt>
+<dd><p>Generate cruise schedule using configuration object.</p>
+<p>This is the modern API that uses a configuration object to reduce the number
+of function parameters. For backward compatibility, the legacy schedule()
+function with individual parameters is still available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_file</strong> (<em>str</em><em> or </em><em>Path</em>) – Input YAML configuration file</p></li>
+<li><p><strong>config</strong> (<em>ScheduleConfig</em><em>, </em><em>optional</em>) – Configuration object containing all scheduling options.
+If None, default configuration is used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Result object containing list of generated schedule files</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cruiseplan.api.types.ScheduleResult" title="cruiseplan.api.types.ScheduleResult">ScheduleResult</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Basic usage with defaults:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">schedule_with_config</span><span class="p">(</span><span class="s2">&quot;cruise.yaml&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Custom configuration:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.api.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScheduleConfig</span><span class="p">,</span> <span class="n">BathymetryConfig</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">ScheduleConfig</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">leg</span><span class="o">=</span><span class="s2">&quot;leg1&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">derive_netcdf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">bathymetry</span><span class="o">=</span><span class="n">BathymetryConfig</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">schedule_with_config</span><span class="p">(</span><span class="s2">&quot;cruise.yaml&quot;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.api.stations">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.api.</span></span><span class="sig-name descname"><span class="pre">stations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat_bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon_bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'data'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pangaea_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathy_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'etopo2022'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathy_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'data'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_resolution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cruiseplan.api.stations_api.StationPickerResult" title="cruiseplan.api.stations_api.StationPickerResult"><span class="pre">StationPickerResult</span></a></span></span><a class="reference internal" href="../_modules/cruiseplan/api/stations_api.html#stations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.api.stations" title="Link to this definition"></a></dt>
 <dd><p>Launch interactive station picker for cruise planning.</p>
@@ -457,6 +703,43 @@ to core functionality, just better error handling and structured returns.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.api.stations_with_config">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.api.</span></span><span class="sig-name descname"><span class="pre">stations_with_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">StationsConfig</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cruiseplan.api.stations_api.StationPickerResult" title="cruiseplan.api.stations_api.StationPickerResult"><span class="pre">StationPickerResult</span></a></span></span><a class="reference internal" href="../_modules/cruiseplan/api/stations_api.html#stations_with_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.api.stations_with_config" title="Link to this definition"></a></dt>
+<dd><p>Launch interactive station picker using configuration object.</p>
+<p>This is the modern API that uses a configuration object to reduce the number
+of function parameters. For backward compatibility, the legacy stations()
+function with individual parameters is still available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>StationsConfig</em><em>, </em><em>optional</em>) – Configuration object containing all station picker options.
+If None, default configuration is used.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Result object containing output file and metadata</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cruiseplan.api.stations_api.StationPickerResult" title="cruiseplan.api.stations_api.StationPickerResult">StationPickerResult</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Basic usage with defaults:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">stations_with_config</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Custom configuration:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.api.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">StationsConfig</span><span class="p">,</span> <span class="n">OutputConfig</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">StationsConfig</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">lat_bounds</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">65</span><span class="p">,</span> <span class="o">-</span><span class="mi">45</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">lon_bounds</span><span class="o">=</span><span class="p">(</span><span class="mi">160</span><span class="p">,</span> <span class="mi">180</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">pangaea_file</span><span class="o">=</span><span class="s2">&quot;pangaea_data.pkl&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">output</span><span class="o">=</span><span class="n">OutputConfig</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="s2">&quot;cruise_stations&quot;</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">stations_with_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.api.validate">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.api.</span></span><span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathy_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'etopo2022'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathy_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'data/bathymetry'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_depths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warnings_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cruiseplan.api.types.ValidationResult" title="cruiseplan.api.types.ValidationResult"><span class="pre">ValidationResult</span></a></span></span><a class="reference internal" href="../_modules/cruiseplan/api/process_cruise.html#validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.api.validate" title="Link to this definition"></a></dt>
 <dd><p>Validate a cruise configuration file (mirrors: cruiseplan validate).</p>
@@ -491,6 +774,45 @@ to core functionality, just better error handling and structured returns.</p>
 </div>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.api.validate_with_config">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.api.</span></span><span class="sig-name descname"><span class="pre">validate_with_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ValidateConfig</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cruiseplan.api.types.ValidationResult" title="cruiseplan.api.types.ValidationResult"><span class="pre">ValidationResult</span></a></span></span><a class="reference internal" href="../_modules/cruiseplan/api/process_cruise.html#validate_with_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.api.validate_with_config" title="Link to this definition"></a></dt>
+<dd><p>Validate cruise configuration using configuration object.</p>
+<p>This is the modern API that uses a configuration object to reduce the number
+of function parameters. For backward compatibility, the legacy validate()
+function with individual parameters is still available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_file</strong> (<em>str</em><em> or </em><em>Path</em>) – Input YAML configuration file</p></li>
+<li><p><strong>config</strong> (<em>ValidateConfig</em><em>, </em><em>optional</em>) – Configuration object containing all validation options.
+If None, default configuration is used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Result object containing validation status and issues</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cruiseplan.api.types.ValidationResult" title="cruiseplan.api.types.ValidationResult">ValidationResult</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Basic usage with defaults:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">validate_with_config</span><span class="p">(</span><span class="s2">&quot;cruise.yaml&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Custom configuration:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.api.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidateConfig</span><span class="p">,</span> <span class="n">BathymetryConfig</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">ValidateConfig</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">check_depths</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">tolerance</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">bathymetry</span><span class="o">=</span><span class="n">BathymetryConfig</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;gebco2025&quot;</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">validate_with_config</span><span class="p">(</span><span class="s2">&quot;cruise.yaml&quot;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
 <section id="module-cruiseplan.api.data">
 <span id="cruiseplan-api-data-module"></span><h2>cruiseplan.api.data module<a class="headerlink" href="#module-cruiseplan.api.data" title="Link to this heading"></a></h2>
 <p>Data acquisition API functions.</p>
@@ -521,6 +843,42 @@ PANGAEA oceanographic databases.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cruiseplan</span><span class="o">.</span><span class="n">bathymetry</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Download GEBCO2025 data to custom location</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cruiseplan</span><span class="o">.</span><span class="n">bathymetry</span><span class="p">(</span><span class="n">bathy_source</span><span class="o">=</span><span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;my_data/bathymetry&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.api.data.bathymetry_with_config">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.api.data.</span></span><span class="sig-name descname"><span class="pre">bathymetry_with_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BathymetryDownloadConfig</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cruiseplan.api.types.BathymetryResult" title="cruiseplan.api.types.BathymetryResult"><span class="pre">BathymetryResult</span></a></span></span><a class="reference internal" href="../_modules/cruiseplan/api/data.html#bathymetry_with_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.api.data.bathymetry_with_config" title="Link to this definition"></a></dt>
+<dd><p>Download bathymetry data using configuration object.</p>
+<p>This is the modern API that uses a configuration object to reduce the number
+of function parameters. For backward compatibility, the legacy bathymetry()
+function with individual parameters is still available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>BathymetryDownloadConfig</em><em>, </em><em>optional</em>) – Configuration object containing all bathymetry download options.
+If None, default configuration is used.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Result object containing data file path, source information, and summary</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cruiseplan.api.types.BathymetryResult" title="cruiseplan.api.types.BathymetryResult">BathymetryResult</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Basic usage with defaults:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">bathymetry_with_config</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Custom configuration:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.api.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">BathymetryDownloadConfig</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">BathymetryDownloadConfig</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">source</span><span class="o">=</span><span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;my_data/bathymetry&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">citation</span><span class="o">=</span><span class="kc">True</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">bathymetry_with_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -563,6 +921,46 @@ Summary contains metadata about the search and processing.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Access the data directly</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">campaign</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">stations_data</span><span class="p">:</span>
 <span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Campaign: </span><span class="si">{</span><span class="n">campaign</span><span class="p">[</span><span class="s1">&#39;Campaign&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, Stations: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">campaign</span><span class="p">[</span><span class="s1">&#39;Stations&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.api.data.pangaea_with_config">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.api.data.</span></span><span class="sig-name descname"><span class="pre">pangaea_with_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_terms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PangaeaConfig</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">PangaeaResult</span></span></span><a class="reference internal" href="../_modules/cruiseplan/api/data.html#pangaea_with_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.api.data.pangaea_with_config" title="Link to this definition"></a></dt>
+<dd><p>Search PANGAEA oceanographic database using configuration object.</p>
+<p>This is the modern API that uses a configuration object to reduce the number
+of function parameters. For backward compatibility, the legacy pangaea()
+function with individual parameters is still available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>query_terms</strong> (<em>str</em>) – Search terms for PANGAEA database query</p></li>
+<li><p><strong>config</strong> (<em>PangaeaConfig</em><em>, </em><em>optional</em>) – Configuration object containing all PANGAEA search options.
+If None, default configuration is used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Result object containing search results and metadata</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>PangaeaResult</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Basic usage with defaults:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">pangaea_with_config</span><span class="p">(</span><span class="s2">&quot;temperature CTD&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Custom configuration:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.api.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PangaeaConfig</span><span class="p">,</span> <span class="n">OutputConfig</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">PangaeaConfig</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">lat_bounds</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">60</span><span class="p">,</span> <span class="o">-</span><span class="mi">40</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">lon_bounds</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span> <span class="mi">180</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">limit</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">output</span><span class="o">=</span><span class="n">OutputConfig</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="s2">&quot;results&quot;</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">pangaea_with_config</span><span class="p">(</span><span class="s2">&quot;temperature CTD&quot;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -646,6 +1044,44 @@ in various formats (PNG, KML).</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cruiseplan</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">config_file</span><span class="o">=</span><span class="s2">&quot;cruise.yaml&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Generate KML map with custom size</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cruiseplan</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">config_file</span><span class="o">=</span><span class="s2">&quot;cruise.yaml&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;kml&quot;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.api.map_cruise.map_with_config">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.api.map_cruise.</span></span><span class="sig-name descname"><span class="pre">map_with_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MapConfig</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cruiseplan.api.types.MapResult" title="cruiseplan.api.types.MapResult"><span class="pre">MapResult</span></a></span></span><a class="reference internal" href="../_modules/cruiseplan/api/map_cruise.html#map_with_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.api.map_cruise.map_with_config" title="Link to this definition"></a></dt>
+<dd><p>Generate cruise track map using configuration object.</p>
+<p>This is the modern API that uses a configuration object to reduce the number
+of function parameters. For backward compatibility, the legacy map()
+function with individual parameters is still available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_file</strong> (<em>str</em><em> or </em><em>Path</em>) – Input YAML configuration file</p></li>
+<li><p><strong>config</strong> (<em>MapConfig</em><em>, </em><em>optional</em>) – Configuration object containing all map generation options.
+If None, default configuration is used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Result object containing list of generated map files</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cruiseplan.api.types.MapResult" title="cruiseplan.api.types.MapResult">MapResult</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Basic usage with defaults:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">map_with_config</span><span class="p">(</span><span class="s2">&quot;cruise.yaml&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Custom configuration:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.api.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">MapConfig</span><span class="p">,</span> <span class="n">BathymetryConfig</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">MapConfig</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">bathymetry</span><span class="o">=</span><span class="n">BathymetryConfig</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">visualization</span><span class="o">=</span><span class="n">VisualizationConfig</span><span class="p">(</span><span class="n">show_plot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">map_with_config</span><span class="p">(</span><span class="s2">&quot;cruise.yaml&quot;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -734,6 +1170,45 @@ resolved to full PortDefinition objects during loading.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.api.process_cruise.enrich_with_config">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.api.process_cruise.</span></span><span class="sig-name descname"><span class="pre">enrich_with_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">EnrichConfig</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cruiseplan.api.types.EnrichResult" title="cruiseplan.api.types.EnrichResult"><span class="pre">EnrichResult</span></a></span></span><a class="reference internal" href="../_modules/cruiseplan/api/process_cruise.html#enrich_with_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.api.process_cruise.enrich_with_config" title="Link to this definition"></a></dt>
+<dd><p>Enrich cruise configuration using configuration object.</p>
+<p>This is the modern API that uses a configuration object to reduce the number
+of function parameters. For backward compatibility, the legacy enrich()
+function with individual parameters is still available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_file</strong> (<em>str</em><em> or </em><em>Path</em>) – Input YAML configuration file</p></li>
+<li><p><strong>config</strong> (<em>EnrichConfig</em><em>, </em><em>optional</em>) – Configuration object containing all enrichment options.
+If None, default configuration is used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Result object containing enriched config and summary</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cruiseplan.api.types.EnrichResult" title="cruiseplan.api.types.EnrichResult">EnrichResult</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Basic usage with defaults:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">enrich_with_config</span><span class="p">(</span><span class="s2">&quot;cruise.yaml&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Custom configuration:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.api.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">EnrichConfig</span><span class="p">,</span> <span class="n">BathymetryConfig</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">EnrichConfig</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">add_depths</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">coord_format</span><span class="o">=</span><span class="s2">&quot;dd&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">bathymetry</span><span class="o">=</span><span class="n">BathymetryConfig</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;gebco2025&quot;</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">enrich_with_config</span><span class="p">(</span><span class="s2">&quot;cruise.yaml&quot;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.api.process_cruise.process">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.api.process_cruise.</span></span><span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'data'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathy_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'etopo2022'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathy_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'data/bathymetry'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_depths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expand_sections</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_validation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_map_generation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth_check</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathy_stride</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_port_map</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cruiseplan.api.types.ProcessResult" title="cruiseplan.api.types.ProcessResult"><span class="pre">ProcessResult</span></a></span></span><a class="reference internal" href="../_modules/cruiseplan/api/process_cruise.html#process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.api.process_cruise.process" title="Link to this definition"></a></dt>
 <dd><p>Process cruise configuration with unified workflow (mirrors: cruiseplan process).</p>
@@ -774,6 +1249,44 @@ resolved to full PortDefinition objects during loading.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Files created: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">files_created</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Custom processing workflow</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">cruiseplan</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="s2">&quot;cruise.yaml&quot;</span><span class="p">,</span> <span class="n">run_map_generation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">depth_check</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.api.process_cruise.process_with_config">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.api.process_cruise.</span></span><span class="sig-name descname"><span class="pre">process_with_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ProcessConfig</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cruiseplan.api.types.ProcessResult" title="cruiseplan.api.types.ProcessResult"><span class="pre">ProcessResult</span></a></span></span><a class="reference internal" href="../_modules/cruiseplan/api/process_cruise.html#process_with_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.api.process_cruise.process_with_config" title="Link to this definition"></a></dt>
+<dd><p>Process cruise configuration with unified workflow using configuration object.</p>
+<p>This is the modern API that uses a configuration object to reduce the number
+of function parameters. For backward compatibility, the legacy process()
+function with individual parameters is still available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_file</strong> (<em>str</em><em> or </em><em>Path</em>) – Input YAML configuration file</p></li>
+<li><p><strong>config</strong> (<em>ProcessConfig</em><em>, </em><em>optional</em>) – Configuration object containing all processing options.
+If None, default configuration is used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Result object containing enriched config and list of output files</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cruiseplan.api.types.ProcessResult" title="cruiseplan.api.types.ProcessResult">ProcessResult</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Basic usage with defaults:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">process_with_config</span><span class="p">(</span><span class="s2">&quot;cruise.yaml&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Custom configuration:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.api.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessConfig</span><span class="p">,</span> <span class="n">BathymetryConfig</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">ProcessConfig</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">add_depths</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">bathymetry</span><span class="o">=</span><span class="n">BathymetryConfig</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">process_with_config</span><span class="p">(</span><span class="s2">&quot;cruise.yaml&quot;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -840,6 +1353,45 @@ depth verification against bathymetry data.</p>
 </dl>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.api.process_cruise.validate_with_config">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.api.process_cruise.</span></span><span class="sig-name descname"><span class="pre">validate_with_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ValidateConfig</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cruiseplan.api.types.ValidationResult" title="cruiseplan.api.types.ValidationResult"><span class="pre">ValidationResult</span></a></span></span><a class="reference internal" href="../_modules/cruiseplan/api/process_cruise.html#validate_with_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.api.process_cruise.validate_with_config" title="Link to this definition"></a></dt>
+<dd><p>Validate cruise configuration using configuration object.</p>
+<p>This is the modern API that uses a configuration object to reduce the number
+of function parameters. For backward compatibility, the legacy validate()
+function with individual parameters is still available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_file</strong> (<em>str</em><em> or </em><em>Path</em>) – Input YAML configuration file</p></li>
+<li><p><strong>config</strong> (<em>ValidateConfig</em><em>, </em><em>optional</em>) – Configuration object containing all validation options.
+If None, default configuration is used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Result object containing validation status and issues</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cruiseplan.api.types.ValidationResult" title="cruiseplan.api.types.ValidationResult">ValidationResult</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Basic usage with defaults:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">validate_with_config</span><span class="p">(</span><span class="s2">&quot;cruise.yaml&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Custom configuration:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.api.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidateConfig</span><span class="p">,</span> <span class="n">BathymetryConfig</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">ValidateConfig</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">check_depths</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">tolerance</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">bathymetry</span><span class="o">=</span><span class="n">BathymetryConfig</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;gebco2025&quot;</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">validate_with_config</span><span class="p">(</span><span class="s2">&quot;cruise.yaml&quot;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
 </section>
 <section id="module-cruiseplan.api.schedule_cruise">
 <span id="cruiseplan-api-schedule-cruise-module"></span><h2>cruiseplan.api.schedule_cruise module<a class="headerlink" href="#module-cruiseplan.api.schedule_cruise" title="Link to this heading"></a></h2>
@@ -898,6 +1450,45 @@ Summary contains metadata about the generation process.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">netcdf_file</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">files_created</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># NetCDF file</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">netcdf_file</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.api.schedule_cruise.schedule_with_config">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.api.schedule_cruise.</span></span><span class="sig-name descname"><span class="pre">schedule_with_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ScheduleConfig</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cruiseplan.api.types.ScheduleResult" title="cruiseplan.api.types.ScheduleResult"><span class="pre">ScheduleResult</span></a></span></span><a class="reference internal" href="../_modules/cruiseplan/api/schedule_cruise.html#schedule_with_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.api.schedule_cruise.schedule_with_config" title="Link to this definition"></a></dt>
+<dd><p>Generate cruise schedule using configuration object.</p>
+<p>This is the modern API that uses a configuration object to reduce the number
+of function parameters. For backward compatibility, the legacy schedule()
+function with individual parameters is still available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_file</strong> (<em>str</em><em> or </em><em>Path</em>) – Input YAML configuration file</p></li>
+<li><p><strong>config</strong> (<em>ScheduleConfig</em><em>, </em><em>optional</em>) – Configuration object containing all scheduling options.
+If None, default configuration is used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Result object containing list of generated schedule files</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cruiseplan.api.types.ScheduleResult" title="cruiseplan.api.types.ScheduleResult">ScheduleResult</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Basic usage with defaults:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">schedule_with_config</span><span class="p">(</span><span class="s2">&quot;cruise.yaml&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Custom configuration:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.api.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScheduleConfig</span><span class="p">,</span> <span class="n">BathymetryConfig</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">ScheduleConfig</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">leg</span><span class="o">=</span><span class="s2">&quot;leg1&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">derive_netcdf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">bathymetry</span><span class="o">=</span><span class="n">BathymetryConfig</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">schedule_with_config</span><span class="p">(</span><span class="s2">&quot;cruise.yaml&quot;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1006,6 +1597,43 @@ to core functionality, just better error handling and structured returns.</p>
 </ul>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.api.stations_api.stations_with_config">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.api.stations_api.</span></span><span class="sig-name descname"><span class="pre">stations_with_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">StationsConfig</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cruiseplan.api.stations_api.StationPickerResult" title="cruiseplan.api.stations_api.StationPickerResult"><span class="pre">StationPickerResult</span></a></span></span><a class="reference internal" href="../_modules/cruiseplan/api/stations_api.html#stations_with_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.api.stations_api.stations_with_config" title="Link to this definition"></a></dt>
+<dd><p>Launch interactive station picker using configuration object.</p>
+<p>This is the modern API that uses a configuration object to reduce the number
+of function parameters. For backward compatibility, the legacy stations()
+function with individual parameters is still available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>StationsConfig</em><em>, </em><em>optional</em>) – Configuration object containing all station picker options.
+If None, default configuration is used.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Result object containing output file and metadata</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cruiseplan.api.stations_api.StationPickerResult" title="cruiseplan.api.stations_api.StationPickerResult">StationPickerResult</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Basic usage with defaults:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">stations_with_config</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Custom configuration:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.api.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">StationsConfig</span><span class="p">,</span> <span class="n">OutputConfig</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">StationsConfig</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">lat_bounds</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">65</span><span class="p">,</span> <span class="o">-</span><span class="mi">45</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">lon_bounds</span><span class="o">=</span><span class="p">(</span><span class="mi">160</span><span class="p">,</span> <span class="mi">180</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">pangaea_file</span><span class="o">=</span><span class="s2">&quot;pangaea_data.pkl&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">output</span><span class="o">=</span><span class="n">OutputConfig</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="s2">&quot;cruise_stations&quot;</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">stations_with_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </section>

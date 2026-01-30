@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.api.data &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev3</title>
+  <title>cruiseplan.api.data &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev4</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=cf37dbc9"></script>
+      <script src="../../../_static/documentation_options.js?v=04be4b04"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -101,10 +101,62 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.api.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">BathymetryDownloadConfig</span><span class="p">,</span> <span class="n">PangaeaConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.api.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">BathymetryResult</span><span class="p">,</span> <span class="n">PangaeaResult</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.config.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="bathymetry_with_config">
+<a class="viewcode-back" href="../../../api/cruiseplan.api.html#cruiseplan.api.bathymetry_with_config">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">bathymetry_with_config</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">BathymetryDownloadConfig</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BathymetryResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Download bathymetry data using configuration object.</span>
+
+<span class="sd">    This is the modern API that uses a configuration object to reduce the number</span>
+<span class="sd">    of function parameters. For backward compatibility, the legacy bathymetry()</span>
+<span class="sd">    function with individual parameters is still available.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : BathymetryDownloadConfig, optional</span>
+<span class="sd">        Configuration object containing all bathymetry download options.</span>
+<span class="sd">        If None, default configuration is used.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    BathymetryResult</span>
+<span class="sd">        Result object containing data file path, source information, and summary</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Basic usage with defaults:</span>
+
+<span class="sd">    &gt;&gt;&gt; result = bathymetry_with_config()</span>
+
+<span class="sd">    Custom configuration:</span>
+
+<span class="sd">    &gt;&gt;&gt; from cruiseplan.api.config import BathymetryDownloadConfig</span>
+<span class="sd">    &gt;&gt;&gt; config = BathymetryDownloadConfig(</span>
+<span class="sd">    ...     source=&quot;gebco2025&quot;,</span>
+<span class="sd">    ...     output_dir=&quot;my_data/bathymetry&quot;,</span>
+<span class="sd">    ...     citation=True</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; result = bathymetry_with_config(config)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">BathymetryDownloadConfig</span><span class="p">()</span>
+
+    <span class="c1"># Call the legacy function with expanded parameters</span>
+    <span class="k">return</span> <span class="n">bathymetry</span><span class="p">(</span>
+        <span class="n">bathy_source</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">source</span><span class="p">,</span>
+        <span class="n">output_dir</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span>
+        <span class="n">citation</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">citation</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="bathymetry">
@@ -591,6 +643,67 @@
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">_handle_error_with_logging</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="s2">&quot;PANGAEA search failed&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
         <span class="k">raise</span>  <span class="c1"># Re-raise the exception so caller knows it failed</span></div>
+
+
+
+<div class="viewcode-block" id="pangaea_with_config">
+<a class="viewcode-back" href="../../../api/cruiseplan.api.html#cruiseplan.api.pangaea_with_config">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pangaea_with_config</span><span class="p">(</span>
+    <span class="n">query_terms</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">PangaeaConfig</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PangaeaResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Search PANGAEA oceanographic database using configuration object.</span>
+
+<span class="sd">    This is the modern API that uses a configuration object to reduce the number</span>
+<span class="sd">    of function parameters. For backward compatibility, the legacy pangaea()</span>
+<span class="sd">    function with individual parameters is still available.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    query_terms : str</span>
+<span class="sd">        Search terms for PANGAEA database query</span>
+<span class="sd">    config : PangaeaConfig, optional</span>
+<span class="sd">        Configuration object containing all PANGAEA search options.</span>
+<span class="sd">        If None, default configuration is used.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    PangaeaResult</span>
+<span class="sd">        Result object containing search results and metadata</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Basic usage with defaults:</span>
+
+<span class="sd">    &gt;&gt;&gt; result = pangaea_with_config(&quot;temperature CTD&quot;)</span>
+
+<span class="sd">    Custom configuration:</span>
+
+<span class="sd">    &gt;&gt;&gt; from cruiseplan.api.config import PangaeaConfig, OutputConfig</span>
+<span class="sd">    &gt;&gt;&gt; config = PangaeaConfig(</span>
+<span class="sd">    ...     lat_bounds=[-60, -40],</span>
+<span class="sd">    ...     lon_bounds=[-180, 180],</span>
+<span class="sd">    ...     limit=20,</span>
+<span class="sd">    ...     output=OutputConfig(directory=&quot;results&quot;)</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; result = pangaea_with_config(&quot;temperature CTD&quot;, config)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">PangaeaConfig</span><span class="p">()</span>
+
+    <span class="c1"># Call the legacy function with expanded parameters</span>
+    <span class="k">return</span> <span class="n">pangaea</span><span class="p">(</span>
+        <span class="n">query_terms</span><span class="o">=</span><span class="n">query_terms</span><span class="p">,</span>
+        <span class="n">output_dir</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">directory</span><span class="p">,</span>
+        <span class="n">output</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span>
+        <span class="n">lat_bounds</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">lat_bounds</span><span class="p">,</span>
+        <span class="n">lon_bounds</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">lon_bounds</span><span class="p">,</span>
+        <span class="n">limit</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">limit</span><span class="p">,</span>
+        <span class="n">rate_limit</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">rate_limit</span><span class="p">,</span>
+        <span class="n">merge_campaigns</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">merge_campaigns</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">verbose</span><span class="p">,</span>
+    <span class="p">)</span></div>
 
 </pre></div>
 

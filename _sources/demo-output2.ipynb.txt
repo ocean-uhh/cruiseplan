@@ -36,10 +36,10 @@
    "id": "setup-imports",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-01-18T20:30:22.212141Z",
-     "iopub.status.busy": "2026-01-18T20:30:22.211966Z",
-     "iopub.status.idle": "2026-01-18T20:30:23.013683Z",
-     "shell.execute_reply": "2026-01-18T20:30:23.012856Z"
+     "iopub.execute_input": "2026-01-30T07:56:38.995681Z",
+     "iopub.status.busy": "2026-01-30T07:56:38.995472Z",
+     "iopub.status.idle": "2026-01-30T07:56:39.794818Z",
+     "shell.execute_reply": "2026-01-30T07:56:39.794080Z"
     }
    },
    "outputs": [
@@ -100,10 +100,10 @@
    "id": "step1-download",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-01-18T20:30:23.015496Z",
-     "iopub.status.busy": "2026-01-18T20:30:23.015200Z",
-     "iopub.status.idle": "2026-01-18T20:32:04.788302Z",
-     "shell.execute_reply": "2026-01-18T20:32:04.787615Z"
+     "iopub.execute_input": "2026-01-30T07:56:39.797048Z",
+     "iopub.status.busy": "2026-01-30T07:56:39.796754Z",
+     "iopub.status.idle": "2026-01-30T07:57:40.878053Z",
+     "shell.execute_reply": "2026-01-30T07:57:40.877426Z"
     }
    },
    "outputs": [
@@ -136,7 +136,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 95.9kB [00:00, 848kB/s]"
+      "Downloading ETOPO: 240kB [00:00, 2.20MB/s]"
      ]
     },
     {
@@ -144,7 +144,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 471kB [00:00, 2.17MB/s]"
+      "Downloading ETOPO: 1.05MB [00:00, 5.20MB/s]"
      ]
     },
     {
@@ -152,7 +152,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 895kB [00:00, 3.05MB/s]"
+      "Downloading ETOPO: 2.05MB [00:00, 6.92MB/s]"
      ]
     },
     {
@@ -160,7 +160,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 1.34MB [00:00, 3.73MB/s]"
+      "Downloading ETOPO: 2.95MB [00:00, 7.35MB/s]"
      ]
     },
     {
@@ -168,7 +168,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 1.95MB [00:00, 4.64MB/s]"
+      "Downloading ETOPO: 3.87MB [00:00, 7.67MB/s]"
      ]
     },
     {
@@ -176,7 +176,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 2.53MB [00:00, 4.41MB/s]"
+      "Downloading ETOPO: 4.74MB [00:00, 7.70MB/s]"
      ]
     },
     {
@@ -184,7 +184,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 2.99MB [00:00, 4.53MB/s]"
+      "Downloading ETOPO: 5.72MB [00:00, 8.05MB/s]"
      ]
     },
     {
@@ -192,7 +192,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 3.50MB [00:00, 4.76MB/s]"
+      "Downloading ETOPO: 6.65MB [00:00, 8.11MB/s]"
      ]
     },
     {
@@ -200,7 +200,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 4.14MB [00:01, 4.67MB/s]"
+      "Downloading ETOPO: 7.54MB [00:01, 8.05MB/s]"
      ]
     },
     {
@@ -208,7 +208,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 4.66MB [00:01, 4.89MB/s]"
+      "Downloading ETOPO: 8.45MB [00:01, 8.09MB/s]"
      ]
     },
     {
@@ -216,7 +216,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 5.21MB [00:01, 5.14MB/s]"
+      "Downloading ETOPO: 9.41MB [00:01, 8.15MB/s]"
      ]
     },
     {
@@ -224,7 +224,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 5.71MB [00:01, 5.16MB/s]"
+      "Downloading ETOPO: 10.4MB [00:01, 8.30MB/s]"
      ]
     },
     {
@@ -232,7 +232,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 6.35MB [00:01, 4.91MB/s]"
+      "Downloading ETOPO: 11.3MB [00:01, 8.30MB/s]"
      ]
     },
     {
@@ -240,7 +240,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 6.88MB [00:01, 5.10MB/s]"
+      "Downloading ETOPO: 12.3MB [00:01, 8.43MB/s]"
      ]
     },
     {
@@ -248,7 +248,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 7.44MB [00:01, 4.68MB/s]"
+      "Downloading ETOPO: 13.2MB [00:01, 8.44MB/s]"
      ]
     },
     {
@@ -256,7 +256,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 7.96MB [00:01, 4.89MB/s]"
+      "Downloading ETOPO: 14.2MB [00:01, 8.40MB/s]"
      ]
     },
     {
@@ -264,7 +264,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 8.61MB [00:01, 4.78MB/s]"
+      "Downloading ETOPO: 15.1MB [00:01, 8.34MB/s]"
      ]
     },
     {
@@ -272,7 +272,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 9.12MB [00:02, 4.94MB/s]"
+      "Downloading ETOPO: 16.0MB [00:02, 8.40MB/s]"
      ]
     },
     {
@@ -280,7 +280,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 9.71MB [00:02, 4.66MB/s]"
+      "Downloading ETOPO: 16.9MB [00:02, 8.31MB/s]"
      ]
     },
     {
@@ -288,7 +288,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 10.2MB [00:02, 4.69MB/s]"
+      "Downloading ETOPO: 17.8MB [00:02, 8.26MB/s]"
      ]
     },
     {
@@ -296,7 +296,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 10.7MB [00:02, 4.92MB/s]"
+      "Downloading ETOPO: 18.8MB [00:02, 8.35MB/s]"
      ]
     },
     {
@@ -304,7 +304,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 11.3MB [00:02, 4.70MB/s]"
+      "Downloading ETOPO: 19.7MB [00:02, 8.36MB/s]"
      ]
     },
     {
@@ -312,7 +312,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 11.9MB [00:02, 5.03MB/s]"
+      "Downloading ETOPO: 20.7MB [00:02, 8.38MB/s]"
      ]
     },
     {
@@ -320,7 +320,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 12.4MB [00:02, 4.65MB/s]"
+      "Downloading ETOPO: 21.6MB [00:02, 8.28MB/s]"
      ]
     },
     {
@@ -328,7 +328,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 12.9MB [00:02, 4.82MB/s]"
+      "Downloading ETOPO: 22.6MB [00:02, 8.45MB/s]"
      ]
     },
     {
@@ -336,7 +336,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 13.4MB [00:03, 4.89MB/s]"
+      "Downloading ETOPO: 23.5MB [00:03, 8.46MB/s]"
      ]
     },
     {
@@ -344,7 +344,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 14.0MB [00:03, 4.68MB/s]"
+      "Downloading ETOPO: 24.5MB [00:03, 8.40MB/s]"
      ]
     },
     {
@@ -352,7 +352,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 14.6MB [00:03, 4.95MB/s]"
+      "Downloading ETOPO: 25.4MB [00:03, 8.39MB/s]"
      ]
     },
     {
@@ -360,7 +360,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 15.1MB [00:03, 4.52MB/s]"
+      "Downloading ETOPO: 26.3MB [00:03, 8.39MB/s]"
      ]
     },
     {
@@ -368,7 +368,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 15.7MB [00:03, 4.87MB/s]"
+      "Downloading ETOPO: 27.3MB [00:03, 8.40MB/s]"
      ]
     },
     {
@@ -376,7 +376,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 16.2MB [00:03, 4.59MB/s]"
+      "Downloading ETOPO: 28.3MB [00:03, 8.50MB/s]"
      ]
     },
     {
@@ -384,7 +384,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 16.8MB [00:03, 4.94MB/s]"
+      "Downloading ETOPO: 29.2MB [00:03, 8.42MB/s]"
      ]
     },
     {
@@ -392,7 +392,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 17.3MB [00:03, 4.50MB/s]"
+      "Downloading ETOPO: 30.1MB [00:03, 8.41MB/s]"
      ]
     },
     {
@@ -400,7 +400,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 17.8MB [00:04, 4.72MB/s]"
+      "Downloading ETOPO: 31.1MB [00:03, 8.34MB/s]"
      ]
     },
     {
@@ -408,7 +408,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 18.5MB [00:04, 4.73MB/s]"
+      "Downloading ETOPO: 32.0MB [00:04, 8.28MB/s]"
      ]
     },
     {
@@ -416,7 +416,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 19.0MB [00:04, 4.78MB/s]"
+      "Downloading ETOPO: 32.9MB [00:04, 8.29MB/s]"
      ]
     },
     {
@@ -424,7 +424,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 19.5MB [00:04, 4.98MB/s]"
+      "Downloading ETOPO: 33.8MB [00:04, 8.30MB/s]"
      ]
     },
     {
@@ -432,7 +432,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 20.1MB [00:04, 5.34MB/s]"
+      "Downloading ETOPO: 34.8MB [00:04, 8.41MB/s]"
      ]
     },
     {
@@ -440,7 +440,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 20.7MB [00:04, 4.85MB/s]"
+      "Downloading ETOPO: 35.7MB [00:04, 8.32MB/s]"
      ]
     },
     {
@@ -448,7 +448,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 21.2MB [00:04, 4.91MB/s]"
+      "Downloading ETOPO: 36.7MB [00:04, 8.54MB/s]"
      ]
     },
     {
@@ -456,7 +456,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 21.7MB [00:04, 4.62MB/s]"
+      "Downloading ETOPO: 37.6MB [00:04, 8.44MB/s]"
      ]
     },
     {
@@ -464,7 +464,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 22.3MB [00:04, 4.92MB/s]"
+      "Downloading ETOPO: 38.7MB [00:04, 8.63MB/s]"
      ]
     },
     {
@@ -472,7 +472,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 22.9MB [00:05, 4.65MB/s]"
+      "Downloading ETOPO: 39.6MB [00:05, 8.66MB/s]"
      ]
     },
     {
@@ -480,7 +480,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 23.4MB [00:05, 4.78MB/s]"
+      "Downloading ETOPO: 40.5MB [00:05, 8.45MB/s]"
      ]
     },
     {
@@ -488,7 +488,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 24.0MB [00:05, 4.71MB/s]"
+      "Downloading ETOPO: 41.5MB [00:05, 8.49MB/s]"
      ]
     },
     {
@@ -496,7 +496,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 24.5MB [00:05, 4.76MB/s]"
+      "Downloading ETOPO: 42.4MB [00:05, 8.36MB/s]"
      ]
     },
     {
@@ -504,7 +504,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 25.1MB [00:05, 5.10MB/s]"
+      "Downloading ETOPO: 43.4MB [00:05, 8.48MB/s]"
      ]
     },
     {
@@ -512,7 +512,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 25.6MB [00:05, 4.58MB/s]"
+      "Downloading ETOPO: 44.3MB [00:05, 8.51MB/s]"
      ]
     },
     {
@@ -520,7 +520,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 26.1MB [00:05, 4.68MB/s]"
+      "Downloading ETOPO: 45.3MB [00:05, 8.48MB/s]"
      ]
     },
     {
@@ -528,7 +528,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 26.6MB [00:05, 4.90MB/s]"
+      "Downloading ETOPO: 46.2MB [00:05, 8.34MB/s]"
      ]
     },
     {
@@ -536,7 +536,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 27.1MB [00:06, 5.01MB/s]"
+      "Downloading ETOPO: 47.1MB [00:05, 8.25MB/s]"
      ]
     },
     {
@@ -544,7 +544,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 27.6MB [00:06, 4.49MB/s]"
+      "Downloading ETOPO: 48.0MB [00:06, 8.28MB/s]"
      ]
     },
     {
@@ -552,7 +552,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 28.1MB [00:06, 4.64MB/s]"
+      "Downloading ETOPO: 48.9MB [00:06, 8.24MB/s]"
      ]
     },
     {
@@ -560,7 +560,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 28.6MB [00:06, 4.83MB/s]"
+      "Downloading ETOPO: 49.9MB [00:06, 8.29MB/s]"
      ]
     },
     {
@@ -568,7 +568,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 29.2MB [00:06, 4.56MB/s]"
+      "Downloading ETOPO: 50.8MB [00:06, 8.27MB/s]"
      ]
     },
     {
@@ -576,7 +576,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 29.6MB [00:06, 4.63MB/s]"
+      "Downloading ETOPO: 51.8MB [00:06, 8.31MB/s]"
      ]
     },
     {
@@ -584,7 +584,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 30.2MB [00:06, 5.15MB/s]"
+      "Downloading ETOPO: 52.7MB [00:06, 8.24MB/s]"
      ]
     },
     {
@@ -592,7 +592,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 30.8MB [00:06, 5.19MB/s]"
+      "Downloading ETOPO: 53.6MB [00:06, 8.17MB/s]"
      ]
     },
     {
@@ -600,7 +600,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 31.3MB [00:06, 4.62MB/s]"
+      "Downloading ETOPO: 54.6MB [00:06, 8.35MB/s]"
      ]
     },
     {
@@ -608,7 +608,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 31.8MB [00:07, 4.87MB/s]"
+      "Downloading ETOPO: 55.5MB [00:07, 8.42MB/s]"
      ]
     },
     {
@@ -616,7 +616,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 32.4MB [00:07, 4.75MB/s]"
+      "Downloading ETOPO: 56.5MB [00:07, 8.45MB/s]"
      ]
     },
     {
@@ -624,7 +624,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 33.0MB [00:07, 4.96MB/s]"
+      "Downloading ETOPO: 57.4MB [00:07, 8.26MB/s]"
      ]
     },
     {
@@ -632,7 +632,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 33.6MB [00:07, 4.73MB/s]"
+      "Downloading ETOPO: 58.3MB [00:07, 8.33MB/s]"
      ]
     },
     {
@@ -640,7 +640,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 34.1MB [00:07, 4.88MB/s]"
+      "Downloading ETOPO: 59.2MB [00:07, 8.28MB/s]"
      ]
     },
     {
@@ -648,7 +648,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 34.7MB [00:07, 4.74MB/s]"
+      "Downloading ETOPO: 60.2MB [00:07, 8.27MB/s]"
      ]
     },
     {
@@ -656,7 +656,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 35.3MB [00:07, 4.97MB/s]"
+      "Downloading ETOPO: 61.1MB [00:07, 8.40MB/s]"
      ]
     },
     {
@@ -664,7 +664,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 35.7MB [00:07, 5.01MB/s]"
+      "Downloading ETOPO: 62.1MB [00:07, 8.51MB/s]"
      ]
     },
     {
@@ -672,7 +672,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 36.3MB [00:08, 4.61MB/s]"
+      "Downloading ETOPO: 63.0MB [00:07, 8.33MB/s]"
      ]
     },
     {
@@ -680,7 +680,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 36.8MB [00:08, 4.89MB/s]"
+      "Downloading ETOPO: 63.9MB [00:08, 8.18MB/s]"
      ]
     },
     {
@@ -688,7 +688,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 37.4MB [00:08, 4.55MB/s]"
+      "Downloading ETOPO: 64.8MB [00:08, 8.13MB/s]"
      ]
     },
     {
@@ -696,7 +696,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 37.9MB [00:08, 4.81MB/s]"
+      "Downloading ETOPO: 65.7MB [00:08, 8.08MB/s]"
      ]
     },
     {
@@ -704,7 +704,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 38.5MB [00:08, 4.48MB/s]"
+      "Downloading ETOPO: 66.6MB [00:08, 8.08MB/s]"
      ]
     },
     {
@@ -712,7 +712,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 39.0MB [00:08, 4.75MB/s]"
+      "Downloading ETOPO: 67.5MB [00:08, 8.16MB/s]"
      ]
     },
     {
@@ -720,7 +720,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 39.6MB [00:08, 4.66MB/s]"
+      "Downloading ETOPO: 68.3MB [00:08, 6.26MB/s]"
      ]
     },
     {
@@ -728,7 +728,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 40.2MB [00:08, 4.86MB/s]"
+      "Downloading ETOPO: 69.2MB [00:08, 6.17MB/s]"
      ]
     },
     {
@@ -736,7 +736,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 40.8MB [00:08, 5.29MB/s]"
+      "Downloading ETOPO: 69.8MB [00:09, 4.22MB/s]"
      ]
     },
     {
@@ -744,7 +744,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 41.3MB [00:09, 4.72MB/s]"
+      "Downloading ETOPO: 70.8MB [00:09, 5.00MB/s]"
      ]
     },
     {
@@ -752,7 +752,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 42.0MB [00:09, 4.70MB/s]"
+      "Downloading ETOPO: 71.3MB [00:09, 3.59MB/s]"
      ]
     },
     {
@@ -760,7 +760,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 42.4MB [00:09, 4.79MB/s]"
+      "Downloading ETOPO: 72.0MB [00:09, 4.08MB/s]"
      ]
     },
     {
@@ -768,7 +768,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 42.9MB [00:09, 4.84MB/s]"
+      "Downloading ETOPO: 72.9MB [00:09, 4.92MB/s]"
      ]
     },
     {
@@ -776,7 +776,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 43.5MB [00:09, 5.30MB/s]"
+      "Downloading ETOPO: 73.9MB [00:10, 5.68MB/s]"
      ]
     },
     {
@@ -784,7 +784,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 44.1MB [00:09, 4.73MB/s]"
+      "Downloading ETOPO: 74.8MB [00:10, 6.28MB/s]"
      ]
     },
     {
@@ -792,7 +792,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 44.6MB [00:09, 5.01MB/s]"
+      "Downloading ETOPO: 75.7MB [00:10, 6.81MB/s]"
      ]
     },
     {
@@ -800,7 +800,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 45.3MB [00:09, 4.88MB/s]"
+      "Downloading ETOPO: 76.6MB [00:10, 7.13MB/s]"
      ]
     },
     {
@@ -808,7 +808,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 45.8MB [00:10, 5.05MB/s]"
+      "Downloading ETOPO: 77.4MB [00:10, 7.29MB/s]"
      ]
     },
     {
@@ -816,7 +816,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 46.3MB [00:10, 5.10MB/s]"
+      "Downloading ETOPO: 78.4MB [00:10, 7.52MB/s]"
      ]
     },
     {
@@ -824,7 +824,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 46.8MB [00:10, 5.16MB/s]"
+      "Downloading ETOPO: 79.2MB [00:10, 7.59MB/s]"
      ]
     },
     {
@@ -832,7 +832,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 47.4MB [00:10, 4.79MB/s]"
+      "Downloading ETOPO: 80.1MB [00:10, 7.75MB/s]"
      ]
     },
     {
@@ -840,7 +840,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 47.9MB [00:10, 5.01MB/s]"
+      "Downloading ETOPO: 80.9MB [00:11, 6.38MB/s]"
      ]
     },
     {
@@ -848,7 +848,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 48.5MB [00:10, 4.65MB/s]"
+      "Downloading ETOPO: 81.5MB [00:11, 6.27MB/s]"
      ]
     },
     {
@@ -856,7 +856,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 49.0MB [00:10, 4.82MB/s]"
+      "Downloading ETOPO: 82.3MB [00:11, 6.39MB/s]"
      ]
     },
     {
@@ -864,7 +864,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 49.6MB [00:10, 5.08MB/s]"
+      "Downloading ETOPO: 83.0MB [00:11, 6.56MB/s]"
      ]
     },
     {
@@ -872,7 +872,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 50.1MB [00:11, 4.55MB/s]"
+      "Downloading ETOPO: 83.8MB [00:11, 6.73MB/s]"
      ]
     },
     {
@@ -880,7 +880,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 50.5MB [00:11, 4.64MB/s]"
+      "Downloading ETOPO: 84.6MB [00:11, 6.87MB/s]"
      ]
     },
     {
@@ -888,7 +888,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 51.0MB [00:11, 4.85MB/s]"
+      "Downloading ETOPO: 85.3MB [00:11, 6.14MB/s]"
      ]
     },
     {
@@ -896,7 +896,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 51.5MB [00:11, 4.89MB/s]"
+      "Downloading ETOPO: 85.9MB [00:11, 5.97MB/s]"
      ]
     },
     {
@@ -904,7 +904,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 52.0MB [00:11, 4.91MB/s]"
+      "Downloading ETOPO: 86.5MB [00:12, 5.79MB/s]"
      ]
     },
     {
@@ -912,7 +912,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 52.5MB [00:11, 4.94MB/s]"
+      "Downloading ETOPO: 87.0MB [00:12, 5.60MB/s]"
      ]
     },
     {
@@ -920,7 +920,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 53.0MB [00:11, 4.62MB/s]"
+      "Downloading ETOPO: 87.6MB [00:12, 5.40MB/s]"
      ]
     },
     {
@@ -928,7 +928,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 53.5MB [00:11, 4.74MB/s]"
+      "Downloading ETOPO: 88.2MB [00:12, 5.48MB/s]"
      ]
     },
     {
@@ -936,7 +936,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 54.0MB [00:11, 4.81MB/s]"
+      "Downloading ETOPO: 88.8MB [00:12, 5.50MB/s]"
      ]
     },
     {
@@ -944,7 +944,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 54.5MB [00:11, 4.86MB/s]"
+      "Downloading ETOPO: 89.5MB [00:12, 5.58MB/s]"
      ]
     },
     {
@@ -952,7 +952,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 55.0MB [00:12, 4.86MB/s]"
+      "Downloading ETOPO: 90.1MB [00:12, 5.67MB/s]"
      ]
     },
     {
@@ -960,7 +960,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 55.6MB [00:12, 5.28MB/s]"
+      "Downloading ETOPO: 90.7MB [00:12, 5.72MB/s]"
      ]
     },
     {
@@ -968,7 +968,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 56.1MB [00:12, 5.44MB/s]"
+      "Downloading ETOPO: 91.4MB [00:12, 5.83MB/s]"
      ]
     },
     {
@@ -976,7 +976,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 56.6MB [00:12, 4.77MB/s]"
+      "Downloading ETOPO: 92.1MB [00:13, 5.88MB/s]"
      ]
     },
     {
@@ -984,7 +984,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 57.2MB [00:12, 4.55MB/s]"
+      "Downloading ETOPO: 92.8MB [00:13, 6.02MB/s]"
      ]
     },
     {
@@ -992,7 +992,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 57.7MB [00:12, 4.68MB/s]"
+      "Downloading ETOPO: 93.5MB [00:13, 6.11MB/s]"
      ]
     },
     {
@@ -1000,7 +1000,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 58.3MB [00:12, 5.24MB/s]"
+      "Downloading ETOPO: 94.2MB [00:13, 6.20MB/s]"
      ]
     },
     {
@@ -1008,7 +1008,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 58.9MB [00:12, 4.75MB/s]"
+      "Downloading ETOPO: 94.8MB [00:13, 6.43MB/s]"
      ]
     },
     {
@@ -1016,7 +1016,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 59.4MB [00:13, 4.90MB/s]"
+      "Downloading ETOPO: 95.4MB [00:13, 6.17MB/s]"
      ]
     },
     {
@@ -1024,7 +1024,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 60.0MB [00:13, 4.75MB/s]"
+      "Downloading ETOPO: 96.2MB [00:13, 6.53MB/s]"
      ]
     },
     {
@@ -1032,7 +1032,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 60.5MB [00:13, 4.79MB/s]"
+      "Downloading ETOPO: 96.8MB [00:13, 6.50MB/s]"
      ]
     },
     {
@@ -1040,7 +1040,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 61.0MB [00:13, 4.81MB/s]"
+      "Downloading ETOPO: 97.5MB [00:13, 6.57MB/s]"
      ]
     },
     {
@@ -1048,7 +1048,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 61.6MB [00:13, 5.31MB/s]"
+      "Downloading ETOPO: 98.1MB [00:14, 6.52MB/s]"
      ]
     },
     {
@@ -1056,7 +1056,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 62.1MB [00:13, 5.36MB/s]"
+      "Downloading ETOPO: 98.8MB [00:14, 6.75MB/s]"
      ]
     },
     {
@@ -1064,7 +1064,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 62.6MB [00:13, 4.75MB/s]"
+      "Downloading ETOPO: 99.5MB [00:14, 6.73MB/s]"
      ]
     },
     {
@@ -1072,7 +1072,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 63.2MB [00:13, 4.35MB/s]"
+      "Downloading ETOPO: 100MB [00:14, 7.05MB/s] "
      ]
     },
     {
@@ -1080,7 +1080,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 63.6MB [00:13, 4.51MB/s]"
+      "Downloading ETOPO: 101MB [00:14, 6.99MB/s]"
      ]
     },
     {
@@ -1088,7 +1088,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 64.2MB [00:14, 4.94MB/s]"
+      "Downloading ETOPO: 102MB [00:14, 7.18MB/s]"
      ]
     },
     {
@@ -1096,7 +1096,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 64.9MB [00:14, 4.79MB/s]"
+      "Downloading ETOPO: 102MB [00:14, 7.52MB/s]"
      ]
     },
     {
@@ -1104,7 +1104,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 65.3MB [00:14, 4.84MB/s]"
+      "Downloading ETOPO: 103MB [00:14, 7.26MB/s]"
      ]
     },
     {
@@ -1112,7 +1112,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 65.9MB [00:14, 5.23MB/s]"
+      "Downloading ETOPO: 104MB [00:14, 7.10MB/s]"
      ]
     },
     {
@@ -1120,7 +1120,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 66.6MB [00:14, 4.98MB/s]"
+      "Downloading ETOPO: 105MB [00:15, 7.32MB/s]"
      ]
     },
     {
@@ -1128,7 +1128,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 67.1MB [00:14, 5.15MB/s]"
+      "Downloading ETOPO: 106MB [00:15, 7.44MB/s]"
      ]
     },
     {
@@ -1136,7 +1136,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 67.7MB [00:14, 4.76MB/s]"
+      "Downloading ETOPO: 107MB [00:15, 7.54MB/s]"
      ]
     },
     {
@@ -1144,7 +1144,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 68.2MB [00:14, 4.98MB/s]"
+      "Downloading ETOPO: 107MB [00:15, 7.67MB/s]"
      ]
     },
     {
@@ -1152,7 +1152,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 68.9MB [00:15, 4.86MB/s]"
+      "Downloading ETOPO: 108MB [00:15, 7.74MB/s]"
      ]
     },
     {
@@ -1160,7 +1160,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 69.4MB [00:15, 5.10MB/s]"
+      "Downloading ETOPO: 109MB [00:15, 7.45MB/s]"
      ]
     },
     {
@@ -1168,7 +1168,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 70.0MB [00:15, 4.71MB/s]"
+      "Downloading ETOPO: 110MB [00:15, 7.11MB/s]"
      ]
     },
     {
@@ -1176,7 +1176,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 70.6MB [00:15, 5.05MB/s]"
+      "Downloading ETOPO: 110MB [00:15, 6.81MB/s]"
      ]
     },
     {
@@ -1184,7 +1184,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 71.1MB [00:15, 5.25MB/s]"
+      "Downloading ETOPO: 111MB [00:15, 6.56MB/s]"
      ]
     },
     {
@@ -1192,7 +1192,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 71.6MB [00:15, 4.68MB/s]"
+      "Downloading ETOPO: 112MB [00:16, 6.35MB/s]"
      ]
     },
     {
@@ -1200,7 +1200,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 72.2MB [00:15, 5.10MB/s]"
+      "Downloading ETOPO: 112MB [00:16, 6.29MB/s]"
      ]
     },
     {
@@ -1208,7 +1208,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 72.8MB [00:15, 4.71MB/s]"
+      "Downloading ETOPO: 113MB [00:16, 6.39MB/s]"
      ]
     },
     {
@@ -1216,7 +1216,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 73.4MB [00:16, 4.97MB/s]"
+      "Downloading ETOPO: 114MB [00:16, 6.50MB/s]"
      ]
     },
     {
@@ -1224,7 +1224,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 74.0MB [00:16, 4.72MB/s]"
+      "Downloading ETOPO: 115MB [00:16, 6.60MB/s]"
      ]
     },
     {
@@ -1232,7 +1232,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 74.5MB [00:16, 4.89MB/s]"
+      "Downloading ETOPO: 115MB [00:16, 6.85MB/s]"
      ]
     },
     {
@@ -1240,7 +1240,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 75.0MB [00:16, 5.05MB/s]"
+      "Downloading ETOPO: 116MB [00:16, 6.83MB/s]"
      ]
     },
     {
@@ -1248,7 +1248,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 75.5MB [00:16, 4.63MB/s]"
+      "Downloading ETOPO: 117MB [00:16, 6.83MB/s]"
      ]
     },
     {
@@ -1256,7 +1256,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 76.2MB [00:16, 5.23MB/s]"
+      "Downloading ETOPO: 117MB [00:16, 6.77MB/s]"
      ]
     },
     {
@@ -1264,7 +1264,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 76.7MB [00:16, 4.69MB/s]"
+      "Downloading ETOPO: 118MB [00:17, 6.95MB/s]"
      ]
     },
     {
@@ -1272,7 +1272,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 77.2MB [00:16, 4.77MB/s]"
+      "Downloading ETOPO: 119MB [00:17, 7.11MB/s]"
      ]
     },
     {
@@ -1280,7 +1280,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 77.9MB [00:16, 4.72MB/s]"
+      "Downloading ETOPO: 120MB [00:17, 7.22MB/s]"
      ]
     },
     {
@@ -1288,7 +1288,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 78.3MB [00:17, 4.81MB/s]"
+      "Downloading ETOPO: 121MB [00:17, 7.37MB/s]"
      ]
     },
     {
@@ -1296,7 +1296,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 78.9MB [00:17, 4.97MB/s]"
+      "Downloading ETOPO: 121MB [00:17, 7.38MB/s]"
      ]
     },
     {
@@ -1304,7 +1304,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 79.5MB [00:17, 5.51MB/s]"
+      "Downloading ETOPO: 122MB [00:17, 7.26MB/s]"
      ]
     },
     {
@@ -1312,7 +1312,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 80.1MB [00:17, 4.88MB/s]"
+      "Downloading ETOPO: 123MB [00:17, 7.39MB/s]"
      ]
     },
     {
@@ -1320,7 +1320,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 80.7MB [00:17, 4.82MB/s]"
+      "Downloading ETOPO: 124MB [00:17, 7.45MB/s]"
      ]
     },
     {
@@ -1328,7 +1328,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 81.3MB [00:17, 5.15MB/s]"
+      "Downloading ETOPO: 125MB [00:17, 7.51MB/s]"
      ]
     },
     {
@@ -1336,7 +1336,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 81.8MB [00:17, 4.64MB/s]"
+      "Downloading ETOPO: 126MB [00:18, 7.61MB/s]"
      ]
     },
     {
@@ -1344,7 +1344,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 82.4MB [00:17, 4.97MB/s]"
+      "Downloading ETOPO: 126MB [00:18, 7.68MB/s]"
      ]
     },
     {
@@ -1352,7 +1352,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 82.9MB [00:18, 4.52MB/s]"
+      "Downloading ETOPO: 127MB [00:18, 7.68MB/s]"
      ]
     },
     {
@@ -1360,7 +1360,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 83.4MB [00:18, 4.78MB/s]"
+      "Downloading ETOPO: 128MB [00:18, 7.79MB/s]"
      ]
     },
     {
@@ -1368,7 +1368,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 84.1MB [00:18, 4.71MB/s]"
+      "Downloading ETOPO: 129MB [00:18, 7.76MB/s]"
      ]
     },
     {
@@ -1376,7 +1376,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 84.7MB [00:18, 5.17MB/s]"
+      "Downloading ETOPO: 130MB [00:18, 7.86MB/s]"
      ]
     },
     {
@@ -1384,7 +1384,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 85.2MB [00:18, 4.65MB/s]"
+      "Downloading ETOPO: 131MB [00:18, 7.87MB/s]"
      ]
     },
     {
@@ -1392,7 +1392,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 85.8MB [00:18, 4.88MB/s]"
+      "Downloading ETOPO: 132MB [00:18, 7.88MB/s]"
      ]
     },
     {
@@ -1400,7 +1400,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 86.3MB [00:18, 4.49MB/s]"
+      "Downloading ETOPO: 133MB [00:19, 7.81MB/s]"
      ]
     },
     {
@@ -1408,7 +1408,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 86.9MB [00:18, 4.86MB/s]"
+      "Downloading ETOPO: 133MB [00:19, 7.90MB/s]"
      ]
     },
     {
@@ -1416,7 +1416,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 87.5MB [00:19, 4.69MB/s]"
+      "Downloading ETOPO: 134MB [00:19, 7.91MB/s]"
      ]
     },
     {
@@ -1424,7 +1424,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 88.0MB [00:19, 4.91MB/s]"
+      "Downloading ETOPO: 135MB [00:19, 7.93MB/s]"
      ]
     },
     {
@@ -1432,7 +1432,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 88.5MB [00:19, 5.12MB/s]"
+      "Downloading ETOPO: 136MB [00:19, 7.92MB/s]"
      ]
     },
     {
@@ -1440,7 +1440,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 89.2MB [00:19, 4.95MB/s]"
+      "Downloading ETOPO: 137MB [00:19, 8.04MB/s]"
      ]
     },
     {
@@ -1448,7 +1448,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 89.8MB [00:19, 5.30MB/s]"
+      "Downloading ETOPO: 138MB [00:19, 8.00MB/s]"
      ]
     },
     {
@@ -1456,7 +1456,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 90.3MB [00:19, 4.74MB/s]"
+      "Downloading ETOPO: 139MB [00:19, 7.88MB/s]"
      ]
     },
     {
@@ -1464,7 +1464,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 90.8MB [00:19, 4.88MB/s]"
+      "Downloading ETOPO: 140MB [00:19, 7.97MB/s]"
      ]
     },
     {
@@ -1472,7 +1472,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 91.4MB [00:19, 5.11MB/s]"
+      "Downloading ETOPO: 141MB [00:20, 8.03MB/s]"
      ]
     },
     {
@@ -1480,7 +1480,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 92.0MB [00:20, 4.90MB/s]"
+      "Downloading ETOPO: 142MB [00:20, 8.02MB/s]"
      ]
     },
     {
@@ -1488,7 +1488,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 92.6MB [00:20, 5.07MB/s]"
+      "Downloading ETOPO: 142MB [00:20, 8.00MB/s]"
      ]
     },
     {
@@ -1496,7 +1496,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 93.2MB [00:20, 4.84MB/s]"
+      "Downloading ETOPO: 143MB [00:20, 8.00MB/s]"
      ]
     },
     {
@@ -1504,7 +1504,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 93.7MB [00:20, 4.96MB/s]"
+      "Downloading ETOPO: 144MB [00:20, 8.06MB/s]"
      ]
     },
     {
@@ -1512,7 +1512,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 94.3MB [00:20, 4.79MB/s]"
+      "Downloading ETOPO: 145MB [00:20, 8.09MB/s]"
      ]
     },
     {
@@ -1520,7 +1520,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 94.9MB [00:20, 5.07MB/s]"
+      "Downloading ETOPO: 146MB [00:20, 8.11MB/s]"
      ]
     },
     {
@@ -1528,7 +1528,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 95.5MB [00:20, 4.84MB/s]"
+      "Downloading ETOPO: 147MB [00:20, 8.23MB/s]"
      ]
     },
     {
@@ -1536,7 +1536,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 96.0MB [00:20, 5.02MB/s]"
+      "Downloading ETOPO: 148MB [00:21, 8.32MB/s]"
      ]
     },
     {
@@ -1544,7 +1544,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 96.6MB [00:20, 5.21MB/s]"
+      "Downloading ETOPO: 149MB [00:21, 8.21MB/s]"
      ]
     },
     {
@@ -1552,7 +1552,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 97.2MB [00:21, 4.92MB/s]"
+      "Downloading ETOPO: 150MB [00:21, 8.40MB/s]"
      ]
     },
     {
@@ -1560,7 +1560,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 97.8MB [00:21, 5.21MB/s]"
+      "Downloading ETOPO: 151MB [00:21, 8.25MB/s]"
      ]
     },
     {
@@ -1568,7 +1568,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 98.4MB [00:21, 4.99MB/s]"
+      "Downloading ETOPO: 152MB [00:21, 8.21MB/s]"
      ]
     },
     {
@@ -1576,7 +1576,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 99.0MB [00:21, 5.14MB/s]"
+      "Downloading ETOPO: 153MB [00:21, 8.20MB/s]"
      ]
     },
     {
@@ -1584,7 +1584,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 99.6MB [00:21, 4.83MB/s]"
+      "Downloading ETOPO: 153MB [00:21, 8.22MB/s]"
      ]
     },
     {
@@ -1592,7 +1592,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 100MB [00:21, 5.12MB/s] "
+      "Downloading ETOPO: 154MB [00:21, 8.22MB/s]"
      ]
     },
     {
@@ -1600,7 +1600,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 101MB [00:21, 4.58MB/s]"
+      "Downloading ETOPO: 155MB [00:21, 8.29MB/s]"
      ]
     },
     {
@@ -1608,7 +1608,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 101MB [00:21, 4.76MB/s]"
+      "Downloading ETOPO: 156MB [00:22, 8.12MB/s]"
      ]
     },
     {
@@ -1616,7 +1616,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 102MB [00:22, 4.70MB/s]"
+      "Downloading ETOPO: 157MB [00:22, 8.04MB/s]"
      ]
     },
     {
@@ -1624,7 +1624,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 102MB [00:22, 4.79MB/s]"
+      "Downloading ETOPO: 158MB [00:22, 8.03MB/s]"
      ]
     },
     {
@@ -1632,7 +1632,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 103MB [00:22, 5.21MB/s]"
+      "Downloading ETOPO: 159MB [00:22, 8.09MB/s]"
      ]
     },
     {
@@ -1640,7 +1640,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 103MB [00:22, 4.69MB/s]"
+      "Downloading ETOPO: 160MB [00:22, 8.11MB/s]"
      ]
     },
     {
@@ -1648,7 +1648,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 104MB [00:22, 4.92MB/s]"
+      "Downloading ETOPO: 161MB [00:22, 8.19MB/s]"
      ]
     },
     {
@@ -1656,7 +1656,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 105MB [00:22, 5.38MB/s]"
+      "Downloading ETOPO: 162MB [00:22, 8.28MB/s]"
      ]
     },
     {
@@ -1664,7 +1664,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 105MB [00:22, 4.79MB/s]"
+      "Downloading ETOPO: 163MB [00:22, 8.19MB/s]"
      ]
     },
     {
@@ -1672,7 +1672,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 106MB [00:22, 5.06MB/s]"
+      "Downloading ETOPO: 163MB [00:22, 8.12MB/s]"
      ]
     },
     {
@@ -1680,7 +1680,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 106MB [00:23, 4.74MB/s]"
+      "Downloading ETOPO: 164MB [00:23, 8.12MB/s]"
      ]
     },
     {
@@ -1688,7 +1688,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 107MB [00:23, 4.86MB/s]"
+      "Downloading ETOPO: 165MB [00:23, 8.17MB/s]"
      ]
     },
     {
@@ -1696,7 +1696,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 107MB [00:23, 5.05MB/s]"
+      "Downloading ETOPO: 166MB [00:23, 8.27MB/s]"
      ]
     },
     {
@@ -1704,7 +1704,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 108MB [00:23, 4.68MB/s]"
+      "Downloading ETOPO: 167MB [00:23, 8.18MB/s]"
      ]
     },
     {
@@ -1712,7 +1712,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 108MB [00:23, 4.87MB/s]"
+      "Downloading ETOPO: 168MB [00:23, 8.07MB/s]"
      ]
     },
     {
@@ -1720,7 +1720,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 109MB [00:23, 4.74MB/s]"
+      "Downloading ETOPO: 169MB [00:23, 8.05MB/s]"
      ]
     },
     {
@@ -1728,7 +1728,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 110MB [00:23, 4.91MB/s]"
+      "Downloading ETOPO: 170MB [00:23, 7.97MB/s]"
      ]
     },
     {
@@ -1736,7 +1736,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 110MB [00:23, 4.66MB/s]"
+      "Downloading ETOPO: 171MB [00:23, 8.16MB/s]"
      ]
     },
     {
@@ -1744,7 +1744,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 111MB [00:23, 4.70MB/s]"
+      "Downloading ETOPO: 172MB [00:24, 8.13MB/s]"
      ]
     },
     {
@@ -1752,7 +1752,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 111MB [00:24, 5.02MB/s]"
+      "Downloading ETOPO: 173MB [00:24, 8.12MB/s]"
      ]
     },
     {
@@ -1760,7 +1760,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 112MB [00:24, 4.55MB/s]"
+      "Downloading ETOPO: 174MB [00:24, 8.18MB/s]"
      ]
     },
     {
@@ -1768,7 +1768,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 112MB [00:24, 5.06MB/s]"
+      "Downloading ETOPO: 174MB [00:24, 8.21MB/s]"
      ]
     },
     {
@@ -1776,7 +1776,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 113MB [00:24, 4.55MB/s]"
+      "Downloading ETOPO: 175MB [00:24, 8.14MB/s]"
      ]
     },
     {
@@ -1784,7 +1784,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 113MB [00:24, 4.85MB/s]"
+      "Downloading ETOPO: 176MB [00:24, 8.13MB/s]"
      ]
     },
     {
@@ -1792,7 +1792,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 114MB [00:24, 4.72MB/s]"
+      "Downloading ETOPO: 177MB [00:24, 8.10MB/s]"
      ]
     },
     {
@@ -1800,7 +1800,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 115MB [00:24, 5.05MB/s]"
+      "Downloading ETOPO: 178MB [00:24, 8.11MB/s]"
      ]
     },
     {
@@ -1808,7 +1808,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 115MB [00:24, 4.81MB/s]"
+      "Downloading ETOPO: 179MB [00:24, 8.20MB/s]"
      ]
     },
     {
@@ -1816,7 +1816,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 116MB [00:25, 5.04MB/s]"
+      "Downloading ETOPO: 180MB [00:25, 8.22MB/s]"
      ]
     },
     {
@@ -1824,7 +1824,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 116MB [00:25, 4.62MB/s]"
+      "Downloading ETOPO: 181MB [00:25, 8.22MB/s]"
      ]
     },
     {
@@ -1832,7 +1832,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 117MB [00:25, 4.96MB/s]"
+      "Downloading ETOPO: 182MB [00:25, 8.11MB/s]"
      ]
     },
     {
@@ -1840,7 +1840,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 117MB [00:25, 5.38MB/s]"
+      "Downloading ETOPO: 183MB [00:25, 8.07MB/s]"
      ]
     },
     {
@@ -1848,7 +1848,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 118MB [00:25, 4.80MB/s]"
+      "Downloading ETOPO: 184MB [00:25, 8.02MB/s]"
      ]
     },
     {
@@ -1856,7 +1856,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 119MB [00:25, 5.02MB/s]"
+      "Downloading ETOPO: 184MB [00:25, 8.07MB/s]"
      ]
     },
     {
@@ -1864,7 +1864,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 119MB [00:25, 4.75MB/s]"
+      "Downloading ETOPO: 185MB [00:25, 8.16MB/s]"
      ]
     },
     {
@@ -1872,7 +1872,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 120MB [00:25, 4.91MB/s]"
+      "Downloading ETOPO: 186MB [00:25, 8.04MB/s]"
      ]
     },
     {
@@ -1880,7 +1880,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 120MB [00:26, 4.95MB/s]"
+      "Downloading ETOPO: 187MB [00:26, 8.04MB/s]"
      ]
     },
     {
@@ -1888,7 +1888,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 121MB [00:26, 5.15MB/s]"
+      "Downloading ETOPO: 188MB [00:26, 7.94MB/s]"
      ]
     },
     {
@@ -1896,7 +1896,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 121MB [00:26, 4.74MB/s]"
+      "Downloading ETOPO: 189MB [00:26, 7.98MB/s]"
      ]
     },
     {
@@ -1904,7 +1904,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 122MB [00:26, 4.93MB/s]"
+      "Downloading ETOPO: 190MB [00:26, 7.92MB/s]"
      ]
     },
     {
@@ -1912,7 +1912,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 122MB [00:26, 4.83MB/s]"
+      "Downloading ETOPO: 191MB [00:26, 7.92MB/s]"
      ]
     },
     {
@@ -1920,7 +1920,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 123MB [00:26, 5.16MB/s]"
+      "Downloading ETOPO: 192MB [00:26, 7.96MB/s]"
      ]
     },
     {
@@ -1928,7 +1928,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 124MB [00:26, 4.69MB/s]"
+      "Downloading ETOPO: 193MB [00:26, 7.99MB/s]"
      ]
     },
     {
@@ -1936,7 +1936,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 124MB [00:26, 5.08MB/s]"
+      "Downloading ETOPO: 193MB [00:26, 8.04MB/s]"
      ]
     },
     {
@@ -1944,7 +1944,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 125MB [00:27, 4.74MB/s]"
+      "Downloading ETOPO: 194MB [00:27, 8.11MB/s]"
      ]
     },
     {
@@ -1952,7 +1952,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 125MB [00:27, 5.11MB/s]"
+      "Downloading ETOPO: 195MB [00:27, 8.16MB/s]"
      ]
     },
     {
@@ -1960,7 +1960,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 126MB [00:27, 4.58MB/s]"
+      "Downloading ETOPO: 196MB [00:27, 8.13MB/s]"
      ]
     },
     {
@@ -1968,7 +1968,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 126MB [00:27, 4.67MB/s]"
+      "Downloading ETOPO: 197MB [00:27, 8.17MB/s]"
      ]
     },
     {
@@ -1976,7 +1976,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 127MB [00:27, 5.05MB/s]"
+      "Downloading ETOPO: 198MB [00:27, 8.07MB/s]"
      ]
     },
     {
@@ -1984,7 +1984,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 128MB [00:27, 4.54MB/s]"
+      "Downloading ETOPO: 199MB [00:27, 8.14MB/s]"
      ]
     },
     {
@@ -1992,7 +1992,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 128MB [00:27, 4.81MB/s]"
+      "Downloading ETOPO: 200MB [00:27, 8.08MB/s]"
      ]
     },
     {
@@ -2000,7 +2000,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 129MB [00:27, 4.66MB/s]"
+      "Downloading ETOPO: 201MB [00:27, 7.96MB/s]"
      ]
     },
     {
@@ -2008,7 +2008,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 129MB [00:28, 4.88MB/s]"
+      "Downloading ETOPO: 202MB [00:27, 7.91MB/s]"
      ]
     },
     {
@@ -2016,7 +2016,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 130MB [00:28, 4.77MB/s]"
+      "Downloading ETOPO: 202MB [00:28, 7.84MB/s]"
      ]
     },
     {
@@ -2024,7 +2024,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 130MB [00:28, 5.01MB/s]"
+      "Downloading ETOPO: 203MB [00:28, 7.86MB/s]"
      ]
     },
     {
@@ -2032,7 +2032,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 131MB [00:28, 4.60MB/s]"
+      "Downloading ETOPO: 204MB [00:28, 7.89MB/s]"
      ]
     },
     {
@@ -2040,7 +2040,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 132MB [00:28, 4.94MB/s]"
+      "Downloading ETOPO: 205MB [00:28, 7.88MB/s]"
      ]
     },
     {
@@ -2048,7 +2048,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 132MB [00:28, 4.74MB/s]"
+      "Downloading ETOPO: 206MB [00:28, 7.88MB/s]"
      ]
     },
     {
@@ -2056,7 +2056,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 133MB [00:28, 5.05MB/s]"
+      "Downloading ETOPO: 207MB [00:28, 7.95MB/s]"
      ]
     },
     {
@@ -2064,7 +2064,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 133MB [00:28, 4.68MB/s]"
+      "Downloading ETOPO: 208MB [00:28, 7.92MB/s]"
      ]
     },
     {
@@ -2072,7 +2072,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 134MB [00:29, 4.96MB/s]"
+      "Downloading ETOPO: 209MB [00:28, 7.91MB/s]"
      ]
     },
     {
@@ -2080,7 +2080,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 134MB [00:29, 4.74MB/s]"
+      "Downloading ETOPO: 210MB [00:29, 7.89MB/s]"
      ]
     },
     {
@@ -2088,7 +2088,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 135MB [00:29, 4.72MB/s]"
+      "Downloading ETOPO: 210MB [00:29, 7.90MB/s]"
      ]
     },
     {
@@ -2096,7 +2096,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 136MB [00:29, 5.12MB/s]"
+      "Downloading ETOPO: 211MB [00:29, 7.93MB/s]"
      ]
     },
     {
@@ -2104,7 +2104,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 136MB [00:29, 4.61MB/s]"
+      "Downloading ETOPO: 212MB [00:29, 7.91MB/s]"
      ]
     },
     {
@@ -2112,7 +2112,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 137MB [00:29, 4.82MB/s]"
+      "Downloading ETOPO: 213MB [00:29, 7.90MB/s]"
      ]
     },
     {
@@ -2120,7 +2120,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 137MB [00:29, 4.63MB/s]"
+      "Downloading ETOPO: 214MB [00:29, 7.85MB/s]"
      ]
     },
     {
@@ -2128,7 +2128,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 138MB [00:29, 4.86MB/s]"
+      "Downloading ETOPO: 215MB [00:29, 7.89MB/s]"
      ]
     },
     {
@@ -2136,7 +2136,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 138MB [00:30, 4.60MB/s]"
+      "Downloading ETOPO: 216MB [00:29, 7.80MB/s]"
      ]
     },
     {
@@ -2144,7 +2144,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 139MB [00:30, 4.74MB/s]"
+      "Downloading ETOPO: 217MB [00:29, 7.60MB/s]"
      ]
     },
     {
@@ -2152,7 +2152,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 140MB [00:30, 4.44MB/s]"
+      "Downloading ETOPO: 217MB [00:30, 7.56MB/s]"
      ]
     },
     {
@@ -2160,7 +2160,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 140MB [00:30, 4.72MB/s]"
+      "Downloading ETOPO: 218MB [00:30, 7.75MB/s]"
      ]
     },
     {
@@ -2168,7 +2168,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 141MB [00:30, 4.43MB/s]"
+      "Downloading ETOPO: 219MB [00:30, 7.84MB/s]"
      ]
     },
     {
@@ -2176,7 +2176,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 141MB [00:30, 4.90MB/s]"
+      "Downloading ETOPO: 220MB [00:30, 7.85MB/s]"
      ]
     },
     {
@@ -2184,7 +2184,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 142MB [00:30, 4.96MB/s]"
+      "Downloading ETOPO: 221MB [00:30, 7.75MB/s]"
      ]
     },
     {
@@ -2192,7 +2192,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 142MB [00:30, 4.67MB/s]"
+      "Downloading ETOPO: 222MB [00:30, 7.86MB/s]"
      ]
     },
     {
@@ -2200,7 +2200,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 143MB [00:30, 4.96MB/s]"
+      "Downloading ETOPO: 223MB [00:30, 7.78MB/s]"
      ]
     },
     {
@@ -2208,7 +2208,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 143MB [00:31, 4.68MB/s]"
+      "Downloading ETOPO: 224MB [00:30, 7.81MB/s]"
      ]
     },
     {
@@ -2216,7 +2216,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 144MB [00:31, 5.01MB/s]"
+      "Downloading ETOPO: 224MB [00:31, 7.81MB/s]"
      ]
     },
     {
@@ -2224,7 +2224,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 145MB [00:31, 4.63MB/s]"
+      "Downloading ETOPO: 225MB [00:31, 7.87MB/s]"
      ]
     },
     {
@@ -2232,7 +2232,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 145MB [00:31, 4.93MB/s]"
+      "Downloading ETOPO: 226MB [00:31, 7.83MB/s]"
      ]
     },
     {
@@ -2240,7 +2240,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 146MB [00:31, 4.66MB/s]"
+      "Downloading ETOPO: 227MB [00:31, 7.89MB/s]"
      ]
     },
     {
@@ -2248,7 +2248,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 146MB [00:31, 4.70MB/s]"
+      "Downloading ETOPO: 228MB [00:31, 7.86MB/s]"
      ]
     },
     {
@@ -2256,7 +2256,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 147MB [00:31, 4.76MB/s]"
+      "Downloading ETOPO: 229MB [00:31, 7.89MB/s]"
      ]
     },
     {
@@ -2264,7 +2264,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 147MB [00:31, 4.93MB/s]"
+      "Downloading ETOPO: 230MB [00:31, 7.95MB/s]"
      ]
     },
     {
@@ -2272,7 +2272,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 148MB [00:32, 4.73MB/s]"
+      "Downloading ETOPO: 231MB [00:31, 7.94MB/s]"
      ]
     },
     {
@@ -2280,7 +2280,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 148MB [00:32, 4.93MB/s]"
+      "Downloading ETOPO: 232MB [00:31, 7.94MB/s]"
      ]
     },
     {
@@ -2288,7 +2288,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 149MB [00:32, 4.96MB/s]"
+      "Downloading ETOPO: 232MB [00:32, 7.92MB/s]"
      ]
     },
     {
@@ -2296,7 +2296,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 149MB [00:32, 4.65MB/s]"
+      "Downloading ETOPO: 233MB [00:32, 8.15MB/s]"
      ]
     },
     {
@@ -2304,7 +2304,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 150MB [00:32, 4.99MB/s]"
+      "Downloading ETOPO: 234MB [00:32, 8.03MB/s]"
      ]
     },
     {
@@ -2312,7 +2312,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 150MB [00:32, 4.71MB/s]"
+      "Downloading ETOPO: 235MB [00:32, 8.04MB/s]"
      ]
     },
     {
@@ -2320,7 +2320,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 151MB [00:32, 4.91MB/s]"
+      "Downloading ETOPO: 236MB [00:32, 8.04MB/s]"
      ]
     },
     {
@@ -2328,7 +2328,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 152MB [00:32, 4.43MB/s]"
+      "Downloading ETOPO: 237MB [00:32, 8.02MB/s]"
      ]
     },
     {
@@ -2336,7 +2336,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 152MB [00:33, 4.74MB/s]"
+      "Downloading ETOPO: 238MB [00:32, 7.91MB/s]"
      ]
     },
     {
@@ -2344,7 +2344,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 153MB [00:33, 4.59MB/s]"
+      "Downloading ETOPO: 239MB [00:32, 7.89MB/s]"
      ]
     },
     {
@@ -2352,7 +2352,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 153MB [00:33, 4.71MB/s]"
+      "Downloading ETOPO: 240MB [00:33, 8.02MB/s]"
      ]
     },
     {
@@ -2360,7 +2360,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 154MB [00:33, 4.71MB/s]"
+      "Downloading ETOPO: 241MB [00:33, 7.88MB/s]"
      ]
     },
     {
@@ -2368,7 +2368,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 154MB [00:33, 5.05MB/s]"
+      "Downloading ETOPO: 241MB [00:33, 7.92MB/s]"
      ]
     },
     {
@@ -2376,7 +2376,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 155MB [00:33, 4.81MB/s]"
+      "Downloading ETOPO: 242MB [00:33, 7.88MB/s]"
      ]
     },
     {
@@ -2384,7 +2384,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 155MB [00:33, 4.90MB/s]"
+      "Downloading ETOPO: 243MB [00:33, 7.99MB/s]"
      ]
     },
     {
@@ -2392,7 +2392,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 156MB [00:33, 4.96MB/s]"
+      "Downloading ETOPO: 244MB [00:33, 7.97MB/s]"
      ]
     },
     {
@@ -2400,7 +2400,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 157MB [00:34, 4.57MB/s]"
+      "Downloading ETOPO: 245MB [00:33, 8.10MB/s]"
      ]
     },
     {
@@ -2408,7 +2408,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 157MB [00:34, 4.84MB/s]"
+      "Downloading ETOPO: 246MB [00:33, 8.48MB/s]"
      ]
     },
     {
@@ -2416,7 +2416,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 158MB [00:34, 4.72MB/s]"
+      "Downloading ETOPO: 247MB [00:33, 8.38MB/s]"
      ]
     },
     {
@@ -2424,7 +2424,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 158MB [00:34, 4.95MB/s]"
+      "Downloading ETOPO: 248MB [00:34, 8.42MB/s]"
      ]
     },
     {
@@ -2432,7 +2432,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 159MB [00:34, 4.59MB/s]"
+      "Downloading ETOPO: 249MB [00:34, 8.47MB/s]"
      ]
     },
     {
@@ -2440,7 +2440,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 159MB [00:34, 4.73MB/s]"
+      "Downloading ETOPO: 250MB [00:34, 8.35MB/s]"
      ]
     },
     {
@@ -2448,7 +2448,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 160MB [00:34, 4.61MB/s]"
+      "Downloading ETOPO: 251MB [00:34, 8.24MB/s]"
      ]
     },
     {
@@ -2456,7 +2456,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 160MB [00:34, 4.83MB/s]"
+      "Downloading ETOPO: 252MB [00:34, 8.34MB/s]"
      ]
     },
     {
@@ -2464,7 +2464,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 161MB [00:35, 4.44MB/s]"
+      "Downloading ETOPO: 253MB [00:34, 8.31MB/s]"
      ]
     },
     {
@@ -2472,7 +2472,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 161MB [00:35, 4.66MB/s]"
+      "Downloading ETOPO: 254MB [00:34, 8.45MB/s]"
      ]
     },
     {
@@ -2480,7 +2480,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 162MB [00:35, 4.77MB/s]"
+      "Downloading ETOPO: 255MB [00:34, 8.42MB/s]"
      ]
     },
     {
@@ -2488,7 +2488,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 163MB [00:35, 5.14MB/s]"
+      "Downloading ETOPO: 256MB [00:35, 8.26MB/s]"
      ]
     },
     {
@@ -2496,7 +2496,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 163MB [00:35, 4.68MB/s]"
+      "Downloading ETOPO: 257MB [00:35, 8.52MB/s]"
      ]
     },
     {
@@ -2504,7 +2504,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 164MB [00:35, 5.17MB/s]"
+      "Downloading ETOPO: 258MB [00:35, 8.49MB/s]"
      ]
     },
     {
@@ -2512,7 +2512,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 164MB [00:35, 4.68MB/s]"
+      "Downloading ETOPO: 259MB [00:35, 8.53MB/s]"
      ]
     },
     {
@@ -2520,7 +2520,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 165MB [00:35, 4.73MB/s]"
+      "Downloading ETOPO: 259MB [00:35, 8.40MB/s]"
      ]
     },
     {
@@ -2528,7 +2528,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 165MB [00:35, 4.51MB/s]"
+      "Downloading ETOPO: 260MB [00:35, 8.66MB/s]"
      ]
     },
     {
@@ -2536,7 +2536,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 166MB [00:36, 4.59MB/s]"
+      "Downloading ETOPO: 261MB [00:35, 8.65MB/s]"
      ]
     },
     {
@@ -2544,7 +2544,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 166MB [00:36, 4.78MB/s]"
+      "Downloading ETOPO: 262MB [00:35, 8.62MB/s]"
      ]
     },
     {
@@ -2552,7 +2552,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 167MB [00:36, 4.82MB/s]"
+      "Downloading ETOPO: 263MB [00:35, 8.53MB/s]"
      ]
     },
     {
@@ -2560,7 +2560,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 167MB [00:36, 5.01MB/s]"
+      "Downloading ETOPO: 264MB [00:36, 8.34MB/s]"
      ]
     },
     {
@@ -2568,7 +2568,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 168MB [00:36, 4.69MB/s]"
+      "Downloading ETOPO: 265MB [00:36, 8.67MB/s]"
      ]
     },
     {
@@ -2576,7 +2576,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 168MB [00:36, 5.03MB/s]"
+      "Downloading ETOPO: 266MB [00:36, 8.76MB/s]"
      ]
     },
     {
@@ -2584,7 +2584,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 169MB [00:36, 4.52MB/s]"
+      "Downloading ETOPO: 267MB [00:36, 8.63MB/s]"
      ]
     },
     {
@@ -2592,7 +2592,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 169MB [00:36, 4.96MB/s]"
+      "Downloading ETOPO: 268MB [00:36, 8.70MB/s]"
      ]
     },
     {
@@ -2600,7 +2600,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 170MB [00:37, 4.76MB/s]"
+      "Downloading ETOPO: 269MB [00:36, 8.54MB/s]"
      ]
     },
     {
@@ -2608,7 +2608,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 171MB [00:37, 5.01MB/s]"
+      "Downloading ETOPO: 270MB [00:36, 8.36MB/s]"
      ]
     },
     {
@@ -2616,7 +2616,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 171MB [00:37, 4.63MB/s]"
+      "Downloading ETOPO: 271MB [00:36, 8.41MB/s]"
      ]
     },
     {
@@ -2624,7 +2624,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 172MB [00:37, 4.76MB/s]"
+      "Downloading ETOPO: 272MB [00:37, 8.57MB/s]"
      ]
     },
     {
@@ -2632,7 +2632,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 172MB [00:37, 5.11MB/s]"
+      "Downloading ETOPO: 273MB [00:37, 8.45MB/s]"
      ]
     },
     {
@@ -2640,7 +2640,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 173MB [00:37, 4.65MB/s]"
+      "Downloading ETOPO: 274MB [00:37, 8.44MB/s]"
      ]
     },
     {
@@ -2648,7 +2648,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 173MB [00:37, 4.76MB/s]"
+      "Downloading ETOPO: 275MB [00:37, 8.39MB/s]"
      ]
     },
     {
@@ -2656,7 +2656,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 174MB [00:37, 5.26MB/s]"
+      "Downloading ETOPO: 276MB [00:37, 8.51MB/s]"
      ]
     },
     {
@@ -2664,7 +2664,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 174MB [00:37, 4.70MB/s]"
+      "Downloading ETOPO: 277MB [00:37, 8.48MB/s]"
      ]
     },
     {
@@ -2672,7 +2672,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 175MB [00:38, 5.24MB/s]"
+      "Downloading ETOPO: 278MB [00:37, 8.56MB/s]"
      ]
     },
     {
@@ -2680,7 +2680,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 176MB [00:38, 4.70MB/s]"
+      "Downloading ETOPO: 279MB [00:37, 8.54MB/s]"
      ]
     },
     {
@@ -2688,7 +2688,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 176MB [00:38, 4.94MB/s]"
+      "Downloading ETOPO: 280MB [00:37, 8.80MB/s]"
      ]
     },
     {
@@ -2696,7 +2696,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 177MB [00:38, 4.81MB/s]"
+      "Downloading ETOPO: 281MB [00:38, 8.70MB/s]"
      ]
     },
     {
@@ -2704,7 +2704,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 177MB [00:38, 4.86MB/s]"
+      "Downloading ETOPO: 282MB [00:38, 8.51MB/s]"
      ]
     },
     {
@@ -2712,7 +2712,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 178MB [00:38, 4.88MB/s]"
+      "Downloading ETOPO: 283MB [00:38, 8.47MB/s]"
      ]
     },
     {
@@ -2720,7 +2720,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 178MB [00:38, 4.90MB/s]"
+      "Downloading ETOPO: 284MB [00:38, 8.46MB/s]"
      ]
     },
     {
@@ -2728,7 +2728,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 179MB [00:38, 5.45MB/s]"
+      "Downloading ETOPO: 285MB [00:38, 8.59MB/s]"
      ]
     },
     {
@@ -2736,7 +2736,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 180MB [00:39, 4.85MB/s]"
+      "Downloading ETOPO: 286MB [00:38, 8.63MB/s]"
      ]
     },
     {
@@ -2744,7 +2744,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 180MB [00:39, 4.89MB/s]"
+      "Downloading ETOPO: 287MB [00:38, 8.59MB/s]"
      ]
     },
     {
@@ -2752,7 +2752,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 181MB [00:39, 5.07MB/s]"
+      "Downloading ETOPO: 288MB [00:38, 8.57MB/s]"
      ]
     },
     {
@@ -2760,7 +2760,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 181MB [00:39, 5.48MB/s]"
+      "Downloading ETOPO: 289MB [00:39, 8.78MB/s]"
      ]
     },
     {
@@ -2768,7 +2768,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 182MB [00:39, 4.87MB/s]"
+      "Downloading ETOPO: 290MB [00:39, 8.79MB/s]"
      ]
     },
     {
@@ -2776,7 +2776,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 182MB [00:39, 5.10MB/s]"
+      "Downloading ETOPO: 290MB [00:39, 8.55MB/s]"
      ]
     },
     {
@@ -2784,7 +2784,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 183MB [00:39, 5.23MB/s]"
+      "Downloading ETOPO: 291MB [00:39, 8.58MB/s]"
      ]
     },
     {
@@ -2792,7 +2792,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 184MB [00:39, 4.92MB/s]"
+      "Downloading ETOPO: 292MB [00:39, 8.42MB/s]"
      ]
     },
     {
@@ -2800,7 +2800,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 184MB [00:39, 5.04MB/s]"
+      "Downloading ETOPO: 293MB [00:39, 8.41MB/s]"
      ]
     },
     {
@@ -2808,7 +2808,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 185MB [00:40, 5.09MB/s]"
+      "Downloading ETOPO: 294MB [00:39, 8.35MB/s]"
      ]
     },
     {
@@ -2816,7 +2816,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 185MB [00:40, 4.72MB/s]"
+      "Downloading ETOPO: 295MB [00:39, 8.32MB/s]"
      ]
     },
     {
@@ -2824,7 +2824,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 186MB [00:40, 5.00MB/s]"
+      "Downloading ETOPO: 296MB [00:39, 8.39MB/s]"
      ]
     },
     {
@@ -2832,7 +2832,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 186MB [00:40, 4.66MB/s]"
+      "Downloading ETOPO: 297MB [00:40, 8.34MB/s]"
      ]
     },
     {
@@ -2840,7 +2840,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 187MB [00:40, 4.72MB/s]"
+      "Downloading ETOPO: 298MB [00:40, 8.41MB/s]"
      ]
     },
     {
@@ -2848,7 +2848,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 187MB [00:40, 4.77MB/s]"
+      "Downloading ETOPO: 299MB [00:40, 8.75MB/s]"
      ]
     },
     {
@@ -2856,7 +2856,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 188MB [00:40, 4.87MB/s]"
+      "Downloading ETOPO: 300MB [00:40, 8.84MB/s]"
      ]
     },
     {
@@ -2864,7 +2864,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 189MB [00:40, 4.71MB/s]"
+      "Downloading ETOPO: 301MB [00:40, 8.71MB/s]"
      ]
     },
     {
@@ -2872,7 +2872,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 189MB [00:41, 4.74MB/s]"
+      "Downloading ETOPO: 302MB [00:40, 8.68MB/s]"
      ]
     },
     {
@@ -2880,7 +2880,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 190MB [00:41, 4.59MB/s]"
+      "Downloading ETOPO: 303MB [00:40, 8.88MB/s]"
      ]
     },
     {
@@ -2888,7 +2888,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 190MB [00:41, 4.77MB/s]"
+      "Downloading ETOPO: 304MB [00:40, 8.91MB/s]"
      ]
     },
     {
@@ -2896,7 +2896,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 191MB [00:41, 4.81MB/s]"
+      "Downloading ETOPO: 305MB [00:41, 8.72MB/s]"
      ]
     },
     {
@@ -2904,7 +2904,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 191MB [00:41, 4.55MB/s]"
+      "Downloading ETOPO: 306MB [00:41, 8.69MB/s]"
      ]
     },
     {
@@ -2912,7 +2912,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 192MB [00:41, 4.79MB/s]"
+      "Downloading ETOPO: 307MB [00:41, 8.34MB/s]"
      ]
     },
     {
@@ -2920,7 +2920,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 192MB [00:41, 4.86MB/s]"
+      "Downloading ETOPO: 308MB [00:41, 8.38MB/s]"
      ]
     },
     {
@@ -2928,7 +2928,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 193MB [00:41, 4.88MB/s]"
+      "Downloading ETOPO: 309MB [00:41, 8.43MB/s]"
      ]
     },
     {
@@ -2936,7 +2936,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 193MB [00:41, 5.19MB/s]"
+      "Downloading ETOPO: 310MB [00:41, 8.57MB/s]"
      ]
     },
     {
@@ -2944,7 +2944,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 194MB [00:42, 4.66MB/s]"
+      "Downloading ETOPO: 311MB [00:41, 8.72MB/s]"
      ]
     },
     {
@@ -2952,7 +2952,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 194MB [00:42, 4.79MB/s]"
+      "Downloading ETOPO: 312MB [00:41, 8.69MB/s]"
      ]
     },
     {
@@ -2960,7 +2960,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 195MB [00:42, 5.11MB/s]"
+      "Downloading ETOPO: 313MB [00:42, 8.55MB/s]"
      ]
     },
     {
@@ -2968,7 +2968,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 195MB [00:42, 5.09MB/s]"
+      "Downloading ETOPO: 314MB [00:42, 8.53MB/s]"
      ]
     },
     {
@@ -2976,7 +2976,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 196MB [00:42, 4.52MB/s]"
+      "Downloading ETOPO: 315MB [00:42, 8.91MB/s]"
      ]
     },
     {
@@ -2984,7 +2984,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 196MB [00:42, 4.75MB/s]"
+      "Downloading ETOPO: 316MB [00:42, 8.60MB/s]"
      ]
     },
     {
@@ -2992,7 +2992,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 197MB [00:42, 4.36MB/s]"
+      "Downloading ETOPO: 317MB [00:42, 8.71MB/s]"
      ]
     },
     {
@@ -3000,7 +3000,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 197MB [00:42, 4.69MB/s]"
+      "Downloading ETOPO: 318MB [00:42, 8.99MB/s]"
      ]
     },
     {
@@ -3008,7 +3008,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 198MB [00:42, 4.81MB/s]"
+      "Downloading ETOPO: 319MB [00:42, 9.03MB/s]"
      ]
     },
     {
@@ -3016,7 +3016,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 198MB [00:43, 4.88MB/s]"
+      "Downloading ETOPO: 320MB [00:42, 8.85MB/s]"
      ]
     },
     {
@@ -3024,7 +3024,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 199MB [00:43, 5.21MB/s]"
+      "Downloading ETOPO: 321MB [00:42, 8.92MB/s]"
      ]
     },
     {
@@ -3032,7 +3032,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 199MB [00:43, 4.65MB/s]"
+      "Downloading ETOPO: 322MB [00:43, 8.85MB/s]"
      ]
     },
     {
@@ -3040,7 +3040,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 200MB [00:43, 4.78MB/s]"
+      "Downloading ETOPO: 323MB [00:43, 8.91MB/s]"
      ]
     },
     {
@@ -3048,7 +3048,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 200MB [00:43, 4.87MB/s]"
+      "Downloading ETOPO: 324MB [00:43, 8.97MB/s]"
      ]
     },
     {
@@ -3056,7 +3056,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 201MB [00:43, 4.90MB/s]"
+      "Downloading ETOPO: 325MB [00:43, 8.92MB/s]"
      ]
     },
     {
@@ -3064,7 +3064,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 201MB [00:43, 4.93MB/s]"
+      "Downloading ETOPO: 326MB [00:43, 8.86MB/s]"
      ]
     },
     {
@@ -3072,7 +3072,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 202MB [00:43, 4.94MB/s]"
+      "Downloading ETOPO: 327MB [00:43, 8.95MB/s]"
      ]
     },
     {
@@ -3080,7 +3080,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 202MB [00:43, 4.81MB/s]"
+      "Downloading ETOPO: 328MB [00:43, 8.79MB/s]"
      ]
     },
     {
@@ -3088,7 +3088,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 203MB [00:44, 4.94MB/s]"
+      "Downloading ETOPO: 329MB [00:43, 8.68MB/s]"
      ]
     },
     {
@@ -3096,7 +3096,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 203MB [00:44, 4.97MB/s]"
+      "Downloading ETOPO: 330MB [00:44, 9.12MB/s]"
      ]
     },
     {
@@ -3104,7 +3104,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 204MB [00:44, 5.00MB/s]"
+      "Downloading ETOPO: 331MB [00:44, 9.20MB/s]"
      ]
     },
     {
@@ -3112,7 +3112,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 205MB [00:44, 4.97MB/s]"
+      "Downloading ETOPO: 332MB [00:44, 9.01MB/s]"
      ]
     },
     {
@@ -3120,7 +3120,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 205MB [00:44, 4.97MB/s]"
+      "Downloading ETOPO: 333MB [00:44, 9.16MB/s]"
      ]
     },
     {
@@ -3128,7 +3128,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 206MB [00:44, 4.98MB/s]"
+      "Downloading ETOPO: 334MB [00:44, 9.13MB/s]"
      ]
     },
     {
@@ -3136,7 +3136,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 206MB [00:44, 4.77MB/s]"
+      "Downloading ETOPO: 335MB [00:44, 9.05MB/s]"
      ]
     },
     {
@@ -3144,7 +3144,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 207MB [00:44, 4.78MB/s]"
+      "Downloading ETOPO: 336MB [00:44, 8.87MB/s]"
      ]
     },
     {
@@ -3152,7 +3152,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 207MB [00:44, 4.74MB/s]"
+      "Downloading ETOPO: 337MB [00:44, 8.89MB/s]"
      ]
     },
     {
@@ -3160,7 +3160,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 208MB [00:45, 4.79MB/s]"
+      "Downloading ETOPO: 338MB [00:44, 8.67MB/s]"
      ]
     },
     {
@@ -3168,7 +3168,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 208MB [00:45, 4.87MB/s]"
+      "Downloading ETOPO: 339MB [00:45, 8.50MB/s]"
      ]
     },
     {
@@ -3176,7 +3176,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 209MB [00:45, 4.90MB/s]"
+      "Downloading ETOPO: 340MB [00:45, 8.70MB/s]"
      ]
     },
     {
@@ -3184,7 +3184,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 209MB [00:45, 4.95MB/s]"
+      "Downloading ETOPO: 341MB [00:45, 8.68MB/s]"
      ]
     },
     {
@@ -3192,7 +3192,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 210MB [00:45, 5.25MB/s]"
+      "Downloading ETOPO: 342MB [00:45, 8.49MB/s]"
      ]
     },
     {
@@ -3200,7 +3200,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 210MB [00:45, 4.66MB/s]"
+      "Downloading ETOPO: 342MB [00:45, 8.36MB/s]"
      ]
     },
     {
@@ -3208,7 +3208,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 211MB [00:45, 4.71MB/s]"
+      "Downloading ETOPO: 343MB [00:45, 8.45MB/s]"
      ]
     },
     {
@@ -3216,7 +3216,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 211MB [00:45, 4.76MB/s]"
+      "Downloading ETOPO: 344MB [00:45, 8.42MB/s]"
      ]
     },
     {
@@ -3224,7 +3224,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 212MB [00:45, 4.80MB/s]"
+      "Downloading ETOPO: 345MB [00:45, 8.50MB/s]"
      ]
     },
     {
@@ -3232,7 +3232,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 212MB [00:46, 4.83MB/s]"
+      "Downloading ETOPO: 346MB [00:46, 8.45MB/s]"
      ]
     },
     {
@@ -3240,7 +3240,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 212MB [00:46, 4.85MB/s]"
+      "Downloading ETOPO: 347MB [00:46, 8.41MB/s]"
      ]
     },
     {
@@ -3248,7 +3248,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 213MB [00:46, 4.86MB/s]"
+      "Downloading ETOPO: 348MB [00:46, 8.33MB/s]"
      ]
     },
     {
@@ -3256,7 +3256,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 214MB [00:46, 4.61MB/s]"
+      "Downloading ETOPO: 349MB [00:46, 8.18MB/s]"
      ]
     },
     {
@@ -3264,7 +3264,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 214MB [00:46, 4.86MB/s]"
+      "Downloading ETOPO: 350MB [00:46, 8.40MB/s]"
      ]
     },
     {
@@ -3272,7 +3272,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 215MB [00:46, 4.89MB/s]"
+      "Downloading ETOPO: 351MB [00:46, 8.66MB/s]"
      ]
     },
     {
@@ -3280,7 +3280,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 215MB [00:46, 4.92MB/s]"
+      "Downloading ETOPO: 352MB [00:46, 8.80MB/s]"
      ]
     },
     {
@@ -3288,7 +3288,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 216MB [00:46, 4.63MB/s]"
+      "Downloading ETOPO: 353MB [00:46, 9.01MB/s]"
      ]
     },
     {
@@ -3296,7 +3296,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 216MB [00:46, 5.10MB/s]"
+      "Downloading ETOPO: 354MB [00:46, 9.01MB/s]"
      ]
     },
     {
@@ -3304,7 +3304,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 217MB [00:47, 4.55MB/s]"
+      "Downloading ETOPO: 355MB [00:47, 8.93MB/s]"
      ]
     },
     {
@@ -3312,7 +3312,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 217MB [00:47, 4.69MB/s]"
+      "Downloading ETOPO: 356MB [00:47, 8.87MB/s]"
      ]
     },
     {
@@ -3320,7 +3320,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 218MB [00:47, 4.76MB/s]"
+      "Downloading ETOPO: 357MB [00:47, 8.68MB/s]"
      ]
     },
     {
@@ -3328,7 +3328,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 218MB [00:47, 4.79MB/s]"
+      "Downloading ETOPO: 358MB [00:47, 8.58MB/s]"
      ]
     },
     {
@@ -3336,7 +3336,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 219MB [00:47, 5.31MB/s]"
+      "Downloading ETOPO: 359MB [00:47, 8.84MB/s]"
      ]
     },
     {
@@ -3344,7 +3344,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 219MB [00:47, 4.98MB/s]"
+      "Downloading ETOPO: 360MB [00:47, 8.70MB/s]"
      ]
     },
     {
@@ -3352,7 +3352,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 220MB [00:47, 5.02MB/s]"
+      "Downloading ETOPO: 361MB [00:47, 8.99MB/s]"
      ]
     },
     {
@@ -3360,7 +3360,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 220MB [00:47, 5.05MB/s]"
+      "Downloading ETOPO: 362MB [00:47, 8.84MB/s]"
      ]
     },
     {
@@ -3368,7 +3368,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 221MB [00:47, 4.66MB/s]"
+      "Downloading ETOPO: 363MB [00:48, 8.99MB/s]"
      ]
     },
     {
@@ -3376,7 +3376,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 221MB [00:48, 4.70MB/s]"
+      "Downloading ETOPO: 364MB [00:48, 8.76MB/s]"
      ]
     },
     {
@@ -3384,7 +3384,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 222MB [00:48, 4.86MB/s]"
+      "Downloading ETOPO: 365MB [00:48, 9.06MB/s]"
      ]
     },
     {
@@ -3392,7 +3392,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 222MB [00:48, 4.90MB/s]"
+      "Downloading ETOPO: 366MB [00:48, 8.79MB/s]"
      ]
     },
     {
@@ -3400,7 +3400,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 223MB [00:48, 4.93MB/s]"
+      "Downloading ETOPO: 367MB [00:48, 8.54MB/s]"
      ]
     },
     {
@@ -3408,7 +3408,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 223MB [00:48, 5.01MB/s]"
+      "Downloading ETOPO: 368MB [00:48, 8.45MB/s]"
      ]
     },
     {
@@ -3416,7 +3416,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 224MB [00:48, 5.03MB/s]"
+      "Downloading ETOPO: 369MB [00:48, 8.50MB/s]"
      ]
     },
     {
@@ -3424,7 +3424,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 224MB [00:48, 5.02MB/s]"
+      "Downloading ETOPO: 370MB [00:48, 8.32MB/s]"
      ]
     },
     {
@@ -3432,7 +3432,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 225MB [00:48, 5.01MB/s]"
+      "Downloading ETOPO: 371MB [00:48, 8.43MB/s]"
      ]
     },
     {
@@ -3440,7 +3440,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 225MB [00:48, 5.29MB/s]"
+      "Downloading ETOPO: 372MB [00:49, 9.14MB/s]"
      ]
     },
     {
@@ -3448,7 +3448,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 226MB [00:49, 4.73MB/s]"
+      "Downloading ETOPO: 373MB [00:49, 9.12MB/s]"
      ]
     },
     {
@@ -3456,7 +3456,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 226MB [00:49, 5.00MB/s]"
+      "Downloading ETOPO: 374MB [00:49, 8.75MB/s]"
      ]
     },
     {
@@ -3464,7 +3464,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 227MB [00:49, 5.04MB/s]"
+      "Downloading ETOPO: 375MB [00:49, 8.93MB/s]"
      ]
     },
     {
@@ -3472,7 +3472,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 227MB [00:49, 5.06MB/s]"
+      "Downloading ETOPO: 376MB [00:49, 8.93MB/s]"
      ]
     },
     {
@@ -3480,7 +3480,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 228MB [00:49, 4.88MB/s]"
+      "Downloading ETOPO: 377MB [00:49, 8.84MB/s]"
      ]
     },
     {
@@ -3488,7 +3488,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 229MB [00:49, 4.91MB/s]"
+      "Downloading ETOPO: 378MB [00:49, 8.83MB/s]"
      ]
     },
     {
@@ -3496,7 +3496,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 229MB [00:49, 5.29MB/s]"
+      "Downloading ETOPO: 379MB [00:49, 8.74MB/s]"
      ]
     },
     {
@@ -3504,7 +3504,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 230MB [00:49, 5.31MB/s]"
+      "Downloading ETOPO: 380MB [00:50, 8.55MB/s]"
      ]
     },
     {
@@ -3512,7 +3512,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 230MB [00:49, 4.69MB/s]"
+      "Downloading ETOPO: 381MB [00:50, 8.46MB/s]"
      ]
     },
     {
@@ -3520,7 +3520,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 231MB [00:50, 5.05MB/s]"
+      "Downloading ETOPO: 382MB [00:50, 8.49MB/s]"
      ]
     },
     {
@@ -3528,7 +3528,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 231MB [00:50, 4.51MB/s]"
+      "Downloading ETOPO: 382MB [00:50, 8.25MB/s]"
      ]
     },
     {
@@ -3536,7 +3536,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 232MB [00:50, 5.08MB/s]"
+      "Downloading ETOPO: 384MB [00:50, 8.62MB/s]"
      ]
     },
     {
@@ -3544,7 +3544,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 232MB [00:50, 4.62MB/s]"
+      "Downloading ETOPO: 384MB [00:50, 8.55MB/s]"
      ]
     },
     {
@@ -3552,7 +3552,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 233MB [00:50, 4.88MB/s]"
+      "Downloading ETOPO: 386MB [00:50, 8.79MB/s]"
      ]
     },
     {
@@ -3560,7 +3560,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 234MB [00:50, 4.80MB/s]"
+      "Downloading ETOPO: 386MB [00:50, 8.65MB/s]"
      ]
     },
     {
@@ -3568,7 +3568,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 234MB [00:50, 4.93MB/s]"
+      "Downloading ETOPO: 387MB [00:50, 8.39MB/s]"
      ]
     },
     {
@@ -3576,7 +3576,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 235MB [00:50, 5.01MB/s]"
+      "Downloading ETOPO: 388MB [00:51, 8.40MB/s]"
      ]
     },
     {
@@ -3584,7 +3584,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 235MB [00:50, 5.05MB/s]"
+      "Downloading ETOPO: 389MB [00:51, 8.44MB/s]"
      ]
     },
     {
@@ -3592,7 +3592,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 236MB [00:51, 5.08MB/s]"
+      "Downloading ETOPO: 390MB [00:51, 8.37MB/s]"
      ]
     },
     {
@@ -3600,7 +3600,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 236MB [00:51, 4.77MB/s]"
+      "Downloading ETOPO: 391MB [00:51, 8.29MB/s]"
      ]
     },
     {
@@ -3608,7 +3608,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 237MB [00:51, 4.86MB/s]"
+      "Downloading ETOPO: 392MB [00:51, 8.01MB/s]"
      ]
     },
     {
@@ -3616,7 +3616,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 237MB [00:51, 4.89MB/s]"
+      "Downloading ETOPO: 393MB [00:51, 8.56MB/s]"
      ]
     },
     {
@@ -3624,7 +3624,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 238MB [00:51, 4.86MB/s]"
+      "Downloading ETOPO: 394MB [00:51, 8.54MB/s]"
      ]
     },
     {
@@ -3632,7 +3632,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 238MB [00:51, 4.96MB/s]"
+      "Downloading ETOPO: 395MB [00:51, 8.50MB/s]"
      ]
     },
     {
@@ -3640,7 +3640,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 239MB [00:51, 4.92MB/s]"
+      "Downloading ETOPO: 396MB [00:52, 8.52MB/s]"
      ]
     },
     {
@@ -3648,7 +3648,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 240MB [00:51, 5.00MB/s]"
+      "Downloading ETOPO: 397MB [00:52, 8.59MB/s]"
      ]
     },
     {
@@ -3656,7 +3656,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 240MB [00:52, 5.01MB/s]"
+      "Downloading ETOPO: 398MB [00:52, 8.40MB/s]"
      ]
     },
     {
@@ -3664,7 +3664,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 241MB [00:52, 5.02MB/s]"
+      "Downloading ETOPO: 399MB [00:52, 8.57MB/s]"
      ]
     },
     {
@@ -3672,7 +3672,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 241MB [00:52, 5.00MB/s]"
+      "Downloading ETOPO: 400MB [00:52, 8.67MB/s]"
      ]
     },
     {
@@ -3680,7 +3680,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 242MB [00:52, 4.83MB/s]"
+      "Downloading ETOPO: 401MB [00:52, 8.73MB/s]"
      ]
     },
     {
@@ -3688,7 +3688,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 242MB [00:52, 5.02MB/s]"
+      "Downloading ETOPO: 402MB [00:52, 8.55MB/s]"
      ]
     },
     {
@@ -3696,7 +3696,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 243MB [00:52, 4.83MB/s]"
+      "Downloading ETOPO: 403MB [00:52, 8.50MB/s]"
      ]
     },
     {
@@ -3704,7 +3704,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 243MB [00:52, 4.97MB/s]"
+      "Downloading ETOPO: 404MB [00:52, 8.54MB/s]"
      ]
     },
     {
@@ -3712,7 +3712,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 244MB [00:52, 5.00MB/s]"
+      "Downloading ETOPO: 405MB [00:53, 8.83MB/s]"
      ]
     },
     {
@@ -3720,7 +3720,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 244MB [00:52, 4.71MB/s]"
+      "Downloading ETOPO: 406MB [00:53, 8.82MB/s]"
      ]
     },
     {
@@ -3728,7 +3728,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 245MB [00:53, 4.76MB/s]"
+      "Downloading ETOPO: 407MB [00:53, 8.70MB/s]"
      ]
     },
     {
@@ -3736,7 +3736,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 245MB [00:53, 4.84MB/s]"
+      "Downloading ETOPO: 408MB [00:53, 8.94MB/s]"
      ]
     },
     {
@@ -3744,7 +3744,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 246MB [00:53, 4.83MB/s]"
+      "Downloading ETOPO: 409MB [00:53, 8.62MB/s]"
      ]
     },
     {
@@ -3752,7 +3752,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 247MB [00:53, 4.97MB/s]"
+      "Downloading ETOPO: 409MB [00:53, 8.61MB/s]"
      ]
     },
     {
@@ -3760,7 +3760,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 247MB [00:53, 4.70MB/s]"
+      "Downloading ETOPO: 410MB [00:53, 8.60MB/s]"
      ]
     },
     {
@@ -3768,7 +3768,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 248MB [00:53, 4.94MB/s]"
+      "Downloading ETOPO: 411MB [00:53, 8.36MB/s]"
      ]
     },
     {
@@ -3776,7 +3776,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 248MB [00:53, 4.95MB/s]"
+      "Downloading ETOPO: 412MB [00:54, 8.33MB/s]"
      ]
     },
     {
@@ -3784,7 +3784,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 249MB [00:53, 4.79MB/s]"
+      "Downloading ETOPO: 413MB [00:54, 8.57MB/s]"
      ]
     },
     {
@@ -3792,7 +3792,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 249MB [00:53, 5.01MB/s]"
+      "Downloading ETOPO: 414MB [00:54, 8.61MB/s]"
      ]
     },
     {
@@ -3800,7 +3800,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 250MB [00:54, 4.72MB/s]"
+      "Downloading ETOPO: 415MB [00:54, 8.70MB/s]"
      ]
     },
     {
@@ -3808,7 +3808,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 251MB [00:54, 4.96MB/s]"
+      "Downloading ETOPO: 416MB [00:54, 8.50MB/s]"
      ]
     },
     {
@@ -3816,7 +3816,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 251MB [00:54, 4.75MB/s]"
+      "Downloading ETOPO: 417MB [00:54, 8.50MB/s]"
      ]
     },
     {
@@ -3824,7 +3824,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 252MB [00:54, 4.87MB/s]"
+      "Downloading ETOPO: 418MB [00:54, 8.53MB/s]"
      ]
     },
     {
@@ -3832,7 +3832,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 252MB [00:54, 5.47MB/s]"
+      "Downloading ETOPO: 419MB [00:54, 8.52MB/s]"
      ]
     },
     {
@@ -3840,7 +3840,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 253MB [00:54, 4.88MB/s]"
+      "Downloading ETOPO: 420MB [00:54, 8.51MB/s]"
      ]
     },
     {
@@ -3848,7 +3848,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 253MB [00:54, 4.50MB/s]"
+      "Downloading ETOPO: 421MB [00:55, 8.58MB/s]"
      ]
     },
     {
@@ -3856,7 +3856,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 254MB [00:54, 4.80MB/s]"
+      "Downloading ETOPO: 422MB [00:55, 8.64MB/s]"
      ]
     },
     {
@@ -3864,7 +3864,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 255MB [00:55, 5.28MB/s]"
+      "Downloading ETOPO: 423MB [00:55, 8.56MB/s]"
      ]
     },
     {
@@ -3872,7 +3872,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 255MB [00:55, 4.74MB/s]"
+      "Downloading ETOPO: 424MB [00:55, 8.41MB/s]"
      ]
     },
     {
@@ -3880,7 +3880,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 256MB [00:55, 4.80MB/s]"
+      "Downloading ETOPO: 425MB [00:55, 8.49MB/s]"
      ]
     },
     {
@@ -3888,7 +3888,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 256MB [00:55, 4.75MB/s]"
+      "Downloading ETOPO: 426MB [00:55, 8.61MB/s]"
      ]
     },
     {
@@ -3896,7 +3896,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 257MB [00:55, 4.83MB/s]"
+      "Downloading ETOPO: 427MB [00:55, 8.59MB/s]"
      ]
     },
     {
@@ -3904,7 +3904,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 257MB [00:55, 4.74MB/s]"
+      "Downloading ETOPO: 428MB [00:55, 8.64MB/s]"
      ]
     },
     {
@@ -3912,7 +3912,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 258MB [00:55, 4.93MB/s]"
+      "Downloading ETOPO: 429MB [00:56, 8.72MB/s]"
      ]
     },
     {
@@ -3920,7 +3920,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 258MB [00:55, 4.97MB/s]"
+      "Downloading ETOPO: 430MB [00:56, 8.73MB/s]"
      ]
     },
     {
@@ -3928,7 +3928,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 259MB [00:56, 4.67MB/s]"
+      "Downloading ETOPO: 431MB [00:56, 8.67MB/s]"
      ]
     },
     {
@@ -3936,7 +3936,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 259MB [00:56, 4.86MB/s]"
+      "Downloading ETOPO: 432MB [00:56, 8.53MB/s]"
      ]
     },
     {
@@ -3944,7 +3944,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 260MB [00:56, 4.84MB/s]"
+      "Downloading ETOPO: 433MB [00:56, 8.45MB/s]"
      ]
     },
     {
@@ -3952,7 +3952,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 261MB [00:56, 4.87MB/s]"
+      "Downloading ETOPO: 434MB [00:56, 8.55MB/s]"
      ]
     },
     {
@@ -3960,7 +3960,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 261MB [00:56, 4.92MB/s]"
+      "Downloading ETOPO: 434MB [00:56, 8.54MB/s]"
      ]
     },
     {
@@ -3968,7 +3968,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 262MB [00:56, 4.98MB/s]"
+      "Downloading ETOPO: 436MB [00:56, 8.76MB/s]"
      ]
     },
     {
@@ -3976,7 +3976,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 262MB [00:56, 4.60MB/s]"
+      "Downloading ETOPO: 436MB [00:56, 8.62MB/s]"
      ]
     },
     {
@@ -3984,7 +3984,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 263MB [00:56, 4.74MB/s]"
+      "Downloading ETOPO: 437MB [00:57, 8.42MB/s]"
      ]
     },
     {
@@ -3992,7 +3992,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 263MB [00:56, 4.75MB/s]"
+      "Downloading ETOPO: 438MB [00:57, 8.36MB/s]"
      ]
     },
     {
@@ -4000,7 +4000,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 264MB [00:57, 5.21MB/s]"
+      "Downloading ETOPO: 439MB [00:57, 8.43MB/s]"
      ]
     },
     {
@@ -4008,7 +4008,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 264MB [00:57, 4.77MB/s]"
+      "Downloading ETOPO: 440MB [00:57, 8.43MB/s]"
      ]
     },
     {
@@ -4016,7 +4016,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 265MB [00:57, 4.98MB/s]"
+      "Downloading ETOPO: 441MB [00:57, 8.53MB/s]"
      ]
     },
     {
@@ -4024,7 +4024,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 265MB [00:57, 5.45MB/s]"
+      "Downloading ETOPO: 442MB [00:57, 8.46MB/s]"
      ]
     },
     {
@@ -4032,7 +4032,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 266MB [00:57, 4.85MB/s]"
+      "Downloading ETOPO: 443MB [00:57, 8.46MB/s]"
      ]
     },
     {
@@ -4040,7 +4040,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 267MB [00:57, 4.54MB/s]"
+      "Downloading ETOPO: 444MB [00:57, 8.47MB/s]"
      ]
     },
     {
@@ -4048,7 +4048,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 267MB [00:57, 4.67MB/s]"
+      "Downloading ETOPO: 445MB [00:58, 8.60MB/s]"
      ]
     },
     {
@@ -4056,7 +4056,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 267MB [00:57, 4.70MB/s]"
+      "Downloading ETOPO: 446MB [00:58, 8.57MB/s]"
      ]
     },
     {
@@ -4064,7 +4064,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 268MB [00:58, 4.68MB/s]"
+      "Downloading ETOPO: 447MB [00:58, 8.58MB/s]"
      ]
     },
     {
@@ -4072,7 +4072,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 269MB [00:58, 4.72MB/s]"
+      "Downloading ETOPO: 448MB [00:58, 8.62MB/s]"
      ]
     },
     {
@@ -4080,7 +4080,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 269MB [00:58, 4.75MB/s]"
+      "Downloading ETOPO: 449MB [00:58, 8.51MB/s]"
      ]
     },
     {
@@ -4088,7 +4088,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 270MB [00:58, 4.69MB/s]"
+      "Downloading ETOPO: 450MB [00:58, 8.51MB/s]"
      ]
     },
     {
@@ -4096,7 +4096,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 270MB [00:58, 4.93MB/s]"
+      "Downloading ETOPO: 451MB [00:58, 8.43MB/s]"
      ]
     },
     {
@@ -4104,7 +4104,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 271MB [00:58, 4.97MB/s]"
+      "Downloading ETOPO: 452MB [00:58, 8.49MB/s]"
      ]
     },
     {
@@ -4112,7 +4112,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 271MB [00:58, 4.57MB/s]"
+      "Downloading ETOPO: 453MB [00:58, 8.64MB/s]"
      ]
     },
     {
@@ -4120,7 +4120,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 272MB [00:58, 4.97MB/s]"
+      "Downloading ETOPO: 454MB [00:59, 8.59MB/s]"
      ]
     },
     {
@@ -4128,7 +4128,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 272MB [00:59, 4.45MB/s]"
+      "Downloading ETOPO: 455MB [00:59, 8.46MB/s]"
      ]
     },
     {
@@ -4136,7 +4136,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 273MB [00:59, 4.57MB/s]"
+      "Downloading ETOPO: 456MB [00:59, 8.81MB/s]"
      ]
     },
     {
@@ -4144,7 +4144,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 273MB [00:59, 4.59MB/s]"
+      "Downloading ETOPO: 457MB [00:59, 8.93MB/s]"
      ]
     },
     {
@@ -4152,7 +4152,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 274MB [00:59, 4.64MB/s]"
+      "Downloading ETOPO: 458MB [00:59, 8.77MB/s]"
      ]
     },
     {
@@ -4160,7 +4160,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 275MB [00:59, 4.84MB/s]"
+      "Downloading ETOPO: 458MB [00:59, 8.59MB/s]"
      ]
     },
     {
@@ -4168,7 +4168,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 275MB [00:59, 4.51MB/s]"
+      "Downloading ETOPO: 460MB [00:59, 8.89MB/s]"
      ]
     },
     {
@@ -4176,7 +4176,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 276MB [00:59, 4.81MB/s]"
+      "Downloading ETOPO: 461MB [00:59, 8.81MB/s]"
      ]
     },
     {
@@ -4184,7 +4184,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 276MB [00:59, 4.49MB/s]"
+      "Downloading ETOPO: 462MB [01:00, 8.78MB/s]"
      ]
     },
     {
@@ -4192,7 +4192,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 277MB [01:00, 4.66MB/s]"
+      "Downloading ETOPO: 463MB [01:00, 9.03MB/s]"
      ]
     },
     {
@@ -4200,7 +4200,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 277MB [01:00, 4.69MB/s]"
+      "Downloading ETOPO: 464MB [01:00, 8.88MB/s]"
      ]
     },
     {
@@ -4208,7 +4208,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 278MB [01:00, 4.60MB/s]"
+      "Downloading ETOPO: 465MB [01:00, 8.82MB/s]"
      ]
     },
     {
@@ -4216,7 +4216,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 278MB [01:00, 4.70MB/s]"
+      "Downloading ETOPO: 465MB [01:00, 8.65MB/s]"
      ]
     },
     {
@@ -4224,7 +4224,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 279MB [01:00, 4.73MB/s]"
+      "Downloading ETOPO: 466MB [01:00, 8.64MB/s]"
      ]
     },
     {
@@ -4232,7 +4232,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 279MB [01:00, 4.78MB/s]"
+      "Downloading ETOPO: 467MB [01:00, 8.56MB/s]"
      ]
     },
     {
@@ -4240,7 +4240,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 280MB [01:00, 5.16MB/s]"
+      "Downloading ETOPO: 468MB [01:00, 8.71MB/s]"
      ]
     },
     {
@@ -4248,2758 +4248,7 @@
      "output_type": "stream",
      "text": [
       "\r",
-      "Downloading ETOPO: 280MB [01:00, 4.86MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 281MB [01:00, 5.24MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 282MB [01:01, 4.73MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 282MB [01:01, 4.84MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 283MB [01:01, 5.48MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 283MB [01:01, 4.87MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 284MB [01:01, 4.46MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 284MB [01:01, 4.55MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 285MB [01:01, 4.58MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 286MB [01:01, 4.89MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 286MB [01:02, 4.52MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 287MB [01:02, 4.76MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 287MB [01:02, 4.80MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 288MB [01:02, 4.76MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 288MB [01:02, 4.97MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 289MB [01:02, 4.87MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 289MB [01:02, 4.90MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 290MB [01:02, 5.12MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 290MB [01:02, 4.66MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 291MB [01:03, 4.74MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 292MB [01:03, 5.25MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 292MB [01:03, 4.67MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 293MB [01:03, 4.72MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 293MB [01:03, 4.69MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 294MB [01:03, 4.81MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 294MB [01:03, 5.12MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 295MB [01:03, 4.87MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 295MB [01:04, 4.90MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 296MB [01:04, 5.08MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 296MB [01:04, 5.12MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 297MB [01:04, 4.82MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 298MB [01:04, 4.95MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 298MB [01:04, 4.97MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 299MB [01:04, 5.42MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 299MB [01:04, 4.80MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 300MB [01:04, 5.30MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 300MB [01:05, 4.76MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 301MB [01:05, 4.81MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 301MB [01:05, 4.68MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 302MB [01:05, 4.76MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 302MB [01:05, 4.93MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 303MB [01:05, 4.86MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 304MB [01:05, 4.92MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 304MB [01:05, 4.78MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 305MB [01:06, 4.83MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 305MB [01:06, 4.54MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 306MB [01:06, 4.88MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 306MB [01:06, 4.95MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 307MB [01:06, 5.30MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 307MB [01:06, 4.70MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 308MB [01:06, 4.75MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 308MB [01:06, 4.93MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 309MB [01:06, 4.49MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 309MB [01:07, 4.70MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 310MB [01:07, 4.85MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 311MB [01:07, 4.54MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 311MB [01:07, 4.74MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 312MB [01:07, 4.48MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 312MB [01:07, 4.65MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 313MB [01:07, 4.64MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 313MB [01:07, 5.00MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 314MB [01:08, 4.67MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 314MB [01:08, 4.77MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 315MB [01:08, 4.49MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 315MB [01:08, 4.68MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 316MB [01:08, 4.62MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 317MB [01:08, 4.78MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 317MB [01:08, 4.81MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 318MB [01:08, 4.97MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 318MB [01:09, 4.57MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 319MB [01:09, 4.68MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 319MB [01:09, 4.76MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 320MB [01:09, 5.01MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 320MB [01:09, 4.93MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 321MB [01:09, 5.14MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 321MB [01:09, 4.77MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 322MB [01:09, 4.93MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 322MB [01:09, 5.10MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 323MB [01:10, 5.13MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 324MB [01:10, 4.93MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 324MB [01:10, 5.12MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 325MB [01:10, 5.44MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 325MB [01:10, 4.83MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 326MB [01:10, 5.36MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 326MB [01:10, 4.80MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 327MB [01:10, 4.84MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 328MB [01:11, 4.75MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 328MB [01:11, 4.81MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 329MB [01:11, 4.77MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 329MB [01:11, 4.91MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 330MB [01:11, 4.92MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 330MB [01:11, 5.19MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 331MB [01:11, 4.86MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 331MB [01:11, 4.94MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 332MB [01:11, 5.13MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 333MB [01:12, 4.87MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 333MB [01:12, 5.14MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 334MB [01:12, 4.82MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 334MB [01:12, 5.08MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 335MB [01:12, 5.25MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 335MB [01:12, 5.28MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 336MB [01:12, 5.04MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 336MB [01:12, 5.07MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 337MB [01:12, 4.72MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 338MB [01:13, 4.92MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 338MB [01:13, 4.72MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 339MB [01:13, 4.87MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 339MB [01:13, 4.77MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 340MB [01:13, 4.91MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 340MB [01:13, 4.72MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 341MB [01:13, 4.85MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 342MB [01:13, 4.61MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 342MB [01:14, 4.70MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 343MB [01:14, 5.28MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 343MB [01:14, 4.72MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 344MB [01:14, 4.87MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 344MB [01:14, 4.58MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 345MB [01:14, 4.79MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 345MB [01:14, 4.77MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 346MB [01:14, 4.95MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 346MB [01:15, 4.98MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 347MB [01:15, 4.64MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 348MB [01:15, 4.52MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 348MB [01:15, 4.88MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 349MB [01:15, 4.65MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 349MB [01:15, 4.91MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 350MB [01:15, 5.23MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 350MB [01:15, 4.68MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 351MB [01:16, 4.66MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 352MB [01:16, 4.83MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 352MB [01:16, 4.56MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 353MB [01:16, 4.71MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 353MB [01:16, 4.53MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 354MB [01:16, 4.67MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 354MB [01:16, 5.12MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 355MB [01:16, 4.58MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 355MB [01:17, 4.92MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 356MB [01:17, 4.41MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 356MB [01:17, 4.77MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 357MB [01:17, 4.87MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 357MB [01:17, 4.91MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 358MB [01:17, 4.57MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 359MB [01:17, 4.91MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 359MB [01:17, 4.61MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 360MB [01:17, 4.66MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 360MB [01:18, 4.75MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 361MB [01:18, 4.83MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 361MB [01:18, 4.72MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 362MB [01:18, 4.96MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 362MB [01:18, 4.94MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 363MB [01:18, 4.81MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 364MB [01:18, 4.84MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 364MB [01:18, 5.01MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 365MB [01:19, 5.57MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 365MB [01:19, 4.94MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 366MB [01:19, 4.61MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 366MB [01:19, 4.81MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 367MB [01:19, 4.71MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 367MB [01:19, 4.80MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 368MB [01:19, 4.54MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 368MB [01:19, 4.57MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 369MB [01:19, 4.94MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 370MB [01:20, 5.00MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 370MB [01:20, 4.79MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 371MB [01:20, 4.93MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 371MB [01:20, 5.03MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 372MB [01:20, 4.69MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 372MB [01:20, 4.79MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 373MB [01:20, 4.66MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 373MB [01:20, 4.87MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 374MB [01:21, 4.73MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 375MB [01:21, 5.05MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 375MB [01:21, 4.70MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 376MB [01:21, 4.75MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 376MB [01:21, 4.81MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 377MB [01:21, 4.86MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 377MB [01:21, 5.41MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 378MB [01:21, 4.77MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 378MB [01:21, 4.83MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 379MB [01:22, 4.56MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 379MB [01:22, 4.73MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 380MB [01:22, 5.00MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 380MB [01:22, 5.04MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 381MB [01:22, 5.52MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 382MB [01:22, 4.88MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 382MB [01:22, 4.95MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 383MB [01:22, 5.32MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 383MB [01:23, 4.74MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 384MB [01:23, 4.27MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 384MB [01:23, 4.53MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 385MB [01:23, 4.95MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 385MB [01:23, 4.76MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 386MB [01:23, 5.07MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 387MB [01:23, 4.82MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 387MB [01:23, 5.11MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 388MB [01:24, 4.59MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 388MB [01:24, 4.65MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 389MB [01:24, 4.76MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 389MB [01:24, 4.84MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 390MB [01:24, 4.93MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 390MB [01:24, 5.46MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 391MB [01:24, 4.82MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 391MB [01:24, 4.59MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 392MB [01:24, 4.88MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 392MB [01:25, 4.75MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 393MB [01:25, 4.96MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 394MB [01:25, 5.07MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 394MB [01:25, 5.11MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 395MB [01:25, 4.62MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 395MB [01:25, 4.84MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 396MB [01:25, 5.22MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 396MB [01:25, 4.65MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 397MB [01:25, 5.01MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 397MB [01:26, 4.82MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 398MB [01:26, 4.86MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 399MB [01:26, 5.38MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 399MB [01:26, 4.80MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 400MB [01:26, 4.96MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 400MB [01:26, 4.98MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 401MB [01:26, 5.48MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 401MB [01:26, 4.87MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 402MB [01:27, 4.58MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 402MB [01:27, 4.66MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 403MB [01:27, 4.90MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 403MB [01:27, 4.95MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 404MB [01:27, 5.30MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 405MB [01:27, 4.94MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 405MB [01:27, 4.97MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 405MB [01:27, 5.00MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 406MB [01:27, 5.02MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 407MB [01:28, 4.63MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 407MB [01:28, 4.75MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 407MB [01:28, 4.79MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 408MB [01:28, 5.08MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 409MB [01:28, 4.85MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 409MB [01:28, 4.93MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 410MB [01:28, 4.82MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 410MB [01:28, 4.95MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 411MB [01:28, 4.67MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 411MB [01:29, 4.96MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 412MB [01:29, 4.54MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 413MB [01:29, 4.82MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 413MB [01:29, 4.63MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 414MB [01:29, 4.88MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 414MB [01:29, 4.63MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 415MB [01:29, 4.76MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 415MB [01:29, 5.08MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 416MB [01:30, 4.80MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 416MB [01:30, 5.02MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 417MB [01:30, 4.56MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 418MB [01:30, 4.98MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 418MB [01:30, 4.62MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 419MB [01:30, 4.77MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 419MB [01:30, 4.67MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 420MB [01:30, 4.83MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 420MB [01:31, 4.62MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 421MB [01:31, 4.83MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 421MB [01:31, 5.05MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 422MB [01:31, 4.73MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 423MB [01:31, 5.05MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 423MB [01:31, 4.58MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 424MB [01:31, 4.87MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 424MB [01:31, 4.53MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 425MB [01:32, 4.66MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 425MB [01:32, 4.65MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 426MB [01:32, 4.78MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 426MB [01:32, 5.27MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 427MB [01:32, 4.70MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 428MB [01:32, 4.98MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 428MB [01:32, 4.55MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 429MB [01:32, 4.70MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 429MB [01:32, 4.76MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 429MB [01:33, 4.82MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 430MB [01:33, 4.84MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 430MB [01:33, 4.49MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 431MB [01:33, 4.66MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 432MB [01:33, 4.69MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 432MB [01:33, 4.86MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 433MB [01:33, 4.89MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 433MB [01:33, 4.82MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 434MB [01:34, 4.99MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 434MB [01:34, 5.17MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 435MB [01:34, 5.32MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 436MB [01:34, 4.96MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 436MB [01:34, 5.03MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 437MB [01:34, 4.97MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 437MB [01:34, 4.99MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 438MB [01:34, 5.50MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 438MB [01:34, 4.89MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 439MB [01:35, 4.98MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 439MB [01:35, 5.02MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 440MB [01:35, 5.58MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 441MB [01:35, 4.95MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 441MB [01:35, 4.80MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 442MB [01:35, 5.30MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 442MB [01:35, 4.77MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 443MB [01:35, 4.84MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 443MB [01:36, 4.90MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 444MB [01:36, 5.28MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 445MB [01:36, 4.71MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 445MB [01:36, 4.94MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 446MB [01:36, 4.73MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 446MB [01:36, 4.86MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 447MB [01:36, 5.20MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 447MB [01:36, 4.66MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 448MB [01:36, 4.79MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 448MB [01:37, 4.57MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 449MB [01:37, 4.63MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 449MB [01:37, 4.69MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 450MB [01:37, 4.85MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 451MB [01:37, 4.82MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 451MB [01:37, 4.84MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 452MB [01:37, 5.35MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 452MB [01:37, 4.76MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 453MB [01:38, 4.57MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 453MB [01:38, 4.81MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 454MB [01:38, 4.90MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 454MB [01:38, 4.95MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 455MB [01:38, 4.65MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 456MB [01:38, 4.96MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 456MB [01:38, 4.57MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 457MB [01:38, 4.70MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 457MB [01:39, 4.74MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 458MB [01:39, 4.82MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 458MB [01:39, 5.13MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 459MB [01:39, 4.56MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 459MB [01:39, 4.71MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 460MB [01:39, 4.51MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 460MB [01:39, 4.65MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 461MB [01:39, 4.92MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 462MB [01:39, 5.32MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 462MB [01:40, 4.73MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 463MB [01:40, 4.44MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 463MB [01:40, 4.52MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 464MB [01:40, 5.01MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 464MB [01:40, 4.51MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 465MB [01:40, 4.78MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 465MB [01:40, 4.50MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 466MB [01:40, 4.56MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 466MB [01:41, 4.98MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 467MB [01:41, 4.70MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 467MB [01:41, 5.01MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 468MB [01:41, 5.31MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\r",
-      "Downloading ETOPO: 469MB [01:41, 4.84MB/s]"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "\n"
+      "Downloading ETOPO: 469MB [01:00, 8.07MB/s]"
      ]
     },
     {
@@ -7008,6 +4257,13 @@
      "text": [
       "\n",
       "Download complete!\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\n"
      ]
     }
    ],
@@ -7040,10 +4296,10 @@
    "id": "step2-pandoi",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-01-18T20:32:04.790232Z",
-     "iopub.status.busy": "2026-01-18T20:32:04.790060Z",
-     "iopub.status.idle": "2026-01-18T20:32:17.296279Z",
-     "shell.execute_reply": "2026-01-18T20:32:17.295519Z"
+     "iopub.execute_input": "2026-01-30T07:57:40.879981Z",
+     "iopub.status.busy": "2026-01-30T07:57:40.879822Z",
+     "iopub.status.idle": "2026-01-30T07:57:53.994524Z",
+     "shell.execute_reply": "2026-01-30T07:57:53.993752Z"
     }
    },
    "outputs": [
@@ -7075,7 +4331,7 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "INFO: Search found 1826 total matches. Retrieving first 5...\n"
+      "INFO: Search found 1825 total matches. Retrieving first 5...\n"
      ]
     },
     {
@@ -7131,6 +4387,18 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
+      "/home/runner/micromamba/envs/cruiseplan/lib/python3.13/site-packages/pangaeapy/pandataset.py:1063: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`\n",
+      "  self.data[\"Longitude\"] = np.nan\n",
+      "/home/runner/micromamba/envs/cruiseplan/lib/python3.13/site-packages/pangaeapy/pandataset.py:1067: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`\n",
+      "  self.data[\"Elevation\"] = np.nan\n",
+      "/home/runner/micromamba/envs/cruiseplan/lib/python3.13/site-packages/pangaeapy/pandataset.py:1071: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`\n",
+      "  self.data[\"Date/Time\"] = \"NaN\"\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
       "INFO: Fetching PANGAEA dataset: 10.1594/PANGAEA.604842\n"
      ]
     },
@@ -7138,7 +4406,35 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
+      "/home/runner/micromamba/envs/cruiseplan/lib/python3.13/site-packages/pangaeapy/pandataset.py:1063: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`\n",
+      "  self.data[\"Longitude\"] = np.nan\n",
+      "/home/runner/micromamba/envs/cruiseplan/lib/python3.13/site-packages/pangaeapy/pandataset.py:1067: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`\n",
+      "  self.data[\"Elevation\"] = np.nan\n",
+      "/home/runner/micromamba/envs/cruiseplan/lib/python3.13/site-packages/pangaeapy/pandataset.py:1071: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`\n",
+      "  self.data[\"Date/Time\"] = \"NaN\"\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
       "INFO: Fetching PANGAEA dataset: 10.1594/PANGAEA.604887\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/home/runner/micromamba/envs/cruiseplan/lib/python3.13/site-packages/pangaeapy/pandataset.py:1052: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`\n",
+      "  self.data[\"Event\"] = self.events[0].label\n",
+      "/home/runner/micromamba/envs/cruiseplan/lib/python3.13/site-packages/pangaeapy/pandataset.py:1059: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`\n",
+      "  self.data[\"Latitude\"] = np.nan\n",
+      "/home/runner/micromamba/envs/cruiseplan/lib/python3.13/site-packages/pangaeapy/pandataset.py:1063: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`\n",
+      "  self.data[\"Longitude\"] = np.nan\n",
+      "/home/runner/micromamba/envs/cruiseplan/lib/python3.13/site-packages/pangaeapy/pandataset.py:1067: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`\n",
+      "  self.data[\"Elevation\"] = np.nan\n",
+      "/home/runner/micromamba/envs/cruiseplan/lib/python3.13/site-packages/pangaeapy/pandataset.py:1071: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`\n",
+      "  self.data[\"Date/Time\"] = \"NaN\"\n"
      ]
     },
     {
@@ -7234,10 +4530,10 @@
    "id": "step4-stations",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-01-18T20:32:17.298062Z",
-     "iopub.status.busy": "2026-01-18T20:32:17.297877Z",
-     "iopub.status.idle": "2026-01-18T20:32:17.311711Z",
-     "shell.execute_reply": "2026-01-18T20:32:17.311052Z"
+     "iopub.execute_input": "2026-01-30T07:57:53.996233Z",
+     "iopub.status.busy": "2026-01-30T07:57:53.996048Z",
+     "iopub.status.idle": "2026-01-30T07:57:54.009789Z",
+     "shell.execute_reply": "2026-01-30T07:57:54.009127Z"
     }
    },
    "outputs": [
@@ -7407,10 +4703,10 @@
    "id": "3fcbbee3",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-01-18T20:32:17.313431Z",
-     "iopub.status.busy": "2026-01-18T20:32:17.313266Z",
-     "iopub.status.idle": "2026-01-18T20:32:17.317271Z",
-     "shell.execute_reply": "2026-01-18T20:32:17.316596Z"
+     "iopub.execute_input": "2026-01-30T07:57:54.011579Z",
+     "iopub.status.busy": "2026-01-30T07:57:54.011410Z",
+     "iopub.status.idle": "2026-01-30T07:57:54.015792Z",
+     "shell.execute_reply": "2026-01-30T07:57:54.015065Z"
     }
    },
    "outputs": [
@@ -7534,10 +4830,10 @@
    "id": "034aee3b",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-01-18T20:32:17.318909Z",
-     "iopub.status.busy": "2026-01-18T20:32:17.318728Z",
-     "iopub.status.idle": "2026-01-18T20:32:18.485750Z",
-     "shell.execute_reply": "2026-01-18T20:32:18.485086Z"
+     "iopub.execute_input": "2026-01-30T07:57:54.017384Z",
+     "iopub.status.busy": "2026-01-30T07:57:54.017177Z",
+     "iopub.status.idle": "2026-01-30T07:57:55.190921Z",
+     "shell.execute_reply": "2026-01-30T07:57:55.190154Z"
     }
    },
    "outputs": [
@@ -7762,10 +5058,10 @@
    "id": "step7-schedule",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-01-18T20:32:18.487402Z",
-     "iopub.status.busy": "2026-01-18T20:32:18.487233Z",
-     "iopub.status.idle": "2026-01-18T20:32:18.541188Z",
-     "shell.execute_reply": "2026-01-18T20:32:18.540535Z"
+     "iopub.execute_input": "2026-01-30T07:57:55.192929Z",
+     "iopub.status.busy": "2026-01-30T07:57:55.192773Z",
+     "iopub.status.idle": "2026-01-30T07:57:55.254051Z",
+     "shell.execute_reply": "2026-01-30T07:57:55.253338Z"
     }
    },
    "outputs": [
@@ -8102,10 +5398,10 @@
    "id": "e34f20ff",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-01-18T20:32:18.542999Z",
-     "iopub.status.busy": "2026-01-18T20:32:18.542799Z",
-     "iopub.status.idle": "2026-01-18T20:32:18.566076Z",
-     "shell.execute_reply": "2026-01-18T20:32:18.565452Z"
+     "iopub.execute_input": "2026-01-30T07:57:55.255728Z",
+     "iopub.status.busy": "2026-01-30T07:57:55.255553Z",
+     "iopub.status.idle": "2026-01-30T07:57:55.280743Z",
+     "shell.execute_reply": "2026-01-30T07:57:55.280014Z"
     }
    },
    "outputs": [],
@@ -8140,10 +5436,10 @@
    "id": "summary",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-01-18T20:32:18.567623Z",
-     "iopub.status.busy": "2026-01-18T20:32:18.567472Z",
-     "iopub.status.idle": "2026-01-18T20:32:18.570879Z",
-     "shell.execute_reply": "2026-01-18T20:32:18.570221Z"
+     "iopub.execute_input": "2026-01-30T07:57:55.282987Z",
+     "iopub.status.busy": "2026-01-30T07:57:55.282820Z",
+     "iopub.status.idle": "2026-01-30T07:57:55.286518Z",
+     "shell.execute_reply": "2026-01-30T07:57:55.285727Z"
     }
    },
    "outputs": [

@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CruisePlan Demo &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev3</title>
+  <title>CruisePlan Demo &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev4</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css?v=2aa19091" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=cf37dbc9"></script>
+      <script src="_static/documentation_options.js?v=04be4b04"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -189,16 +189,24 @@ Attempting download from: https://www.ngdc.noaa.gov/thredds/fileServer/global/ET
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Downloading ETOPO: 469MB [01:41, 4.84MB/s]
+Downloading ETOPO: 469MB [01:00, 8.07MB/s]
 </pre></div></div>
 </div>
-<div class="nboutput nblast docutils container">
+<div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 
 Download complete!
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+
 </pre></div></div>
 </div>
 </section>
@@ -270,7 +278,7 @@ Download complete!
 <div class="highlight"><pre>
 INFO: 🔍 Searching PANGAEA for: &#39;CTD&#39;
 INFO: 📍 Geographic bounds: lat [50, 70], lon [-60, -30]
-INFO: Search found 1826 total matches. Retrieving first 5...
+INFO: Search found 1825 total matches. Retrieving first 5...
 INFO: ✅ Found 5 datasets
 INFO: 📂 DOI file: /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_dois.txt
 INFO: 📂 Stations file: /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo.pkl
@@ -278,8 +286,30 @@ INFO: ⚙️ Processing 5 DOIs...
 INFO: 🕐 Rate limit: 1.0 requests/second
 INFO: Fetching PANGAEA dataset: 10.1594/PANGAEA.755512
 INFO: Fetching PANGAEA dataset: 10.1594/PANGAEA.604878
+/home/runner/micromamba/envs/cruiseplan/lib/python3.13/site-packages/pangaeapy/pandataset.py:1063: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  self.data[&#34;Longitude&#34;] = np.nan
+/home/runner/micromamba/envs/cruiseplan/lib/python3.13/site-packages/pangaeapy/pandataset.py:1067: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  self.data[&#34;Elevation&#34;] = np.nan
+/home/runner/micromamba/envs/cruiseplan/lib/python3.13/site-packages/pangaeapy/pandataset.py:1071: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  self.data[&#34;Date/Time&#34;] = &#34;NaN&#34;
 INFO: Fetching PANGAEA dataset: 10.1594/PANGAEA.604842
+/home/runner/micromamba/envs/cruiseplan/lib/python3.13/site-packages/pangaeapy/pandataset.py:1063: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  self.data[&#34;Longitude&#34;] = np.nan
+/home/runner/micromamba/envs/cruiseplan/lib/python3.13/site-packages/pangaeapy/pandataset.py:1067: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  self.data[&#34;Elevation&#34;] = np.nan
+/home/runner/micromamba/envs/cruiseplan/lib/python3.13/site-packages/pangaeapy/pandataset.py:1071: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  self.data[&#34;Date/Time&#34;] = &#34;NaN&#34;
 INFO: Fetching PANGAEA dataset: 10.1594/PANGAEA.604887
+/home/runner/micromamba/envs/cruiseplan/lib/python3.13/site-packages/pangaeapy/pandataset.py:1052: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  self.data[&#34;Event&#34;] = self.events[0].label
+/home/runner/micromamba/envs/cruiseplan/lib/python3.13/site-packages/pangaeapy/pandataset.py:1059: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  self.data[&#34;Latitude&#34;] = np.nan
+/home/runner/micromamba/envs/cruiseplan/lib/python3.13/site-packages/pangaeapy/pandataset.py:1063: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  self.data[&#34;Longitude&#34;] = np.nan
+/home/runner/micromamba/envs/cruiseplan/lib/python3.13/site-packages/pangaeapy/pandataset.py:1067: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  self.data[&#34;Elevation&#34;] = np.nan
+/home/runner/micromamba/envs/cruiseplan/lib/python3.13/site-packages/pangaeapy/pandataset.py:1071: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  self.data[&#34;Date/Time&#34;] = &#34;NaN&#34;
 INFO: Fetching PANGAEA dataset: 10.1594/PANGAEA.604857
 INFO: ✅ PANGAEA processing completed successfully!
 INFO: 🚀 Next step: cruiseplan stations -p /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo.pkl
