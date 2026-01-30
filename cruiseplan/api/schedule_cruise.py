@@ -9,10 +9,70 @@ import logging
 from pathlib import Path
 from typing import Optional, Union
 
+from cruiseplan.api.config import ScheduleConfig
 from cruiseplan.api.types import ScheduleResult
 from cruiseplan.config.exceptions import FileError, ValidationError
 
 logger = logging.getLogger(__name__)
+
+
+def schedule_with_config(
+    config_file: Union[str, Path],
+    config: ScheduleConfig = None,
+) -> ScheduleResult:
+    """
+    Generate cruise schedule using configuration object.
+
+    This is the modern API that uses a configuration object to reduce the number
+    of function parameters. For backward compatibility, the legacy schedule()
+    function with individual parameters is still available.
+
+    Parameters
+    ----------
+    config_file : str or Path
+        Input YAML configuration file
+    config : ScheduleConfig, optional
+        Configuration object containing all scheduling options.
+        If None, default configuration is used.
+
+    Returns
+    -------
+    ScheduleResult
+        Result object containing list of generated schedule files
+
+    Examples
+    --------
+    Basic usage with defaults:
+
+    >>> result = schedule_with_config("cruise.yaml")
+
+    Custom configuration:
+
+    >>> from cruiseplan.api.config import ScheduleConfig, BathymetryConfig
+    >>> config = ScheduleConfig(
+    ...     leg="leg1",
+    ...     derive_netcdf=True,
+    ...     bathymetry=BathymetryConfig(source="gebco2025", stride=5)
+    ... )
+    >>> result = schedule_with_config("cruise.yaml", config)
+    """
+    if config is None:
+        config = ScheduleConfig()
+
+    # Call the legacy function with expanded parameters
+    return schedule(
+        config_file=config_file,
+        output_dir=config.output.directory,
+        output=config.output.filename,
+        format=config.output.format,
+        leg=config.leg,
+        derive_netcdf=config.derive_netcdf,
+        bathy_source=config.bathymetry.source,
+        bathy_dir=config.bathymetry.directory,
+        bathy_stride=config.bathymetry.stride,
+        figsize=config.visualization.figsize,
+        verbose=config.output.verbose,
+    )
 
 
 def schedule(  # noqa: C901, PLR0915

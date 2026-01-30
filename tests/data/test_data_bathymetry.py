@@ -1,20 +1,28 @@
 # Note: You need to mock the Path object used inside the Manager constructor
+import zipfile
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, mock_open, patch
 
 import netCDF4 as nc
 import numpy as np
 import pytest
 import requests
 
+import cruiseplan.data.bathymetry as bathy_module
 from cruiseplan.config.values import DEFAULT_DEPTH
-from cruiseplan.data.bathymetry import BathymetryManager, download_bathymetry
+from cruiseplan.data.bathymetry import (
+    ETOPO_FILENAME,
+    BathymetryManager,
+    download_bathymetry,
+    get_bathymetry_singleton,
+)
 
 
 @pytest.fixture
 def mock_netcdf_data():
     """
     Returns mock coordinate data and a mock netCDF4.Dataset object.
+
     Grid: Lats 40-44 (5 points), Lons -50 to -46 (5 points). 1-degree spacing.
     Depth formula (Mock): Z = -(lat * 10 + lon * 1)
     """
@@ -163,6 +171,7 @@ def test_interpolation_bounds_check(real_mode_manager):
 def test_get_grid_subset_real_mode(real_mode_manager):
     """
     Verify real data subsetting works and respects stride.
+
     The bounds are extended slightly (e.g., to 44.0001) to ensure the
     searchsorted index includes the final grid point (index 4) when slicing.
     """
@@ -276,16 +285,6 @@ Simplified additional tests to improve bathymetry.py coverage.
 
 This test suite targets the missing coverage areas with simpler, more reliable tests.
 """
-
-from unittest.mock import MagicMock, patch
-
-import pytest
-
-import cruiseplan.data.bathymetry as bathy_module
-from cruiseplan.data.bathymetry import (
-    ETOPO_FILENAME,
-    get_bathymetry_singleton,
-)
 
 
 class TestBathymetrySimpleCoverage:
@@ -511,11 +510,6 @@ This test suite focuses on the ensure_gebco_2025 method and covers all aspects
 of downloading, extracting, and validating the GEBCO 2025 dataset without
 performing actual network operations or creating large files.
 """
-
-import zipfile
-from unittest.mock import MagicMock, mock_open, patch
-
-import pytest
 
 
 class TestGEBCO2025Functionality:

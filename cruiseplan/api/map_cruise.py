@@ -9,9 +9,68 @@ import logging
 from pathlib import Path
 from typing import Optional, Union
 
+from cruiseplan.api.config import MapConfig
 from cruiseplan.api.types import MapResult
 
 logger = logging.getLogger(__name__)
+
+
+def map_with_config(
+    config_file: Union[str, Path],
+    config: MapConfig = None,
+) -> MapResult:
+    """
+    Generate cruise track map using configuration object.
+
+    This is the modern API that uses a configuration object to reduce the number
+    of function parameters. For backward compatibility, the legacy map()
+    function with individual parameters is still available.
+
+    Parameters
+    ----------
+    config_file : str or Path
+        Input YAML configuration file
+    config : MapConfig, optional
+        Configuration object containing all map generation options.
+        If None, default configuration is used.
+
+    Returns
+    -------
+    MapResult
+        Result object containing list of generated map files
+
+    Examples
+    --------
+    Basic usage with defaults:
+
+    >>> result = map_with_config("cruise.yaml")
+
+    Custom configuration:
+
+    >>> from cruiseplan.api.config import MapConfig, BathymetryConfig
+    >>> config = MapConfig(
+    ...     bathymetry=BathymetryConfig(source="gebco2025", stride=5),
+    ...     visualization=VisualizationConfig(show_plot=True)
+    ... )
+    >>> result = map_with_config("cruise.yaml", config)
+    """
+    if config is None:
+        config = MapConfig()
+
+    # Call the legacy function with expanded parameters
+    return map(
+        config_file=config_file,
+        output_dir=config.output.directory,
+        output=config.output.filename,
+        format=config.output.format,
+        bathy_source=config.bathymetry.source,
+        bathy_dir=config.bathymetry.directory,
+        bathy_stride=config.bathymetry.stride,
+        figsize=config.visualization.figsize,
+        show_plot=config.visualization.show_plot,
+        no_ports=not config.visualization.include_ports,
+        verbose=config.output.verbose,
+    )
 
 
 def map(
