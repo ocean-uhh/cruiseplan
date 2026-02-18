@@ -6,17 +6,17 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Timeline &amp; Scheduling &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev4</title>
+  <title>Timeline &amp; Scheduling &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev5</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=04be4b04"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/documentation_options.js?v=a0c6cf1d"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -236,7 +236,7 @@ including CTD profiling, vessel transit, and operational constraints based on
 day/night windows. Uses configuration parameters for vessel speeds and CTD rates.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="cruiseplan.timeline.duration.DurationCalculator">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.duration.</span></span><span class="sig-name descname"><span class="pre">DurationCalculator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cruiseplan.config.html#cruiseplan.config.cruise_config.CruiseConfig" title="cruiseplan.config.cruise_config.CruiseConfig"><span class="pre">CruiseConfig</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/timeline/duration.html#DurationCalculator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.duration.DurationCalculator" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.duration.</span></span><span class="sig-name descname"><span class="pre">DurationCalculator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cruiseplan.config.html#cruiseplan.config.cruise_config.CruiseConfig" title="cruiseplan.config.cruise_config.CruiseConfig"><span class="pre">CruiseConfig</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/timeline/duration.html#DurationCalculator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.duration.DurationCalculator" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Calculates time durations for cruise operations and activities.</p>
 <p>This class provides methods to calculate operation durations based on
@@ -402,7 +402,7 @@ with a focus on:
 - Simplified, maintainable code (~500 lines vs 2000+ lines)</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.ActivityRecord">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.scheduler.</span></span><span class="sig-name descname"><span class="pre">ActivityRecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/timeline/scheduler.html#ActivityRecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.scheduler.</span></span><span class="sig-name descname"><span class="pre">ActivityRecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/timeline/scheduler.html#ActivityRecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Standardized activity record for timeline output.</p>
 <dl class="py method">
@@ -413,77 +413,77 @@ with a focus on:
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.ActivityRecord.action">
-<span class="sig-name descname"><span class="pre">action</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.action" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">action</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.action" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.ActivityRecord.activity">
-<span class="sig-name descname"><span class="pre">activity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.activity" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">activity</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.activity" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.ActivityRecord.dist_nm">
-<span class="sig-name descname"><span class="pre">dist_nm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.dist_nm" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">dist_nm</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.dist_nm" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.ActivityRecord.duration_minutes">
-<span class="sig-name descname"><span class="pre">duration_minutes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.duration_minutes" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">duration_minutes</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.duration_minutes" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.ActivityRecord.end_time">
-<span class="sig-name descname"><span class="pre">end_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime</span></em><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.end_time" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">end_time</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime</span></span><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.end_time" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.ActivityRecord.entry_lat">
-<span class="sig-name descname"><span class="pre">entry_lat</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.entry_lat" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">entry_lat</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.entry_lat" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.ActivityRecord.entry_lon">
-<span class="sig-name descname"><span class="pre">entry_lon</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.entry_lon" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">entry_lon</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.entry_lon" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.ActivityRecord.exit_lat">
-<span class="sig-name descname"><span class="pre">exit_lat</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.exit_lat" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">exit_lat</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.exit_lat" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.ActivityRecord.exit_lon">
-<span class="sig-name descname"><span class="pre">exit_lon</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.exit_lon" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">exit_lon</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.exit_lon" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.ActivityRecord.label">
-<span class="sig-name descname"><span class="pre">label</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.label" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">label</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.label" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.ActivityRecord.leg_name">
-<span class="sig-name descname"><span class="pre">leg_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.leg_name" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">leg_name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.leg_name" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.ActivityRecord.op_type">
-<span class="sig-name descname"><span class="pre">op_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.op_type" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">op_type</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.op_type" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.ActivityRecord.operation_class">
-<span class="sig-name descname"><span class="pre">operation_class</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.operation_class" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">operation_class</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.operation_class" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.ActivityRecord.operation_depth">
-<span class="sig-name descname"><span class="pre">operation_depth</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.operation_depth" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">operation_depth</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.operation_depth" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.ActivityRecord.start_time">
-<span class="sig-name descname"><span class="pre">start_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime</span></em><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.start_time" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">start_time</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime</span></span><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.start_time" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -495,19 +495,19 @@ with a focus on:
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.ActivityRecord.vessel_speed_kt">
-<span class="sig-name descname"><span class="pre">vessel_speed_kt</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.vessel_speed_kt" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">vessel_speed_kt</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.vessel_speed_kt" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.ActivityRecord.water_depth">
-<span class="sig-name descname"><span class="pre">water_depth</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.water_depth" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">water_depth</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.water_depth" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.NavigationalTransit">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.scheduler.</span></span><span class="sig-name descname"><span class="pre">NavigationalTransit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cruiseplan.runtime.html#cruiseplan.runtime.operations.BaseOperation" title="cruiseplan.runtime.operations.BaseOperation"><span class="pre">BaseOperation</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cruiseplan.runtime.html#cruiseplan.runtime.operations.BaseOperation" title="cruiseplan.runtime.operations.BaseOperation"><span class="pre">BaseOperation</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cruiseplan.config.html#cruiseplan.config.cruise_config.CruiseConfig" title="cruiseplan.config.cruise_config.CruiseConfig"><span class="pre">CruiseConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">leg_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vessel_speed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/timeline/scheduler.html#NavigationalTransit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.scheduler.NavigationalTransit" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.scheduler.</span></span><span class="sig-name descname"><span class="pre">NavigationalTransit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cruiseplan.runtime.html#cruiseplan.runtime.operations.BaseOperation" title="cruiseplan.runtime.operations.BaseOperation"><span class="pre">BaseOperation</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cruiseplan.runtime.html#cruiseplan.runtime.operations.BaseOperation" title="cruiseplan.runtime.operations.BaseOperation"><span class="pre">BaseOperation</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cruiseplan.config.html#cruiseplan.config.cruise_config.CruiseConfig" title="cruiseplan.config.cruise_config.CruiseConfig"><span class="pre">CruiseConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">leg_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vessel_speed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/timeline/scheduler.html#NavigationalTransit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.scheduler.NavigationalTransit" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="cruiseplan.runtime.html#cruiseplan.runtime.operations.BaseOperation" title="cruiseplan.runtime.operations.BaseOperation"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseOperation</span></code></a></p>
 <p>Pure navigational connection between operations.</p>
 <dl class="py method">
@@ -550,7 +550,7 @@ with a focus on:
 
 <dl class="py class">
 <dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.OperationCoordinates">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.scheduler.</span></span><span class="sig-name descname"><span class="pre">OperationCoordinates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cruiseplan.config.html#cruiseplan.config.activities.GeoPoint" title="cruiseplan.config.activities.GeoPoint"><span class="pre">GeoPoint</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">exit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cruiseplan.config.html#cruiseplan.config.activities.GeoPoint" title="cruiseplan.config.activities.GeoPoint"><span class="pre">GeoPoint</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/timeline/scheduler.html#OperationCoordinates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.scheduler.OperationCoordinates" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.scheduler.</span></span><span class="sig-name descname"><span class="pre">OperationCoordinates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cruiseplan.config.html#cruiseplan.config.activities.GeoPoint" title="cruiseplan.config.activities.GeoPoint"><span class="pre">GeoPoint</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">exit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cruiseplan.config.html#cruiseplan.config.activities.GeoPoint" title="cruiseplan.config.activities.GeoPoint"><span class="pre">GeoPoint</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/timeline/scheduler.html#OperationCoordinates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.scheduler.OperationCoordinates" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Unified coordinate representation for all operations.</p>
 <dl class="py method">
@@ -561,19 +561,19 @@ with a focus on:
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.OperationCoordinates.entry">
-<span class="sig-name descname"><span class="pre">entry</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="cruiseplan.config.html#cruiseplan.config.activities.GeoPoint" title="cruiseplan.config.activities.GeoPoint"><span class="pre">GeoPoint</span></a></em><a class="headerlink" href="#cruiseplan.timeline.scheduler.OperationCoordinates.entry" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">entry</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="cruiseplan.config.html#cruiseplan.config.activities.GeoPoint" title="cruiseplan.config.activities.GeoPoint"><span class="pre">GeoPoint</span></a></span><a class="headerlink" href="#cruiseplan.timeline.scheduler.OperationCoordinates.entry" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.OperationCoordinates.exit">
-<span class="sig-name descname"><span class="pre">exit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="cruiseplan.config.html#cruiseplan.config.activities.GeoPoint" title="cruiseplan.config.activities.GeoPoint"><span class="pre">GeoPoint</span></a></em><a class="headerlink" href="#cruiseplan.timeline.scheduler.OperationCoordinates.exit" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">exit</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="cruiseplan.config.html#cruiseplan.config.activities.GeoPoint" title="cruiseplan.config.activities.GeoPoint"><span class="pre">GeoPoint</span></a></span><a class="headerlink" href="#cruiseplan.timeline.scheduler.OperationCoordinates.exit" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.OperationFactory">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.scheduler.</span></span><span class="sig-name descname"><span class="pre">OperationFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cruiseplan.config.html#cruiseplan.config.cruise_config.CruiseConfig" title="cruiseplan.config.cruise_config.CruiseConfig"><span class="pre">CruiseConfig</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/timeline/scheduler.html#OperationFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.scheduler.OperationFactory" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.scheduler.</span></span><span class="sig-name descname"><span class="pre">OperationFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cruiseplan.config.html#cruiseplan.config.cruise_config.CruiseConfig" title="cruiseplan.config.cruise_config.CruiseConfig"><span class="pre">CruiseConfig</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/timeline/scheduler.html#OperationFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.scheduler.OperationFactory" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Factory for creating operation objects from configuration data.</p>
 <dl class="py method">
@@ -586,7 +586,7 @@ with a focus on:
 
 <dl class="py class">
 <dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.TimelineGenerator">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.scheduler.</span></span><span class="sig-name descname"><span class="pre">TimelineGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cruiseplan.config.html#cruiseplan.config.cruise_config.CruiseConfig" title="cruiseplan.config.cruise_config.CruiseConfig"><span class="pre">CruiseConfig</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/timeline/scheduler.html#TimelineGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.scheduler.TimelineGenerator" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.scheduler.</span></span><span class="sig-name descname"><span class="pre">TimelineGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cruiseplan.config.html#cruiseplan.config.cruise_config.CruiseConfig" title="cruiseplan.config.cruise_config.CruiseConfig"><span class="pre">CruiseConfig</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/timeline/scheduler.html#TimelineGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.scheduler.TimelineGenerator" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Generates cruise timeline from operations and legs.</p>
 <dl class="py method">

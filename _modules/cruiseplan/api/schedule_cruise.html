@@ -5,17 +5,17 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.api.schedule_cruise &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev4</title>
+  <title>cruiseplan.api.schedule_cruise &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev5</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=04be4b04"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/documentation_options.js?v=a0c6cf1d"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -288,7 +288,7 @@
             <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;No legs found in cruise configuration&quot;</span><span class="p">)</span>
 
         <span class="c1"># Generate timeline for specified legs</span>
-        <span class="n">timeline</span> <span class="o">=</span> <span class="n">generate_timeline</span><span class="p">(</span><span class="n">cruise</span><span class="p">)</span>
+        <span class="n">timeline</span> <span class="o">=</span> <span class="n">generate_timeline</span><span class="p">(</span><span class="n">cruise</span><span class="p">,</span> <span class="n">legs</span><span class="o">=</span><span class="n">target_legs</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">timeline</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to generate timeline&quot;</span><span class="p">)</span>
@@ -307,6 +307,10 @@
         <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_output_paths</span>
 
         <span class="n">output_dir_path</span><span class="p">,</span> <span class="n">base_name</span> <span class="o">=</span> <span class="n">setup_output_paths</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+
+        <span class="c1"># Modify base name to include leg when filtering by specific leg</span>
+        <span class="k">if</span> <span class="n">leg</span><span class="p">:</span>
+            <span class="n">base_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">leg</span><span class="si">}</span><span class="s2">&quot;</span>
 
         <span class="c1"># Parse format list</span>
         <span class="n">formats</span> <span class="o">=</span> <span class="n">_parse_schedule_formats</span><span class="p">(</span><span class="nb">format</span><span class="p">,</span> <span class="n">derive_netcdf</span><span class="p">)</span>

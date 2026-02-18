@@ -5,17 +5,17 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.output.map_generator &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev4</title>
+  <title>cruiseplan.output.map_generator &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev5</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=04be4b04"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/documentation_options.js?v=a0c6cf1d"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -1032,12 +1032,59 @@
         <span class="n">min_lat</span><span class="p">,</span> <span class="n">max_lat</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">all_lats</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">all_lats</span><span class="p">)</span>
         <span class="n">min_lon</span><span class="p">,</span> <span class="n">max_lon</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">all_lons</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">all_lons</span><span class="p">)</span>
 
-    <span class="c1"># Add padding to bounds</span>
-    <span class="n">padding_deg</span> <span class="o">=</span> <span class="mf">5.0</span>  <span class="c1"># degrees padding around data points</span>
-    <span class="n">min_lat</span> <span class="o">-=</span> <span class="n">padding_deg</span>
-    <span class="n">max_lat</span> <span class="o">+=</span> <span class="n">padding_deg</span>
-    <span class="n">min_lon</span> <span class="o">-=</span> <span class="n">padding_deg</span>
-    <span class="n">max_lon</span> <span class="o">+=</span> <span class="n">padding_deg</span>
+    <span class="c1"># Add padding to bounds - choose combination that gives most square map</span>
+    <span class="n">padding_percent</span> <span class="o">=</span> <span class="mf">0.20</span>  <span class="c1"># 20% padding around data points</span>
+    <span class="n">max_padding_deg</span> <span class="o">=</span> <span class="mf">5.0</span>  <span class="c1"># maximum padding in degrees</span>
+
+    <span class="n">lat_range</span> <span class="o">=</span> <span class="n">max_lat</span> <span class="o">-</span> <span class="n">min_lat</span>
+    <span class="n">lon_range</span> <span class="o">=</span> <span class="n">max_lon</span> <span class="o">-</span> <span class="n">min_lon</span>
+
+    <span class="c1"># Handle edge case where all points have same coordinates (single point or line)</span>
+    <span class="c1"># Ensure minimum 2 degree span for reasonable map display</span>
+    <span class="n">lat_range</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">lat_range</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span>
+    <span class="n">lon_range</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">lon_range</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span>
+
+    <span class="c1"># Calculate padding options</span>
+    <span class="n">lat_padding_pct</span> <span class="o">=</span> <span class="n">padding_percent</span> <span class="o">*</span> <span class="n">lat_range</span>
+    <span class="n">lon_padding_pct</span> <span class="o">=</span> <span class="n">padding_percent</span> <span class="o">*</span> <span class="n">lon_range</span>
+    <span class="n">lat_padding_fixed</span> <span class="o">=</span> <span class="n">max_padding_deg</span>
+    <span class="n">lon_padding_fixed</span> <span class="o">=</span> <span class="n">max_padding_deg</span>
+
+    <span class="c1"># Four padding combinations to evaluate</span>
+    <span class="n">padding_options</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="n">lat_padding_pct</span><span class="p">,</span> <span class="n">lon_padding_fixed</span><span class="p">),</span>  <span class="c1"># 10% lat, fixed lon</span>
+        <span class="p">(</span><span class="n">lat_padding_pct</span><span class="p">,</span> <span class="n">lon_padding_pct</span><span class="p">),</span>  <span class="c1"># 10% lat, 10% lon</span>
+        <span class="p">(</span><span class="n">lat_padding_fixed</span><span class="p">,</span> <span class="n">lon_padding_pct</span><span class="p">),</span>  <span class="c1"># fixed lat, 10% lon</span>
+        <span class="p">(</span><span class="n">lat_padding_fixed</span><span class="p">,</span> <span class="n">lon_padding_fixed</span><span class="p">),</span>  <span class="c1"># fixed lat, fixed lon</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Find combination that gives most square aspect ratio</span>
+    <span class="n">center_lat</span> <span class="o">=</span> <span class="p">(</span><span class="n">min_lat</span> <span class="o">+</span> <span class="n">max_lat</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>  <span class="c1"># approximate center for Mercator scaling</span>
+    <span class="n">best_ratio</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
+    <span class="n">best_padding</span> <span class="o">=</span> <span class="n">padding_options</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">lat_pad</span><span class="p">,</span> <span class="n">lon_pad</span> <span class="ow">in</span> <span class="n">padding_options</span><span class="p">:</span>
+        <span class="c1"># Calculate resulting bounds</span>
+        <span class="n">total_lat_range</span> <span class="o">=</span> <span class="n">lat_range</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">lat_pad</span>
+        <span class="n">total_lon_range</span> <span class="o">=</span> <span class="n">lon_range</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">lon_pad</span>
+
+        <span class="c1"># Account for Mercator projection compression: longitude degrees get compressed by cos(lat) at high latitudes</span>
+        <span class="n">mercator_lon_range</span> <span class="o">=</span> <span class="n">total_lon_range</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">center_lat</span><span class="p">)))</span>
+
+        <span class="c1"># Calculate aspect ratio (closer to 1.0 is more square)</span>
+        <span class="n">aspect_ratio</span> <span class="o">=</span> <span class="n">mercator_lon_range</span> <span class="o">/</span> <span class="n">total_lat_range</span>
+        <span class="n">ratio_from_square</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">aspect_ratio</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ratio_from_square</span> <span class="o">&lt;</span> <span class="n">best_ratio</span><span class="p">:</span>
+            <span class="n">best_ratio</span> <span class="o">=</span> <span class="n">ratio_from_square</span>
+            <span class="n">best_padding</span> <span class="o">=</span> <span class="p">(</span><span class="n">lat_pad</span><span class="p">,</span> <span class="n">lon_pad</span><span class="p">)</span>
+
+    <span class="n">lat_padding</span><span class="p">,</span> <span class="n">lon_padding</span> <span class="o">=</span> <span class="n">best_padding</span>
+
+    <span class="n">min_lat</span> <span class="o">-=</span> <span class="n">lat_padding</span>
+    <span class="n">max_lat</span> <span class="o">+=</span> <span class="n">lat_padding</span>
+    <span class="n">min_lon</span> <span class="o">-=</span> <span class="n">lon_padding</span>
+    <span class="n">max_lon</span> <span class="o">+=</span> <span class="n">lon_padding</span>
 
     <span class="n">display_bounds</span> <span class="o">=</span> <span class="p">(</span><span class="n">min_lon</span><span class="p">,</span> <span class="n">max_lon</span><span class="p">,</span> <span class="n">min_lat</span><span class="p">,</span> <span class="n">max_lat</span><span class="p">)</span>
 
