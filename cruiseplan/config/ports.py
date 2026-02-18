@@ -496,7 +496,7 @@ def resolve_port_reference(
         if port_ref.lower().startswith("port_"):
             # Check local catalog first, then global port registry
             port_key = port_ref.lower()
-            
+
             # Check local catalog first
             if port_catalog and port_ref in port_catalog:
                 catalog_port = port_catalog[port_ref]
@@ -505,8 +505,10 @@ def resolve_port_reference(
                 elif isinstance(catalog_port, dict):
                     return PointDefinition(**catalog_port)
                 else:
-                    raise ValueError(f"Unexpected type in port catalog: {type(catalog_port)}")
-            
+                    raise ValueError(
+                        f"Unexpected type in port catalog: {type(catalog_port)}"
+                    )
+
             # Fall back to global port registry
             if port_key in GLOBAL_PORTS:
                 port_data = GLOBAL_PORTS[port_key].copy()

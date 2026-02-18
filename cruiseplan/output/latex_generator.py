@@ -543,7 +543,10 @@ class LaTeXGenerator:
 
 
 def generate_latex_tables(
-    config: CruiseConfig, timeline: list[ActivityRecord], output_dir: Path, base_name: str = None
+    config: CruiseConfig,
+    timeline: list[ActivityRecord],
+    output_dir: Path,
+    base_name: str = None,
 ) -> list[Path]:
     """
     Main interface to generate LaTeX tables for cruise proposal from scheduler timeline.
@@ -578,7 +581,7 @@ def generate_latex_tables(
     # Use provided base_name or generate one if not provided
     if base_name is None:
         from cruiseplan.utils.io import setup_output_paths
-        
+
         _, base_name = setup_output_paths(
             config_file="dummy", output_dir=str(output_dir), output=None
         )

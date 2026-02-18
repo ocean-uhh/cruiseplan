@@ -98,7 +98,7 @@ class TestGlobalPorts:
 
     def test_resolve_port_reference_unknown_global_port(self):
         """Test error for unknown global port reference."""
-        with pytest.raises(ValueError, match="not found in global registry"):
+        with pytest.raises(ValueError, match="not found in catalog or global registry"):
             resolve_port_reference("port_unknown_location")
 
     def test_get_available_ports(self):

@@ -361,7 +361,9 @@ class CruiseInstance:
                     # String reference - expand from catalog or global registry
                     port_ref = leg_def.departure_port
                     try:
-                        port_definition = resolve_port_reference(port_ref, port_catalog=self.port_registry)
+                        port_definition = resolve_port_reference(
+                            port_ref, port_catalog=self.port_registry
+                        )
                         # Create enriched port with action
                         enriched_port = PointDefinition(
                             name=port_definition.name,
@@ -394,7 +396,9 @@ class CruiseInstance:
                     # String reference - expand from catalog or global registry
                     port_ref = leg_def.arrival_port
                     try:
-                        port_definition = resolve_port_reference(port_ref, port_catalog=self.port_registry)
+                        port_definition = resolve_port_reference(
+                            port_ref, port_catalog=self.port_registry
+                        )
                         # Create enriched port with action
                         enriched_port = PointDefinition(
                             name=port_definition.name,

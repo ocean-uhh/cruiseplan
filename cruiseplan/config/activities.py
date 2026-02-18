@@ -212,12 +212,12 @@ class PointDefinition(FlexibleLocationModel):
         if isinstance(v, str):
             # Create case-insensitive mapping to correct enum values
             case_mapping = {
-                'ctd': 'CTD',
-                'water_sampling': 'water_sampling',
-                'mooring': 'mooring', 
-                'calibration': 'calibration',
-                'port': 'port',
-                'waypoint': 'waypoint'
+                "ctd": "CTD",
+                "water_sampling": "water_sampling",
+                "mooring": "mooring",
+                "calibration": "calibration",
+                "port": "port",
+                "waypoint": "waypoint",
             }
             v_lower = v.lower()
             return case_mapping.get(v_lower, v)

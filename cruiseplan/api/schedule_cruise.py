@@ -211,7 +211,7 @@ def schedule(  # noqa: C901, PLR0915
         from cruiseplan.utils.io import setup_output_paths
 
         output_dir_path, base_name = setup_output_paths(config_file, output_dir, output)
-        
+
         # Modify base name to include leg when filtering by specific leg
         if leg:
             base_name = f"{base_name}_{leg}"

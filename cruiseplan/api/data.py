@@ -377,6 +377,10 @@ def _fetch_and_save_datasets(
     logger.info(f"📂 Stations file: {stations_file}")
 
     # Now fetch detailed PANGAEA data with proper rate limiting
+    if clean_dois is None:
+        logger.error("❌ No DOIs to process (clean_dois is None)")
+        return []
+
     logger.info(f"⚙️ Processing {len(clean_dois)} DOIs...")
     logger.info(f"🕐 Rate limit: {rate_limit} requests/second")
 
@@ -439,7 +443,7 @@ def _build_pangaea_result(
         summary={
             "query_terms": query_terms,
             "campaigns_found": len(detailed_datasets) if detailed_datasets else 0,
-            "files_generated": len(generated_files),
+            "files_generated": len(generated_files) if generated_files else 0,
             "lat_bounds": lat_bounds,
             "lon_bounds": lon_bounds,
             "limit": limit,

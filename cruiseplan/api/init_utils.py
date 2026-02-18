@@ -51,6 +51,20 @@ def _validate_lat_lon_bounds(
             )
             return None
 
+        # Validate latitude range (-90 to 90)
+        if any(lat < -90 or lat > 90 for lat in lat_bounds):
+            logger.error(
+                f"Latitude values must be between -90 and 90, got: {lat_bounds}"
+            )
+            return None
+
+        # Validate longitude range (-180 to 180)
+        if any(lon < -180 or lon > 180 for lon in lon_bounds):
+            logger.error(
+                f"Longitude values must be between -180 and 180, got: {lon_bounds}"
+            )
+            return None
+
         return (lon_bounds[0], lat_bounds[0], lon_bounds[1], lat_bounds[1])
     return None
 
@@ -134,7 +148,9 @@ def generate_latex_format(
     """Generate LaTeX schedule output."""
     from cruiseplan.output.latex_generator import generate_latex_tables
 
-    latex_files = generate_latex_tables(cruise_config, timeline, output_dir_path, base_name)
+    latex_files = generate_latex_tables(
+        cruise_config, timeline, output_dir_path, base_name
+    )
     output_path = (
         latex_files[0] if latex_files else output_dir_path / f"{base_name}_schedule.tex"
     )
