@@ -74,6 +74,22 @@ points:
     action: "deployment"
     duration: 120.0
 
+  - name: "LDEO_heavy_deep"
+    comment: "LDEO heavy deep station"
+    latitude: -75.0091
+    longitude: 164.4623
+    operation_type: "mooring"
+    action: "recovery"
+    duration: 120.0
+
+  - name: "LDEO_heavy_deep"
+    comment: "LDEO heavy deep station"
+    latitude: -75.0091
+    longitude: 164.4623
+    operation_type: "mooring"
+    action: "deployment"
+    duration: 120.0
+
   - name: "LDEO_bottom1"
     comment: "LDEO bottom station 1"
     latitude: -75.0140
@@ -246,7 +262,7 @@ legs:
     arrival_port: "port_jang_bogo"  # Intermediate port for crew change
     vessel_speed: 10.0
     buffer_time: 360.0  # 6h weather buffer for mooring operations
-    first_activity: "SouthCapeAdair" 
+    first_activity: "Option_AD" 
     last_activity: "SouthCapeAdair"
     start_date: "2026-02-24"
     start_time: "12:00"
@@ -261,6 +277,9 @@ legs:
         ordered: true
         activities:
         - "SouthCapeAdair"
+        - "Option_C"
+        - "Option_AD"
+
 
   - name: "Leg2"
     description: "Terra Nova Bay operations"
@@ -283,10 +302,12 @@ legs:
       activities:
         - "NISS"
         - "LDEO_heavy_shallow"
+        - "LDEO_heavy_deep"
         - "LDEO_bottom1"
         - "LDEO_bottom2"
         - "LDEO_bottom3"
         - "LDEO_bottom4"
+        - "Option_E"
         - "NIWA_DITN"
         - "NIWA_DITD"
         - "NIWA_WBAT"
@@ -298,7 +319,7 @@ legs:
     vessel_speed: 10.0
     buffer_time: 360.0  # 6h weather buffer for mooring operations
     first_activity: "SouthCapeAdair" 
-    last_activity: "Pycnogen_rafos2"
+    last_activity: "Option_AD"
     start_date: "2026-03-17"
     start_time: "12:00"
     end_date: "2026-04-02"
@@ -312,15 +333,8 @@ legs:
         ordered: true
         activities:
         - "SouthCapeAdair"
-        - "Glider_Operations"
+        - "Option_AD"
         - "Pycnogen_inner1"
-        - "Pycnogen_inner2"
-        - "Pycnogen_inner3"
-        - "Pycnogen_outer1"
-        - "Pycnogen_outer2"
-        - "Pycnogen_outer3"
-        - "Pycnogen_rafos1"
-        - "Pycnogen_rafos2"
 
 
 # ================================================================
@@ -330,10 +344,10 @@ legs:
 # Special extended operations converted to area operations with locations
 areas:
     
-  - name: "Glider_Operations"
-    description: "Autonomous glider deployment and monitoring"
+  - name: "Option_AD"
+    description: "Gliders at PycnoGen location"
     operation_type: "survey"
-    action: "bathymetry"
+    action: "glider"
     duration: 1080.0  # 18 hours deployment/recovery
     # Location for glider operations
     corners:
@@ -345,3 +359,51 @@ areas:
         longitude: 170
       - latitude: -67.8
         longitude: 171
+
+  - name: "Option_B"
+    description: "Ship doesn't detour, gliders transit to PycnoGen"
+    operation_type: "survey"
+    action: "glider"
+    duration: 1080.0  # 18 hours deployment/recovery
+    # Location for glider operations
+    corners:
+      - latitude: -68.2
+        longitude: 173
+      - latitude: -68.2
+        longitude: 170.5
+      - latitude: -67.8
+        longitude: 170.5
+      - latitude: -67.8
+        longitude: 173
+
+  - name: "Option_C"
+    description: "New survey location to the east"
+    operation_type: "survey"
+    action: "glider"
+    duration: 1080.0  # 18 hours deployment/recovery
+    # Location for glider operations
+    corners:
+      - latitude: -68.2
+        longitude: 173
+      - latitude: -68.2
+        longitude: 172
+      - latitude: -67.8
+        longitude: 172
+      - latitude: -67.8
+        longitude: 173
+
+  - name: "Option_E"
+    description: "Trough"
+    operation_type: "survey"
+    action: "glider"
+    duration: 1080.0  # 18 hours deployment/recovery
+    # Location for glider operations
+    corners:
+      - latitude: -73.2
+        longitude: 172
+      - latitude: -73.2
+        longitude: 171
+      - latitude: -72.8
+        longitude: 171
+      - latitude: -72.8
+        longitude: 172

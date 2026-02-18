@@ -151,6 +151,9 @@ class ActionEnum(str, Enum):
     MICROSTRUCTURE = "microstructure"
     SECTION = "section"  # For CTD sections that can be expanded
 
+    # Area operation actions
+    GLIDER = "glider"
+
     # Default placeholder for interactive operations
     DEFAULT_POINT = DEFAULT_POINT_ACTION
     DEFAULT_LINE = DEFAULT_LINE_ACTION

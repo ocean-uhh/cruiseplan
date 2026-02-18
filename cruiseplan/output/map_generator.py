@@ -802,7 +802,7 @@ def plot_cruise_elements(
             (lon, lat),
             xytext=(3, 3),
             textcoords="offset points",
-            fontsize=8,
+            fontsize=6,
             color="black",
             weight="bold",
             zorder=20,
@@ -835,7 +835,7 @@ def plot_cruise_elements(
     ax.grid(True, alpha=0.3, zorder=0)
     if legend_labels_added:
         ax.legend(
-            loc="upper right", fontsize=10, frameon=True, fancybox=True, shadow=True
+            loc="upper right", fontsize=8, frameon=True, fancybox=True, shadow=True
         )
 
     logger.info(
@@ -929,9 +929,9 @@ def generate_map(
 
     # Four padding combinations to evaluate
     padding_options = [
-        (lat_padding_pct, lon_padding_fixed),  # 10% lat, fixed lon
-        (lat_padding_pct, lon_padding_pct),  # 10% lat, 10% lon
-        (lat_padding_fixed, lon_padding_pct),  # fixed lat, 10% lon
+        (lat_padding_pct, lon_padding_fixed),  # 20% lat, fixed lon
+        (lat_padding_pct, lon_padding_pct),  # 20% lat, 20% lon
+        (lat_padding_fixed, lon_padding_pct),  # fixed lat, 20% lon
         (lat_padding_fixed, lon_padding_fixed),  # fixed lat, fixed lon
     ]
 
