@@ -909,12 +909,54 @@ def generate_map(
         min_lat, max_lat = min(all_lats), max(all_lats)
         min_lon, max_lon = min(all_lons), max(all_lons)
 
-    # Add padding to bounds
-    padding_deg = 5.0  # degrees padding around data points
-    min_lat -= padding_deg
-    max_lat += padding_deg
-    min_lon -= padding_deg
-    max_lon += padding_deg
+    # Add padding to bounds - choose combination that gives most square map
+    padding_percent = 0.20  # 20% padding around data points
+    max_padding_deg = 5.0   # maximum padding in degrees
+    
+    lat_range = max_lat - min_lat
+    lon_range = max_lon - min_lon
+    
+    # Calculate padding options
+    lat_padding_pct = padding_percent * lat_range
+    lon_padding_pct = padding_percent * lon_range
+    lat_padding_fixed = max_padding_deg
+    lon_padding_fixed = max_padding_deg
+    
+    # Four padding combinations to evaluate
+    padding_options = [
+        (lat_padding_pct, lon_padding_fixed),    # 10% lat, fixed lon
+        (lat_padding_pct, lon_padding_pct),      # 10% lat, 10% lon  
+        (lat_padding_fixed, lon_padding_pct),    # fixed lat, 10% lon
+        (lat_padding_fixed, lon_padding_fixed),  # fixed lat, fixed lon
+    ]
+    
+    # Find combination that gives most square aspect ratio
+    center_lat = (min_lat + max_lat) / 2  # approximate center for Mercator scaling
+    best_ratio = float('inf')
+    best_padding = padding_options[0]
+    
+    for lat_pad, lon_pad in padding_options:
+        # Calculate resulting bounds
+        total_lat_range = lat_range + 2 * lat_pad
+        total_lon_range = lon_range + 2 * lon_pad
+        
+        # Account for Mercator projection compression: longitude degrees get compressed by cos(lat) at high latitudes
+        mercator_lon_range = total_lon_range * abs(math.cos(math.radians(center_lat)))
+        
+        # Calculate aspect ratio (closer to 1.0 is more square)
+        aspect_ratio = mercator_lon_range / total_lat_range
+        ratio_from_square = abs(aspect_ratio - 1.0)
+        
+        if ratio_from_square < best_ratio:
+            best_ratio = ratio_from_square
+            best_padding = (lat_pad, lon_pad)
+    
+    lat_padding, lon_padding = best_padding
+    
+    min_lat -= lat_padding
+    max_lat += lat_padding
+    min_lon -= lon_padding
+    max_lon += lon_padding
 
     display_bounds = (min_lon, max_lon, min_lat, max_lat)
 

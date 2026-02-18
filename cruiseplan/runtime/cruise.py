@@ -316,7 +316,7 @@ class CruiseInstance:
 
             # Fall back to global port registry
             try:
-                return resolve_port_reference(port_ref)
+                return resolve_port_reference(port_ref, port_catalog=self.port_registry)
             except ValueError as e:
                 raise ReferenceError(
                     f"Port reference '{port_ref}' not found in catalog or global registry: {e}"
@@ -358,10 +358,10 @@ class CruiseInstance:
             # Enrich departure_port with mob action
             if hasattr(leg_def, "departure_port") and leg_def.departure_port:
                 if isinstance(leg_def.departure_port, str):
-                    # String reference - expand from global registry
+                    # String reference - expand from catalog or global registry
                     port_ref = leg_def.departure_port
                     try:
-                        port_definition = resolve_port_reference(port_ref)
+                        port_definition = resolve_port_reference(port_ref, port_catalog=self.port_registry)
                         # Create enriched port with action
                         enriched_port = PointDefinition(
                             name=port_definition.name,
@@ -391,10 +391,10 @@ class CruiseInstance:
             # Enrich arrival_port with demob action
             if hasattr(leg_def, "arrival_port") and leg_def.arrival_port:
                 if isinstance(leg_def.arrival_port, str):
-                    # String reference - expand from global registry
+                    # String reference - expand from catalog or global registry
                     port_ref = leg_def.arrival_port
                     try:
-                        port_definition = resolve_port_reference(port_ref)
+                        port_definition = resolve_port_reference(port_ref, port_catalog=self.port_registry)
                         # Create enriched port with action
                         enriched_port = PointDefinition(
                             name=port_definition.name,

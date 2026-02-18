@@ -192,7 +192,7 @@ def schedule(  # noqa: C901, PLR0915
             raise ValidationError("No legs found in cruise configuration")
 
         # Generate timeline for specified legs
-        timeline = generate_timeline(cruise)
+        timeline = generate_timeline(cruise, legs=target_legs)
 
         if not timeline:
             logger.error("Failed to generate timeline")
@@ -211,6 +211,10 @@ def schedule(  # noqa: C901, PLR0915
         from cruiseplan.utils.io import setup_output_paths
 
         output_dir_path, base_name = setup_output_paths(config_file, output_dir, output)
+        
+        # Modify base name to include leg when filtering by specific leg
+        if leg:
+            base_name = f"{base_name}_{leg}"
 
         # Parse format list
         formats = _parse_schedule_formats(format, derive_netcdf)

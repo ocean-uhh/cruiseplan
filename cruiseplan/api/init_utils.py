@@ -134,7 +134,7 @@ def generate_latex_format(
     """Generate LaTeX schedule output."""
     from cruiseplan.output.latex_generator import generate_latex_tables
 
-    latex_files = generate_latex_tables(cruise_config, timeline, output_dir_path)
+    latex_files = generate_latex_tables(cruise_config, timeline, output_dir_path, base_name)
     output_path = (
         latex_files[0] if latex_files else output_dir_path / f"{base_name}_schedule.tex"
     )

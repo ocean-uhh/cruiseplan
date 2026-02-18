@@ -1,0 +1,347 @@
+# ================================================================
+# PycnMix - 2026 February draft 1
+# ================================================================
+#
+#
+
+cruise_name: "Araon-2026-v1"
+description: "Ship track"
+start_date: "2026-02-24"
+start_time: "12:00"
+
+# Global cruise parameters (inheritable to legs)
+default_vessel_speed: 10.0  # knots
+default_distance_between_stations: 10.0  # km
+turnaround_time: 30.0  # minutes
+ctd_descent_rate: 1.0  # m/s
+ctd_ascent_rate: 1.0  # m/s
+
+
+# Add this section back - these are the "base" ports for reference
+ports:
+  - name: "port_lyttelton"
+    display_name: "Lyttelton, New Zealand"
+    latitude: -43.5333
+    longitude: 172.6333
+    timezone: "Pacific/Auckland"
+    operation_type: port  # Will be automatically added
+
+  - name: "port_jang_bogo"
+    display_name: "Jangbogo Station, Antarctica"
+    latitude: -74.621
+    longitude: 164.224
+    timezone: "Antarctica/Palmer"
+    operation_type: port  # Will be automatically added
+
+# ================================================================
+# STATION CATALOG - Individual operation definitions
+# ================================================================
+
+points:
+
+  - name: "SouthCapeAdair"
+    comment: "South Cape Adair station"
+    latitude: -72
+    longitude: 173
+    operation_type: "CTD"
+    action: "profile"
+    duration: 10.0
+  # ================================================================  
+  # MOORING OPERATIONS - Combined with stations
+  # ================================================================
+ 
+  - name: "NISS" 
+    comment: "Hyan"
+    latitude: -75.14
+    longitude: 163.42
+    operation_type: "Mooring"
+    action: "deployment"
+    duration: 120
+
+  - name: "LDEO_heavy_shallow"
+    comment: "LDEO heavy shallow station"
+    latitude: -74.9721
+    longitude: 163.9636
+    operation_type: "mooring"
+    action: "recovery"
+    duration: 120.0
+
+  - name: "LDEO_heavy_shallow"
+    comment: "LDEO heavy shallow station"
+    latitude: -74.9721
+    longitude: 163.9636
+    operation_type: "mooring"
+    action: "deployment"
+    duration: 120.0
+
+  - name: "LDEO_bottom1"
+    comment: "LDEO bottom station 1"
+    latitude: -75.0140
+    longitude: 165.5531
+    operation_type: "mooring"
+    action: "recovery"
+    duration: 120.0
+
+  - name: "LDEO_bottom1"
+    comment: "LDEO bottom station 1"
+    latitude: -75.0140
+    longitude: 165.5531
+    operation_type: "mooring"
+    action: "deployment"
+    duration: 120.0
+
+  - name: "LDEO_bottom2"
+    comment: "LDEO bottom station 2"
+    latitude: -74.6455
+    longitude: 167.1584
+    operation_type: "mooring"
+    action: "recovery"
+    duration: 120.0
+
+  - name: "LDEO_bottom2"
+    comment: "LDEO bottom station 2"
+    latitude: -74.6455
+    longitude: 167.1584
+    operation_type: "mooring"
+    action: "deployment"
+    duration: 120.0
+
+  - name: "LDEO_bottom3"
+    comment: "LDEO bottom station 3"
+    latitude: -73.8559
+    longitude: 170.6318
+    operation_type: "mooring"
+    action: "recovery"
+    duration: 120.0
+  
+  - name: "LDEO_bottom3"
+    comment: "LDEO bottom station 3"
+    latitude: -73.8559
+    longitude: 170.6318
+    operation_type: "mooring"
+    action: "deployment"
+    duration: 120.0
+
+  - name: "LDEO_bottom4"
+    comment: "LDEO bottom station 4"
+    latitude: -72.9783
+    longitude: 171.4218
+    operation_type: "mooring"
+    action: "recovery"
+    duration: 120.0
+
+  - name: "LDEO_bottom4"
+    comment: "LDEO bottom station 4"
+    latitude: -72.9783
+    longitude: 171.4218
+    operation_type: "mooring"
+    action: "deployment"
+    duration: 120.0
+
+  - name: "NIWA_DITN"
+    comment: "NIWA DITN station"
+    latitude: -75.3431
+    longitude: 164.8010
+    operation_type: "mooring"
+    action: "recovery"
+    duration: 120.0
+
+  - name: "NIWA_DITD"
+    comment: "NIWA DITD station"
+    latitude: -75.3431
+    longitude: 164.8010
+    operation_type: "mooring"
+    action: "deployment"
+    duration: 120.0
+
+  - name: "NIWA_DITD"
+    comment: "NIWA DITD station"
+    latitude: -75.3431
+    longitude: 164.8010
+    operation_type: "mooring"
+    action: "recovery"
+    duration: 120.0
+
+  - name: "NIWA_WBAT"
+    comment: "NIWA WBAT station"
+    latitude: -74.6901
+    longitude: 164.2419
+    operation_type: "mooring"
+    action: "recovery"
+    duration: 120.0
+
+# Pycnogen
+
+  - name: "Pycnogen_inner1"
+    comment: "Pycnogen station 1 (north vertex of equilateral triangle)"
+    latitude: -67.989627
+    longitude: 170.500000
+    operation_type: "mooring"
+    action: "deployment"
+    duration: 120.0
+
+  - name: "Pycnogen_inner2"
+    comment: "Pycnogen station 2 (southeast vertex of equilateral triangle)"
+    latitude: -68.005186
+    longitude: 170.523980
+    operation_type: "mooring"
+    action: "deployment"
+    duration: 120.0 
+
+  - name: "Pycnogen_inner3"
+    comment: "Pycnogen station 3 (southwest vertex of equilateral triangle)"
+    latitude: -68.005186
+    longitude: 170.476020
+    operation_type: "mooring"
+    action: "deployment"
+    duration: 120.0
+
+  - name: "Pycnogen_outer1"
+    comment: "Pycnogen station 4 (north vertex of 10km equilateral triangle)"
+    latitude: -67.948136
+    longitude: 170.500000
+    operation_type: "mooring"
+    action: "deployment"
+    duration: 120.0
+
+  - name: "Pycnogen_outer2"
+    comment: "Pycnogen station 5 (southeast vertex of 10km equilateral triangle)"
+    latitude: -68.025932
+    longitude: 170.619901
+    operation_type: "mooring"
+    action: "deployment"
+    duration: 120.0
+
+  - name: "Pycnogen_outer3"
+    comment: "Pycnogen station 6 (southwest vertex of 10km equilateral triangle)"
+    latitude: -68.025932
+    longitude: 170.380099
+    operation_type: "mooring"
+    action: "deployment"
+    duration: 120.0
+
+  - name: "Pycnogen_rafos1"
+    comment: "Pycnogen rafos station"
+    latitude: -68
+    longitude: 170.5
+    operation_type: "mooring"
+    action: "deployment"
+    duration: 120.0
+
+  - name: "Pycnogen_rafos2"
+    comment: "Pycnogen rafos station"
+    latitude: -68
+    longitude: 170.5
+    operation_type: "mooring"
+    action: "deployment"
+    duration: 120.0
+# ================================================================
+# MARITIME LEG DEFINITIONS (Port-to-Port Segments)
+# ================================================================
+
+legs:
+  - name: "Leg1"
+    description: "Christchurch to Jang Bogo"
+    departure_port: "port_lyttelton"
+    arrival_port: "port_jang_bogo"  # Intermediate port for crew change
+    vessel_speed: 10.0
+    buffer_time: 360.0  # 6h weather buffer for mooring operations
+    first_activity: "SouthCapeAdair" 
+    last_activity: "SouthCapeAdair"
+    start_date: "2026-02-24"
+    start_time: "12:00"
+    end_date: "2026-03-05"
+    end_time: "00:00"
+
+    # Activities include all 53N Observatory moorings in sequence
+    clusters:
+      - name: "transit"
+        description: "South to Jang Bogo transit - no operations"
+        strategy: "sequential"
+        ordered: true
+        activities:
+        - "SouthCapeAdair"
+
+  - name: "Leg2"
+    description: "Terra Nova Bay operations"
+    departure_port: "port_jang_bogo"
+    arrival_port: "port_jang_bogo"  # Return to Jang Bogo
+    vessel_speed: 10.0
+    buffer_time: 360.0  # 6h weather buffer for mooring operations
+    first_activity: "NISS" 
+    last_activity: "NIWA_WBAT"
+    start_date: "2026-03-05"
+    start_time: "12:00"
+    end_date: "2026-03-17"
+    end_time: "00:00"
+    
+    clusters:
+    - name: "Terra Nova"
+      description: "Operations in Terra Nova Bay - mooring deployments and recoveries"
+      strategy: "sequential"
+      ordered: true
+      activities:
+        - "NISS"
+        - "LDEO_heavy_shallow"
+        - "LDEO_bottom1"
+        - "LDEO_bottom2"
+        - "LDEO_bottom3"
+        - "LDEO_bottom4"
+        - "NIWA_DITN"
+        - "NIWA_DITD"
+        - "NIWA_WBAT"
+
+  - name: "Leg3"
+    description: "Southern and Northern Cape Adair operations, then return to Christchurch"
+    departure_port: "port_jang_bogo"
+    arrival_port: "port_lyttelton"
+    vessel_speed: 10.0
+    buffer_time: 360.0  # 6h weather buffer for mooring operations
+    first_activity: "SouthCapeAdair" 
+    last_activity: "Pycnogen_rafos2"
+    start_date: "2026-03-17"
+    start_time: "12:00"
+    end_date: "2026-04-02"
+    end_time: "12:00"
+    
+    # Activities include all 53N Observatory moorings in sequence
+    clusters:
+      - name: "last leg"
+        description: "Jang Bogo to Christchurch transit"
+        strategy: "sequential"
+        ordered: true
+        activities:
+        - "SouthCapeAdair"
+        - "Glider_Operations"
+        - "Pycnogen_inner1"
+        - "Pycnogen_inner2"
+        - "Pycnogen_inner3"
+        - "Pycnogen_outer1"
+        - "Pycnogen_outer2"
+        - "Pycnogen_outer3"
+        - "Pycnogen_rafos1"
+        - "Pycnogen_rafos2"
+
+
+# ================================================================
+# SPECIAL AREA OPERATIONS (formerly special_operations)
+# ================================================================
+
+# Special extended operations converted to area operations with locations
+areas:
+    
+  - name: "Glider_Operations"
+    description: "Autonomous glider deployment and monitoring"
+    operation_type: "survey"
+    action: "bathymetry"
+    duration: 1080.0  # 18 hours deployment/recovery
+    # Location for glider operations
+    corners:
+      - latitude: -68.2
+        longitude: 171
+      - latitude: -68.2
+        longitude: 170
+      - latitude: -67.8
+        longitude: 170
+      - latitude: -67.8
+        longitude: 171

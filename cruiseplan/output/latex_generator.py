@@ -543,7 +543,7 @@ class LaTeXGenerator:
 
 
 def generate_latex_tables(
-    config: CruiseConfig, timeline: list[ActivityRecord], output_dir: Path
+    config: CruiseConfig, timeline: list[ActivityRecord], output_dir: Path, base_name: str = None
 ) -> list[Path]:
     """
     Main interface to generate LaTeX tables for cruise proposal from scheduler timeline.
@@ -575,15 +575,16 @@ def generate_latex_tables(
     # Write to files
     output_dir.mkdir(exist_ok=True, parents=True)
 
-    # Use standardized base name generation
-    from cruiseplan.utils.io import setup_output_paths
-
-    _, base_name = setup_output_paths(
-        config_file="dummy", output_dir=str(output_dir), output=None
-    )
-    # Override with actual cruise name if available
-    if hasattr(config, "cruise_name") and config.cruise_name:
-        base_name = str(config.cruise_name).replace(" ", "_").replace("/", "-")
+    # Use provided base_name or generate one if not provided
+    if base_name is None:
+        from cruiseplan.utils.io import setup_output_paths
+        
+        _, base_name = setup_output_paths(
+            config_file="dummy", output_dir=str(output_dir), output=None
+        )
+        # Override with actual cruise name if available
+        if hasattr(config, "cruise_name") and config.cruise_name:
+            base_name = str(config.cruise_name).replace(" ", "_").replace("/", "-")
 
     # Generate separate files with consistent naming
     stations_file = output_dir / f"{base_name}_stations.tex"

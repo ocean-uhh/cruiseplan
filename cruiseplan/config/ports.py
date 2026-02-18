@@ -25,7 +25,7 @@ Usage:
 """
 
 import warnings
-from typing import Any, Union
+from typing import Any, Optional, Union
 
 from pydantic import ValidationError
 
@@ -383,6 +383,13 @@ GLOBAL_PORTS: dict[str, dict[str, Union[str, float]]] = {
         "longitude": 174.7762,
         "timezone": "Pacific/Auckland",
     },
+    "port_christchurch": {
+        "name": "Christchurch",
+        "display_name": "Christchurch, New Zealand",
+        "latitude": -43.6042,
+        "longitude": 172.7195,
+        "timezone": "Pacific/Auckland",
+    },
     "port_auckland": {
         "name": "Auckland",
         "display_name": "Auckland, New Zealand",
@@ -424,12 +431,13 @@ GLOBAL_PORTS: dict[str, dict[str, Union[str, float]]] = {
 
 def resolve_port_reference(
     port_ref: Union[str, dict[str, Any], object],
+    port_catalog: Optional[dict[str, Any]] = None,
 ) -> object:
     """
     Resolve a port reference to a complete PointDefinition object.
 
     Handles three types of input:
-    1. String reference to global port registry (e.g., 'port_reykjavik')
+    1. String reference to local catalog or global port registry (e.g., 'port_reykjavik')
     2. Dictionary with port data (user-defined override)
     3. Already instantiated PointDefinition object
 
@@ -437,6 +445,9 @@ def resolve_port_reference(
     ----------
     port_ref
         Port reference to resolve.
+    port_catalog : dict, optional
+        Local port catalog to check first before falling back to global registry.
+        Should be a dict mapping port names to PointDefinition objects or dicts.
 
     Returns
     -------
@@ -446,7 +457,7 @@ def resolve_port_reference(
     Raises
     ------
     ValueError
-        If string reference is not found in global registry.
+        If string reference is not found in catalog or global registry.
     """
     # Import locally to avoid circular dependency
     from cruiseplan.config.activities import PointDefinition
@@ -483,15 +494,29 @@ def resolve_port_reference(
 
     elif isinstance(port_ref, str):
         if port_ref.lower().startswith("port_"):
-            # Global port reference
+            # Check local catalog first, then global port registry
             port_key = port_ref.lower()
+            
+            # Check local catalog first
+            if port_catalog and port_ref in port_catalog:
+                catalog_port = port_catalog[port_ref]
+                if isinstance(catalog_port, PointDefinition):
+                    return catalog_port
+                elif isinstance(catalog_port, dict):
+                    return PointDefinition(**catalog_port)
+                else:
+                    raise ValueError(f"Unexpected type in port catalog: {type(catalog_port)}")
+            
+            # Fall back to global port registry
             if port_key in GLOBAL_PORTS:
                 port_data = GLOBAL_PORTS[port_key].copy()
                 return PointDefinition(**port_data)
             else:
                 available_ports = list(GLOBAL_PORTS.keys())
+                if port_catalog:
+                    available_ports.extend(port_catalog.keys())
                 raise ValueError(
-                    f"Port reference '{port_ref}' not found in global registry. "
+                    f"Port reference '{port_ref}' not found in catalog or global registry. "
                     f"Available ports: {', '.join(available_ports)}"
                 )
         else:

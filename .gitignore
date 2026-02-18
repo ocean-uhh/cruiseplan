@@ -175,3 +175,6 @@ cython_debug/
 .idea/
 test_output/test_map_VA176.html
 data/bathymetry/GEBCO_2025.nc
+
+# Ignore Araon cruise output files
+Araon*
