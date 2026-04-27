@@ -19,5 +19,5 @@ folium
 branca  # Folium dependency, good to be explicit
 
 # User interface
-tqdm>=4.65
+tqdm>=4.67.3
 jinja2
