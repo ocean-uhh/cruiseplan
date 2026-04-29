@@ -9,9 +9,10 @@ import logging
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List, Union
-import xarray as xr
+
 import numpy as np
 import pandas as pd
+import xarray as xr
 
 from cruiseplan.timeline.scheduler import ActivityRecord
 
@@ -21,12 +22,12 @@ logger = logging.getLogger(__name__)
 def read_schedule(filepath: Union[str, Path]) -> xr.Dataset:
     """
     Read NetCDF schedule file and return dataset.
-    
+
     Parameters
     ----------
     filepath : str or Path
         Path to NetCDF schedule file (e.g., 'MSM142_leg_2_schedule.nc')
-        
+
     Returns
     -------
     xr.Dataset
@@ -39,41 +40,52 @@ def read_schedule(filepath: Union[str, Path]) -> xr.Dataset:
         - duration: Activity duration in hours
         - latitude, longitude: Position coordinates
         - comment: Descriptive text
-        
+
     Raises
     ------
     FileNotFoundError
         If the schedule file doesn't exist
     ValueError
         If the file is not a valid NetCDF file or missing required variables
-        
+
     Examples
     --------
     >>> schedule = read_schedule("MSM142_leg_2_schedule.nc")
     >>> print(schedule.name.values)  # Show activity names
     """
     filepath = Path(filepath)
-    
+
     if not filepath.exists():
         raise FileNotFoundError(f"Schedule file not found: {filepath}")
-        
-    if not filepath.suffix == '.nc':
+
+    if not filepath.suffix == ".nc":
         raise ValueError(f"Schedule file must be NetCDF format (.nc): {filepath}")
-    
+
     try:
         logger.info(f"Reading schedule from: {filepath}")
         schedule = xr.open_dataset(filepath)
-        
+
         # Validate required variables exist
-        required_vars = ['time', 'name', 'category', 'duration', 'latitude', 'longitude']
+        required_vars = [
+            "time",
+            "name",
+            "category",
+            "duration",
+            "latitude",
+            "longitude",
+        ]
         missing_vars = [var for var in required_vars if var not in schedule.variables]
-        
+
         if missing_vars:
-            raise ValueError(f"Schedule file missing required variables: {missing_vars}")
-            
-        logger.info(f"Successfully loaded schedule with {len(schedule.time)} activities")
+            raise ValueError(
+                f"Schedule file missing required variables: {missing_vars}"
+            )
+
+        logger.info(
+            f"Successfully loaded schedule with {len(schedule.time)} activities"
+        )
         return schedule
-        
+
     except Exception as e:
         if isinstance(e, (FileNotFoundError, ValueError)):
             raise
@@ -84,20 +96,20 @@ def read_schedule(filepath: Union[str, Path]) -> xr.Dataset:
 def netcdf_to_activity_records(schedule: xr.Dataset) -> List[ActivityRecord]:
     """
     Convert NetCDF schedule dataset to ActivityRecord objects.
-    
+
     This function performs the inverse of the NetCDF generation, reconstructing
     ActivityRecord objects from NetCDF variables for complete roundtrip fidelity.
-    
+
     Parameters
     ----------
     schedule : xr.Dataset
         NetCDF schedule dataset
-        
+
     Returns
     -------
     List[ActivityRecord]
         List of ActivityRecord objects reconstructed from NetCDF data
-        
+
     Examples
     --------
     >>> schedule = read_schedule("schedule.nc")
@@ -106,10 +118,10 @@ def netcdf_to_activity_records(schedule: xr.Dataset) -> List[ActivityRecord]:
     ...     print(f"{record.label}: {record.activity}")
     """
     activity_records = []
-    
+
     # Get the number of observations
     n_obs = len(schedule.time)
-    
+
     for i in range(n_obs):
         # Convert NetCDF time values back to datetime objects
         # Handle both numpy datetime64 and float values
@@ -124,13 +136,11 @@ def netcdf_to_activity_records(schedule: xr.Dataset) -> List[ActivityRecord]:
             # Convert days since epoch to datetime
             start_time_days = float(time_value)
             start_time = datetime(1970, 1, 1) + timedelta(days=start_time_days)
-        
+
         # Handle end_time if present, otherwise calculate from duration
-        if 'end_time' in schedule.variables:
+        if "end_time" in schedule.variables:
             end_time_value = schedule.end_time[i].values
-            if np.issubdtype(type(end_time_value), np.datetime64):
-                end_time = pd.to_datetime(end_time_value).to_pydatetime()
-            elif isinstance(end_time_value, np.integer):
+            if np.issubdtype(type(end_time_value), np.datetime64) or isinstance(end_time_value, np.integer):
                 end_time = pd.to_datetime(end_time_value).to_pydatetime()
             elif not np.isnan(float(end_time_value)):
                 end_time_days = float(end_time_value)
@@ -141,44 +151,77 @@ def netcdf_to_activity_records(schedule: xr.Dataset) -> List[ActivityRecord]:
         else:
             duration_hours = float(schedule.duration[i].values)
             end_time = start_time + timedelta(hours=duration_hours)
-        
+
         # Create ActivityRecord data dictionary with all available fields
         data = {
             # Core ActivityRecord fields
-            'activity': str(schedule.activity[i].values) if 'activity' in schedule else str(schedule.category[i].values),
-            'label': str(schedule.name[i].values),
-            'entry_lat': float(schedule.latitude[i].values),
-            'entry_lon': float(schedule.longitude[i].values),
-            'exit_lat': float(schedule.exit_latitude[i].values) if 'exit_latitude' in schedule else float(schedule.latitude[i].values),
-            'exit_lon': float(schedule.exit_longitude[i].values) if 'exit_longitude' in schedule else float(schedule.longitude[i].values),
-            'start_time': start_time,
-            'end_time': end_time,
-            'duration_minutes': float(schedule.duration[i].values) * 60.0,  # Convert hours to minutes
-            'dist_nm': float(schedule.dist_nm[i].values) if 'dist_nm' in schedule else 0.0,
-            'vessel_speed_kt': float(schedule.vessel_speed[i].values) if 'vessel_speed' in schedule else 10.0,
-            'leg_name': str(schedule.leg_assignment[i].values) if 'leg_assignment' in schedule else 'unknown',
-            'op_type': str(schedule.type[i].values) if 'type' in schedule else str(schedule.category[i].values),
-            'operation_class': str(schedule.operation_class[i].values) if 'operation_class' in schedule else 'unknown',
+            "activity": (
+                str(schedule.activity[i].values)
+                if "activity" in schedule
+                else str(schedule.category[i].values)
+            ),
+            "label": str(schedule.name[i].values),
+            "entry_lat": float(schedule.latitude[i].values),
+            "entry_lon": float(schedule.longitude[i].values),
+            "exit_lat": (
+                float(schedule.exit_latitude[i].values)
+                if "exit_latitude" in schedule
+                else float(schedule.latitude[i].values)
+            ),
+            "exit_lon": (
+                float(schedule.exit_longitude[i].values)
+                if "exit_longitude" in schedule
+                else float(schedule.longitude[i].values)
+            ),
+            "start_time": start_time,
+            "end_time": end_time,
+            "duration_minutes": float(schedule.duration[i].values)
+            * 60.0,  # Convert hours to minutes
+            "dist_nm": (
+                float(schedule.dist_nm[i].values) if "dist_nm" in schedule else 0.0
+            ),
+            "vessel_speed_kt": (
+                float(schedule.vessel_speed[i].values)
+                if "vessel_speed" in schedule
+                else 10.0
+            ),
+            "leg_name": (
+                str(schedule.leg_assignment[i].values)
+                if "leg_assignment" in schedule
+                else "unknown"
+            ),
+            "op_type": (
+                str(schedule.type[i].values)
+                if "type" in schedule
+                else str(schedule.category[i].values)
+            ),
+            "operation_class": (
+                str(schedule.operation_class[i].values)
+                if "operation_class" in schedule
+                else "unknown"
+            ),
         }
-        
+
         # Optional fields that may be NaN
-        if 'action' in schedule.variables:
-            data['action'] = str(schedule.action[i].values)
-            
-        if 'operation_depth' in schedule.variables:
+        if "action" in schedule.variables:
+            data["action"] = str(schedule.action[i].values)
+
+        if "operation_depth" in schedule.variables:
             op_depth = float(schedule.operation_depth[i].values)
-            data['operation_depth'] = op_depth if not np.isnan(op_depth) else None
-            
-        if 'water_depth' in schedule.variables:
+            data["operation_depth"] = op_depth if not np.isnan(op_depth) else None
+
+        if "water_depth" in schedule.variables:
             water_depth = float(schedule.water_depth[i].values)
-            data['water_depth'] = water_depth if not np.isnan(water_depth) else None
-        elif 'waterdepth' in schedule.variables:  # Legacy name
+            data["water_depth"] = water_depth if not np.isnan(water_depth) else None
+        elif "waterdepth" in schedule.variables:  # Legacy name
             water_depth = float(schedule.waterdepth[i].values)
-            data['water_depth'] = water_depth if not np.isnan(water_depth) else None
-        
+            data["water_depth"] = water_depth if not np.isnan(water_depth) else None
+
         # Create ActivityRecord object
         activity_record = ActivityRecord(data)
         activity_records.append(activity_record)
-        
-    logger.info(f"Converted {len(activity_records)} NetCDF observations to ActivityRecord objects")
+
+    logger.info(
+        f"Converted {len(activity_records)} NetCDF observations to ActivityRecord objects"
+    )
     return activity_records

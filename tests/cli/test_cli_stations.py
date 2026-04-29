@@ -63,9 +63,11 @@ def test_main_success_with_pangaea(mock_args, mock_external_deps):
         lon_bounds=(-30.0, -20.0),
         output_dir=str(mock_args.output_dir),
         output=None,
+        config_file=None,
         pangaea_file=str(mock_args.pangaea_file),
         bathy_source="etopo2022",
         bathy_dir="data",  # Default value used by API
+        bathy_contours=None,
         high_resolution=False,
         overwrite=False,
         verbose=False,

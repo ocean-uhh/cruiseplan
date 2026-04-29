@@ -82,7 +82,7 @@ def determine_coordinate_bounds(
             f"Using explicit bounds: Lat: {lat_bounds[0]:.2f}° to {lat_bounds[1]:.2f}°, Lon: {lon_bounds[0]:.2f}° to {lon_bounds[1]:.2f}°"
         )
         return lat_bounds, lon_bounds
-    
+
     # Use config file bounds if available (second priority)
     if config_lat_bounds and config_lon_bounds:
         logger.info(
@@ -171,7 +171,9 @@ def load_pangaea_campaign_data(pangaea_file: Path) -> list[dict]:
         raise ValueError(f"Error loading PANGAEA data: {e}")
 
 
-def load_config_stations_data(config_file: Path) -> tuple[list[dict], list[dict], tuple[float, float], tuple[float, float]]:
+def load_config_stations_data(
+    config_file: Path,
+) -> tuple[list[dict], list[dict], tuple[float, float], tuple[float, float]]:
     """
     Load existing stations from cruise configuration file.
 
@@ -185,7 +187,7 @@ def load_config_stations_data(config_file: Path) -> tuple[list[dict], list[dict]
     tuple
         (stations_data, lat_bounds, lon_bounds) where:
         - stations_data: List of station dictionaries with lat/lon/depth
-        - lat_bounds: Tuple of (min_lat, max_lat) 
+        - lat_bounds: Tuple of (min_lat, max_lat)
         - lon_bounds: Tuple of (min_lon, max_lon)
 
     Raises
@@ -197,63 +199,70 @@ def load_config_stations_data(config_file: Path) -> tuple[list[dict], list[dict]
         # Load and validate the YAML configuration
         raw_data = load_yaml(config_file)
         config = CruiseConfig(**raw_data)
-        
+
         # Extract stations from points catalog
         stations_data = []
         all_lats = []
         all_lons = []
-        
+
         if config.points:
             for point in config.points:
                 station = {
                     "lat": point.latitude,
                     "lon": point.longitude,
-                    "depth": getattr(point, 'water_depth', None) or 0.0,
+                    "depth": getattr(point, "water_depth", None) or 0.0,
                     "name": point.name,
-                    "operation_type": str(point.operation_type) if hasattr(point, 'operation_type') else "station",
-                    "action": str(point.action) if hasattr(point, 'action') else None,
-                    "comment": point.comment if hasattr(point, 'comment') else None,
-                    "duration": point.duration if hasattr(point, 'duration') else None,
+                    "operation_type": (
+                        str(point.operation_type)
+                        if hasattr(point, "operation_type")
+                        else "station"
+                    ),
+                    "action": str(point.action) if hasattr(point, "action") else None,
+                    "comment": point.comment if hasattr(point, "comment") else None,
+                    "duration": point.duration if hasattr(point, "duration") else None,
                 }
                 stations_data.append(station)
                 all_lats.append(point.latitude)
                 all_lons.append(point.longitude)
-        
+
         # Extract line data separately for proper line plotting
         lines_data = []
         if config.lines:
             for line in config.lines:
-                if hasattr(line, 'route') and line.route:
+                if hasattr(line, "route") and line.route:
                     # Extract full route for line plotting
                     route_points = []
                     for point in line.route:
-                        route_points.append({
-                            "lat": point.latitude,
-                            "lon": point.longitude
-                        })
+                        route_points.append(
+                            {"lat": point.latitude, "lon": point.longitude}
+                        )
                         all_lats.append(point.latitude)
                         all_lons.append(point.longitude)
-                    
+
                     line_data = {
                         "name": line.name,
                         "route": route_points,
-                        "operation_type": "transect"
+                        "operation_type": "transect",
                     }
                     lines_data.append(line_data)
-        
+
         if not stations_data:
             raise ValueError(f"No stations found in configuration file {config_file}")
-        
+
         # Calculate bounds with padding
-        lat_padding = (max(all_lats) - min(all_lats)) * 0.1 or 1.0  # Add default padding if all same
+        lat_padding = (
+            max(all_lats) - min(all_lats)
+        ) * 0.1 or 1.0  # Add default padding if all same
         lon_padding = (max(all_lons) - min(all_lons)) * 0.1 or 1.0
-        
+
         lat_bounds = (min(all_lats) - lat_padding, max(all_lats) + lat_padding)
         lon_bounds = (min(all_lons) - lon_padding, max(all_lons) + lon_padding)
-        
+
         logger.info(f"Loaded {len(stations_data)} stations from {config_file}")
-        logger.info(f"Station bounds: Lat {lat_bounds[0]:.2f}° to {lat_bounds[1]:.2f}°, Lon {lon_bounds[0]:.2f}° to {lon_bounds[1]:.2f}°")
-        
+        logger.info(
+            f"Station bounds: Lat {lat_bounds[0]:.2f}° to {lat_bounds[1]:.2f}°, Lon {lon_bounds[0]:.2f}° to {lon_bounds[1]:.2f}°"
+        )
+
         return stations_data, lat_bounds, lon_bounds
 
     except Exception as e:
@@ -261,7 +270,10 @@ def load_config_stations_data(config_file: Path) -> tuple[list[dict], list[dict]
 
 
 def _determine_output_path(
-    output_dir: str, output: Optional[str], config_file: Optional[str], pangaea_file: Optional[str]
+    output_dir: str,
+    output: Optional[str],
+    config_file: Optional[str],
+    pangaea_file: Optional[str],
 ) -> tuple[Path, str]:
     """Determine output directory and filename for station picker."""
     output_dir_path = validate_output_directory(output_dir)
@@ -270,7 +282,9 @@ def _determine_output_path(
         output_filename = output
     elif config_file:
         # Generate filename based on config file using centralized utility
-        output_filename = generate_output_filename(config_file, "_stations_edited", ".yaml")
+        output_filename = generate_output_filename(
+            config_file, "_stations_edited", ".yaml"
+        )
     elif pangaea_file:
         # Generate filename based on PANGAEA file using centralized utility
         output_filename = generate_output_filename(pangaea_file, "_stations", ".yaml")
@@ -449,12 +463,14 @@ def stations(
     config_stations_data = None
     config_lat_bounds = None
     config_lon_bounds = None
-    
+
     if config_file:
         config_path = validate_input_file(config_file)
         logger.info(f"Loading existing stations from: {config_path}")
-        config_stations_data, config_lat_bounds, config_lon_bounds = load_config_stations_data(config_path)
-    
+        config_stations_data, config_lat_bounds, config_lon_bounds = (
+            load_config_stations_data(config_path)
+        )
+
     # Load PANGAEA campaign data if provided
     campaign_data = None
     if pangaea_file:

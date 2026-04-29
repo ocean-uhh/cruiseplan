@@ -38,7 +38,11 @@ def main(args: argparse.Namespace) -> None:
             lon_bounds=lon_bounds,
             output_dir=str(args.output_dir),
             output=getattr(args, "output", None),
-            config_file=str(args.config_file) if args.config_file else None,
+            config_file=(
+                str(getattr(args, "config_file", None))
+                if getattr(args, "config_file", None)
+                else None
+            ),
             pangaea_file=str(args.pangaea_file) if args.pangaea_file else None,
             bathy_source=getattr(args, "bathy_source", "etopo2022"),
             bathy_dir=str(getattr(args, "bathy_dir", "data")),

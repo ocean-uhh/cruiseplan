@@ -516,7 +516,9 @@ def extract_map_data(data_source, source_type="cruise", include_ports=True):
             cruise_obj = None
 
         # Extract points from timeline activities
-        points = extract_points_from_timeline(timeline_data, include_ports=include_ports)
+        points = extract_points_from_timeline(
+            timeline_data, include_ports=include_ports
+        )
 
         # Extract lines from both sources to get complete transit picture
         if cruise_obj:
@@ -632,7 +634,20 @@ def plot_bathymetry(
 
         # Always use default levels for filled contours to preserve color mapping
         filled_levels = [
-            -6000, -5000, -4000, -3000, -2000, -1500, -1000, -750, -500, -200, -100, -50, 0, 200,
+            -6000,
+            -5000,
+            -4000,
+            -3000,
+            -2000,
+            -1500,
+            -1000,
+            -750,
+            -500,
+            -200,
+            -100,
+            -50,
+            0,
+            200,
         ]
 
         # Add filled contours (unchanged from original)
@@ -651,9 +666,11 @@ def plot_bathymetry(
             try:
                 # Convert positive depths to negative values and sort
                 line_levels = [-abs(depth) for depth in custom_contours]
-                line_levels = sorted(line_levels)  # Sort in ascending order (most negative first)
+                line_levels = sorted(
+                    line_levels
+                )  # Sort in ascending order (most negative first)
                 logger.info(f"Adding custom bathymetry line contours: {line_levels}")
-                
+
                 # Add line contours on top
                 cs_lines = ax.contour(
                     lons_grid,
@@ -666,10 +683,12 @@ def plot_bathymetry(
                     alpha=0.9,
                 )
                 # Add labels to the line contours
-                ax.clabel(cs_lines, inline=True, fontsize=8, fmt='%d')
-                
+                ax.clabel(cs_lines, inline=True, fontsize=8, fmt="%d")
+
             except (ValueError, TypeError) as e:
-                logger.warning(f"Invalid custom contour values '{custom_contours}': {e}")
+                logger.warning(
+                    f"Invalid custom contour values '{custom_contours}': {e}"
+                )
                 logger.warning("Skipping custom line contours")
 
         logger.info("Added bathymetry contours covering full region")
@@ -928,7 +947,9 @@ def generate_map(
     if lat_bounds and lon_bounds:
         min_lat, max_lat = lat_bounds
         min_lon, max_lon = lon_bounds
-        logger.info(f"Using custom map bounds: {min_lat:.1f}°-{max_lat:.1f}°N, {min_lon:.1f}°-{max_lon:.1f}°E")
+        logger.info(
+            f"Using custom map bounds: {min_lat:.1f}°-{max_lat:.1f}°N, {min_lon:.1f}°-{max_lon:.1f}°E"
+        )
     else:
         # Calculate display bounds from the bounds in map_data
         bounds = map_data.get("bounds")
@@ -983,7 +1004,9 @@ def generate_map(
             total_lon_range = lon_range + 2 * lon_pad
 
             # Account for Mercator projection compression: longitude degrees get compressed by cos(lat) at high latitudes
-            mercator_lon_range = total_lon_range * abs(math.cos(math.radians(center_lat)))
+            mercator_lon_range = total_lon_range * abs(
+                math.cos(math.radians(center_lat))
+            )
 
             # Calculate aspect ratio (closer to 1.0 is more square)
             aspect_ratio = mercator_lon_range / total_lat_range

@@ -58,6 +58,9 @@ class TestMapThinCLI:
                 bathy_source="etopo2022",
                 bathy_dir="data",
                 bathy_stride=5,
+                bathy_contours=None,
+                lat_bounds=None,
+                lon_bounds=None,
                 figsize=None,
                 show_plot=False,
                 no_ports=False,
@@ -102,6 +105,9 @@ class TestMapThinCLI:
                 bathy_source="gebco2025",
                 bathy_dir="/custom/bathy",
                 bathy_stride=10,
+                bathy_contours=None,
+                lat_bounds=None,
+                lon_bounds=None,
                 figsize=[12.0, 8.0],
                 show_plot=True,
                 no_ports=True,
@@ -268,6 +274,9 @@ class TestMapThinCLI:
                 bathy_source="etopo2022",  # default
                 bathy_dir="data",  # default
                 bathy_stride=5,  # default
+                bathy_contours=None,  # default
+                lat_bounds=None,  # default
+                lon_bounds=None,  # default
                 figsize=None,  # default
                 show_plot=False,  # default
                 no_ports=False,  # default

@@ -382,8 +382,8 @@ def enrich_depths(
     for station_name, station in cruise_instance.point_registry.items():
         # Check if station already has water_depth and we're not overwriting
         if (
-            hasattr(station, "water_depth") 
-            and station.water_depth is not None 
+            hasattr(station, "water_depth")
+            and station.water_depth is not None
             and not overwrite_existing
         ):
             continue
@@ -404,7 +404,9 @@ def enrich_depths(
                 station.__dict__["bathymetry_source"] = bathymetry_source
                 stations_with_depths_added.add(station_name)
 
-                logger.debug(f"Added depth to {station_name}: {water_depth:.1f}m from {bathymetry_source}")
+                logger.debug(
+                    f"Added depth to {station_name}: {water_depth:.1f}m from {bathymetry_source}"
+                )
 
         except Exception as e:
             logger.warning(f"Failed to get depth for station {station_name}: {e}")
@@ -497,16 +499,21 @@ def add_coordinate_displays(
                 # Set the position string for display (this gets used in YAML output)
                 point.position_string = position_display
                 coord_changes_made += 1
-            
+
             # Always add individual decimal minutes fields for oceanographic use
             from cruiseplan.utils.coordinates import CoordConverter
-            point.__dict__["latitude_decmin"] = CoordConverter.format_latitude_decmin(point.latitude)
-            point.__dict__["longitude_decmin"] = CoordConverter.format_longitude_decmin(point.longitude)
+
+            point.__dict__["latitude_decmin"] = CoordConverter.format_latitude_decmin(
+                point.latitude
+            )
+            point.__dict__["longitude_decmin"] = CoordConverter.format_longitude_decmin(
+                point.longitude
+            )
             coord_changes_made += 1
 
     # Add coordinate displays for line route points
     for line in cruise_instance.line_registry.values():
-        if hasattr(line, 'route') and line.route:
+        if hasattr(line, "route") and line.route:
             for route_point in line.route:
                 if (
                     hasattr(route_point, "latitude")
@@ -516,13 +523,18 @@ def add_coordinate_displays(
                 ):
                     # Add individual decimal minutes fields for route points
                     from cruiseplan.utils.coordinates import CoordConverter
-                    route_point.__dict__["latitude_decmin"] = CoordConverter.format_latitude_decmin(route_point.latitude)
-                    route_point.__dict__["longitude_decmin"] = CoordConverter.format_longitude_decmin(route_point.longitude)
+
+                    route_point.__dict__["latitude_decmin"] = (
+                        CoordConverter.format_latitude_decmin(route_point.latitude)
+                    )
+                    route_point.__dict__["longitude_decmin"] = (
+                        CoordConverter.format_longitude_decmin(route_point.longitude)
+                    )
                     coord_changes_made += 1
 
     # Add coordinate displays for area vertices
     for area in cruise_instance.area_registry.values():
-        if hasattr(area, 'vertices') and area.vertices:
+        if hasattr(area, "vertices") and area.vertices:
             for vertex in area.vertices:
                 if (
                     hasattr(vertex, "latitude")
@@ -532,8 +544,13 @@ def add_coordinate_displays(
                 ):
                     # Add individual decimal minutes fields for area vertices
                     from cruiseplan.utils.coordinates import CoordConverter
-                    vertex.__dict__["latitude_decmin"] = CoordConverter.format_latitude_decmin(vertex.latitude)
-                    vertex.__dict__["longitude_decmin"] = CoordConverter.format_longitude_decmin(vertex.longitude)
+
+                    vertex.__dict__["latitude_decmin"] = (
+                        CoordConverter.format_latitude_decmin(vertex.latitude)
+                    )
+                    vertex.__dict__["longitude_decmin"] = (
+                        CoordConverter.format_longitude_decmin(vertex.longitude)
+                    )
                     coord_changes_made += 1
 
     return coord_changes_made

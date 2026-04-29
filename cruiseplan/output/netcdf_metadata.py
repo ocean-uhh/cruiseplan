@@ -132,7 +132,7 @@ STATION_VARIABLES = {
         "description": "Latitude where activity ends (for line operations)",
     },
     "exit_longitude": {
-        "standard_name": "longitude", 
+        "standard_name": "longitude",
         "long_name": "exit longitude",
         "units": "degrees_east",
         "description": "Longitude where activity ends (for line operations)",
@@ -292,9 +292,20 @@ def create_coordinate_variables(
 
 
 def create_operation_variables(
-    names, types, actions, durations, comments=None, distances_to_next=None,
-    exit_lats=None, exit_lons=None, end_times=None, dist_nms=None, 
-    water_depths=None, operation_depths=None, activities=None, operation_classes=None
+    names,
+    types,
+    actions,
+    durations,
+    comments=None,
+    distances_to_next=None,
+    exit_lats=None,
+    exit_lons=None,
+    end_times=None,
+    dist_nms=None,
+    water_depths=None,
+    operation_depths=None,
+    activities=None,
+    operation_classes=None,
 ) -> dict[str, tuple[list[str], Any, dict[str, Any]]]:
     """
     Create standardized operation variable definitions for xarray Dataset.
@@ -347,17 +358,25 @@ def create_operation_variables(
 
     if distances_to_next is not None:
         op_vars["distance_to_next"] = (
-            ["obs"], 
-            distances_to_next, 
-            get_variable_attributes("distance_to_next")
+            ["obs"],
+            distances_to_next,
+            get_variable_attributes("distance_to_next"),
         )
 
     # Additional ActivityRecord fields for complete preservation
     if exit_lats is not None:
-        op_vars["exit_latitude"] = (["obs"], exit_lats, get_variable_attributes("exit_latitude"))
+        op_vars["exit_latitude"] = (
+            ["obs"],
+            exit_lats,
+            get_variable_attributes("exit_latitude"),
+        )
 
     if exit_lons is not None:
-        op_vars["exit_longitude"] = (["obs"], exit_lons, get_variable_attributes("exit_longitude"))
+        op_vars["exit_longitude"] = (
+            ["obs"],
+            exit_lons,
+            get_variable_attributes("exit_longitude"),
+        )
 
     if end_times is not None:
         op_vars["end_time"] = (["obs"], end_times, get_variable_attributes("end_time"))
@@ -366,15 +385,27 @@ def create_operation_variables(
         op_vars["dist_nm"] = (["obs"], dist_nms, get_variable_attributes("dist_nm"))
 
     if water_depths is not None:
-        op_vars["water_depth"] = (["obs"], water_depths, get_variable_attributes("water_depth"))
+        op_vars["water_depth"] = (
+            ["obs"],
+            water_depths,
+            get_variable_attributes("water_depth"),
+        )
 
     if operation_depths is not None:
-        op_vars["operation_depth"] = (["obs"], operation_depths, get_variable_attributes("operation_depth"))
+        op_vars["operation_depth"] = (
+            ["obs"],
+            operation_depths,
+            get_variable_attributes("operation_depth"),
+        )
 
     if activities is not None:
         op_vars["activity"] = (["obs"], activities, get_variable_attributes("activity"))
 
     if operation_classes is not None:
-        op_vars["operation_class"] = (["obs"], operation_classes, get_variable_attributes("operation_class"))
+        op_vars["operation_class"] = (
+            ["obs"],
+            operation_classes,
+            get_variable_attributes("operation_class"),
+        )
 
     return op_vars

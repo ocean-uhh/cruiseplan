@@ -61,7 +61,11 @@ class TestScheduleThinCLI:
                 bathy_source="etopo2022",
                 bathy_dir="data/bathymetry",
                 bathy_stride=10,
+                bathy_contours=None,
+                lat_bounds=None,
+                lon_bounds=None,
                 figsize=None,
+                no_ports=False,
                 verbose=False,
             )
 
@@ -103,7 +107,11 @@ class TestScheduleThinCLI:
                 bathy_source="gebco2025",
                 bathy_dir="/custom/bathy",
                 bathy_stride=10,
+                bathy_contours=None,
+                lat_bounds=None,
+                lon_bounds=None,
                 figsize=None,
+                no_ports=False,
                 verbose=True,
             )
 
@@ -268,7 +276,11 @@ class TestScheduleThinCLI:
                 bathy_source="etopo2022",  # default
                 bathy_dir="data/bathymetry",  # default
                 bathy_stride=10,  # default
+                bathy_contours=None,  # default
+                lat_bounds=None,  # default
+                lon_bounds=None,  # default
                 figsize=None,  # default
+                no_ports=False,  # default
                 verbose=False,  # default
             )
 

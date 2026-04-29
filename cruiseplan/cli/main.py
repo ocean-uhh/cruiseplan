@@ -224,7 +224,7 @@ Examples:
         metavar="DEPTH",
         help="Custom bathymetry contour levels in meters (space-separated positive values), e.g., '500 400 300'",
     )
-    
+
     # Map bounds
     schedule_parser.add_argument(
         "--lat",
@@ -262,7 +262,10 @@ Examples:
     )
     # Primary operation flags
     stations_parser.add_argument(
-        "-c", "--config-file", type=Path, help="Existing YAML cruise configuration file to load and edit"
+        "-c",
+        "--config-file",
+        type=Path,
+        help="Existing YAML cruise configuration file to load and edit",
     )
     stations_parser.add_argument(
         "-p", "--pangaea-file", type=Path, help="PANGAEA campaigns pickle file"
@@ -702,7 +705,7 @@ Examples:
         metavar=("MIN", "MAX"),
         help="Longitude bounds for map extent (e.g., --lon 170 175)",
     )
-    
+
     # Display options
     process_parser.add_argument(
         "--figsize",
@@ -829,14 +832,14 @@ Examples:
         type=Path,
         help="NetCDF schedule file (e.g., 'MSM142_leg_2_schedule.nc')",
     )
-    
+
     # Operation modes
     stationplan_parser.add_argument(
         "--list",
-        action="store_true", 
+        action="store_true",
         help="Display all activities with indices and exit",
     )
-    
+
     # Forecast mode arguments
     stationplan_parser.add_argument(
         "--start-index",
@@ -844,7 +847,7 @@ Examples:
         help="Starting activity index for forecast mode (0-based)",
     )
     stationplan_parser.add_argument(
-        "--start-time", 
+        "--start-time",
         help="New start time for first activity (ISO format: '2026-08-30T14:00:00')",
     )
     stationplan_parser.add_argument(
@@ -855,7 +858,7 @@ Examples:
     )
     stationplan_parser.add_argument(
         "--transit-speed",
-        type=float, 
+        type=float,
         default=10.0,
         help="Ship transit speed in knots (default: 10)",
     )
@@ -863,7 +866,7 @@ Examples:
         "--current-position",
         help="Current ship position as 'lat,lon' in decimal degrees (e.g., '65.123,-30.456')",
     )
-    
+
     # Output control
     stationplan_parser.add_argument(
         "--format",

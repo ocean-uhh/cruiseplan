@@ -80,6 +80,9 @@ class TestProcessThinCLI:
                 tolerance=10.0,
                 format="all",
                 bathy_stride=10,
+                bathy_contours=None,
+                lat_bounds=None,
+                lon_bounds=None,
                 figsize=None,
                 no_port_map=False,
                 verbose=False,
@@ -137,6 +140,9 @@ class TestProcessThinCLI:
                 tolerance=5.0,
                 format="html",
                 bathy_stride=20,
+                bathy_contours=None,
+                lat_bounds=None,
+                lon_bounds=None,
                 figsize=[12, 8],
                 no_port_map=True,
                 verbose=True,
@@ -292,6 +298,9 @@ class TestProcessThinCLI:
                 tolerance=10.0,  # default
                 format="all",  # default
                 bathy_stride=10,  # default
+                bathy_contours=None,  # default
+                lat_bounds=None,  # default
+                lon_bounds=None,  # default
                 figsize=None,  # default
                 no_port_map=False,  # default
                 verbose=False,  # default

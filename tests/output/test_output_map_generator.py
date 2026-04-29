@@ -543,6 +543,9 @@ class TestGenerateMapFromYaml:
             bathy_source="etopo2022",
             bathy_stride=10,
             bathy_dir="data",
+            bathy_contours=None,
+            lat_bounds=None,
+            lon_bounds=None,
             show_plot=True,
             figsize=(14, 12),
             include_ports=True,  # Default value

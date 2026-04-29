@@ -20,8 +20,6 @@ from cruiseplan.output.netcdf_metadata import (
     create_operation_variables,
 )
 from cruiseplan.timeline.scheduler import ActivityRecord
-from cruiseplan.timeline.distance import haversine_distance
-from cruiseplan.utils.units import km_to_nm
 
 logger = logging.getLogger(__name__)
 
@@ -327,20 +325,32 @@ class NetCDFGenerator:
                 leg_names.append(event["leg_name"])
                 durations.append(event["duration_minutes"] / 60.0)  # Convert to hours
                 vessel_speeds.append(event["vessel_speed_kt"])
-                distances_to_next.append(event.get("dist_nm", 0.0))  # Distance already calculated by scheduler
+                distances_to_next.append(
+                    event.get("dist_nm", 0.0)
+                )  # Distance already calculated by scheduler
 
                 # Extract additional ActivityRecord fields for comprehensive preservation
-                exit_lats.append(event.get("exit_lat", event["entry_lat"]))  # Use entry_lat as fallback
-                exit_lons.append(event.get("exit_lon", event["entry_lon"]))  # Use entry_lon as fallback
-                
+                exit_lats.append(
+                    event.get("exit_lat", event["entry_lat"])
+                )  # Use entry_lat as fallback
+                exit_lons.append(
+                    event.get("exit_lon", event["entry_lon"])
+                )  # Use entry_lon as fallback
+
                 # Extract end time, converting to epoch days if present
                 end_time_obj = event.get("end_time")
                 if end_time_obj:
                     if isinstance(end_time_obj, str):
-                        end_time_obj = datetime.fromisoformat(end_time_obj.replace("Z", "+00:00"))
+                        end_time_obj = datetime.fromisoformat(
+                            end_time_obj.replace("Z", "+00:00")
+                        )
                     if end_time_obj.tzinfo is not None:
-                        end_time_obj = end_time_obj.astimezone(timezone.utc).replace(tzinfo=None)
-                    end_epoch_days = (end_time_obj - datetime(1970, 1, 1)).total_seconds() / 86400.0
+                        end_time_obj = end_time_obj.astimezone(timezone.utc).replace(
+                            tzinfo=None
+                        )
+                    end_epoch_days = (
+                        end_time_obj - datetime(1970, 1, 1)
+                    ).total_seconds() / 86400.0
                     end_times.append(end_epoch_days)
                 else:
                     end_times.append(np.nan)
@@ -351,18 +361,23 @@ class NetCDFGenerator:
 
                 # Get water depth and operation depth from scheduler event (preferred) or station config (fallback)
                 activity = event["activity"]
-                
+
                 # First try to get depths from scheduler event
                 water_depth = event.get("water_depth")
-                operation_depth = event.get("operation_depth") 
-                
+                operation_depth = event.get("operation_depth")
+
                 # Fallback to station lookup if not in event
-                if (water_depth is None or operation_depth is None) and activity in ["Station", "Mooring"]:
+                if (water_depth is None or operation_depth is None) and activity in [
+                    "Station",
+                    "Mooring",
+                ]:
                     station_name = event["label"]
                     station = station_lookup.get(station_name)
                     if station:
                         if water_depth is None:
-                            water_depth = getattr(station, "water_depth", None) or getattr(station, "depth", None)
+                            water_depth = getattr(
+                                station, "water_depth", None
+                            ) or getattr(station, "depth", None)
                         if operation_depth is None:
                             operation_depth = getattr(station, "operation_depth", None)
 
@@ -379,19 +394,19 @@ class NetCDFGenerator:
 
                 # Preserve original ActivityRecord fields instead of transforming
                 # Use the raw values from the ActivityRecord event data
-                
+
                 # Category mapping for CF compliance while preserving activity
                 if activity in ["Station", "Mooring"]:
                     categories.append("point_operation")
                 elif activity == "Area":
-                    categories.append("area_operation") 
+                    categories.append("area_operation")
                 elif activity == "Transit":
                     categories.append("transit")
                 elif activity == "Port":
                     categories.append("port")  # Don't map to "other"
                 else:
                     categories.append("other")
-                
+
                 # Preserve original operation type and action from ActivityRecord
                 types.append(event.get("op_type", "unknown"))
                 actions.append(event.get("action", "unknown"))
@@ -658,7 +673,7 @@ class NetCDFGenerator:
                         ["obs"],
                         exit_lons,
                         {
-                            "standard_name": "longitude", 
+                            "standard_name": "longitude",
                             "long_name": "exit longitude",
                             "units": "degrees_east",
                             "description": "Longitude where activity ends (for line operations)",
@@ -1125,10 +1140,16 @@ class NetCDFGenerator:
                 # Handle end_time
                 end_time_obj = event.get("end_time", datetime.now())
                 if isinstance(end_time_obj, str):
-                    end_time_obj = datetime.fromisoformat(end_time_obj.replace("Z", "+00:00"))
+                    end_time_obj = datetime.fromisoformat(
+                        end_time_obj.replace("Z", "+00:00")
+                    )
                 if end_time_obj.tzinfo is not None:
-                    end_time_obj = end_time_obj.astimezone(timezone.utc).replace(tzinfo=None)
-                end_epoch_days = (end_time_obj - datetime(1970, 1, 1)).total_seconds() / 86400.0
+                    end_time_obj = end_time_obj.astimezone(timezone.utc).replace(
+                        tzinfo=None
+                    )
+                end_epoch_days = (
+                    end_time_obj - datetime(1970, 1, 1)
+                ).total_seconds() / 86400.0
                 end_times.append(end_epoch_days)
 
                 # Coordinate fields
@@ -1136,25 +1157,27 @@ class NetCDFGenerator:
                 lons.append(event["entry_lon"])
                 exit_lats.append(event["exit_lat"])
                 exit_lons.append(event["exit_lon"])
-                
+
                 # Basic fields
                 names.append(event["label"])
                 leg_names.append(event["leg_name"])
                 durations.append(event["duration_minutes"] / 60.0)  # Convert to hours
                 vessel_speeds.append(event["vessel_speed_kt"])
                 dist_nms.append(event.get("dist_nm", 0.0))
-                
+
                 # Optional depth fields (handle None values)
                 operation_depth = event.get("operation_depth")
-                operation_depths.append(operation_depth if operation_depth is not None else np.nan)
-                
-                water_depth = event.get("water_depth") 
+                operation_depths.append(
+                    operation_depth if operation_depth is not None else np.nan
+                )
+
+                water_depth = event.get("water_depth")
                 water_depths.append(water_depth if water_depth is not None else np.nan)
 
                 # Preserve original ActivityRecord fields instead of transforming
                 activity = event["activity"]
                 activities.append(activity)  # Store raw activity value
-                
+
                 # Category mapping for CF compliance while preserving activity
                 if activity in ["Station", "Mooring"]:
                     categories.append("point_operation")
@@ -1166,7 +1189,7 @@ class NetCDFGenerator:
                     categories.append("port")  # Don't map to "other"
                 else:
                     categories.append("other")
-                
+
                 # Preserve original operation type and action from ActivityRecord
                 types.append(event.get("op_type", "unknown"))
                 actions.append(event.get("action", "unknown"))
@@ -1330,7 +1353,7 @@ class NetCDFGenerator:
                         exit_lons,
                         {
                             "standard_name": "longitude",
-                            "long_name": "exit longitude", 
+                            "long_name": "exit longitude",
                             "units": "degrees_east",
                             "coordinates": "time latitude longitude",
                         },

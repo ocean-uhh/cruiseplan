@@ -186,7 +186,7 @@ class StationPicker:
 
         self._plot_bathymetry()
         self._plot_initial_campaigns()  # Fixed: Added missing call
-        self._plot_existing_stations()   # Plot any pre-loaded stations
+        self._plot_existing_stations()  # Plot any pre-loaded stations
 
         # Update displays
         self._update_status_display()
@@ -321,11 +321,11 @@ class StationPicker:
         if self.bathymetry_filled_contours:
             self.bathymetry_filled_contours.remove()
             self.bathymetry_filled_contours = None
-            
+
         if self.bathymetry_line_contours:
             self.bathymetry_line_contours.remove()
             self.bathymetry_line_contours = None
-            
+
         if self.bathymetry_custom_contours:
             self.bathymetry_custom_contours.remove()
             self.bathymetry_custom_contours = None
@@ -376,20 +376,33 @@ class StationPicker:
         )
 
         # Add labels to contour lines
-        self.ax_map.clabel(self.bathymetry_line_contours, inline=True, fontsize=8, fmt="%d")
-        
+        self.ax_map.clabel(
+            self.bathymetry_line_contours, inline=True, fontsize=8, fmt="%d"
+        )
+
         # 3. Custom Line Contours (User-specified depths)
         if self.custom_contours:
             # Convert positive depths to negative values and sort
             custom_levels = [-abs(depth) for depth in self.custom_contours]
-            custom_levels = sorted(custom_levels)  # Sort in ascending order (most negative first)
-            
+            custom_levels = sorted(
+                custom_levels
+            )  # Sort in ascending order (most negative first)
+
             # Add custom line contours
             self.bathymetry_custom_contours = self.ax_map.contour(
-                xx, yy, zz, levels=custom_levels, colors="black", linewidths=0.8, alpha=0.9, linestyles="solid"
+                xx,
+                yy,
+                zz,
+                levels=custom_levels,
+                colors="black",
+                linewidths=0.8,
+                alpha=0.9,
+                linestyles="solid",
             )
             # Add labels to custom contour lines
-            self.ax_map.clabel(self.bathymetry_custom_contours, inline=True, fontsize=8, fmt="%d")
+            self.ax_map.clabel(
+                self.bathymetry_custom_contours, inline=True, fontsize=8, fmt="%d"
+            )
 
     def _plot_initial_campaigns(self):
         """Plot campaign tracks if available."""
@@ -431,11 +444,11 @@ class StationPicker:
         """Plot any pre-existing stations loaded from config file."""
         if not self.points:
             return
-            
+
         for station in self.points:
             lon = station["lon"]
             lat = station["lat"]
-            
+
             # Determine marker style based on operation type
             operation_type = station.get("operation_type", "station")
             if operation_type == "transect":
@@ -446,10 +459,11 @@ class StationPicker:
                 marker = "o"
                 color = "red"
                 label = "Station"
-            
+
             # Plot the station with appropriate style
             artist = self.ax_map.scatter(
-                lon, lat,
+                lon,
+                lat,
                 marker=marker,
                 c=color,
                 s=100,
@@ -457,26 +471,33 @@ class StationPicker:
                 linewidth=2,
                 alpha=0.8,
                 zorder=10,
-                label=label if station == self.points[0] else ""  # Only label first station of each type to avoid legend clutter
+                label=(
+                    label if station == self.points[0] else ""
+                ),  # Only label first station of each type to avoid legend clutter
             )
-            
+
             # Add text annotation with station name
-            station_name = station.get('name', 'Unknown')
+            station_name = station.get("name", "Unknown")
             self.ax_map.annotate(
                 station_name,
                 (lon, lat),
                 xytext=(8, 8),  # Offset from the marker
-                textcoords='offset points',
+                textcoords="offset points",
                 fontsize=9,
-                fontweight='bold',
-                color='black',
-                bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.8, edgecolor='black'),
-                zorder=11  # Above the markers
+                fontweight="bold",
+                color="black",
+                bbox=dict(
+                    boxstyle="round,pad=0.3",
+                    facecolor="white",
+                    alpha=0.8,
+                    edgecolor="black",
+                ),
+                zorder=11,  # Above the markers
             )
-            
+
             # Add the artist to history so it can be managed properly
             # Note: we don't add to history since these are pre-existing
-            
+
         logger.info(f"Plotted {len(self.points)} existing stations on map")
 
     # --- Mode Management Methods ---
@@ -608,14 +629,14 @@ class StationPicker:
             # Store current view limits before mode change to prevent unwanted resets
             current_xlim = self.ax_map.get_xlim()
             current_ylim = self.ax_map.get_ylim()
-            
+
             self.mode = new_mode
             self._update_mode_display()
             if new_mode != "line":
                 self._reset_line_state()
             if new_mode != "area":
                 self._reset_area_state()
-                
+
             # Restore view limits after mode change to prevent zoom reset
             self.ax_map.set_xlim(current_xlim)
             self.ax_map.set_ylim(current_ylim)
@@ -982,10 +1003,10 @@ class StationPicker:
         # Use original name if available (from pre-existing stations), otherwise generate new name
         original_name = point_data.get("name")
         station_name = original_name if original_name else f"STN_{index:03d}"
-        
+
         # Use original fields if available, otherwise use defaults
-        from cruiseplan.config.values import OperationTypeEnum, ActionEnum
-        
+        from cruiseplan.config.values import ActionEnum
+
         operation_type = point_data.get("operation_type", "station")
         # Convert string back to enum value if needed
         if operation_type == "mooring":
@@ -1002,7 +1023,7 @@ class StationPicker:
             operation_type = OperationTypeEnum.WAYPOINT
         else:
             operation_type = OperationTypeEnum.DEFAULT  # fallback for unknown types
-        
+
         action = point_data.get("action")
         if action == "deployment":
             action = ActionEnum.DEPLOYMENT
@@ -1020,10 +1041,13 @@ class StationPicker:
             action = ActionEnum.DEMOB
         else:
             action = ActionEnum.DEFAULT_POINT  # fallback
-            
-        comment = point_data.get("comment") or "Interactive selection - Review coordinates and update operation details"
+
+        comment = (
+            point_data.get("comment")
+            or "Interactive selection - Review coordinates and update operation details"
+        )
         duration = point_data.get("duration")
-        
+
         # Build the PointDefinition with all available fields
         point_attrs = {
             "name": station_name,
@@ -1033,13 +1057,13 @@ class StationPicker:
             "operation_type": operation_type,
             "action": action,
         }
-        
+
         # Add optional fields if they exist
         if water_depth is not None:
             point_attrs["water_depth"] = water_depth
         if duration is not None:
             point_attrs["duration"] = duration
-        
+
         return PointDefinition(**point_attrs)
 
     def _create_line_definition(self, line_data: dict, index: int) -> LineDefinition:

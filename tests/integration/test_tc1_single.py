@@ -237,7 +237,8 @@ class TestTC1SingleIntegration:
         assert enriched_station.water_depth == 2850.0  # Mocked value
 
         # Verify enrichment summary counts
-        assert enrichment_summary["stations_with_coords_added"] == 1
+        # Note: Now includes ports as coordinate enrichment targets
+        assert enrichment_summary["stations_with_coords_added"] == 2
         # Note: depths are already present in fixture now, so no depths added
         assert enrichment_summary["stations_with_depths_added"] == 0
 
