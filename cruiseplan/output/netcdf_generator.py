@@ -20,6 +20,8 @@ from cruiseplan.output.netcdf_metadata import (
     create_operation_variables,
 )
 from cruiseplan.timeline.scheduler import ActivityRecord
+from cruiseplan.timeline.distance import haversine_distance
+from cruiseplan.utils.units import km_to_nm
 
 logger = logging.getLogger(__name__)
 
@@ -291,11 +293,19 @@ class NetCDFGenerator:
             durations = []
             vessel_speeds = []
             operation_depths = []
+            distances_to_next = []
             # Additional coordinates for line operations
             start_lats = []
             start_lons = []
             end_lats = []
             end_lons = []
+            # Additional ActivityRecord fields for comprehensive preservation
+            exit_lats = []
+            exit_lons = []
+            end_times = []
+            dist_nms = []
+            activities = []
+            operation_classes = []
 
             for event in timeline:
                 # Convert time to days since epoch for CF compliance
@@ -317,103 +327,74 @@ class NetCDFGenerator:
                 leg_names.append(event["leg_name"])
                 durations.append(event["duration_minutes"] / 60.0)  # Convert to hours
                 vessel_speeds.append(event["vessel_speed_kt"])
+                distances_to_next.append(event.get("dist_nm", 0.0))  # Distance already calculated by scheduler
 
-                # Determine waterdepth and operation_depth: real depths for point operations, NaN for others
+                # Extract additional ActivityRecord fields for comprehensive preservation
+                exit_lats.append(event.get("exit_lat", event["entry_lat"]))  # Use entry_lat as fallback
+                exit_lons.append(event.get("exit_lon", event["entry_lon"]))  # Use entry_lon as fallback
+                
+                # Extract end time, converting to epoch days if present
+                end_time_obj = event.get("end_time")
+                if end_time_obj:
+                    if isinstance(end_time_obj, str):
+                        end_time_obj = datetime.fromisoformat(end_time_obj.replace("Z", "+00:00"))
+                    if end_time_obj.tzinfo is not None:
+                        end_time_obj = end_time_obj.astimezone(timezone.utc).replace(tzinfo=None)
+                    end_epoch_days = (end_time_obj - datetime(1970, 1, 1)).total_seconds() / 86400.0
+                    end_times.append(end_epoch_days)
+                else:
+                    end_times.append(np.nan)
+
+                dist_nms.append(event.get("dist_nm", 0.0))
+                activities.append(event.get("activity", "unknown"))
+                operation_classes.append(event.get("operation_class", "unknown"))
+
+                # Get water depth and operation depth from scheduler event (preferred) or station config (fallback)
                 activity = event["activity"]
-                if activity in ["Station", "Mooring"]:
+                
+                # First try to get depths from scheduler event
+                water_depth = event.get("water_depth")
+                operation_depth = event.get("operation_depth") 
+                
+                # Fallback to station lookup if not in event
+                if (water_depth is None or operation_depth is None) and activity in ["Station", "Mooring"]:
                     station_name = event["label"]
                     station = station_lookup.get(station_name)
-                    water_depth = getattr(station, "water_depth", None) or getattr(
-                        station, "depth", None
-                    )
-                    operation_depth = getattr(station, "operation_depth", None)
+                    if station:
+                        if water_depth is None:
+                            water_depth = getattr(station, "water_depth", None) or getattr(station, "depth", None)
+                        if operation_depth is None:
+                            operation_depth = getattr(station, "operation_depth", None)
 
-                    if station and water_depth is not None:
-                        waterdepths.append(float(water_depth))
-                    else:
-                        waterdepths.append(np.nan)
-
-                    if station and operation_depth is not None:
-                        operation_depths.append(float(operation_depth))
-                    else:
-                        operation_depths.append(np.nan)
+                # Add depths to arrays
+                if water_depth is not None:
+                    waterdepths.append(float(water_depth))
                 else:
                     waterdepths.append(np.nan)
+
+                if operation_depth is not None:
+                    operation_depths.append(float(operation_depth))
+                else:
                     operation_depths.append(np.nan)
 
-                # Map activity details to standardized fields
+                # Preserve original ActivityRecord fields instead of transforming
+                # Use the raw values from the ActivityRecord event data
+                
+                # Category mapping for CF compliance while preserving activity
                 if activity in ["Station", "Mooring"]:
                     categories.append("point_operation")
-
-                    # Get operation_type and action from the station config
-                    station_name = event["label"]
-                    station = station_lookup.get(station_name)
-                    if (
-                        station
-                        and hasattr(station, "operation_type")
-                        and hasattr(station, "action")
-                    ):
-                        # Combine operation_type and action (e.g., 'CTD_profile', 'mooring_recovery')
-                        operation_type = getattr(station, "operation_type", "unknown")
-                        action = getattr(station, "action", "unknown")
-
-                        # Convert enum objects to strings if necessary
-                        if hasattr(operation_type, "value"):
-                            operation_type = operation_type.value
-                        if hasattr(action, "value"):
-                            action = action.value
-
-                        # Create type with proper capitalization (e.g., 'CTD_profile', 'Mooring_recovery')
-                        # Special case for CTD which should be all caps
-                        if operation_type.upper() == "CTD":
-                            formatted_type = f"CTD_{action}"
-                        else:
-                            formatted_type = f"{operation_type.capitalize()}_{action}"
-                        types.append(formatted_type)
-                        actions.append(str(action))
-                    else:
-                        # Fallback to activity type
-                        types.append(activity.lower())
-                        actions.append(event.get("action") or "unknown")
-
                 elif activity == "Area":
-                    categories.append("area_operation")
-
-                    # Get area details from config
-                    area_name = event["label"]
-                    area = area_lookup.get(area_name)
-                    if (
-                        area
-                        and hasattr(area, "operation_type")
-                        and hasattr(area, "action")
-                    ):
-                        operation_type = getattr(area, "operation_type", "survey")
-                        action = getattr(area, "action", "unknown")
-
-                        # Convert enum objects to strings if necessary
-                        if hasattr(operation_type, "value"):
-                            operation_type = operation_type.value
-                        if hasattr(action, "value"):
-                            action = action.value
-
-                        formatted_type = f"{operation_type.capitalize()}_{action}"
-                        types.append(formatted_type)
-                        actions.append(action)
-                    else:
-                        types.append("Survey_unknown")
-                        actions.append("unknown")
-                elif activity == "Transit" and event.get("action"):
-                    categories.append("line_operation")
-                    types.append(event.get("operation_type", "underway"))
-                    actions.append(event.get("action") or "unknown")
+                    categories.append("area_operation") 
                 elif activity == "Transit":
                     categories.append("transit")
-                    types.append("navigation")
-                    actions.append("transit")
+                elif activity == "Port":
+                    categories.append("port")  # Don't map to "other"
                 else:
                     categories.append("other")
-                    types.append("unknown")
-                    actions.append("unknown")
+                
+                # Preserve original operation type and action from ActivityRecord
+                types.append(event.get("op_type", "unknown"))
+                actions.append(event.get("action", "unknown"))
 
                 # Add comment (lookup from config if available)
                 comment = ""
@@ -470,11 +451,17 @@ class NetCDFGenerator:
             operation_depths = np.array(operation_depths, dtype=np.float32)
             durations = np.array(durations, dtype=np.float32)
             vessel_speeds = np.array(vessel_speeds, dtype=np.float32)
+            distances_to_next = np.array(distances_to_next, dtype=np.float32)
             # Convert start/end coordinates to numpy arrays
             start_lats = np.array(start_lats, dtype=np.float32)
             start_lons = np.array(start_lons, dtype=np.float32)
             end_lats = np.array(end_lats, dtype=np.float32)
             end_lons = np.array(end_lons, dtype=np.float32)
+            # Convert additional ActivityRecord fields to numpy arrays
+            exit_lats = np.array(exit_lats, dtype=np.float32)
+            exit_lons = np.array(exit_lons, dtype=np.float32)
+            end_times = np.array(end_times, dtype=np.float64)
+            dist_nms = np.array(dist_nms, dtype=np.float32)
 
             # Create xarray Dataset
             ds = xr.Dataset(
@@ -602,6 +589,15 @@ class NetCDFGenerator:
                             "coordinates": "time latitude longitude waterdepth",
                         },
                     ),
+                    "distance_to_next": (
+                        ["obs"],
+                        distances_to_next,
+                        {
+                            "long_name": "distance to next waypoint",
+                            "units": "nautical_miles",
+                            "coordinates": "time latitude longitude waterdepth",
+                        },
+                    ),
                     # Start/end coordinates for line operations (NaN for other activities)
                     "start_latitude": (
                         ["obs"],
@@ -645,6 +641,63 @@ class NetCDFGenerator:
                             "units": "degrees_east",
                             "coordinates": "time latitude longitude",
                             "_FillValue": np.nan,
+                        },
+                    ),
+                    # Additional ActivityRecord fields for comprehensive preservation
+                    "exit_latitude": (
+                        ["obs"],
+                        exit_lats,
+                        {
+                            "standard_name": "latitude",
+                            "long_name": "exit latitude",
+                            "units": "degrees_north",
+                            "description": "Latitude where activity ends (for line operations)",
+                        },
+                    ),
+                    "exit_longitude": (
+                        ["obs"],
+                        exit_lons,
+                        {
+                            "standard_name": "longitude", 
+                            "long_name": "exit longitude",
+                            "units": "degrees_east",
+                            "description": "Longitude where activity ends (for line operations)",
+                        },
+                    ),
+                    "end_time": (
+                        ["obs"],
+                        end_times,
+                        {
+                            "standard_name": "time",
+                            "long_name": "activity end time",
+                            "units": "days since 1970-01-01 00:00:00",
+                            "calendar": "gregorian",
+                            "description": "Time when activity completes",
+                        },
+                    ),
+                    "dist_nm": (
+                        ["obs"],
+                        dist_nms,
+                        {
+                            "long_name": "activity distance",
+                            "units": "nautical_miles",
+                            "description": "Distance associated with this activity (transit or operation distance)",
+                        },
+                    ),
+                    "activity": (
+                        ["obs"],
+                        activities,
+                        {
+                            "long_name": "raw activity type",
+                            "description": "Original activity type from cruise configuration",
+                        },
+                    ),
+                    "operation_class": (
+                        ["obs"],
+                        operation_classes,
+                        {
+                            "long_name": "operation implementation class",
+                            "description": "Implementation class (PointOperation, LineOperation, etc.)",
                         },
                     ),
                 }
@@ -1036,8 +1089,11 @@ class NetCDFGenerator:
         else:
             # Extract timeline data
             times = []
+            end_times = []
             lats = []
             lons = []
+            exit_lats = []
+            exit_lons = []
             names = []
             categories = []
             types = []
@@ -1046,6 +1102,11 @@ class NetCDFGenerator:
             leg_names = []
             durations = []
             vessel_speeds = []
+            dist_nms = []
+            operation_depths = []
+            water_depths = []
+            activities = []  # Raw activity values
+            operation_classes = []  # Operation class values
 
             for event in timeline:
                 # Convert time to days since epoch for CF compliance
@@ -1061,41 +1122,71 @@ class NetCDFGenerator:
                 epoch_days = (time_obj - datetime(1970, 1, 1)).total_seconds() / 86400.0
                 times.append(epoch_days)
 
+                # Handle end_time
+                end_time_obj = event.get("end_time", datetime.now())
+                if isinstance(end_time_obj, str):
+                    end_time_obj = datetime.fromisoformat(end_time_obj.replace("Z", "+00:00"))
+                if end_time_obj.tzinfo is not None:
+                    end_time_obj = end_time_obj.astimezone(timezone.utc).replace(tzinfo=None)
+                end_epoch_days = (end_time_obj - datetime(1970, 1, 1)).total_seconds() / 86400.0
+                end_times.append(end_epoch_days)
+
+                # Coordinate fields
                 lats.append(event["entry_lat"])
                 lons.append(event["entry_lon"])
+                exit_lats.append(event["exit_lat"])
+                exit_lons.append(event["exit_lon"])
+                
+                # Basic fields
                 names.append(event["label"])
                 leg_names.append(event["leg_name"])
                 durations.append(event["duration_minutes"] / 60.0)  # Convert to hours
                 vessel_speeds.append(event["vessel_speed_kt"])
+                dist_nms.append(event.get("dist_nm", 0.0))
+                
+                # Optional depth fields (handle None values)
+                operation_depth = event.get("operation_depth")
+                operation_depths.append(operation_depth if operation_depth is not None else np.nan)
+                
+                water_depth = event.get("water_depth") 
+                water_depths.append(water_depth if water_depth is not None else np.nan)
 
-                # Map activity details to standardized fields
+                # Preserve original ActivityRecord fields instead of transforming
                 activity = event["activity"]
+                activities.append(activity)  # Store raw activity value
+                
+                # Category mapping for CF compliance while preserving activity
                 if activity in ["Station", "Mooring"]:
                     categories.append("point_operation")
-                    types.append(activity.lower())  # 'station' or 'mooring'
-                    actions.append(event.get("action") or "unknown")
-                elif activity == "Transit" and event.get("action"):
-                    categories.append("line_operation")
-                    types.append(event.get("operation_type", "underway"))
-                    actions.append(event.get("action") or "unknown")
+                elif activity == "Area":
+                    categories.append("area_operation")
                 elif activity == "Transit":
                     categories.append("transit")
-                    types.append("navigation")
-                    actions.append("transit")
+                elif activity == "Port":
+                    categories.append("port")  # Don't map to "other"
                 else:
                     categories.append("other")
-                    types.append("unknown")
-                    actions.append("unknown")
+                
+                # Preserve original operation type and action from ActivityRecord
+                types.append(event.get("op_type", "unknown"))
+                actions.append(event.get("action", "unknown"))
+                operation_classes.append(event.get("operation_class", "unknown"))
 
                 # Add comment (placeholder - would need to lookup from config)
                 comments.append("")
 
             # Convert to numpy arrays
             times = np.array(times, dtype=np.float64)
+            end_times = np.array(end_times, dtype=np.float64)
             lats = np.array(lats, dtype=np.float32)
             lons = np.array(lons, dtype=np.float32)
+            exit_lats = np.array(exit_lats, dtype=np.float32)
+            exit_lons = np.array(exit_lons, dtype=np.float32)
             durations = np.array(durations, dtype=np.float32)
             vessel_speeds = np.array(vessel_speeds, dtype=np.float32)
+            dist_nms = np.array(dist_nms, dtype=np.float32)
+            operation_depths = np.array(operation_depths, dtype=np.float32)
+            water_depths = np.array(water_depths, dtype=np.float32)
 
             # Create xarray Dataset
             ds = xr.Dataset(
@@ -1193,6 +1284,81 @@ class NetCDFGenerator:
                         {
                             "long_name": "vessel speed",
                             "units": "knots",
+                            "coordinates": "time latitude longitude",
+                        },
+                    ),
+                    "activity": (
+                        ["obs"],
+                        activities,
+                        {
+                            "long_name": "raw activity type",
+                            "description": "Original activity type from cruise configuration",
+                            "coordinates": "time latitude longitude",
+                        },
+                    ),
+                    "operation_class": (
+                        ["obs"],
+                        operation_classes,
+                        {
+                            "long_name": "operation class",
+                            "description": "Classification of operation (PointOperation, Transit, etc.)",
+                            "coordinates": "time latitude longitude",
+                        },
+                    ),
+                    "end_time": (
+                        ["obs"],
+                        end_times,
+                        {
+                            "standard_name": "time",
+                            "long_name": "end time of activity",
+                            "units": "days since 1970-01-01 00:00:00",
+                            "coordinates": "time latitude longitude",
+                        },
+                    ),
+                    "exit_latitude": (
+                        ["obs"],
+                        exit_lats,
+                        {
+                            "standard_name": "latitude",
+                            "long_name": "exit latitude",
+                            "units": "degrees_north",
+                            "coordinates": "time latitude longitude",
+                        },
+                    ),
+                    "exit_longitude": (
+                        ["obs"],
+                        exit_lons,
+                        {
+                            "standard_name": "longitude",
+                            "long_name": "exit longitude", 
+                            "units": "degrees_east",
+                            "coordinates": "time latitude longitude",
+                        },
+                    ),
+                    "dist_nm": (
+                        ["obs"],
+                        dist_nms,
+                        {
+                            "long_name": "distance",
+                            "units": "nautical_miles",
+                            "coordinates": "time latitude longitude",
+                        },
+                    ),
+                    "operation_depth": (
+                        ["obs"],
+                        operation_depths,
+                        {
+                            "long_name": "operation depth",
+                            "units": "meters",
+                            "coordinates": "time latitude longitude",
+                        },
+                    ),
+                    "water_depth": (
+                        ["obs"],
+                        water_depths,
+                        {
+                            "long_name": "water depth",
+                            "units": "meters",
                             "coordinates": "time latitude longitude",
                         },
                     ),

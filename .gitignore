@@ -1,3 +1,5 @@
+data/*
+letsgo*
 setup.sh
 */_version.py
 data/temp.nc
@@ -178,3 +180,15 @@ data/bathymetry/GEBCO_2025.nc
 
 # Ignore Araon cruise output files
 Araon*
+data/Interactive_Session_catalog.kml
+data/Interactive_Session_enriched.yaml
+
+# Additional build/distribution files
+cruiseplan.egg-info/
+test_output/
+
+# Debug/cache files
+.DS_Store
+.cache/
+.ruff_cache/
+coverage.json

@@ -82,6 +82,7 @@ YAML_FIELD_ORDER = [
     (OP_DEPTH_FIELD, "operation_depth"),
     (MAX_DEPTH_FIELD, "max_depth"),
     (WATER_DEPTH_FIELD, "water_depth"),
+    ("bathymetry_source", "bathymetry_source"),
     # Timing and spacing fields
     (DURATION_FIELD, "duration"),
     (VESSEL_SPEED_FIELD, "vessel_speed"),
@@ -95,6 +96,8 @@ YAML_FIELD_ORDER = [
     # Geographic fields
     (LATITUDE_FIELD, "latitude"),
     (LONGITUDE_FIELD, "longitude"),
+    ("latitude_decmin", "latitude_decmin"),
+    ("longitude_decmin", "longitude_decmin"),
     (LINE_VERTEX_FIELD, "route"),
     (AREA_VERTEX_FIELD, "corners"),
     ("position_string", "position_string"),
@@ -117,7 +120,10 @@ POINT_ALLOWED_FIELDS = {
     "action",
     "latitude",
     "longitude",
+    "latitude_decmin",
+    "longitude_decmin",
     "water_depth",
+    "bathymetry_source",
     "operation_depth",
     "duration",
     "delay_start",

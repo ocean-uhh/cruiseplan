@@ -211,6 +211,7 @@ def generate_png_format(
     bathy_dir: str,
     bathy_stride: int,
     figsize: tuple,
+    no_ports: bool = False,
     suffix: str = "map",
 ) -> Optional[Path]:
     """Generate PNG map output."""
@@ -226,6 +227,7 @@ def generate_png_format(
         bathy_dir=bathy_dir,
         bathy_stride=bathy_stride,
         figsize=figsize,
+        no_ports=no_ports,
         config=cruise,
     )
 

@@ -162,10 +162,10 @@ PLOT_STYLES = {
     },
     # Stations
     "station": {
-        "marker": "o",  # circle
-        "color": "#FF0000",  # red
-        "edgecolor": "#800000",  # maroon
-        "size": 60,
+        "marker": "s",  # square
+        "color": "#0000FF",  # blue
+        "edgecolor": "#000080",  # navy
+        "size": 40,
         "alpha": 0.8,
         "linewidth": 1,
         "label": "Stations",

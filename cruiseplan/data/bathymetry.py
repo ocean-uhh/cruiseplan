@@ -33,8 +33,11 @@ GEBCO_URL = "https://data.ceda.ac.uk/bodc/gebco/global/gebco_2025/ice_surface_el
 GEBCO_ZIP_FILENAME = "gebco_2025.zip"
 GEBCO_NC_FILENAME = "GEBCO_2025.nc"
 
+# GEBCO 2023 Constants
+GEBCO_2023_NC_FILENAME = "GEBCO_2023.nc"
+
 # Constants from Spec
-DEPTH_CONTOURS = [-5000, -4000, -3000, -2000, -1000, -500, -200, -100, -50, 0]
+DEPTH_CONTOURS = [-5000, -4000, -3000, -2000, -1000, -750, -500, -200, -100, -50, 0]
 
 
 class BathymetryManager:
@@ -93,7 +96,7 @@ class BathymetryManager:
         str
             'z' for ETOPO, 'elevation' for GEBCO
         """
-        if self.source == "gebco2025":
+        if self.source in ["gebco2025", "gebco2023"]:
             return "elevation"
         else:
             return "z"  # Default for ETOPO and other sources
@@ -113,6 +116,9 @@ class BathymetryManager:
         elif self.source == "gebco2025":
             filename = GEBCO_NC_FILENAME
             min_size_mb = 6900  # GEBCO is ~7.5 GB, use 6.9GB threshold
+        elif self.source == "gebco2023":
+            filename = GEBCO_2023_NC_FILENAME
+            min_size_mb = 6900  # GEBCO 2023 is similar size to 2025, ~7.5 GB
         else:
             filename = f"{self.source}.nc"
             min_size_mb = 10  # Generic minimum for custom sources

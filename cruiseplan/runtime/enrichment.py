@@ -349,12 +349,14 @@ def enrich_depths(
     cruise_instance: "CruiseInstance",
     bathymetry_source: str = "etopo2022",
     bathymetry_dir: str = "data",
+    overwrite_existing: bool = False,
 ) -> set[str]:
     """
     Add missing depth values to stations using bathymetry data.
 
     This function queries bathymetry data to fill in missing water depth values
-    for stations that don't have them specified.
+    for stations that don't have them specified. Optionally can overwrite
+    existing depth values with new bathymetry source data.
 
     Parameters
     ----------
@@ -364,11 +366,13 @@ def enrich_depths(
         Bathymetry dataset to use (default: "etopo2022")
     bathymetry_dir : str, optional
         Directory containing bathymetry data (default: "data")
+    overwrite_existing : bool, optional
+        Whether to overwrite existing water_depth values (default: False)
 
     Returns
     -------
     set[str]
-        Set of station names that had depths added
+        Set of station names that had depths added or updated
     """
     stations_with_depths_added = set()
 
@@ -376,8 +380,12 @@ def enrich_depths(
     bathymetry = BathymetryManager(source=bathymetry_source, data_dir=bathymetry_dir)
 
     for station_name, station in cruise_instance.point_registry.items():
-        # Check if station already has water_depth
-        if hasattr(station, "water_depth") and station.water_depth is not None:
+        # Check if station already has water_depth and we're not overwriting
+        if (
+            hasattr(station, "water_depth") 
+            and station.water_depth is not None 
+            and not overwrite_existing
+        ):
             continue
 
         # Get depth from bathymetry
@@ -388,13 +396,15 @@ def enrich_depths(
 
             if bathymetry_depth is not None:
                 # Convert to positive depth value (bathymetry returns negative elevation)
-                water_depth = abs(bathymetry_depth)
+                # Round to nearest 0.1 meter
+                water_depth = round(abs(bathymetry_depth), 1)
 
-                # Add depth to station
+                # Add depth and bathymetry source to station
                 station.__dict__["water_depth"] = water_depth
+                station.__dict__["bathymetry_source"] = bathymetry_source
                 stations_with_depths_added.add(station_name)
 
-                logger.debug(f"Added depth to {station_name}: {water_depth:.1f}m")
+                logger.debug(f"Added depth to {station_name}: {water_depth:.1f}m from {bathymetry_source}")
 
         except Exception as e:
             logger.warning(f"Failed to get depth for station {station_name}: {e}")
@@ -487,5 +497,43 @@ def add_coordinate_displays(
                 # Set the position string for display (this gets used in YAML output)
                 point.position_string = position_display
                 coord_changes_made += 1
+            
+            # Always add individual decimal minutes fields for oceanographic use
+            from cruiseplan.utils.coordinates import CoordConverter
+            point.__dict__["latitude_decmin"] = CoordConverter.format_latitude_decmin(point.latitude)
+            point.__dict__["longitude_decmin"] = CoordConverter.format_longitude_decmin(point.longitude)
+            coord_changes_made += 1
+
+    # Add coordinate displays for line route points
+    for line in cruise_instance.line_registry.values():
+        if hasattr(line, 'route') and line.route:
+            for route_point in line.route:
+                if (
+                    hasattr(route_point, "latitude")
+                    and hasattr(route_point, "longitude")
+                    and route_point.latitude is not None
+                    and route_point.longitude is not None
+                ):
+                    # Add individual decimal minutes fields for route points
+                    from cruiseplan.utils.coordinates import CoordConverter
+                    route_point.__dict__["latitude_decmin"] = CoordConverter.format_latitude_decmin(route_point.latitude)
+                    route_point.__dict__["longitude_decmin"] = CoordConverter.format_longitude_decmin(route_point.longitude)
+                    coord_changes_made += 1
+
+    # Add coordinate displays for area vertices
+    for area in cruise_instance.area_registry.values():
+        if hasattr(area, 'vertices') and area.vertices:
+            for vertex in area.vertices:
+                if (
+                    hasattr(vertex, "latitude")
+                    and hasattr(vertex, "longitude")
+                    and vertex.latitude is not None
+                    and vertex.longitude is not None
+                ):
+                    # Add individual decimal minutes fields for area vertices
+                    from cruiseplan.utils.coordinates import CoordConverter
+                    vertex.__dict__["latitude_decmin"] = CoordConverter.format_latitude_decmin(vertex.latitude)
+                    vertex.__dict__["longitude_decmin"] = CoordConverter.format_longitude_decmin(vertex.longitude)
+                    coord_changes_made += 1
 
     return coord_changes_made

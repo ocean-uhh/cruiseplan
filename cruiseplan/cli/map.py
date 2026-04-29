@@ -30,6 +30,9 @@ def main(args: argparse.Namespace) -> None:
             bathy_source=getattr(args, "bathy_source", "etopo2022"),
             bathy_dir=getattr(args, "bathy_dir", "data"),
             bathy_stride=getattr(args, "bathy_stride", 5),
+            bathy_contours=getattr(args, "bathy_contours", None),
+            lat_bounds=getattr(args, "lat", None),
+            lon_bounds=getattr(args, "lon", None),
             figsize=getattr(args, "figsize", None),
             show_plot=getattr(args, "show_plot", False),
             no_ports=getattr(args, "no_ports", False),
@@ -124,6 +127,27 @@ if __name__ == "__main__":
         type=int,
         default=5,
         help="Bathymetry data stride (default: 5)",
+    )
+    parser.add_argument(
+        "--bathy-contours",
+        type=float,
+        nargs="+",
+        metavar="DEPTH",
+        help="Custom bathymetry contour levels in meters (space-separated positive values), e.g., '500 400 300'",
+    )
+    parser.add_argument(
+        "--lat",
+        nargs=2,
+        type=float,
+        metavar=("MIN", "MAX"),
+        help="Latitude bounds for map extent (e.g., --lat -75 -70)",
+    )
+    parser.add_argument(
+        "--lon",
+        nargs=2,
+        type=float,
+        metavar=("MIN", "MAX"),
+        help="Longitude bounds for map extent (e.g., --lon 170 175)",
     )
     parser.add_argument(
         "--figsize",

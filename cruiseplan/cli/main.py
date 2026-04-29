@@ -122,11 +122,13 @@ This command downloads bathymetry datasets for depth calculations and bathymetri
 
 Available sources:
   etopo2022: ETOPO 2022 bathymetry (60s resolution, ~500MB)
+  gebco2023: GEBCO 2023 bathymetry (15s resolution, ~7.5GB)
   gebco2025: GEBCO 2025 bathymetry (15s resolution, ~7.5GB)
 
 Examples:
   cruiseplan bathymetry                                          # Download ETOPO 2022 (default)
   cruiseplan bathymetry --bathy-source etopo2022                # Download ETOPO 2022 explicitly
+  cruiseplan bathymetry --bathy-source gebco2023                # Download high-res GEBCO 2023
   cruiseplan bathymetry --bathy-source gebco2025                # Download high-res GEBCO 2025
   cruiseplan bathymetry --bathy-source etopo2022 --citation     # Show citation info only
         """,
@@ -150,7 +152,7 @@ Examples:
     # Bathymetry options
     bathymetry_parser.add_argument(
         "--bathy-source",
-        choices=["etopo2022", "gebco2025"],
+        choices=["etopo2022", "gebco2023", "gebco2025"],
         default="etopo2022",
         help="Bathymetry dataset to download (default: etopo2022)",
     )
@@ -199,7 +201,7 @@ Examples:
     # Bathymetry options
     schedule_parser.add_argument(
         "--bathy-source",
-        choices=["etopo2022", "gebco2025"],
+        choices=["etopo2022", "gebco2023", "gebco2025"],
         default="etopo2022",
         help="Bathymetry dataset for PNG maps (default: etopo2022)",
     )
@@ -215,6 +217,29 @@ Examples:
         default=10,
         help="Bathymetry contour stride for PNG maps (default: 10)",
     )
+    schedule_parser.add_argument(
+        "--bathy-contours",
+        type=float,
+        nargs="+",
+        metavar="DEPTH",
+        help="Custom bathymetry contour levels in meters (space-separated positive values), e.g., '500 400 300'",
+    )
+    
+    # Map bounds
+    schedule_parser.add_argument(
+        "--lat",
+        nargs=2,
+        type=float,
+        metavar=("MIN", "MAX"),
+        help="Latitude bounds for map extent (e.g., --lat -75 -70)",
+    )
+    schedule_parser.add_argument(
+        "--lon",
+        nargs=2,
+        type=float,
+        metavar=("MIN", "MAX"),
+        help="Longitude bounds for map extent (e.g., --lon 170 175)",
+    )
 
     # Display options
     schedule_parser.add_argument(
@@ -225,12 +250,20 @@ Examples:
         default=[12.0, 8.0],
         help="Figure size for PNG maps in inches (default: 12 8)",
     )
+    schedule_parser.add_argument(
+        "--no-ports",
+        action="store_true",
+        help="Exclude ports from PNG schedule maps",
+    )
 
     # --- 3. Stations Subcommand ---
     stations_parser = subparsers.add_parser(
         "stations", help="Interactive station placement with PANGAEA background"
     )
     # Primary operation flags
+    stations_parser.add_argument(
+        "-c", "--config-file", type=Path, help="Existing YAML cruise configuration file to load and edit"
+    )
     stations_parser.add_argument(
         "-p", "--pangaea-file", type=Path, help="PANGAEA campaigns pickle file"
     )
@@ -268,7 +301,7 @@ Examples:
     # Bathymetry options
     stations_parser.add_argument(
         "--bathy-source",
-        choices=["etopo2022", "gebco2025"],
+        choices=["etopo2022", "gebco2023", "gebco2025"],
         default="etopo2022",
         help="Bathymetry dataset (default: etopo2022)",
     )
@@ -277,6 +310,13 @@ Examples:
         type=Path,
         default=Path("data"),
         help="Directory containing bathymetry data (default: data)",
+    )
+    stations_parser.add_argument(
+        "--bathy-contours",
+        type=float,
+        nargs="+",
+        metavar="DEPTH",
+        help="Custom bathymetry contour levels in meters (space-separated positive values), e.g., '500 400 300'",
     )
 
     # Display options
@@ -328,7 +368,7 @@ Examples:
     # Bathymetry options
     enrich_parser.add_argument(
         "--bathy-source",
-        choices=["etopo2022", "gebco2025"],
+        choices=["etopo2022", "gebco2023", "gebco2025"],
         default="etopo2022",
         help="Bathymetry dataset (default: etopo2022)",
     )
@@ -373,7 +413,7 @@ Examples:
     # Bathymetry options
     validate_parser.add_argument(
         "--bathy-source",
-        choices=["etopo2022", "gebco2025"],
+        choices=["etopo2022", "gebco2023", "gebco2025"],
         default="etopo2022",
         help="Bathymetry dataset (default: etopo2022)",
     )
@@ -447,7 +487,7 @@ Examples:
     # Bathymetry options
     map_parser.add_argument(
         "--bathy-source",
-        choices=["etopo2022", "gebco2025"],
+        choices=["etopo2022", "gebco2023", "gebco2025"],
         default="gebco2025",
         help="Bathymetry dataset (default: gebco2025)",
     )
@@ -477,6 +517,29 @@ Examples:
         "--show-plot",
         action="store_true",
         help="Display plot interactively instead of saving to file",
+    )
+
+    # Map bounds
+    map_parser.add_argument(
+        "--lat",
+        nargs=2,
+        type=float,
+        metavar=("MIN", "MAX"),
+        help="Latitude bounds for map extent (e.g., --lat -75 -70)",
+    )
+    map_parser.add_argument(
+        "--lon",
+        nargs=2,
+        type=float,
+        metavar=("MIN", "MAX"),
+        help="Longitude bounds for map extent (e.g., --lon 170 175)",
+    )
+    map_parser.add_argument(
+        "--bathy-contours",
+        type=float,
+        nargs="+",
+        metavar="DEPTH",
+        help="Custom bathymetry contour levels in meters (space-separated positive values), e.g., '500 400 300'",
     )
 
     # General options
@@ -601,7 +664,7 @@ Examples:
     process_parser.add_argument(
         "--bathy-source",
         default="etopo2022",
-        choices=["etopo2022", "gebco2025"],
+        choices=["etopo2022", "gebco2023", "gebco2025"],
         help="Bathymetry dataset (default: etopo2022)",
     )
     process_parser.add_argument(
@@ -616,7 +679,30 @@ Examples:
         default=10,
         help="Bathymetry contour stride (default: 10)",
     )
+    process_parser.add_argument(
+        "--bathy-contours",
+        type=float,
+        nargs="+",
+        metavar="DEPTH",
+        help="Custom bathymetry contour levels in meters (space-separated positive values), e.g., '500 400 300'. Replaces default contours.",
+    )
 
+    # Map bounds
+    process_parser.add_argument(
+        "--lat",
+        nargs=2,
+        type=float,
+        metavar=("MIN", "MAX"),
+        help="Latitude bounds for map extent (e.g., --lat -75 -70)",
+    )
+    process_parser.add_argument(
+        "--lon",
+        nargs=2,
+        type=float,
+        metavar=("MIN", "MAX"),
+        help="Longitude bounds for map extent (e.g., --lon 170 175)",
+    )
+    
     # Display options
     process_parser.add_argument(
         "--figsize",
@@ -717,6 +803,86 @@ Examples:
         "--verbose", "-v", action="store_true", help="Enable verbose logging"
     )
 
+    # --- 10. Stationplan Subcommand ---
+    stationplan_parser = subparsers.add_parser(
+        "stationplan",
+        help="Generate station plan forecasts from NetCDF schedules",
+        description="Generate simple text-based station plans for real-time cruise operations",
+        epilog="""
+This command generates station plans from processed cruise schedules for real-time
+cruise operations. It can list all activities with indices or generate rolling
+forecasts starting from any activity with updated timing.
+
+Examples:
+  cruiseplan stationplan --schedule MSM142_leg_2_schedule.nc --list
+  cruiseplan stationplan --schedule data/cruise_schedule.nc --start-index 18 --start-time "2026-08-30T14:00:00"
+  cruiseplan stationplan --schedule data/cruise_schedule.nc --start-index 5 --start-time "2026-08-29T08:00:00" --duration 36 --output forecast.txt
+  cruiseplan stationplan --schedule data/cruise_schedule.nc --start-index 5 --start-time "2026-08-29T08:00:00" --current-position "65.123,-30.456"
+  cruiseplan stationplan --schedule data/cruise_schedule.nc --format tex --output station_plan.tex
+  cruiseplan stationplan --schedule data/cruise_schedule.nc --start-index 5 --duration 48 --format waypoints --output bridge_waypoints.txt
+        """,
+    )
+    # Required arguments
+    stationplan_parser.add_argument(
+        "--schedule",
+        required=True,
+        type=Path,
+        help="NetCDF schedule file (e.g., 'MSM142_leg_2_schedule.nc')",
+    )
+    
+    # Operation modes
+    stationplan_parser.add_argument(
+        "--list",
+        action="store_true", 
+        help="Display all activities with indices and exit",
+    )
+    
+    # Forecast mode arguments
+    stationplan_parser.add_argument(
+        "--start-index",
+        type=int,
+        help="Starting activity index for forecast mode (0-based)",
+    )
+    stationplan_parser.add_argument(
+        "--start-time", 
+        help="New start time for first activity (ISO format: '2026-08-30T14:00:00')",
+    )
+    stationplan_parser.add_argument(
+        "--duration",
+        type=float,
+        default=24.0,
+        help="Forecast duration in hours (default: 24)",
+    )
+    stationplan_parser.add_argument(
+        "--transit-speed",
+        type=float, 
+        default=10.0,
+        help="Ship transit speed in knots (default: 10)",
+    )
+    stationplan_parser.add_argument(
+        "--current-position",
+        help="Current ship position as 'lat,lon' in decimal degrees (e.g., '65.123,-30.456')",
+    )
+    
+    # Output control
+    stationplan_parser.add_argument(
+        "--format",
+        choices=["text", "tex", "waypoints"],
+        default="text",
+        help="Output format: 'text' for console/file output, 'tex' for LaTeX tables, 'waypoints' for bridge navigation (default: text)",
+    )
+    stationplan_parser.add_argument(
+        "-o",
+        "--output-dir",
+        type=Path,
+        default=Path("."),
+        help="Output directory (default: current directory)",
+    )
+    stationplan_parser.add_argument(
+        "--output",
+        help="Output filename (default: stdout)",
+    )
+
     # Parse args
     args = parser.parse_args()
 
@@ -761,6 +927,10 @@ Examples:
             from cruiseplan.cli.pangaea import main as pangaea_main
 
             pangaea_main(args)
+        elif args.subcommand == "stationplan":
+            from cruiseplan.cli.stationplan import main as stationplan_main
+
+            stationplan_main(args)
         else:
             print(f"Subcommand '{args.subcommand}' not yet implemented.")
             sys.exit(1)

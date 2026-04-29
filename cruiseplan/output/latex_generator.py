@@ -13,10 +13,13 @@ paginated to fit within LaTeX float environments.
 """
 
 import logging
+import numpy as np
 from pathlib import Path
 from typing import Any
 
 from jinja2 import Environment, FileSystemLoader
+
+logger = logging.getLogger(__name__)
 
 from cruiseplan.config.cruise_config import CruiseConfig
 from cruiseplan.output.output_utils import is_scientific_operation
@@ -540,6 +543,308 @@ class LaTeXGenerator:
             )
 
         return summary_rows
+
+    def generate_letsgo_table(
+        self, records: list[ActivityRecord], cruise_name: str = "Cruise", config: Any = None
+    ) -> str:
+        """
+        Generate TeX table in letsgo.m format from ActivityRecord objects.
+        
+        This replicates the texprint function from letsgo.m using rich NetCDF data.
+        
+        Parameters
+        ----------
+        records : list[ActivityRecord] 
+            ActivityRecord objects (typically from NetCDF reader)
+        cruise_name : str
+            Name of cruise for table header
+            
+        Returns
+        -------
+        str
+            TeX table content in letsgo.m format
+        """
+        # Filter out transits for cleaner output (like MATLAB version)
+        station_records = [r for r in records if r.activity != 'Transit']
+        
+        # Calculate distances between stations
+        distances = self._calculate_distances_nm(station_records)
+        
+        # Generate TeX content
+        tex_lines = []
+        
+        # First print the date
+        if station_records:
+            first_date = station_records[0].start_time.strftime('%d.%m.%Y')
+            tex_lines.append(f"& {first_date} & & & & \\\\")
+            current_date = station_records[0].start_time.date()
+        
+        for i, record in enumerate(station_records):
+            # Check for new day
+            if record.start_time.date() != current_date:
+                current_date = record.start_time.date()
+                date_str = record.start_time.strftime('%d.%m.%Y')
+                tex_lines.append(f"& {date_str} & & & & \\\\")
+            
+            # Time and position - verify coordinates against original config  
+            # Round time to nearest 10 minutes like letsgo.m (rnd = 144)
+            rounded_time = self._round_time_to_10min(record.start_time)
+            time_str = rounded_time.strftime('%H:%M')
+            verified_lat, verified_lon, coord_note = self._verify_station_coordinates(record, config)
+            lat_str, lon_str = self._format_lat_lon_dms(verified_lat, verified_lon)
+            
+            # Only show position if distance > 0.5 nm (like MATLAB version)
+            if i > 0 and distances[i] > 0.5:
+                position = f"& {time_str} & {lat_str} & {lon_str}"
+            elif i == 0:
+                position = f"& {time_str} & {lat_str} & {lon_str}"
+            else:
+                position = f"& {time_str} & & "
+            
+            # Water depth logic matching letsgo.m: show depth if distance > 0.5 nm AND it's a station
+            # For forecast mode, stations might have category='transit' but have station-like names
+            is_station = (record.activity in ['Station', 'Mooring'] or 
+                         (hasattr(record, 'op_type') and record.op_type in ['ctd', 'mooring', 'station']) or
+                         (hasattr(record, 'label') and any(pattern in record.label.lower() for pattern in ['ctd', 'fd-', 'ds-', 'station', 'mooring'])))
+            
+            if i > 0 and distances[i] > 0.5 and is_station:
+                # Show depth for stations with distance > 0.5nm
+                if record.water_depth and not np.isnan(record.water_depth):
+                    depth_str = f" & {record.water_depth:4.0f} m"
+                else:
+                    depth_str = " &       "
+            elif i == 0:
+                # First entry - show depth if it's a station
+                if is_station and record.water_depth and not np.isnan(record.water_depth):
+                    depth_str = f" & {record.water_depth:4.0f} m"
+                else:
+                    depth_str = " &       "
+            else:
+                # Transit or other non-station activity
+                depth_str = " &       "
+            
+            # Comment (station name/label) - escape LaTeX special characters
+            comment = self._escape_latex_text(record.label)
+            tex_lines.append(f"{position}{depth_str} &         & {comment} \\\\")
+            
+            # Distance to next station (if > 0.5 nm)
+            if i < len(station_records) - 1 and distances[i+1] > 0.5:
+                tex_lines.append(
+                    f" &       &                       "
+                    f"&                        &        & {distances[i+1]:4.0f} nm & \\\\"
+                )
+        
+        # Wrap in complete LaTeX document structure
+        table_content = '\n'.join(tex_lines)
+        
+        # Escape LaTeX special characters in cruise name
+        safe_cruise_name = self._escape_latex_text(cruise_name)
+        
+        full_document = f"""\\documentclass{{article}}
+\\usepackage{{booktabs}}
+\\usepackage{{longtable}}
+\\usepackage{{geometry}}
+\\usepackage{{textcomp}}
+\\geometry{{landscape,margin=1in}}
+
+\\begin{{document}}
+
+\\section*{{Station Plan: {safe_cruise_name}}}
+
+\\begin{{longtable}}{{lllllll}}
+\\toprule
+Date & Time & Latitude & Longitude & Depth & Distance & Station \\\\
+\\midrule
+\\endfirsthead
+
+\\multicolumn{{7}}{{l}}{{\\textit{{Continued from previous page}}}} \\\\
+\\toprule
+Date & Time & Latitude & Longitude & Depth & Distance & Station \\\\
+\\midrule
+\\endhead
+
+\\midrule
+\\multicolumn{{7}}{{r}}{{\\textit{{Continued on next page}}}} \\\\
+\\endfoot
+
+\\bottomrule
+\\endlastfoot
+
+{table_content}
+
+\\end{{longtable}}
+
+\\end{{document}}
+"""
+        return full_document
+
+    def _escape_latex_text(self, text: str) -> str:
+        """Escape LaTeX special characters in text."""
+        return (text.replace('_', ' ')
+                   .replace('&', '\\&')
+                   .replace('%', '\\%') 
+                   .replace('$', '\\$')
+                   .replace('#', '\\#')
+                   .replace('{', '\\{')
+                   .replace('}', '\\}'))
+
+    def _get_original_station_coordinates(self, station_name: str, config: Any = None) -> tuple[float, float, bool]:
+        """
+        Get original station coordinates from cruise configuration.
+        
+        Returns (lat, lon, found) where found indicates if station was found in config.
+        """
+        if config is None:
+            return 0.0, 0.0, False
+            
+        try:
+            # Look for station in cruise configuration points
+            if hasattr(config, 'points') and config.points:
+                for point in config.points:
+                    if hasattr(point, 'name') and point.name == station_name:
+                        if hasattr(point, 'latitude') and hasattr(point, 'longitude'):
+                            return float(point.latitude), float(point.longitude), True
+                            
+            # Also check legs->clusters->activities if no direct match
+            if hasattr(config, 'legs') and config.legs:
+                for leg in config.legs:
+                    if hasattr(leg, 'clusters') and leg.clusters:
+                        for cluster in leg.clusters:
+                            if hasattr(cluster, 'activities') and cluster.activities:
+                                for activity_name in cluster.activities:
+                                    if activity_name == station_name:
+                                        # Found in cluster, now look for the point definition
+                                        for point in config.points:
+                                            if hasattr(point, 'name') and point.name == station_name:
+                                                return float(point.latitude), float(point.longitude), True
+                                                
+        except Exception as e:
+            logger.warning(f"Error looking up original coordinates for {station_name}: {e}")
+            
+        return 0.0, 0.0, False
+
+    def _verify_station_coordinates(self, record: Any, config: Any = None) -> tuple[float, float, str]:
+        """
+        Verify station coordinates and return the correct ones to use.
+        
+        Returns (lat, lon, note) where note indicates any coordinate discrepancies.
+        """
+        # For non-station activities, use the timeline coordinates
+        if record.activity not in ['Station', 'Mooring']:
+            return record.entry_lat, record.entry_lon, ""
+            
+        # For stations, check against original configuration
+        orig_lat, orig_lon, found = self._get_original_station_coordinates(record.label, config)
+        
+        if not found:
+            # Use timeline coordinates if no original found
+            return record.entry_lat, record.entry_lon, " (from timeline)"
+            
+        # Check if coordinates match (within reasonable tolerance)
+        lat_diff = abs(orig_lat - record.entry_lat)
+        lon_diff = abs(orig_lon - record.entry_lon)
+        
+        if lat_diff > 0.001 or lon_diff > 0.001:  # ~100m tolerance
+            # Coordinates differ - use original and add note
+            logger.warning(f"Station {record.label}: coordinate mismatch. "
+                          f"Original: {orig_lat:.6f}, {orig_lon:.6f} "
+                          f"Timeline: {record.entry_lat:.6f}, {record.entry_lon:.6f}")
+            return orig_lat, orig_lon, " (corrected)"
+        else:
+            # Coordinates match - use original 
+            return orig_lat, orig_lon, ""
+
+    def _round_time_to_10min(self, dt):
+        """Round time to nearest 10 minutes like letsgo.m (rnd = 144)."""
+        from datetime import datetime
+        
+        # Convert to total minutes
+        total_minutes = dt.hour * 60 + dt.minute
+        
+        # Round to nearest 10 minutes
+        rounded_minutes = round(total_minutes / 10) * 10
+        
+        # Convert back to datetime
+        hours = rounded_minutes // 60
+        minutes = rounded_minutes % 60
+        
+        return dt.replace(hour=hours % 24, minute=minutes, second=0, microsecond=0)
+
+    def _format_lat_lon_dms(self, lat: float, lon: float) -> tuple[str, str]:
+        """Format latitude/longitude in degrees/minutes like MATLAB gllfancy."""
+        
+        # Format latitude - use ASCII characters for LaTeX compatibility
+        lat_deg = int(abs(lat))
+        lat_min = (abs(lat) - lat_deg) * 60
+        lat_hem = 'N' if lat >= 0 else 'S'
+        lat_str = f"{lat_deg:02d}\\textdegree{lat_min:05.2f}'{lat_hem}"
+        
+        # Format longitude - use ASCII characters for LaTeX compatibility  
+        lon_deg = int(abs(lon))
+        lon_min = (abs(lon) - lon_deg) * 60
+        lon_hem = 'E' if lon >= 0 else 'W'
+        lon_str = f"{lon_deg:03d}\\textdegree{lon_min:05.2f}'{lon_hem}"
+        
+        return lat_str, lon_str
+
+    def _calculate_distances_nm(self, records: list[ActivityRecord]) -> list[float]:
+        """Calculate distances between stations in nautical miles."""
+        distances = [0.0]  # First station has no distance
+        
+        for i in range(1, len(records)):
+            prev_lat = np.radians(records[i-1].entry_lat)
+            prev_lon = np.radians(records[i-1].entry_lon)
+            curr_lat = np.radians(records[i].entry_lat)
+            curr_lon = np.radians(records[i].entry_lon)
+            
+            # Haversine formula
+            dlat = curr_lat - prev_lat
+            dlon = curr_lon - prev_lon
+            a = (np.sin(dlat/2)**2 + 
+                 np.cos(prev_lat) * np.cos(curr_lat) * np.sin(dlon/2)**2)
+            c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1-a))
+            dist_nm = 6371.0 * c * 0.539957  # Convert km to nautical miles
+            distances.append(dist_nm)
+        
+        return distances
+
+
+def generate_letsgo_table_from_netcdf(
+    netcdf_path: Path, output_path: Path = None
+) -> Path:
+    """
+    Generate TeX table in letsgo.m format from NetCDF schedule file.
+    
+    Parameters
+    ----------
+    netcdf_path : Path
+        Path to NetCDF schedule file
+    output_path : Path, optional
+        Output path for .tex file. If None, uses netcdf_path with .tex extension
+        
+    Returns
+    -------
+    Path
+        Path to generated .tex file
+    """
+    from cruiseplan.forecast.reader import read_schedule, netcdf_to_activity_records
+    
+    if output_path is None:
+        output_path = netcdf_path.with_suffix('.tex')
+    
+    # Read NetCDF and convert to ActivityRecord objects
+    schedule = read_schedule(netcdf_path)
+    records = netcdf_to_activity_records(schedule)
+    
+    # Generate TeX table
+    generator = LaTeXGenerator()
+    cruise_name = netcdf_path.stem
+    tex_content = generator.generate_letsgo_table(records, cruise_name)
+    
+    # Write to file
+    output_path.write_text(tex_content, encoding="utf-8")
+    
+    return output_path
 
 
 def generate_latex_tables(

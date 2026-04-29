@@ -56,43 +56,167 @@
         <!-- Ports -->
 
         <!-- Stations -->
+        <Placemark>
+            <name>FD-DS-A</name>
+            <description>
+                Type: UPDATE-CTD-MOORING-ETC
+                Action: UPDATE-PROFILE-SAMPLING-ETC
+                Location: 65.244000°N, -31.317700°W
+                Depth: N/A m
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>-31.3177,65.244,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>FD-DS-B</name>
+            <description>
+                Type: UPDATE-CTD-MOORING-ETC
+                Action: UPDATE-PROFILE-SAMPLING-ETC
+                Location: 65.026800°N, -31.370200°W
+                Depth: 1875 m
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>-31.3702,65.0268,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>dsK1</name>
+            <description>
+                Type: UPDATE-CTD-MOORING-ETC
+                Action: UPDATE-PROFILE-SAMPLING-ETC
+                Location: 65.566730°N, -29.431300°W
+                Depth: N/A m
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>-29.4313,65.56673,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>dsK2</name>
+            <description>
+                Type: UPDATE-CTD-MOORING-ETC
+                Action: UPDATE-PROFILE-SAMPLING-ETC
+                Location: 65.556850°N, -29.349330°W
+                Depth: N/A m
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>-29.34933,65.55685,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>dsK3</name>
+            <description>
+                Type: UPDATE-CTD-MOORING-ETC
+                Action: UPDATE-PROFILE-SAMPLING-ETC
+                Location: 65.531480°N, -29.412700°W
+                Depth: N/A m
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>-29.4127,65.53148,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>dsG1</name>
+            <description>
+                Type: UPDATE-CTD-MOORING-ETC
+                Action: UPDATE-PROFILE-SAMPLING-ETC
+                Location: 65.594650°N, -29.466800°W
+                Depth: N/A m
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>-29.4668,65.59465,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>dsG2</name>
+            <description>
+                Type: UPDATE-CTD-MOORING-ETC
+                Action: UPDATE-PROFILE-SAMPLING-ETC
+                Location: 65.566080°N, -29.277400°W
+                Depth: N/A m
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>-29.2774,65.56608,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>dsG3</name>
+            <description>
+                Type: UPDATE-CTD-MOORING-ETC
+                Action: UPDATE-PROFILE-SAMPLING-ETC
+                Location: 65.501630°N, -29.434300°W
+                Depth: N/A m
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>-29.4343,65.50163,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>STN_009</name>
+            <description>
+                Type: UPDATE-CTD-MOORING-ETC
+                Action: UPDATE-PROFILE-SAMPLING-ETC
+                Location: 65.588550°N, -29.450700°W
+                Depth: 708 m
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>-29.4507,65.58855,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>STN_010</name>
+            <description>
+                Type: UPDATE-CTD-MOORING-ETC
+                Action: UPDATE-PROFILE-SAMPLING-ETC
+                Location: 65.566300°N, -29.410940°W
+                Depth: 802 m
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>-29.41094,65.5663,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>STN_011</name>
+            <description>
+                Type: UPDATE-CTD-MOORING-ETC
+                Action: UPDATE-PROFILE-SAMPLING-ETC
+                Location: 65.491720°N, -29.416900°W
+                Depth: 1003 m
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>-29.4169,65.49172,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>STN_012</name>
+            <description>
+                Type: UPDATE-CTD-MOORING-ETC
+                Action: UPDATE-PROFILE-SAMPLING-ETC
+                Location: 65.553530°N, -29.231000°W
+                Depth: 1000 m
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>-29.231,65.55353,0</coordinates>
+            </Point>
+        </Placemark>
 
         <!-- Moorings -->
 
         <!-- Transits -->
-        <Placemark>
-            <name>Transit_01</name>
-            <description>
-                Type: UPDATE-underway-etc
-                Start: 60.111640°N, -56.208570°W
-                End: 57.413450°N, -51.393570°W
-                Distance: 220.6 nm
-            </description>
-            <styleUrl>#transitStyle</styleUrl>
-            <LineString>
-                <coordinates>
-                    -56.20857,60.11164,0
-                    -51.39357,57.41345,0
-                </coordinates>
-            </LineString>
-        </Placemark>
 
         <!-- Areas -->
-        <Placemark>
-            <name>Area_01</name>
-            <description>
-                Type: Area
-                Corners: 3
-                Operation: UPDATE-survey-etc
-            </description>
-            <styleUrl>#areaStyle</styleUrl>
-            <Polygon>
-                <outerBoundaryIs>
-                    <LinearRing>
-                        <coordinates>-49.05993,59.20696,0 -54.17032,61.34964,0 -55.02697,57.0484,0 -49.05993,59.20696,0</coordinates>
-                    </LinearRing>
-                </outerBoundaryIs>
-            </Polygon>
-        </Placemark>
     </Document>
 </kml>

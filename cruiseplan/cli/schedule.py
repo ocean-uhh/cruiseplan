@@ -46,7 +46,11 @@ def main(args: argparse.Namespace) -> None:
             bathy_source=getattr(args, "bathy_source", "etopo2022"),
             bathy_dir=getattr(args, "bathy_dir", "data/bathymetry"),
             bathy_stride=getattr(args, "bathy_stride", 10),
+            bathy_contours=getattr(args, "bathy_contours", None),
+            lat_bounds=getattr(args, "lat", None),
+            lon_bounds=getattr(args, "lon", None),
             figsize=getattr(args, "figsize", None),
+            no_ports=getattr(args, "no_ports", False),
             verbose=getattr(args, "verbose", False),
         )
 
@@ -119,7 +123,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--format",
-        choices=["html", "latex", "csv", "netcdf", "all"],
+        choices=["html", "latex", "csv", "netcdf", "png", "all"],
         default="all",
         help="Output format (default: all)",
     )

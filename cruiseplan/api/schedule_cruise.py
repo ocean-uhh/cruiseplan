@@ -85,7 +85,11 @@ def schedule(  # noqa: C901, PLR0915
     bathy_source: str = "etopo2022",
     bathy_dir: str = "data/bathymetry",
     bathy_stride: int = 10,
+    bathy_contours: Optional[list] = None,
+    lat_bounds: Optional[list] = None,
+    lon_bounds: Optional[list] = None,
     figsize: Optional[list] = None,
+    no_ports: bool = False,
     verbose: bool = False,
 ) -> ScheduleResult:
     """
@@ -114,6 +118,8 @@ def schedule(  # noqa: C901, PLR0915
         Bathymetry contour stride for PNG maps (default: 10)
     figsize : list
         Figure size for PNG maps [width, height] (default: [12, 8])
+    no_ports : bool
+        Exclude ports from PNG schedule maps (default: False)
     verbose : bool
         Enable verbose logging (default: False)
 
@@ -277,6 +283,7 @@ def schedule(  # noqa: C901, PLR0915
                     bathy_dir,
                     bathy_stride,
                     tuple(figsize) if isinstance(figsize, list) else figsize,
+                    no_ports=no_ports,
                     suffix="schedule",
                 )
                 if output_file:

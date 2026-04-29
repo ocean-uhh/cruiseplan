@@ -336,7 +336,7 @@ def calculate_optimal_figsize(
     return (width, height)
 
 
-def extract_points_from_timeline(timeline) -> list[dict[str, Any]]:
+def extract_points_from_timeline(timeline, include_ports=True) -> list[dict[str, Any]]:
     """
     Extract point features (stations, ports) from timeline activities.
 
@@ -344,6 +344,8 @@ def extract_points_from_timeline(timeline) -> list[dict[str, Any]]:
     ----------
     timeline : List[ActivityRecord]
         List of timeline activity records
+    include_ports : bool, optional
+        Whether to include departure/arrival ports (default True)
 
     Returns
     -------
@@ -367,9 +369,15 @@ def extract_points_from_timeline(timeline) -> list[dict[str, Any]]:
             if activity_type == "Port_Departure":
                 entity_type = "departure_port"
                 operation_type = "port"
+                # Skip ports if include_ports is False
+                if not include_ports:
+                    continue
             elif activity_type == "Port_Arrival":
                 entity_type = "arrival_port"
                 operation_type = "port"
+                # Skip ports if include_ports is False
+                if not include_ports:
+                    continue
             elif activity_type in ["Station"]:
                 entity_type = "station"
                 operation_type = activity.get(
@@ -508,7 +516,7 @@ def extract_map_data(data_source, source_type="cruise", include_ports=True):
             cruise_obj = None
 
         # Extract points from timeline activities
-        points = extract_points_from_timeline(timeline_data)
+        points = extract_points_from_timeline(timeline_data, include_ports=include_ports)
 
         # Extract lines from both sources to get complete transit picture
         if cruise_obj:
@@ -572,6 +580,7 @@ def plot_bathymetry(
     bathy_source: str = "gebco2025",
     bathy_stride: int = 5,
     bathy_dir: str = "data",
+    custom_contours: Optional[list] = None,
 ) -> bool:
     """
     Plot bathymetry contours on a matplotlib axis.
@@ -621,30 +630,47 @@ def plot_bathymetry(
         # Use same colormap as station picker
         cmap = get_colormap("bathymetry")
 
-        # Add filled contours matching station picker levels
+        # Always use default levels for filled contours to preserve color mapping
+        filled_levels = [
+            -6000, -5000, -4000, -3000, -2000, -1500, -1000, -750, -500, -200, -100, -50, 0, 200,
+        ]
+
+        # Add filled contours (unchanged from original)
         cs_filled = ax.contourf(
             lons_grid,
             lats_grid,
             depths_grid,
-            levels=[
-                -6000,
-                -5000,
-                -4000,
-                -3000,
-                -2000,
-                -1500,
-                -1000,
-                -500,
-                -200,
-                -100,
-                -50,
-                0,
-                200,
-            ],
+            levels=filled_levels,
             cmap=cmap,
             alpha=0.7,
             extend="both",
         )
+
+        # Add custom line contours if specified
+        if custom_contours:
+            try:
+                # Convert positive depths to negative values and sort
+                line_levels = [-abs(depth) for depth in custom_contours]
+                line_levels = sorted(line_levels)  # Sort in ascending order (most negative first)
+                logger.info(f"Adding custom bathymetry line contours: {line_levels}")
+                
+                # Add line contours on top
+                cs_lines = ax.contour(
+                    lons_grid,
+                    lats_grid,
+                    depths_grid,
+                    levels=line_levels,
+                    colors="black",
+                    linewidths=0.8,
+                    linestyles="solid",
+                    alpha=0.9,
+                )
+                # Add labels to the line contours
+                ax.clabel(cs_lines, inline=True, fontsize=8, fmt='%d')
+                
+            except (ValueError, TypeError) as e:
+                logger.warning(f"Invalid custom contour values '{custom_contours}': {e}")
+                logger.warning("Skipping custom line contours")
 
         logger.info("Added bathymetry contours covering full region")
         return cs_filled  # Return contour object for colorbar creation later
@@ -850,6 +876,9 @@ def generate_map(
     bathy_source: str = "gebco2025",
     bathy_stride: int = 5,
     bathy_dir: str = "data",
+    bathy_contours: Optional[list] = None,
+    lat_bounds: Optional[list] = None,
+    lon_bounds: Optional[list] = None,
     show_plot: bool = False,
     figsize: tuple[float, float] = (10, 8.1),
     include_ports: bool = True,
@@ -895,73 +924,81 @@ def generate_map(
     output_path = Path(output_file)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Calculate display bounds from the bounds in map_data
-    bounds = map_data.get("bounds")
-    if bounds:
-        min_lon, max_lon, min_lat, max_lat = bounds
+    # Use custom bounds if provided, otherwise calculate from data
+    if lat_bounds and lon_bounds:
+        min_lat, max_lat = lat_bounds
+        min_lon, max_lon = lon_bounds
+        logger.info(f"Using custom map bounds: {min_lat:.1f}°-{max_lat:.1f}°N, {min_lon:.1f}°-{max_lon:.1f}°E")
     else:
-        # Fallback: calculate from points
-        all_lats = [point["lat"] for point in map_data["points"]]
-        all_lons = [point["lon"] for point in map_data["points"]]
-        if not all_lats:
-            logger.warning("No valid coordinates found")
-            return None
-        min_lat, max_lat = min(all_lats), max(all_lats)
-        min_lon, max_lon = min(all_lons), max(all_lons)
+        # Calculate display bounds from the bounds in map_data
+        bounds = map_data.get("bounds")
+        if bounds:
+            min_lon, max_lon, min_lat, max_lat = bounds
+        else:
+            # Fallback: calculate from points
+            all_lats = [point["lat"] for point in map_data["points"]]
+            all_lons = [point["lon"] for point in map_data["points"]]
+            if not all_lats:
+                logger.warning("No valid coordinates found")
+                return None
+            min_lat, max_lat = min(all_lats), max(all_lats)
+            min_lon, max_lon = min(all_lons), max(all_lons)
 
-    # Add padding to bounds - choose combination that gives most square map
-    padding_percent = 0.20  # 20% padding around data points
-    max_padding_deg = 5.0  # maximum padding in degrees
+    # Only add automatic padding if using auto-calculated bounds
+    if not (lat_bounds and lon_bounds):
+        # Add padding to bounds - choose combination that gives most square map
+        padding_percent = 0.20  # 20% padding around data points
+        max_padding_deg = 5.0  # maximum padding in degrees
 
-    lat_range = max_lat - min_lat
-    lon_range = max_lon - min_lon
+        lat_range = max_lat - min_lat
+        lon_range = max_lon - min_lon
 
-    # Handle edge case where all points have same coordinates (single point or line)
-    # Ensure minimum 2 degree span for reasonable map display
-    lat_range = max(lat_range, 2.0)
-    lon_range = max(lon_range, 2.0)
+        # Handle edge case where all points have same coordinates (single point or line)
+        # Ensure minimum 2 degree span for reasonable map display
+        lat_range = max(lat_range, 2.0)
+        lon_range = max(lon_range, 2.0)
 
-    # Calculate padding options
-    lat_padding_pct = padding_percent * lat_range
-    lon_padding_pct = padding_percent * lon_range
-    lat_padding_fixed = max_padding_deg
-    lon_padding_fixed = max_padding_deg
+        # Calculate padding options
+        lat_padding_pct = padding_percent * lat_range
+        lon_padding_pct = padding_percent * lon_range
+        lat_padding_fixed = max_padding_deg
+        lon_padding_fixed = max_padding_deg
 
-    # Four padding combinations to evaluate
-    padding_options = [
-        (lat_padding_pct, lon_padding_fixed),  # 20% lat, fixed lon
-        (lat_padding_pct, lon_padding_pct),  # 20% lat, 20% lon
-        (lat_padding_fixed, lon_padding_pct),  # fixed lat, 20% lon
-        (lat_padding_fixed, lon_padding_fixed),  # fixed lat, fixed lon
-    ]
+        # Four padding combinations to evaluate
+        padding_options = [
+            (lat_padding_pct, lon_padding_fixed),  # 20% lat, fixed lon
+            (lat_padding_pct, lon_padding_pct),  # 20% lat, 20% lon
+            (lat_padding_fixed, lon_padding_pct),  # fixed lat, 20% lon
+            (lat_padding_fixed, lon_padding_fixed),  # fixed lat, fixed lon
+        ]
 
-    # Find combination that gives most square aspect ratio
-    center_lat = (min_lat + max_lat) / 2  # approximate center for Mercator scaling
-    best_ratio = float("inf")
-    best_padding = padding_options[0]
+        # Find combination that gives most square aspect ratio
+        center_lat = (min_lat + max_lat) / 2  # approximate center for Mercator scaling
+        best_ratio = float("inf")
+        best_padding = padding_options[0]
 
-    for lat_pad, lon_pad in padding_options:
-        # Calculate resulting bounds
-        total_lat_range = lat_range + 2 * lat_pad
-        total_lon_range = lon_range + 2 * lon_pad
+        for lat_pad, lon_pad in padding_options:
+            # Calculate resulting bounds
+            total_lat_range = lat_range + 2 * lat_pad
+            total_lon_range = lon_range + 2 * lon_pad
 
-        # Account for Mercator projection compression: longitude degrees get compressed by cos(lat) at high latitudes
-        mercator_lon_range = total_lon_range * abs(math.cos(math.radians(center_lat)))
+            # Account for Mercator projection compression: longitude degrees get compressed by cos(lat) at high latitudes
+            mercator_lon_range = total_lon_range * abs(math.cos(math.radians(center_lat)))
 
-        # Calculate aspect ratio (closer to 1.0 is more square)
-        aspect_ratio = mercator_lon_range / total_lat_range
-        ratio_from_square = abs(aspect_ratio - 1.0)
+            # Calculate aspect ratio (closer to 1.0 is more square)
+            aspect_ratio = mercator_lon_range / total_lat_range
+            ratio_from_square = abs(aspect_ratio - 1.0)
 
-        if ratio_from_square < best_ratio:
-            best_ratio = ratio_from_square
-            best_padding = (lat_pad, lon_pad)
+            if ratio_from_square < best_ratio:
+                best_ratio = ratio_from_square
+                best_padding = (lat_pad, lon_pad)
 
-    lat_padding, lon_padding = best_padding
+        lat_padding, lon_padding = best_padding
 
-    min_lat -= lat_padding
-    max_lat += lat_padding
-    min_lon -= lon_padding
-    max_lon += lon_padding
+        min_lat -= lat_padding
+        max_lat += lat_padding
+        min_lon -= lon_padding
+        max_lon += lon_padding
 
     display_bounds = (min_lon, max_lon, min_lat, max_lat)
 
@@ -996,7 +1033,7 @@ def generate_map(
 
     # Plot bathymetry and get contour object for colorbar
     cs_filled = plot_bathymetry(
-        ax, *bathy_limits, bathy_source, bathy_stride, bathy_dir
+        ax, *bathy_limits, bathy_source, bathy_stride, bathy_dir, bathy_contours
     )
 
     # Plot cruise elements using new structured data (this applies the final aspect ratio)
@@ -1050,6 +1087,9 @@ def generate_map_from_yaml(
     bathy_source: str = "gebco2025",
     bathy_stride: int = 5,
     bathy_dir: str = "data",
+    bathy_contours: Optional[list] = None,
+    lat_bounds: Optional[list] = None,
+    lon_bounds: Optional[list] = None,
     show_plot: bool = False,
     figsize: tuple[float, float] = (10, 8),
     include_ports: bool = True,
@@ -1088,6 +1128,9 @@ def generate_map_from_yaml(
         bathy_source=bathy_source,
         bathy_stride=bathy_stride,
         bathy_dir=bathy_dir,
+        bathy_contours=bathy_contours,
+        lat_bounds=lat_bounds,
+        lon_bounds=lon_bounds,
         show_plot=show_plot,
         figsize=figsize,
         include_ports=include_ports,
@@ -1100,7 +1143,9 @@ def generate_map_from_timeline(
     bathy_source: str = "gebco2025",
     bathy_dir: str = "data",
     bathy_stride: int = 5,
+    bathy_contours: Optional[list] = None,
     figsize: tuple[float, float] = (10, 8),
+    no_ports: bool = False,
     config=None,
 ) -> Optional[Path]:
     """
@@ -1123,6 +1168,8 @@ def generate_map_from_timeline(
         Downsampling factor for bathymetry (higher = faster but less detailed). Default is 5.
     figsize : tuple of float, optional
         Figure size as (width, height) in inches. Default is (10, 8).
+    no_ports : bool, optional
+        If True, exclude departure and arrival ports from the map. Default is False.
     config : CruiseConfig, optional
         Cruise configuration object to extract port information
 
@@ -1141,8 +1188,10 @@ def generate_map_from_timeline(
         bathy_source=bathy_source,
         bathy_dir=bathy_dir,
         bathy_stride=bathy_stride,
+        bathy_contours=bathy_contours,
         show_plot=False,
         figsize=figsize,
+        include_ports=not no_ports,
     )
 
 

@@ -119,6 +119,51 @@ STATION_VARIABLES = {
         "long_name": "operation comment",
         "description": "Human-readable comment about the operation",
     },
+    "distance_to_next": {
+        "long_name": "distance to next waypoint",
+        "units": "nautical_miles",
+        "description": "Great circle distance to the next waypoint in the schedule",
+    },
+    # Additional ActivityRecord fields for complete preservation
+    "exit_latitude": {
+        "standard_name": "latitude",
+        "long_name": "exit latitude",
+        "units": "degrees_north",
+        "description": "Latitude where activity ends (for line operations)",
+    },
+    "exit_longitude": {
+        "standard_name": "longitude", 
+        "long_name": "exit longitude",
+        "units": "degrees_east",
+        "description": "Longitude where activity ends (for line operations)",
+    },
+    "end_time": {
+        "standard_name": "time",
+        "long_name": "activity end time",
+        "units": "days since 1970-01-01 00:00:00",
+        "calendar": "gregorian",
+        "description": "Time when activity completes",
+    },
+    "dist_nm": {
+        "long_name": "activity distance",
+        "units": "nautical_miles",
+        "description": "Distance associated with this activity (transit or operation distance)",
+    },
+    "water_depth": {
+        "standard_name": "sea_floor_depth_below_sea_surface",
+        "long_name": "water depth at location",
+        "units": "meters",
+        "positive": "down",
+        "description": "Depth from sea level to seafloor at activity location",
+    },
+    "activity": {
+        "long_name": "raw activity type",
+        "description": "Original activity type from cruise configuration",
+    },
+    "operation_class": {
+        "long_name": "operation implementation class",
+        "description": "Implementation class (PointOperation, LineOperation, etc.)",
+    },
 }
 
 SCHEDULE_VARIABLES = {
@@ -247,7 +292,9 @@ def create_coordinate_variables(
 
 
 def create_operation_variables(
-    names, types, actions, durations, comments=None
+    names, types, actions, durations, comments=None, distances_to_next=None,
+    exit_lats=None, exit_lons=None, end_times=None, dist_nms=None, 
+    water_depths=None, operation_depths=None, activities=None, operation_classes=None
 ) -> dict[str, tuple[list[str], Any, dict[str, Any]]]:
     """
     Create standardized operation variable definitions for xarray Dataset.
@@ -264,6 +311,24 @@ def create_operation_variables(
         Operation durations
     comments : array_like, optional
         Operation comments
+    distances_to_next : array_like, optional
+        Distance to next waypoint in nautical miles
+    exit_lats : array_like, optional
+        Exit latitude values for line operations
+    exit_lons : array_like, optional
+        Exit longitude values for line operations
+    end_times : array_like, optional
+        Activity end times
+    dist_nms : array_like, optional
+        Activity distances in nautical miles
+    water_depths : array_like, optional
+        Water depth values at activity locations
+    operation_depths : array_like, optional
+        Target operation depths
+    activities : array_like, optional
+        Raw activity types from configuration
+    operation_classes : array_like, optional
+        Operation implementation classes
 
     Returns
     -------
@@ -279,5 +344,37 @@ def create_operation_variables(
 
     if comments is not None:
         op_vars["comment"] = (["obs"], comments, get_variable_attributes("comment"))
+
+    if distances_to_next is not None:
+        op_vars["distance_to_next"] = (
+            ["obs"], 
+            distances_to_next, 
+            get_variable_attributes("distance_to_next")
+        )
+
+    # Additional ActivityRecord fields for complete preservation
+    if exit_lats is not None:
+        op_vars["exit_latitude"] = (["obs"], exit_lats, get_variable_attributes("exit_latitude"))
+
+    if exit_lons is not None:
+        op_vars["exit_longitude"] = (["obs"], exit_lons, get_variable_attributes("exit_longitude"))
+
+    if end_times is not None:
+        op_vars["end_time"] = (["obs"], end_times, get_variable_attributes("end_time"))
+
+    if dist_nms is not None:
+        op_vars["dist_nm"] = (["obs"], dist_nms, get_variable_attributes("dist_nm"))
+
+    if water_depths is not None:
+        op_vars["water_depth"] = (["obs"], water_depths, get_variable_attributes("water_depth"))
+
+    if operation_depths is not None:
+        op_vars["operation_depth"] = (["obs"], operation_depths, get_variable_attributes("operation_depth"))
+
+    if activities is not None:
+        op_vars["activity"] = (["obs"], activities, get_variable_attributes("activity"))
+
+    if operation_classes is not None:
+        op_vars["operation_class"] = (["obs"], operation_classes, get_variable_attributes("operation_class"))
 
     return op_vars

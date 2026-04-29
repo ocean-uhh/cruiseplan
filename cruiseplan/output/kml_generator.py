@@ -431,10 +431,14 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
             operation_type = getattr(station, "operation_type", "station")
             if hasattr(operation_type, "value"):
                 operation_type = operation_type.value
+            if operation_type is None:
+                operation_type = "station"
 
             action = getattr(station, "action", "profile")
             if hasattr(action, "value"):
                 action = action.value
+            if action is None:
+                action = "profile"
 
             # Use water_depth field (added by enrichment) with fallback
             depth = getattr(station, "water_depth", None) or getattr(
@@ -468,10 +472,14 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
             operation_type = getattr(mooring, "operation_type", "mooring")
             if hasattr(operation_type, "value"):
                 operation_type = operation_type.value
+            if operation_type is None:
+                operation_type = "mooring"
 
             action = getattr(mooring, "action", "deployment")
             if hasattr(action, "value"):
                 action = action.value
+            if action is None:
+                action = "deployment"
 
             # Use water_depth field (added by enrichment) with fallback
             depth = getattr(mooring, "water_depth", None) or getattr(

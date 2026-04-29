@@ -4,32 +4,124 @@ description: Cruise plan created with interactive station picker
 turnaround_time: 30.0
 
 # Global catalog - define your operations
-lines:
-  - name: Transit_01
-    comment: Interactive transect - Review route and update operation details
-    operation_type: UPDATE-underway-etc
-    action: UPDATE-ADCP-bathymetry-etc
-    vessel_speed: 10.0
-    route:
-      - latitude: 60.11164
-        longitude: -56.20857
-      - latitude: 57.41345
-        longitude: -51.39357
-
-# Global catalog - define your operations
-areas:
-  - name: Area_01
-    comment: Interactive area survey - Review polygon and update operation details
-    operation_type: UPDATE-survey-etc
-    action: UPDATE-bathymetry-survey-etc
-    duration: 9999.0
-    corners:
-      - latitude: 59.20696
-        longitude: -49.05993
-      - latitude: 61.34964
-        longitude: -54.17032
-      - latitude: 57.0484
-        longitude: -55.02697
+points:
+  - name: FD-DS-A
+    comment: Mooring deployment
+    operation_type: UPDATE-CTD-mooring-etc
+    action: UPDATE-profile-sampling-etc
+    water_depth: 0.0
+    duration: 120.0
+    latitude: 65.244
+    longitude: -31.3177
+    latitude_decmin: 65 14.640 N
+    longitude_decmin: 031 19.062 W
+  - name: FD-DS-B
+    comment: Mooring deployment
+    operation_type: UPDATE-CTD-mooring-etc
+    action: UPDATE-profile-sampling-etc
+    water_depth: 1874.9
+    bathymetry_source: gebco2025
+    duration: 120.0
+    latitude: 65.0268
+    longitude: -31.3702
+    latitude_decmin: 65 01.608 N
+    longitude_decmin: 031 22.212 W
+  - name: dsK1
+    comment: Mooring deployment
+    operation_type: UPDATE-CTD-mooring-etc
+    action: UPDATE-profile-sampling-etc
+    water_depth: 0.0
+    duration: 120.0
+    latitude: 65.56673
+    longitude: -29.4313
+    latitude_decmin: 65 34.004 N
+    longitude_decmin: 029 25.878 W
+  - name: dsK2
+    comment: Mooring deployment
+    operation_type: UPDATE-CTD-mooring-etc
+    action: UPDATE-profile-sampling-etc
+    water_depth: 0.0
+    duration: 120.0
+    latitude: 65.55685
+    longitude: -29.34933
+    latitude_decmin: 65 33.411 N
+    longitude_decmin: 029 20.960 W
+  - name: dsK3
+    comment: Mooring deployment
+    operation_type: UPDATE-CTD-mooring-etc
+    action: UPDATE-profile-sampling-etc
+    water_depth: 0.0
+    duration: 120.0
+    latitude: 65.53148
+    longitude: -29.4127
+    latitude_decmin: 65 31.889 N
+    longitude_decmin: 029 24.762 W
+  - name: dsG1
+    comment: Mooring deployment
+    operation_type: UPDATE-CTD-mooring-etc
+    action: UPDATE-profile-sampling-etc
+    water_depth: 0.0
+    duration: 90.0
+    latitude: 65.59465
+    longitude: -29.4668
+    latitude_decmin: 65 35.679 N
+    longitude_decmin: 029 28.008 W
+  - name: dsG2
+    comment: Mooring deployment
+    operation_type: UPDATE-CTD-mooring-etc
+    action: UPDATE-profile-sampling-etc
+    water_depth: 0.0
+    duration: 240.0
+    latitude: 65.56608
+    longitude: -29.2774
+    latitude_decmin: 65 33.965 N
+    longitude_decmin: 029 16.644 W
+  - name: dsG3
+    comment: Mooring deployment
+    operation_type: UPDATE-CTD-mooring-etc
+    action: UPDATE-profile-sampling-etc
+    water_depth: 0.0
+    duration: 120.0
+    latitude: 65.50163
+    longitude: -29.4343
+    latitude_decmin: 65 30.098 N
+    longitude_decmin: 029 26.058 W
+  - name: STN_009
+    comment: Interactive selection - Review coordinates and update operation details
+    operation_type: UPDATE-CTD-mooring-etc
+    action: UPDATE-profile-sampling-etc
+    water_depth: 708.5
+    latitude: 65.58855
+    longitude: -29.4507
+    latitude_decmin: 65 35.313 N
+    longitude_decmin: 029 27.042 W
+  - name: STN_010
+    comment: Interactive selection - Review coordinates and update operation details
+    operation_type: UPDATE-CTD-mooring-etc
+    action: UPDATE-profile-sampling-etc
+    water_depth: 801.7
+    latitude: 65.5663
+    longitude: -29.41094
+    latitude_decmin: 65 33.978 N
+    longitude_decmin: 029 24.656 W
+  - name: STN_011
+    comment: Interactive selection - Review coordinates and update operation details
+    operation_type: UPDATE-CTD-mooring-etc
+    action: UPDATE-profile-sampling-etc
+    water_depth: 1002.8
+    latitude: 65.49172
+    longitude: -29.4169
+    latitude_decmin: 65 29.503 N
+    longitude_decmin: 029 25.014 W
+  - name: STN_012
+    comment: Interactive selection - Review coordinates and update operation details
+    operation_type: UPDATE-CTD-mooring-etc
+    action: UPDATE-profile-sampling-etc
+    water_depth: 1000.1
+    latitude: 65.55353
+    longitude: -29.231
+    latitude_decmin: 65 33.212 N
+    longitude_decmin: 029 13.860 W
 
 # Schedule organization
 legs:
@@ -48,9 +140,19 @@ legs:
       action: demob
       latitude: 53.5349
       longitude: 9.97992
-    first_activity: Transit_01
-    last_activity: Area_01
+    first_activity: FD-DS-A
+    last_activity: STN_012
     activities:
-      - Transit_01
-      - Area_01
+      - FD-DS-A
+      - FD-DS-B
+      - dsK1
+      - dsK2
+      - dsK3
+      - dsG1
+      - dsG2
+      - dsG3
+      - STN_009
+      - STN_010
+      - STN_011
+      - STN_012
     clusters: []

@@ -49,6 +49,58 @@ class CoordConverter:
         minutes = (abs(decimal_degrees) - degrees) * 60
         return float(degrees), minutes
 
+    @staticmethod
+    def format_latitude_decmin(decimal_degrees: float) -> str:
+        """
+        Convert latitude to decimal minutes format.
+
+        Parameters
+        ----------
+        decimal_degrees : float
+            Latitude in decimal degrees format.
+
+        Returns
+        -------
+        str
+            Latitude in "DD MM.MMM N/S" format.
+
+        Examples
+        --------
+        >>> CoordConverter.format_latitude_decmin(65.244)
+        "65 14.640 N"
+        >>> CoordConverter.format_latitude_decmin(-65.244)
+        "65 14.640 S"
+        """
+        degrees, minutes = CoordConverter.decimal_degrees_to_ddm(decimal_degrees)
+        direction = "N" if decimal_degrees >= 0 else "S"
+        return f"{int(degrees):02d} {minutes:06.3f} {direction}"
+
+    @staticmethod
+    def format_longitude_decmin(decimal_degrees: float) -> str:
+        """
+        Convert longitude to decimal minutes format.
+
+        Parameters
+        ----------
+        decimal_degrees : float
+            Longitude in decimal degrees format.
+
+        Returns
+        -------
+        str
+            Longitude in "DDD MM.MMM E/W" format.
+
+        Examples
+        --------
+        >>> CoordConverter.format_longitude_decmin(-31.3177)
+        "031 19.062 W"
+        >>> CoordConverter.format_longitude_decmin(31.3177)
+        "031 19.062 E"
+        """
+        degrees, minutes = CoordConverter.decimal_degrees_to_ddm(decimal_degrees)
+        direction = "E" if decimal_degrees >= 0 else "W"
+        return f"{int(degrees):03d} {minutes:06.3f} {direction}"
+
 
 def format_ddm_comment(lat: float, lon: float) -> str:
     """
