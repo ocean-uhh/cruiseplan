@@ -103,7 +103,11 @@ def test_activity_record_netcdf_roundtrip():
 
         # Read back from NetCDF using our reader
         schedule_dataset = read_schedule(netcdf_path)
-        recovered_records = netcdf_to_activity_records(schedule_dataset)
+        try:
+            recovered_records = netcdf_to_activity_records(schedule_dataset)
+        finally:
+            # Ensure NetCDF file is properly closed on Windows
+            schedule_dataset.close()
 
         print(f"Recovered {len(recovered_records)} ActivityRecord objects from NetCDF")
 
