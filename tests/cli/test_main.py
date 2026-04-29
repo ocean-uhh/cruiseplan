@@ -207,9 +207,10 @@ class TestVersionAndHelp:
                     main()
                     output = mock_stdout.getvalue()
                     assert "cruiseplan" in output
-                    # Accept various version patterns (dev: 0.0.post1.dev1, release: 0.2.x)
+                    # Accept various version patterns (dev: 0.0.post1.dev1, release: 0.3.x)
                     assert (
-                        "0.2." in output
+                        "0.3." in output
+                        or "0.2." in output
                         or "0.1." in output
                         or "0.0.post" in output
                         or "0.0.dev" in output
