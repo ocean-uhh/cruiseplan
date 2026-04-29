@@ -260,44 +260,47 @@ def test_activity_record_required_fields_present():
 
         # Read back and check variables
         schedule_dataset = read_schedule(netcdf_path)
+        try:
+            # List of all ActivityRecord fields that should be preserved
+            expected_variables = [
+                "time",  # start_time
+                "latitude",  # entry_lat
+                "longitude",  # entry_lon
+                "exit_latitude",  # exit_lat
+                "exit_longitude",  # exit_lon
+                "end_time",  # end_time
+                "duration",  # duration_minutes (converted to hours)
+                "dist_nm",  # dist_nm
+                "vessel_speed",  # vessel_speed_kt
+                "leg_assignment",  # leg_name
+                "type",  # op_type
+                "operation_class",  # operation_class
+                "name",  # label
+                "activity",  # activity
+                "action",  # action
+                "operation_depth",  # operation_depth
+                "water_depth",  # water_depth (or waterdepth legacy)
+            ]
 
-        # List of all ActivityRecord fields that should be preserved
-        expected_variables = [
-            "time",  # start_time
-            "latitude",  # entry_lat
-            "longitude",  # entry_lon
-            "exit_latitude",  # exit_lat
-            "exit_longitude",  # exit_lon
-            "end_time",  # end_time
-            "duration",  # duration_minutes (converted to hours)
-            "dist_nm",  # dist_nm
-            "vessel_speed",  # vessel_speed_kt
-            "leg_assignment",  # leg_name
-            "type",  # op_type
-            "operation_class",  # operation_class
-            "name",  # label
-            "activity",  # activity
-            "action",  # action
-            "operation_depth",  # operation_depth
-            "water_depth",  # water_depth (or waterdepth legacy)
-        ]
+            missing_vars = []
+            for var in expected_variables:
+                if var not in schedule_dataset.variables:
+                    # Check for legacy names
+                    if var == "water_depth" and "waterdepth" in schedule_dataset.variables:
+                        continue
+                    missing_vars.append(var)
 
-        missing_vars = []
-        for var in expected_variables:
-            if var not in schedule_dataset.variables:
-                # Check for legacy names
-                if var == "water_depth" and "waterdepth" in schedule_dataset.variables:
-                    continue
-                missing_vars.append(var)
+            assert (
+                not missing_vars
+            ), f"Missing ActivityRecord variables in NetCDF: {missing_vars}"
 
-        assert (
-            not missing_vars
-        ), f"Missing ActivityRecord variables in NetCDF: {missing_vars}"
-
-        print(
-            f"✅ All {len(expected_variables)} expected ActivityRecord variables present in NetCDF"
-        )
-        print(f"✅ Variables found: {sorted(list(schedule_dataset.variables.keys()))}")
+            print(
+                f"✅ All {len(expected_variables)} expected ActivityRecord variables present in NetCDF"
+            )
+            print(f"✅ Variables found: {sorted(list(schedule_dataset.variables.keys()))}")
+        finally:
+            # Ensure NetCDF file is properly closed on Windows
+            schedule_dataset.close()
 
 
 if __name__ == "__main__":
