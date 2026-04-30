@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.utils.coordinates &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev5</title>
+  <title>cruiseplan.utils.coordinates &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev7</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=a0c6cf1d"></script>
+      <script src="../../../_static/documentation_options.js?v=3346c16e"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -143,6 +143,64 @@
         <span class="n">degrees</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">decimal_degrees</span><span class="p">))</span>
         <span class="n">minutes</span> <span class="o">=</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">decimal_degrees</span><span class="p">)</span> <span class="o">-</span> <span class="n">degrees</span><span class="p">)</span> <span class="o">*</span> <span class="mi">60</span>
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">degrees</span><span class="p">),</span> <span class="n">minutes</span></div>
+
+
+<div class="viewcode-block" id="CoordConverter.format_latitude_decmin">
+<a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.coordinates.CoordConverter.format_latitude_decmin">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_latitude_decmin</span><span class="p">(</span><span class="n">decimal_degrees</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert latitude to decimal minutes format.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        decimal_degrees : float</span>
+<span class="sd">            Latitude in decimal degrees format.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Latitude in &quot;DD MM.MMM N/S&quot; format.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; CoordConverter.format_latitude_decmin(65.244)</span>
+<span class="sd">        &quot;65 14.640 N&quot;</span>
+<span class="sd">        &gt;&gt;&gt; CoordConverter.format_latitude_decmin(-65.244)</span>
+<span class="sd">        &quot;65 14.640 S&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">degrees</span><span class="p">,</span> <span class="n">minutes</span> <span class="o">=</span> <span class="n">CoordConverter</span><span class="o">.</span><span class="n">decimal_degrees_to_ddm</span><span class="p">(</span><span class="n">decimal_degrees</span><span class="p">)</span>
+        <span class="n">direction</span> <span class="o">=</span> <span class="s2">&quot;N&quot;</span> <span class="k">if</span> <span class="n">decimal_degrees</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;S&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">degrees</span><span class="p">)</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">minutes</span><span class="si">:</span><span class="s2">06.3f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">direction</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+<div class="viewcode-block" id="CoordConverter.format_longitude_decmin">
+<a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.coordinates.CoordConverter.format_longitude_decmin">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_longitude_decmin</span><span class="p">(</span><span class="n">decimal_degrees</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert longitude to decimal minutes format.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        decimal_degrees : float</span>
+<span class="sd">            Longitude in decimal degrees format.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Longitude in &quot;DDD MM.MMM E/W&quot; format.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; CoordConverter.format_longitude_decmin(-31.3177)</span>
+<span class="sd">        &quot;031 19.062 W&quot;</span>
+<span class="sd">        &gt;&gt;&gt; CoordConverter.format_longitude_decmin(31.3177)</span>
+<span class="sd">        &quot;031 19.062 E&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">degrees</span><span class="p">,</span> <span class="n">minutes</span> <span class="o">=</span> <span class="n">CoordConverter</span><span class="o">.</span><span class="n">decimal_degrees_to_ddm</span><span class="p">(</span><span class="n">decimal_degrees</span><span class="p">)</span>
+        <span class="n">direction</span> <span class="o">=</span> <span class="s2">&quot;E&quot;</span> <span class="k">if</span> <span class="n">decimal_degrees</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;W&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">degrees</span><span class="p">)</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">minutes</span><span class="si">:</span><span class="s2">06.3f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">direction</span><span class="si">}</span><span class="s2">&quot;</span></div>
 </div>
 
 

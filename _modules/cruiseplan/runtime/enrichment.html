@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.runtime.enrichment &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev5</title>
+  <title>cruiseplan.runtime.enrichment &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev7</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=a0c6cf1d"></script>
+      <script src="../../../_static/documentation_options.js?v=3346c16e"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -448,12 +448,14 @@
     <span class="n">cruise_instance</span><span class="p">:</span> <span class="s2">&quot;CruiseInstance&quot;</span><span class="p">,</span>
     <span class="n">bathymetry_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
     <span class="n">bathymetry_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
+    <span class="n">overwrite_existing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add missing depth values to stations using bathymetry data.</span>
 
 <span class="sd">    This function queries bathymetry data to fill in missing water depth values</span>
-<span class="sd">    for stations that don&#39;t have them specified.</span>
+<span class="sd">    for stations that don&#39;t have them specified. Optionally can overwrite</span>
+<span class="sd">    existing depth values with new bathymetry source data.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -463,11 +465,13 @@
 <span class="sd">        Bathymetry dataset to use (default: &quot;etopo2022&quot;)</span>
 <span class="sd">    bathymetry_dir : str, optional</span>
 <span class="sd">        Directory containing bathymetry data (default: &quot;data&quot;)</span>
+<span class="sd">    overwrite_existing : bool, optional</span>
+<span class="sd">        Whether to overwrite existing water_depth values (default: False)</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    set[str]</span>
-<span class="sd">        Set of station names that had depths added</span>
+<span class="sd">        Set of station names that had depths added or updated</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">stations_with_depths_added</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
@@ -475,8 +479,12 @@
     <span class="n">bathymetry</span> <span class="o">=</span> <span class="n">BathymetryManager</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="n">bathymetry_source</span><span class="p">,</span> <span class="n">data_dir</span><span class="o">=</span><span class="n">bathymetry_dir</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">station_name</span><span class="p">,</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">cruise_instance</span><span class="o">.</span><span class="n">point_registry</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="c1"># Check if station already has water_depth</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;water_depth&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">station</span><span class="o">.</span><span class="n">water_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Check if station already has water_depth and we&#39;re not overwriting</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="nb">hasattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;water_depth&quot;</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">station</span><span class="o">.</span><span class="n">water_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite_existing</span>
+        <span class="p">):</span>
             <span class="k">continue</span>
 
         <span class="c1"># Get depth from bathymetry</span>
@@ -487,13 +495,17 @@
 
             <span class="k">if</span> <span class="n">bathymetry_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="c1"># Convert to positive depth value (bathymetry returns negative elevation)</span>
-                <span class="n">water_depth</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">bathymetry_depth</span><span class="p">)</span>
+                <span class="c1"># Round to nearest 0.1 meter</span>
+                <span class="n">water_depth</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">bathymetry_depth</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
 
-                <span class="c1"># Add depth to station</span>
+                <span class="c1"># Add depth and bathymetry source to station</span>
                 <span class="n">station</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;water_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">water_depth</span>
+                <span class="n">station</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;bathymetry_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bathymetry_source</span>
                 <span class="n">stations_with_depths_added</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">station_name</span><span class="p">)</span>
 
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Added depth to </span><span class="si">{</span><span class="n">station_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">water_depth</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">m&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Added depth to </span><span class="si">{</span><span class="n">station_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">water_depth</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">m from </span><span class="si">{</span><span class="n">bathymetry_source</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
 
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to get depth for station </span><span class="si">{</span><span class="n">station_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -592,6 +604,59 @@
                 <span class="c1"># Set the position string for display (this gets used in YAML output)</span>
                 <span class="n">point</span><span class="o">.</span><span class="n">position_string</span> <span class="o">=</span> <span class="n">position_display</span>
                 <span class="n">coord_changes_made</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="c1"># Always add individual decimal minutes fields for oceanographic use</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.coordinates</span><span class="w"> </span><span class="kn">import</span> <span class="n">CoordConverter</span>
+
+            <span class="n">point</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;latitude_decmin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">CoordConverter</span><span class="o">.</span><span class="n">format_latitude_decmin</span><span class="p">(</span>
+                <span class="n">point</span><span class="o">.</span><span class="n">latitude</span>
+            <span class="p">)</span>
+            <span class="n">point</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;longitude_decmin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">CoordConverter</span><span class="o">.</span><span class="n">format_longitude_decmin</span><span class="p">(</span>
+                <span class="n">point</span><span class="o">.</span><span class="n">longitude</span>
+            <span class="p">)</span>
+            <span class="n">coord_changes_made</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># Add coordinate displays for line route points</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">cruise_instance</span><span class="o">.</span><span class="n">line_registry</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="s2">&quot;route&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">line</span><span class="o">.</span><span class="n">route</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">route_point</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">route</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="nb">hasattr</span><span class="p">(</span><span class="n">route_point</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">)</span>
+                    <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">route_point</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">)</span>
+                    <span class="ow">and</span> <span class="n">route_point</span><span class="o">.</span><span class="n">latitude</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                    <span class="ow">and</span> <span class="n">route_point</span><span class="o">.</span><span class="n">longitude</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="p">):</span>
+                    <span class="c1"># Add individual decimal minutes fields for route points</span>
+                    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.coordinates</span><span class="w"> </span><span class="kn">import</span> <span class="n">CoordConverter</span>
+
+                    <span class="n">route_point</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;latitude_decmin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">CoordConverter</span><span class="o">.</span><span class="n">format_latitude_decmin</span><span class="p">(</span><span class="n">route_point</span><span class="o">.</span><span class="n">latitude</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="n">route_point</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;longitude_decmin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">CoordConverter</span><span class="o">.</span><span class="n">format_longitude_decmin</span><span class="p">(</span><span class="n">route_point</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="n">coord_changes_made</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># Add coordinate displays for area vertices</span>
+    <span class="k">for</span> <span class="n">area</span> <span class="ow">in</span> <span class="n">cruise_instance</span><span class="o">.</span><span class="n">area_registry</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">area</span><span class="p">,</span> <span class="s2">&quot;vertices&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">area</span><span class="o">.</span><span class="n">vertices</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="n">area</span><span class="o">.</span><span class="n">vertices</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="nb">hasattr</span><span class="p">(</span><span class="n">vertex</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">)</span>
+                    <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">vertex</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">)</span>
+                    <span class="ow">and</span> <span class="n">vertex</span><span class="o">.</span><span class="n">latitude</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                    <span class="ow">and</span> <span class="n">vertex</span><span class="o">.</span><span class="n">longitude</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="p">):</span>
+                    <span class="c1"># Add individual decimal minutes fields for area vertices</span>
+                    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.coordinates</span><span class="w"> </span><span class="kn">import</span> <span class="n">CoordConverter</span>
+
+                    <span class="n">vertex</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;latitude_decmin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">CoordConverter</span><span class="o">.</span><span class="n">format_latitude_decmin</span><span class="p">(</span><span class="n">vertex</span><span class="o">.</span><span class="n">latitude</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="n">vertex</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;longitude_decmin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">CoordConverter</span><span class="o">.</span><span class="n">format_longitude_decmin</span><span class="p">(</span><span class="n">vertex</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="n">coord_changes_made</span> <span class="o">+=</span> <span class="mi">1</span>
 
     <span class="k">return</span> <span class="n">coord_changes_made</span></div>
 

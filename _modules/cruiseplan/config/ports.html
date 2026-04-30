@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.config.ports &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev5</title>
+  <title>cruiseplan.config.ports &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev7</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=a0c6cf1d"></script>
+      <script src="../../../_static/documentation_options.js?v=3346c16e"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -590,17 +590,23 @@
             <span class="c1"># Check local catalog first, then global port registry</span>
             <span class="n">port_key</span> <span class="o">=</span> <span class="n">port_ref</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 
-            <span class="c1"># Check local catalog first</span>
-            <span class="k">if</span> <span class="n">port_catalog</span> <span class="ow">and</span> <span class="n">port_ref</span> <span class="ow">in</span> <span class="n">port_catalog</span><span class="p">:</span>
-                <span class="n">catalog_port</span> <span class="o">=</span> <span class="n">port_catalog</span><span class="p">[</span><span class="n">port_ref</span><span class="p">]</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">catalog_port</span><span class="p">,</span> <span class="n">PointDefinition</span><span class="p">):</span>
-                    <span class="k">return</span> <span class="n">catalog_port</span>
-                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">catalog_port</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-                    <span class="k">return</span> <span class="n">PointDefinition</span><span class="p">(</span><span class="o">**</span><span class="n">catalog_port</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Unexpected type in port catalog: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">catalog_port</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-                    <span class="p">)</span>
+            <span class="c1"># Check local catalog first (prefer exact key, then lowercase fallback)</span>
+            <span class="k">if</span> <span class="n">port_catalog</span><span class="p">:</span>
+                <span class="n">catalog_port</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="n">port_ref</span> <span class="ow">in</span> <span class="n">port_catalog</span><span class="p">:</span>
+                    <span class="n">catalog_port</span> <span class="o">=</span> <span class="n">port_catalog</span><span class="p">[</span><span class="n">port_ref</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="n">port_key</span> <span class="ow">in</span> <span class="n">port_catalog</span><span class="p">:</span>
+                    <span class="n">catalog_port</span> <span class="o">=</span> <span class="n">port_catalog</span><span class="p">[</span><span class="n">port_key</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="n">catalog_port</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">catalog_port</span><span class="p">,</span> <span class="n">PointDefinition</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="n">catalog_port</span>
+                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">catalog_port</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="n">PointDefinition</span><span class="p">(</span><span class="o">**</span><span class="n">catalog_port</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Unexpected type in port catalog: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">catalog_port</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
 
             <span class="c1"># Fall back to global port registry</span>
             <span class="k">if</span> <span class="n">port_key</span> <span class="ow">in</span> <span class="n">GLOBAL_PORTS</span><span class="p">:</span>

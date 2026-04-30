@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Runtime Classes &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev5</title>
+  <title>Runtime Classes &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev7</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=a0c6cf1d"></script>
+      <script src="../_static/documentation_options.js?v=3346c16e"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -2040,20 +2040,22 @@ and scientific best practices. Currently focuses on mooring duration defaults.</
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.runtime.enrichment.enrich_depths">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.runtime.enrichment.</span></span><span class="sig-name descname"><span class="pre">enrich_depths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cruise_instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cruiseplan.runtime.cruise.CruiseInstance" title="cruiseplan.runtime.cruise.CruiseInstance"><span class="pre">CruiseInstance</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathymetry_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'etopo2022'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathymetry_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'data'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/runtime/enrichment.html#enrich_depths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.runtime.enrichment.enrich_depths" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.runtime.enrichment.</span></span><span class="sig-name descname"><span class="pre">enrich_depths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cruise_instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cruiseplan.runtime.cruise.CruiseInstance" title="cruiseplan.runtime.cruise.CruiseInstance"><span class="pre">CruiseInstance</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathymetry_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'etopo2022'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathymetry_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'data'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite_existing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/runtime/enrichment.html#enrich_depths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.runtime.enrichment.enrich_depths" title="Link to this definition"></a></dt>
 <dd><p>Add missing depth values to stations using bathymetry data.</p>
 <p>This function queries bathymetry data to fill in missing water depth values
-for stations that don’t have them specified.</p>
+for stations that don’t have them specified. Optionally can overwrite
+existing depth values with new bathymetry source data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cruise_instance</strong> (<a class="reference internal" href="#cruiseplan.runtime.cruise.CruiseInstance" title="cruiseplan.runtime.cruise.CruiseInstance"><em>CruiseInstance</em></a>) – The cruise instance to modify</p></li>
 <li><p><strong>bathymetry_source</strong> (<em>str</em><em>, </em><em>optional</em>) – Bathymetry dataset to use (default: “etopo2022”)</p></li>
 <li><p><strong>bathymetry_dir</strong> (<em>str</em><em>, </em><em>optional</em>) – Directory containing bathymetry data (default: “data”)</p></li>
+<li><p><strong>overwrite_existing</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to overwrite existing water_depth values (default: False)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Set of station names that had depths added</p>
+<dd class="field-even"><p>Set of station names that had depths added or updated</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>set[str]</p>

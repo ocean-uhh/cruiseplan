@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.cli.main &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev5</title>
+  <title>cruiseplan.cli.main &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev7</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=a0c6cf1d"></script>
+      <script src="../../../_static/documentation_options.js?v=3346c16e"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -230,11 +230,13 @@
 
 <span class="s2">Available sources:</span>
 <span class="s2">  etopo2022: ETOPO 2022 bathymetry (60s resolution, ~500MB)</span>
+<span class="s2">  gebco2023: GEBCO 2023 bathymetry (15s resolution, ~7.5GB)</span>
 <span class="s2">  gebco2025: GEBCO 2025 bathymetry (15s resolution, ~7.5GB)</span>
 
 <span class="s2">Examples:</span>
 <span class="s2">  cruiseplan bathymetry                                          # Download ETOPO 2022 (default)</span>
 <span class="s2">  cruiseplan bathymetry --bathy-source etopo2022                # Download ETOPO 2022 explicitly</span>
+<span class="s2">  cruiseplan bathymetry --bathy-source gebco2023                # Download high-res GEBCO 2023</span>
 <span class="s2">  cruiseplan bathymetry --bathy-source gebco2025                # Download high-res GEBCO 2025</span>
 <span class="s2">  cruiseplan bathymetry --bathy-source etopo2022 --citation     # Show citation info only</span>
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
@@ -258,7 +260,7 @@
     <span class="c1"># Bathymetry options</span>
     <span class="n">bathymetry_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset to download (default: etopo2022)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -307,7 +309,7 @@
     <span class="c1"># Bathymetry options</span>
     <span class="n">schedule_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset for PNG maps (default: etopo2022)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -323,6 +325,29 @@
         <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry contour stride for PNG maps (default: 10)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="n">schedule_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bathy-contours&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;DEPTH&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Custom bathymetry contour levels in meters (space-separated positive values), e.g., &#39;500 400 300&#39;&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Map bounds</span>
+    <span class="n">schedule_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--lat&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;MIN&quot;</span><span class="p">,</span> <span class="s2">&quot;MAX&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Latitude bounds for map extent (e.g., --lat -75 -70)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">schedule_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--lon&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;MIN&quot;</span><span class="p">,</span> <span class="s2">&quot;MAX&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Longitude bounds for map extent (e.g., --lon 170 175)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
 
     <span class="c1"># Display options</span>
     <span class="n">schedule_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
@@ -333,12 +358,23 @@
         <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="mf">12.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">],</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Figure size for PNG maps in inches (default: 12 8)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="n">schedule_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--no-ports&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Exclude ports from PNG schedule maps&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
 
     <span class="c1"># --- 3. Stations Subcommand ---</span>
     <span class="n">stations_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
         <span class="s2">&quot;stations&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Interactive station placement with PANGAEA background&quot;</span>
     <span class="p">)</span>
     <span class="c1"># Primary operation flags</span>
+    <span class="n">stations_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-c&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--config-file&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Existing YAML cruise configuration file to load and edit&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="n">stations_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="s2">&quot;--pangaea-file&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;PANGAEA campaigns pickle file&quot;</span>
     <span class="p">)</span>
@@ -376,7 +412,7 @@
     <span class="c1"># Bathymetry options</span>
     <span class="n">stations_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset (default: etopo2022)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -385,6 +421,13 @@
         <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">),</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Directory containing bathymetry data (default: data)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">stations_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bathy-contours&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;DEPTH&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Custom bathymetry contour levels in meters (space-separated positive values), e.g., &#39;500 400 300&#39;&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># Display options</span>
@@ -436,7 +479,7 @@
     <span class="c1"># Bathymetry options</span>
     <span class="n">enrich_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset (default: etopo2022)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -481,7 +524,7 @@
     <span class="c1"># Bathymetry options</span>
     <span class="n">validate_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset (default: etopo2022)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -555,7 +598,7 @@
     <span class="c1"># Bathymetry options</span>
     <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset (default: gebco2025)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -585,6 +628,29 @@
         <span class="s2">&quot;--show-plot&quot;</span><span class="p">,</span>
         <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Display plot interactively instead of saving to file&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Map bounds</span>
+    <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--lat&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;MIN&quot;</span><span class="p">,</span> <span class="s2">&quot;MAX&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Latitude bounds for map extent (e.g., --lat -75 -70)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--lon&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;MIN&quot;</span><span class="p">,</span> <span class="s2">&quot;MAX&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Longitude bounds for map extent (e.g., --lon 170 175)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bathy-contours&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;DEPTH&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Custom bathymetry contour levels in meters (space-separated positive values), e.g., &#39;500 400 300&#39;&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># General options</span>
@@ -709,7 +775,7 @@
     <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset (default: etopo2022)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
@@ -723,6 +789,29 @@
         <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry contour stride (default: 10)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bathy-contours&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;DEPTH&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Custom bathymetry contour levels in meters (space-separated positive values), e.g., &#39;500 400 300&#39;. Replaces default contours.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Map bounds</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--lat&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;MIN&quot;</span><span class="p">,</span> <span class="s2">&quot;MAX&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Latitude bounds for map extent (e.g., --lat -75 -70)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--lon&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;MIN&quot;</span><span class="p">,</span> <span class="s2">&quot;MAX&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Longitude bounds for map extent (e.g., --lon 170 175)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># Display options</span>
@@ -825,6 +914,86 @@
         <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Enable verbose logging&quot;</span>
     <span class="p">)</span>
 
+    <span class="c1"># --- 10. Stationplan Subcommand ---</span>
+    <span class="n">stationplan_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
+        <span class="s2">&quot;stationplan&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Generate station plan forecasts from NetCDF schedules&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Generate simple text-based station plans for real-time cruise operations&quot;</span><span class="p">,</span>
+        <span class="n">epilog</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">This command generates station plans from processed cruise schedules for real-time</span>
+<span class="s2">cruise operations. It can list all activities with indices or generate rolling</span>
+<span class="s2">forecasts starting from any activity with updated timing.</span>
+
+<span class="s2">Examples:</span>
+<span class="s2">  cruiseplan stationplan --schedule MSM142_leg_2_schedule.nc --list</span>
+<span class="s2">  cruiseplan stationplan --schedule data/cruise_schedule.nc --start-index 18 --start-time &quot;2026-08-30T14:00:00&quot;</span>
+<span class="s2">  cruiseplan stationplan --schedule data/cruise_schedule.nc --start-index 5 --start-time &quot;2026-08-29T08:00:00&quot; --duration 36 --output forecast.txt</span>
+<span class="s2">  cruiseplan stationplan --schedule data/cruise_schedule.nc --start-index 5 --start-time &quot;2026-08-29T08:00:00&quot; --current-position &quot;65.123,-30.456&quot;</span>
+<span class="s2">  cruiseplan stationplan --schedule data/cruise_schedule.nc --format tex --output station_plan.tex</span>
+<span class="s2">  cruiseplan stationplan --schedule data/cruise_schedule.nc --start-index 5 --duration 48 --format waypoints --output bridge_waypoints.txt</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># Required arguments</span>
+    <span class="n">stationplan_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--schedule&quot;</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;NetCDF schedule file (e.g., &#39;MSM142_leg_2_schedule.nc&#39;)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Operation modes</span>
+    <span class="n">stationplan_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--list&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Display all activities with indices and exit&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Forecast mode arguments</span>
+    <span class="n">stationplan_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--start-index&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Starting activity index for forecast mode (0-based)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">stationplan_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--start-time&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;New start time for first activity (ISO format: &#39;2026-08-30T14:00:00&#39;)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">stationplan_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--duration&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">24.0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Forecast duration in hours (default: 24)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">stationplan_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--transit-speed&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Ship transit speed in knots (default: 10)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">stationplan_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--current-position&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Current ship position as &#39;lat,lon&#39; in decimal degrees (e.g., &#39;65.123,-30.456&#39;)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Output control</span>
+    <span class="n">stationplan_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--format&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">,</span> <span class="s2">&quot;tex&quot;</span><span class="p">,</span> <span class="s2">&quot;waypoints&quot;</span><span class="p">],</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;text&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output format: &#39;text&#39; for console/file output, &#39;tex&#39; for LaTeX tables, &#39;waypoints&#39; for bridge navigation (default: text)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">stationplan_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--output-dir&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output directory (default: current directory)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">stationplan_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--output&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output filename (default: stdout)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
     <span class="c1"># Parse args</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
@@ -869,6 +1038,10 @@
             <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.pangaea</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span> <span class="k">as</span> <span class="n">pangaea_main</span>
 
             <span class="n">pangaea_main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">subcommand</span> <span class="o">==</span> <span class="s2">&quot;stationplan&quot;</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.stationplan</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span> <span class="k">as</span> <span class="n">stationplan_main</span>
+
+            <span class="n">stationplan_main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Subcommand &#39;</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">subcommand</span><span class="si">}</span><span class="s2">&#39; not yet implemented.&quot;</span><span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>

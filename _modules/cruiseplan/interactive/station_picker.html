@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.interactive.station_picker &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev5</title>
+  <title>cruiseplan.interactive.station_picker &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev7</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=a0c6cf1d"></script>
+      <script src="../../../_static/documentation_options.js?v=3346c16e"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -96,6 +96,7 @@
 <span class="sd">matplotlib-based interface for planning cruise stations, transects, and survey areas.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">Optional</span>
@@ -127,6 +128,8 @@
 
 <span class="c1"># Legacy format functions removed - now using Pydantic models directly</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.plot_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_colormap</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="StationPicker">
@@ -186,10 +189,12 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">campaign_data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">existing_stations</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">output_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;stations.yaml&quot;</span><span class="p">,</span>
         <span class="n">bathymetry_stride</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
         <span class="n">bathymetry_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
         <span class="n">bathymetry_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
+        <span class="n">custom_contours</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -199,6 +204,8 @@
 <span class="sd">        ----------</span>
 <span class="sd">        campaign_data : List[Dict], optional</span>
 <span class="sd">            Pre-loaded campaign track data from PANGAEA</span>
+<span class="sd">        existing_stations : List[Dict], optional</span>
+<span class="sd">            Pre-existing station data to display and edit</span>
 <span class="sd">        output_file : str</span>
 <span class="sd">            Output filename for saving cruise plans</span>
 <span class="sd">        bathymetry_stride : int</span>
@@ -219,17 +226,23 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">overwrite</span> <span class="o">=</span> <span class="n">overwrite</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bathymetry_stride</span> <span class="o">=</span> <span class="n">bathymetry_stride</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bathymetry_colormap</span> <span class="o">=</span> <span class="n">get_colormap</span><span class="p">(</span><span class="s2">&quot;bathymetry&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">custom_contours</span> <span class="o">=</span> <span class="n">custom_contours</span>
 
         <span class="c1"># Initialize bathymetry manager with specified source and directory</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bathymetry</span> <span class="o">=</span> <span class="n">BathymetryManager</span><span class="p">(</span>
             <span class="n">source</span><span class="o">=</span><span class="n">bathymetry_source</span><span class="p">,</span> <span class="n">data_dir</span><span class="o">=</span><span class="n">bathymetry_dir</span>
         <span class="p">)</span>
 
-        <span class="c1"># Data Storage</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># Data Storage - initialize with existing stations if provided</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="n">existing_stations</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="n">existing_stations</span> <span class="k">else</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">areas</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="nb">any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Bathymetry contour collections (for preventing double plotting)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bathymetry_filled_contours</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bathymetry_line_contours</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bathymetry_custom_contours</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Line Drawing State</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">line_start</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -268,6 +281,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_plot_bathymetry</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_plot_initial_campaigns</span><span class="p">()</span>  <span class="c1"># Fixed: Added missing call</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_existing_stations</span><span class="p">()</span>  <span class="c1"># Plot any pre-loaded stations</span>
 
         <span class="c1"># Update displays</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_status_display</span><span class="p">()</span>
@@ -399,6 +413,19 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_plot_bathymetry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Fetches and renders bathymetry contours.&quot;&quot;&quot;</span>
+        <span class="c1"># Clear previous bathymetry contours to prevent double plotting</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bathymetry_filled_contours</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bathymetry_filled_contours</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bathymetry_filled_contours</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bathymetry_line_contours</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bathymetry_line_contours</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bathymetry_line_contours</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bathymetry_custom_contours</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bathymetry_custom_contours</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bathymetry_custom_contours</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="c1"># Get current view limits</span>
         <span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_map</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
         <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_map</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
@@ -416,7 +443,7 @@
 
         <span class="c1"># 1. Filled Contours (The &quot;Map&quot; feel)</span>
         <span class="c1"># Use levels that match the colormap segments for proper color assignment</span>
-        <span class="n">cs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_map</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bathymetry_filled_contours</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_map</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span>
             <span class="n">xx</span><span class="p">,</span>
             <span class="n">yy</span><span class="p">,</span>
             <span class="n">zz</span><span class="p">,</span>
@@ -440,12 +467,38 @@
         <span class="p">)</span>
 
         <span class="c1"># 2. Line Contours (The &quot;Scientific&quot; context)</span>
-        <span class="n">cs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_map</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bathymetry_line_contours</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_map</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span>
             <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">zz</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">DEPTH_CONTOURS</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span> <span class="n">linewidths</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span>
         <span class="p">)</span>
 
         <span class="c1"># Add labels to contour lines</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ax_map</span><span class="o">.</span><span class="n">clabel</span><span class="p">(</span><span class="n">cs</span><span class="p">,</span> <span class="n">inline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax_map</span><span class="o">.</span><span class="n">clabel</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bathymetry_line_contours</span><span class="p">,</span> <span class="n">inline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># 3. Custom Line Contours (User-specified depths)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_contours</span><span class="p">:</span>
+            <span class="c1"># Convert positive depths to negative values and sort</span>
+            <span class="n">custom_levels</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="nb">abs</span><span class="p">(</span><span class="n">depth</span><span class="p">)</span> <span class="k">for</span> <span class="n">depth</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_contours</span><span class="p">]</span>
+            <span class="n">custom_levels</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="n">custom_levels</span>
+            <span class="p">)</span>  <span class="c1"># Sort in ascending order (most negative first)</span>
+
+            <span class="c1"># Add custom line contours</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bathymetry_custom_contours</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_map</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span>
+                <span class="n">xx</span><span class="p">,</span>
+                <span class="n">yy</span><span class="p">,</span>
+                <span class="n">zz</span><span class="p">,</span>
+                <span class="n">levels</span><span class="o">=</span><span class="n">custom_levels</span><span class="p">,</span>
+                <span class="n">colors</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+                <span class="n">linewidths</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+                <span class="n">alpha</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+                <span class="n">linestyles</span><span class="o">=</span><span class="s2">&quot;solid&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="c1"># Add labels to custom contour lines</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax_map</span><span class="o">.</span><span class="n">clabel</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bathymetry_custom_contours</span><span class="p">,</span> <span class="n">inline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_plot_initial_campaigns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot campaign tracks if available.&quot;&quot;&quot;</span>
@@ -482,6 +535,66 @@
             <span class="c1"># Register artist with CampaignSelector if it exists</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">campaign_selector</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">campaign_selector</span><span class="o">.</span><span class="n">campaign_artists</span><span class="p">[</span><span class="n">camp_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">artist</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plot_existing_stations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot any pre-existing stations loaded from config file.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">:</span>
+            <span class="n">lon</span> <span class="o">=</span> <span class="n">station</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">]</span>
+            <span class="n">lat</span> <span class="o">=</span> <span class="n">station</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">]</span>
+
+            <span class="c1"># Determine marker style based on operation type</span>
+            <span class="n">operation_type</span> <span class="o">=</span> <span class="n">station</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;operation_type&quot;</span><span class="p">,</span> <span class="s2">&quot;station&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">operation_type</span> <span class="o">==</span> <span class="s2">&quot;transect&quot;</span><span class="p">:</span>
+                <span class="n">marker</span> <span class="o">=</span> <span class="s2">&quot;^&quot;</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;orange&quot;</span>
+                <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Transect Point&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">marker</span> <span class="o">=</span> <span class="s2">&quot;o&quot;</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;red&quot;</span>
+                <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Station&quot;</span>
+
+            <span class="c1"># Plot the station with appropriate style</span>
+            <span class="n">artist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_map</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+                <span class="n">lon</span><span class="p">,</span>
+                <span class="n">lat</span><span class="p">,</span>
+                <span class="n">marker</span><span class="o">=</span><span class="n">marker</span><span class="p">,</span>
+                <span class="n">c</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+                <span class="n">s</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+                <span class="n">edgecolors</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+                <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+                <span class="n">zorder</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="p">(</span>
+                    <span class="n">label</span> <span class="k">if</span> <span class="n">station</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+                <span class="p">),</span>  <span class="c1"># Only label first station of each type to avoid legend clutter</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Add text annotation with station name</span>
+            <span class="n">station_name</span> <span class="o">=</span> <span class="n">station</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax_map</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
+                <span class="n">station_name</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">),</span>
+                <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>  <span class="c1"># Offset from the marker</span>
+                <span class="n">textcoords</span><span class="o">=</span><span class="s2">&quot;offset points&quot;</span><span class="p">,</span>
+                <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+                <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+                <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                    <span class="n">boxstyle</span><span class="o">=</span><span class="s2">&quot;round,pad=0.3&quot;</span><span class="p">,</span>
+                    <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+                    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+                    <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">zorder</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>  <span class="c1"># Above the markers</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Add the artist to history so it can be managed properly</span>
+            <span class="c1"># Note: we don&#39;t add to history since these are pre-existing</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Plotted </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2"> existing stations on map&quot;</span><span class="p">)</span>
 
     <span class="c1"># --- Mode Management Methods ---</span>
 
@@ -611,12 +724,20 @@
 <span class="sd">            New interaction mode. Must be one of MODES or &quot;remove&quot;.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">new_mode</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">MODES</span> <span class="ow">or</span> <span class="n">new_mode</span> <span class="o">==</span> <span class="s2">&quot;remove&quot;</span><span class="p">:</span>
+            <span class="c1"># Store current view limits before mode change to prevent unwanted resets</span>
+            <span class="n">current_xlim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_map</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
+            <span class="n">current_ylim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_map</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+
             <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">new_mode</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_update_mode_display</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">new_mode</span> <span class="o">!=</span> <span class="s2">&quot;line&quot;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_reset_line_state</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">new_mode</span> <span class="o">!=</span> <span class="s2">&quot;area&quot;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_reset_area_state</span><span class="p">()</span>
+
+            <span class="c1"># Restore view limits after mode change to prevent zoom reset</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax_map</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">current_xlim</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax_map</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">current_ylim</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: Attempted to set invalid mode: </span><span class="si">{</span><span class="n">new_mode</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
@@ -978,15 +1099,71 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">water_depth</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="k">return</span> <span class="n">PointDefinition</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;STN_</span><span class="si">{</span><span class="n">index</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="n">latitude</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">point_data</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">]),</span> <span class="mi">5</span><span class="p">),</span>
-            <span class="n">longitude</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">point_data</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">]),</span> <span class="mi">5</span><span class="p">),</span>
-            <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Interactive selection - Review coordinates and update operation details&quot;</span><span class="p">,</span>
-            <span class="n">operation_type</span><span class="o">=</span><span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">,</span>  <span class="c1"># Uses placeholder value</span>
-            <span class="n">action</span><span class="o">=</span><span class="n">ActionEnum</span><span class="o">.</span><span class="n">DEFAULT_POINT</span><span class="p">,</span>  <span class="c1"># Uses placeholder value</span>
-            <span class="n">water_depth</span><span class="o">=</span><span class="n">water_depth</span><span class="p">,</span>
+        <span class="c1"># Use original name if available (from pre-existing stations), otherwise generate new name</span>
+        <span class="n">original_name</span> <span class="o">=</span> <span class="n">point_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+        <span class="n">station_name</span> <span class="o">=</span> <span class="n">original_name</span> <span class="k">if</span> <span class="n">original_name</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;STN_</span><span class="si">{</span><span class="n">index</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="c1"># Use original fields if available, otherwise use defaults</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.config.values</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActionEnum</span>
+
+        <span class="n">operation_type</span> <span class="o">=</span> <span class="n">point_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;operation_type&quot;</span><span class="p">,</span> <span class="s2">&quot;station&quot;</span><span class="p">)</span>
+        <span class="c1"># Convert string back to enum value if needed</span>
+        <span class="k">if</span> <span class="n">operation_type</span> <span class="o">==</span> <span class="s2">&quot;mooring&quot;</span><span class="p">:</span>
+            <span class="n">operation_type</span> <span class="o">=</span> <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">MOORING</span>
+        <span class="k">elif</span> <span class="n">operation_type</span> <span class="o">==</span> <span class="s2">&quot;CTD&quot;</span><span class="p">:</span>
+            <span class="n">operation_type</span> <span class="o">=</span> <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">CTD</span>
+        <span class="k">elif</span> <span class="n">operation_type</span> <span class="o">==</span> <span class="s2">&quot;water_sampling&quot;</span><span class="p">:</span>
+            <span class="n">operation_type</span> <span class="o">=</span> <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">WATER_SAMPLING</span>
+        <span class="k">elif</span> <span class="n">operation_type</span> <span class="o">==</span> <span class="s2">&quot;calibration&quot;</span><span class="p">:</span>
+            <span class="n">operation_type</span> <span class="o">=</span> <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">CALIBRATION</span>
+        <span class="k">elif</span> <span class="n">operation_type</span> <span class="o">==</span> <span class="s2">&quot;port&quot;</span><span class="p">:</span>
+            <span class="n">operation_type</span> <span class="o">=</span> <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">PORT</span>
+        <span class="k">elif</span> <span class="n">operation_type</span> <span class="o">==</span> <span class="s2">&quot;waypoint&quot;</span><span class="p">:</span>
+            <span class="n">operation_type</span> <span class="o">=</span> <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">WAYPOINT</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">operation_type</span> <span class="o">=</span> <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">DEFAULT</span>  <span class="c1"># fallback for unknown types</span>
+
+        <span class="n">action</span> <span class="o">=</span> <span class="n">point_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;deployment&quot;</span><span class="p">:</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">ActionEnum</span><span class="o">.</span><span class="n">DEPLOYMENT</span>
+        <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;recovery&quot;</span><span class="p">:</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">ActionEnum</span><span class="o">.</span><span class="n">RECOVERY</span>
+        <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;profile&quot;</span><span class="p">:</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">ActionEnum</span><span class="o">.</span><span class="n">PROFILE</span>
+        <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;sampling&quot;</span><span class="p">:</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">ActionEnum</span><span class="o">.</span><span class="n">SAMPLING</span>
+        <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;calibration&quot;</span><span class="p">:</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">ActionEnum</span><span class="o">.</span><span class="n">CALIBRATION</span>
+        <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;mob&quot;</span><span class="p">:</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">ActionEnum</span><span class="o">.</span><span class="n">MOB</span>
+        <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;demob&quot;</span><span class="p">:</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">ActionEnum</span><span class="o">.</span><span class="n">DEMOB</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">ActionEnum</span><span class="o">.</span><span class="n">DEFAULT_POINT</span>  <span class="c1"># fallback</span>
+
+        <span class="n">comment</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">point_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;comment&quot;</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="s2">&quot;Interactive selection - Review coordinates and update operation details&quot;</span>
         <span class="p">)</span>
+        <span class="n">duration</span> <span class="o">=</span> <span class="n">point_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;duration&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Build the PointDefinition with all available fields</span>
+        <span class="n">point_attrs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">station_name</span><span class="p">,</span>
+            <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">point_data</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">]),</span> <span class="mi">5</span><span class="p">),</span>
+            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">point_data</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">]),</span> <span class="mi">5</span><span class="p">),</span>
+            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="n">comment</span><span class="p">,</span>
+            <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="n">operation_type</span><span class="p">,</span>
+            <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="n">action</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Add optional fields if they exist</span>
+        <span class="k">if</span> <span class="n">water_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">point_attrs</span><span class="p">[</span><span class="s2">&quot;water_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">water_depth</span>
+        <span class="k">if</span> <span class="n">duration</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">point_attrs</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">duration</span>
+
+        <span class="k">return</span> <span class="n">PointDefinition</span><span class="p">(</span><span class="o">**</span><span class="n">point_attrs</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_create_line_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LineDefinition</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a LineDefinition from raw station picker data.&quot;&quot;&quot;</span>

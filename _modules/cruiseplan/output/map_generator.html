@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.output.map_generator &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev5</title>
+  <title>cruiseplan.output.map_generator &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev7</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=a0c6cf1d"></script>
+      <script src="../../../_static/documentation_options.js?v=3346c16e"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -444,7 +444,7 @@
 
 <div class="viewcode-block" id="extract_points_from_timeline">
 <a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.map_generator.extract_points_from_timeline">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">extract_points_from_timeline</span><span class="p">(</span><span class="n">timeline</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_points_from_timeline</span><span class="p">(</span><span class="n">timeline</span><span class="p">,</span> <span class="n">include_ports</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extract point features (stations, ports) from timeline activities.</span>
 
@@ -452,6 +452,8 @@
 <span class="sd">    ----------</span>
 <span class="sd">    timeline : List[ActivityRecord]</span>
 <span class="sd">        List of timeline activity records</span>
+<span class="sd">    include_ports : bool, optional</span>
+<span class="sd">        Whether to include departure/arrival ports (default True)</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -475,9 +477,15 @@
             <span class="k">if</span> <span class="n">activity_type</span> <span class="o">==</span> <span class="s2">&quot;Port_Departure&quot;</span><span class="p">:</span>
                 <span class="n">entity_type</span> <span class="o">=</span> <span class="s2">&quot;departure_port&quot;</span>
                 <span class="n">operation_type</span> <span class="o">=</span> <span class="s2">&quot;port&quot;</span>
+                <span class="c1"># Skip ports if include_ports is False</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">include_ports</span><span class="p">:</span>
+                    <span class="k">continue</span>
             <span class="k">elif</span> <span class="n">activity_type</span> <span class="o">==</span> <span class="s2">&quot;Port_Arrival&quot;</span><span class="p">:</span>
                 <span class="n">entity_type</span> <span class="o">=</span> <span class="s2">&quot;arrival_port&quot;</span>
                 <span class="n">operation_type</span> <span class="o">=</span> <span class="s2">&quot;port&quot;</span>
+                <span class="c1"># Skip ports if include_ports is False</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">include_ports</span><span class="p">:</span>
+                    <span class="k">continue</span>
             <span class="k">elif</span> <span class="n">activity_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Station&quot;</span><span class="p">]:</span>
                 <span class="n">entity_type</span> <span class="o">=</span> <span class="s2">&quot;station&quot;</span>
                 <span class="n">operation_type</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
@@ -622,7 +630,9 @@
             <span class="n">cruise_obj</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Extract points from timeline activities</span>
-        <span class="n">points</span> <span class="o">=</span> <span class="n">extract_points_from_timeline</span><span class="p">(</span><span class="n">timeline_data</span><span class="p">)</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">extract_points_from_timeline</span><span class="p">(</span>
+            <span class="n">timeline_data</span><span class="p">,</span> <span class="n">include_ports</span><span class="o">=</span><span class="n">include_ports</span>
+        <span class="p">)</span>
 
         <span class="c1"># Extract lines from both sources to get complete transit picture</span>
         <span class="k">if</span> <span class="n">cruise_obj</span><span class="p">:</span>
@@ -689,6 +699,7 @@
     <span class="n">bathy_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span>
     <span class="n">bathy_stride</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
     <span class="n">bathy_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
+    <span class="n">custom_contours</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot bathymetry contours on a matplotlib axis.</span>
@@ -738,30 +749,64 @@
         <span class="c1"># Use same colormap as station picker</span>
         <span class="n">cmap</span> <span class="o">=</span> <span class="n">get_colormap</span><span class="p">(</span><span class="s2">&quot;bathymetry&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Add filled contours matching station picker levels</span>
+        <span class="c1"># Always use default levels for filled contours to preserve color mapping</span>
+        <span class="n">filled_levels</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="o">-</span><span class="mi">6000</span><span class="p">,</span>
+            <span class="o">-</span><span class="mi">5000</span><span class="p">,</span>
+            <span class="o">-</span><span class="mi">4000</span><span class="p">,</span>
+            <span class="o">-</span><span class="mi">3000</span><span class="p">,</span>
+            <span class="o">-</span><span class="mi">2000</span><span class="p">,</span>
+            <span class="o">-</span><span class="mi">1500</span><span class="p">,</span>
+            <span class="o">-</span><span class="mi">1000</span><span class="p">,</span>
+            <span class="o">-</span><span class="mi">750</span><span class="p">,</span>
+            <span class="o">-</span><span class="mi">500</span><span class="p">,</span>
+            <span class="o">-</span><span class="mi">200</span><span class="p">,</span>
+            <span class="o">-</span><span class="mi">100</span><span class="p">,</span>
+            <span class="o">-</span><span class="mi">50</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">,</span>
+            <span class="mi">200</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="c1"># Add filled contours (unchanged from original)</span>
         <span class="n">cs_filled</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span>
             <span class="n">lons_grid</span><span class="p">,</span>
             <span class="n">lats_grid</span><span class="p">,</span>
             <span class="n">depths_grid</span><span class="p">,</span>
-            <span class="n">levels</span><span class="o">=</span><span class="p">[</span>
-                <span class="o">-</span><span class="mi">6000</span><span class="p">,</span>
-                <span class="o">-</span><span class="mi">5000</span><span class="p">,</span>
-                <span class="o">-</span><span class="mi">4000</span><span class="p">,</span>
-                <span class="o">-</span><span class="mi">3000</span><span class="p">,</span>
-                <span class="o">-</span><span class="mi">2000</span><span class="p">,</span>
-                <span class="o">-</span><span class="mi">1500</span><span class="p">,</span>
-                <span class="o">-</span><span class="mi">1000</span><span class="p">,</span>
-                <span class="o">-</span><span class="mi">500</span><span class="p">,</span>
-                <span class="o">-</span><span class="mi">200</span><span class="p">,</span>
-                <span class="o">-</span><span class="mi">100</span><span class="p">,</span>
-                <span class="o">-</span><span class="mi">50</span><span class="p">,</span>
-                <span class="mi">0</span><span class="p">,</span>
-                <span class="mi">200</span><span class="p">,</span>
-            <span class="p">],</span>
+            <span class="n">levels</span><span class="o">=</span><span class="n">filled_levels</span><span class="p">,</span>
             <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
             <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span>
             <span class="n">extend</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span>
         <span class="p">)</span>
+
+        <span class="c1"># Add custom line contours if specified</span>
+        <span class="k">if</span> <span class="n">custom_contours</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Convert positive depths to negative values and sort</span>
+                <span class="n">line_levels</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="nb">abs</span><span class="p">(</span><span class="n">depth</span><span class="p">)</span> <span class="k">for</span> <span class="n">depth</span> <span class="ow">in</span> <span class="n">custom_contours</span><span class="p">]</span>
+                <span class="n">line_levels</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+                    <span class="n">line_levels</span>
+                <span class="p">)</span>  <span class="c1"># Sort in ascending order (most negative first)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Adding custom bathymetry line contours: </span><span class="si">{</span><span class="n">line_levels</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                <span class="c1"># Add line contours on top</span>
+                <span class="n">cs_lines</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span>
+                    <span class="n">lons_grid</span><span class="p">,</span>
+                    <span class="n">lats_grid</span><span class="p">,</span>
+                    <span class="n">depths_grid</span><span class="p">,</span>
+                    <span class="n">levels</span><span class="o">=</span><span class="n">line_levels</span><span class="p">,</span>
+                    <span class="n">colors</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+                    <span class="n">linewidths</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+                    <span class="n">linestyles</span><span class="o">=</span><span class="s2">&quot;solid&quot;</span><span class="p">,</span>
+                    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="c1"># Add labels to the line contours</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">clabel</span><span class="p">(</span><span class="n">cs_lines</span><span class="p">,</span> <span class="n">inline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Invalid custom contour values &#39;</span><span class="si">{</span><span class="n">custom_contours</span><span class="si">}</span><span class="s2">&#39;: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Skipping custom line contours&quot;</span><span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Added bathymetry contours covering full region&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cs_filled</span>  <span class="c1"># Return contour object for colorbar creation later</span>
@@ -922,7 +967,7 @@
             <span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">),</span>
             <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
             <span class="n">textcoords</span><span class="o">=</span><span class="s2">&quot;offset points&quot;</span><span class="p">,</span>
-            <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
             <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
             <span class="n">weight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">,</span>
             <span class="n">zorder</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
@@ -955,7 +1000,7 @@
     <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">legend_labels_added</span><span class="p">:</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
-            <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper right&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">frameon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fancybox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">shadow</span><span class="o">=</span><span class="kc">True</span>
+            <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper right&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">frameon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fancybox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">shadow</span><span class="o">=</span><span class="kc">True</span>
         <span class="p">)</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
@@ -973,6 +1018,9 @@
     <span class="n">bathy_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span>
     <span class="n">bathy_stride</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
     <span class="n">bathy_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
+    <span class="n">bathy_contours</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">lat_bounds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">lon_bounds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">show_plot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">figsize</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mf">8.1</span><span class="p">),</span>
     <span class="n">include_ports</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -1018,73 +1066,85 @@
     <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
     <span class="n">output_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="c1"># Calculate display bounds from the bounds in map_data</span>
-    <span class="n">bounds</span> <span class="o">=</span> <span class="n">map_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;bounds&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">bounds</span><span class="p">:</span>
-        <span class="n">min_lon</span><span class="p">,</span> <span class="n">max_lon</span><span class="p">,</span> <span class="n">min_lat</span><span class="p">,</span> <span class="n">max_lat</span> <span class="o">=</span> <span class="n">bounds</span>
+    <span class="c1"># Use custom bounds if provided, otherwise calculate from data</span>
+    <span class="k">if</span> <span class="n">lat_bounds</span> <span class="ow">and</span> <span class="n">lon_bounds</span><span class="p">:</span>
+        <span class="n">min_lat</span><span class="p">,</span> <span class="n">max_lat</span> <span class="o">=</span> <span class="n">lat_bounds</span>
+        <span class="n">min_lon</span><span class="p">,</span> <span class="n">max_lon</span> <span class="o">=</span> <span class="n">lon_bounds</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Using custom map bounds: </span><span class="si">{</span><span class="n">min_lat</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">°-</span><span class="si">{</span><span class="n">max_lat</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">°N, </span><span class="si">{</span><span class="n">min_lon</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">°-</span><span class="si">{</span><span class="n">max_lon</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">°E&quot;</span>
+        <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="c1"># Fallback: calculate from points</span>
-        <span class="n">all_lats</span> <span class="o">=</span> <span class="p">[</span><span class="n">point</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">map_data</span><span class="p">[</span><span class="s2">&quot;points&quot;</span><span class="p">]]</span>
-        <span class="n">all_lons</span> <span class="o">=</span> <span class="p">[</span><span class="n">point</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">map_data</span><span class="p">[</span><span class="s2">&quot;points&quot;</span><span class="p">]]</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">all_lats</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No valid coordinates found&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="kc">None</span>
-        <span class="n">min_lat</span><span class="p">,</span> <span class="n">max_lat</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">all_lats</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">all_lats</span><span class="p">)</span>
-        <span class="n">min_lon</span><span class="p">,</span> <span class="n">max_lon</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">all_lons</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">all_lons</span><span class="p">)</span>
+        <span class="c1"># Calculate display bounds from the bounds in map_data</span>
+        <span class="n">bounds</span> <span class="o">=</span> <span class="n">map_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;bounds&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">bounds</span><span class="p">:</span>
+            <span class="n">min_lon</span><span class="p">,</span> <span class="n">max_lon</span><span class="p">,</span> <span class="n">min_lat</span><span class="p">,</span> <span class="n">max_lat</span> <span class="o">=</span> <span class="n">bounds</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Fallback: calculate from points</span>
+            <span class="n">all_lats</span> <span class="o">=</span> <span class="p">[</span><span class="n">point</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">map_data</span><span class="p">[</span><span class="s2">&quot;points&quot;</span><span class="p">]]</span>
+            <span class="n">all_lons</span> <span class="o">=</span> <span class="p">[</span><span class="n">point</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">map_data</span><span class="p">[</span><span class="s2">&quot;points&quot;</span><span class="p">]]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">all_lats</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No valid coordinates found&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="n">min_lat</span><span class="p">,</span> <span class="n">max_lat</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">all_lats</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">all_lats</span><span class="p">)</span>
+            <span class="n">min_lon</span><span class="p">,</span> <span class="n">max_lon</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">all_lons</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">all_lons</span><span class="p">)</span>
 
-    <span class="c1"># Add padding to bounds - choose combination that gives most square map</span>
-    <span class="n">padding_percent</span> <span class="o">=</span> <span class="mf">0.20</span>  <span class="c1"># 20% padding around data points</span>
-    <span class="n">max_padding_deg</span> <span class="o">=</span> <span class="mf">5.0</span>  <span class="c1"># maximum padding in degrees</span>
+    <span class="c1"># Only add automatic padding if using auto-calculated bounds</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">lat_bounds</span> <span class="ow">and</span> <span class="n">lon_bounds</span><span class="p">):</span>
+        <span class="c1"># Add padding to bounds - choose combination that gives most square map</span>
+        <span class="n">padding_percent</span> <span class="o">=</span> <span class="mf">0.20</span>  <span class="c1"># 20% padding around data points</span>
+        <span class="n">max_padding_deg</span> <span class="o">=</span> <span class="mf">5.0</span>  <span class="c1"># maximum padding in degrees</span>
 
-    <span class="n">lat_range</span> <span class="o">=</span> <span class="n">max_lat</span> <span class="o">-</span> <span class="n">min_lat</span>
-    <span class="n">lon_range</span> <span class="o">=</span> <span class="n">max_lon</span> <span class="o">-</span> <span class="n">min_lon</span>
+        <span class="n">lat_range</span> <span class="o">=</span> <span class="n">max_lat</span> <span class="o">-</span> <span class="n">min_lat</span>
+        <span class="n">lon_range</span> <span class="o">=</span> <span class="n">max_lon</span> <span class="o">-</span> <span class="n">min_lon</span>
 
-    <span class="c1"># Handle edge case where all points have same coordinates (single point or line)</span>
-    <span class="c1"># Ensure minimum 2 degree span for reasonable map display</span>
-    <span class="n">lat_range</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">lat_range</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span>
-    <span class="n">lon_range</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">lon_range</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span>
+        <span class="c1"># Handle edge case where all points have same coordinates (single point or line)</span>
+        <span class="c1"># Ensure minimum 2 degree span for reasonable map display</span>
+        <span class="n">lat_range</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">lat_range</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span>
+        <span class="n">lon_range</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">lon_range</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span>
 
-    <span class="c1"># Calculate padding options</span>
-    <span class="n">lat_padding_pct</span> <span class="o">=</span> <span class="n">padding_percent</span> <span class="o">*</span> <span class="n">lat_range</span>
-    <span class="n">lon_padding_pct</span> <span class="o">=</span> <span class="n">padding_percent</span> <span class="o">*</span> <span class="n">lon_range</span>
-    <span class="n">lat_padding_fixed</span> <span class="o">=</span> <span class="n">max_padding_deg</span>
-    <span class="n">lon_padding_fixed</span> <span class="o">=</span> <span class="n">max_padding_deg</span>
+        <span class="c1"># Calculate padding options</span>
+        <span class="n">lat_padding_pct</span> <span class="o">=</span> <span class="n">padding_percent</span> <span class="o">*</span> <span class="n">lat_range</span>
+        <span class="n">lon_padding_pct</span> <span class="o">=</span> <span class="n">padding_percent</span> <span class="o">*</span> <span class="n">lon_range</span>
+        <span class="n">lat_padding_fixed</span> <span class="o">=</span> <span class="n">max_padding_deg</span>
+        <span class="n">lon_padding_fixed</span> <span class="o">=</span> <span class="n">max_padding_deg</span>
 
-    <span class="c1"># Four padding combinations to evaluate</span>
-    <span class="n">padding_options</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="p">(</span><span class="n">lat_padding_pct</span><span class="p">,</span> <span class="n">lon_padding_fixed</span><span class="p">),</span>  <span class="c1"># 10% lat, fixed lon</span>
-        <span class="p">(</span><span class="n">lat_padding_pct</span><span class="p">,</span> <span class="n">lon_padding_pct</span><span class="p">),</span>  <span class="c1"># 10% lat, 10% lon</span>
-        <span class="p">(</span><span class="n">lat_padding_fixed</span><span class="p">,</span> <span class="n">lon_padding_pct</span><span class="p">),</span>  <span class="c1"># fixed lat, 10% lon</span>
-        <span class="p">(</span><span class="n">lat_padding_fixed</span><span class="p">,</span> <span class="n">lon_padding_fixed</span><span class="p">),</span>  <span class="c1"># fixed lat, fixed lon</span>
-    <span class="p">]</span>
+        <span class="c1"># Four padding combinations to evaluate</span>
+        <span class="n">padding_options</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="n">lat_padding_pct</span><span class="p">,</span> <span class="n">lon_padding_fixed</span><span class="p">),</span>  <span class="c1"># 20% lat, fixed lon</span>
+            <span class="p">(</span><span class="n">lat_padding_pct</span><span class="p">,</span> <span class="n">lon_padding_pct</span><span class="p">),</span>  <span class="c1"># 20% lat, 20% lon</span>
+            <span class="p">(</span><span class="n">lat_padding_fixed</span><span class="p">,</span> <span class="n">lon_padding_pct</span><span class="p">),</span>  <span class="c1"># fixed lat, 20% lon</span>
+            <span class="p">(</span><span class="n">lat_padding_fixed</span><span class="p">,</span> <span class="n">lon_padding_fixed</span><span class="p">),</span>  <span class="c1"># fixed lat, fixed lon</span>
+        <span class="p">]</span>
 
-    <span class="c1"># Find combination that gives most square aspect ratio</span>
-    <span class="n">center_lat</span> <span class="o">=</span> <span class="p">(</span><span class="n">min_lat</span> <span class="o">+</span> <span class="n">max_lat</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>  <span class="c1"># approximate center for Mercator scaling</span>
-    <span class="n">best_ratio</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
-    <span class="n">best_padding</span> <span class="o">=</span> <span class="n">padding_options</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># Find combination that gives most square aspect ratio</span>
+        <span class="n">center_lat</span> <span class="o">=</span> <span class="p">(</span><span class="n">min_lat</span> <span class="o">+</span> <span class="n">max_lat</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>  <span class="c1"># approximate center for Mercator scaling</span>
+        <span class="n">best_ratio</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
+        <span class="n">best_padding</span> <span class="o">=</span> <span class="n">padding_options</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-    <span class="k">for</span> <span class="n">lat_pad</span><span class="p">,</span> <span class="n">lon_pad</span> <span class="ow">in</span> <span class="n">padding_options</span><span class="p">:</span>
-        <span class="c1"># Calculate resulting bounds</span>
-        <span class="n">total_lat_range</span> <span class="o">=</span> <span class="n">lat_range</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">lat_pad</span>
-        <span class="n">total_lon_range</span> <span class="o">=</span> <span class="n">lon_range</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">lon_pad</span>
+        <span class="k">for</span> <span class="n">lat_pad</span><span class="p">,</span> <span class="n">lon_pad</span> <span class="ow">in</span> <span class="n">padding_options</span><span class="p">:</span>
+            <span class="c1"># Calculate resulting bounds</span>
+            <span class="n">total_lat_range</span> <span class="o">=</span> <span class="n">lat_range</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">lat_pad</span>
+            <span class="n">total_lon_range</span> <span class="o">=</span> <span class="n">lon_range</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">lon_pad</span>
 
-        <span class="c1"># Account for Mercator projection compression: longitude degrees get compressed by cos(lat) at high latitudes</span>
-        <span class="n">mercator_lon_range</span> <span class="o">=</span> <span class="n">total_lon_range</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">center_lat</span><span class="p">)))</span>
+            <span class="c1"># Account for Mercator projection compression: longitude degrees get compressed by cos(lat) at high latitudes</span>
+            <span class="n">mercator_lon_range</span> <span class="o">=</span> <span class="n">total_lon_range</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span>
+                <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">center_lat</span><span class="p">))</span>
+            <span class="p">)</span>
 
-        <span class="c1"># Calculate aspect ratio (closer to 1.0 is more square)</span>
-        <span class="n">aspect_ratio</span> <span class="o">=</span> <span class="n">mercator_lon_range</span> <span class="o">/</span> <span class="n">total_lat_range</span>
-        <span class="n">ratio_from_square</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">aspect_ratio</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span>
+            <span class="c1"># Calculate aspect ratio (closer to 1.0 is more square)</span>
+            <span class="n">aspect_ratio</span> <span class="o">=</span> <span class="n">mercator_lon_range</span> <span class="o">/</span> <span class="n">total_lat_range</span>
+            <span class="n">ratio_from_square</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">aspect_ratio</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">ratio_from_square</span> <span class="o">&lt;</span> <span class="n">best_ratio</span><span class="p">:</span>
-            <span class="n">best_ratio</span> <span class="o">=</span> <span class="n">ratio_from_square</span>
-            <span class="n">best_padding</span> <span class="o">=</span> <span class="p">(</span><span class="n">lat_pad</span><span class="p">,</span> <span class="n">lon_pad</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ratio_from_square</span> <span class="o">&lt;</span> <span class="n">best_ratio</span><span class="p">:</span>
+                <span class="n">best_ratio</span> <span class="o">=</span> <span class="n">ratio_from_square</span>
+                <span class="n">best_padding</span> <span class="o">=</span> <span class="p">(</span><span class="n">lat_pad</span><span class="p">,</span> <span class="n">lon_pad</span><span class="p">)</span>
 
-    <span class="n">lat_padding</span><span class="p">,</span> <span class="n">lon_padding</span> <span class="o">=</span> <span class="n">best_padding</span>
+        <span class="n">lat_padding</span><span class="p">,</span> <span class="n">lon_padding</span> <span class="o">=</span> <span class="n">best_padding</span>
 
-    <span class="n">min_lat</span> <span class="o">-=</span> <span class="n">lat_padding</span>
-    <span class="n">max_lat</span> <span class="o">+=</span> <span class="n">lat_padding</span>
-    <span class="n">min_lon</span> <span class="o">-=</span> <span class="n">lon_padding</span>
-    <span class="n">max_lon</span> <span class="o">+=</span> <span class="n">lon_padding</span>
+        <span class="n">min_lat</span> <span class="o">-=</span> <span class="n">lat_padding</span>
+        <span class="n">max_lat</span> <span class="o">+=</span> <span class="n">lat_padding</span>
+        <span class="n">min_lon</span> <span class="o">-=</span> <span class="n">lon_padding</span>
+        <span class="n">max_lon</span> <span class="o">+=</span> <span class="n">lon_padding</span>
 
     <span class="n">display_bounds</span> <span class="o">=</span> <span class="p">(</span><span class="n">min_lon</span><span class="p">,</span> <span class="n">max_lon</span><span class="p">,</span> <span class="n">min_lat</span><span class="p">,</span> <span class="n">max_lat</span><span class="p">)</span>
 
@@ -1119,7 +1179,7 @@
 
     <span class="c1"># Plot bathymetry and get contour object for colorbar</span>
     <span class="n">cs_filled</span> <span class="o">=</span> <span class="n">plot_bathymetry</span><span class="p">(</span>
-        <span class="n">ax</span><span class="p">,</span> <span class="o">*</span><span class="n">bathy_limits</span><span class="p">,</span> <span class="n">bathy_source</span><span class="p">,</span> <span class="n">bathy_stride</span><span class="p">,</span> <span class="n">bathy_dir</span>
+        <span class="n">ax</span><span class="p">,</span> <span class="o">*</span><span class="n">bathy_limits</span><span class="p">,</span> <span class="n">bathy_source</span><span class="p">,</span> <span class="n">bathy_stride</span><span class="p">,</span> <span class="n">bathy_dir</span><span class="p">,</span> <span class="n">bathy_contours</span>
     <span class="p">)</span>
 
     <span class="c1"># Plot cruise elements using new structured data (this applies the final aspect ratio)</span>
@@ -1176,6 +1236,9 @@
     <span class="n">bathy_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span>
     <span class="n">bathy_stride</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
     <span class="n">bathy_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
+    <span class="n">bathy_contours</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">lat_bounds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">lon_bounds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">show_plot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">figsize</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
     <span class="n">include_ports</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -1214,6 +1277,9 @@
         <span class="n">bathy_source</span><span class="o">=</span><span class="n">bathy_source</span><span class="p">,</span>
         <span class="n">bathy_stride</span><span class="o">=</span><span class="n">bathy_stride</span><span class="p">,</span>
         <span class="n">bathy_dir</span><span class="o">=</span><span class="n">bathy_dir</span><span class="p">,</span>
+        <span class="n">bathy_contours</span><span class="o">=</span><span class="n">bathy_contours</span><span class="p">,</span>
+        <span class="n">lat_bounds</span><span class="o">=</span><span class="n">lat_bounds</span><span class="p">,</span>
+        <span class="n">lon_bounds</span><span class="o">=</span><span class="n">lon_bounds</span><span class="p">,</span>
         <span class="n">show_plot</span><span class="o">=</span><span class="n">show_plot</span><span class="p">,</span>
         <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span>
         <span class="n">include_ports</span><span class="o">=</span><span class="n">include_ports</span><span class="p">,</span>
@@ -1229,7 +1295,11 @@
     <span class="n">bathy_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span>
     <span class="n">bathy_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
     <span class="n">bathy_stride</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="n">bathy_contours</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">lat_bounds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">lon_bounds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">figsize</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
+    <span class="n">no_ports</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1252,6 +1322,8 @@
 <span class="sd">        Downsampling factor for bathymetry (higher = faster but less detailed). Default is 5.</span>
 <span class="sd">    figsize : tuple of float, optional</span>
 <span class="sd">        Figure size as (width, height) in inches. Default is (10, 8).</span>
+<span class="sd">    no_ports : bool, optional</span>
+<span class="sd">        If True, exclude departure and arrival ports from the map. Default is False.</span>
 <span class="sd">    config : CruiseConfig, optional</span>
 <span class="sd">        Cruise configuration object to extract port information</span>
 
@@ -1270,8 +1342,12 @@
         <span class="n">bathy_source</span><span class="o">=</span><span class="n">bathy_source</span><span class="p">,</span>
         <span class="n">bathy_dir</span><span class="o">=</span><span class="n">bathy_dir</span><span class="p">,</span>
         <span class="n">bathy_stride</span><span class="o">=</span><span class="n">bathy_stride</span><span class="p">,</span>
+        <span class="n">bathy_contours</span><span class="o">=</span><span class="n">bathy_contours</span><span class="p">,</span>
+        <span class="n">lat_bounds</span><span class="o">=</span><span class="n">lat_bounds</span><span class="p">,</span>
+        <span class="n">lon_bounds</span><span class="o">=</span><span class="n">lon_bounds</span><span class="p">,</span>
         <span class="n">show_plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span>
+        <span class="n">include_ports</span><span class="o">=</span><span class="ow">not</span> <span class="n">no_ports</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
