@@ -128,6 +128,7 @@ def main(args: argparse.Namespace) -> None:
                     if args.output:
                         output_path = args.output_dir / args.output
                         try:
+                            output_path.parent.mkdir(parents=True, exist_ok=True)
                             with open(output_path, "w") as f:
                                 f.write(result.output)
                             print(f"✅ Forecast written to: {output_path}")

@@ -256,6 +256,9 @@ def test_activity_record_required_fields_present():
             for f in result.files_created
             if f.suffix == ".nc" and "schedule" in f.name
         ]
+        assert (
+            len(netcdf_files) == 1
+        ), f"Expected 1 schedule NetCDF file, got {len(netcdf_files)}"
         netcdf_path = netcdf_files[0]
 
         # Read back and check variables
@@ -286,7 +289,10 @@ def test_activity_record_required_fields_present():
             for var in expected_variables:
                 if var not in schedule_dataset.variables:
                     # Check for legacy names
-                    if var == "water_depth" and "waterdepth" in schedule_dataset.variables:
+                    if (
+                        var == "water_depth"
+                        and "waterdepth" in schedule_dataset.variables
+                    ):
                         continue
                     missing_vars.append(var)
 
@@ -297,7 +303,9 @@ def test_activity_record_required_fields_present():
             print(
                 f"✅ All {len(expected_variables)} expected ActivityRecord variables present in NetCDF"
             )
-            print(f"✅ Variables found: {sorted(list(schedule_dataset.variables.keys()))}")
+            print(
+                f"✅ Variables found: {sorted(list(schedule_dataset.variables.keys()))}"
+            )
         finally:
             # Ensure NetCDF file is properly closed on Windows
             schedule_dataset.close()

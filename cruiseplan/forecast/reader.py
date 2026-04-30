@@ -140,7 +140,9 @@ def netcdf_to_activity_records(schedule: xr.Dataset) -> List[ActivityRecord]:
         # Handle end_time if present, otherwise calculate from duration
         if "end_time" in schedule.variables:
             end_time_value = schedule.end_time[i].values
-            if np.issubdtype(type(end_time_value), np.datetime64) or isinstance(end_time_value, np.integer):
+            if np.issubdtype(type(end_time_value), np.datetime64) or isinstance(
+                end_time_value, np.integer
+            ):
                 end_time = pd.to_datetime(end_time_value).to_pydatetime()
             elif not np.isnan(float(end_time_value)):
                 end_time_days = float(end_time_value)

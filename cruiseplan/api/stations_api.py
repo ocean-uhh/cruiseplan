@@ -173,7 +173,7 @@ def load_pangaea_campaign_data(pangaea_file: Path) -> list[dict]:
 
 def load_config_stations_data(
     config_file: Path,
-) -> tuple[list[dict], list[dict], tuple[float, float], tuple[float, float]]:
+) -> tuple[list[dict], tuple[float, float], tuple[float, float]]:
     """
     Load existing stations from cruise configuration file.
 
@@ -210,14 +210,20 @@ def load_config_stations_data(
                 station = {
                     "lat": point.latitude,
                     "lon": point.longitude,
-                    "depth": getattr(point, "water_depth", None) or 0.0,
+                    "depth": getattr(point, "water_depth", None),
                     "name": point.name,
                     "operation_type": (
-                        str(point.operation_type)
+                        str(
+                            getattr(point.operation_type, "value", point.operation_type)
+                        )
                         if hasattr(point, "operation_type")
                         else "station"
                     ),
-                    "action": str(point.action) if hasattr(point, "action") else None,
+                    "action": (
+                        str(getattr(point.action, "value", point.action))
+                        if hasattr(point, "action")
+                        else None
+                    ),
                     "comment": point.comment if hasattr(point, "comment") else None,
                     "duration": point.duration if hasattr(point, "duration") else None,
                 }

@@ -10,6 +10,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Union
 
+import numpy as np
+
 from cruiseplan.forecast.formatter import format_letsgo_output
 from cruiseplan.forecast.generator import (
     format_activities_table,

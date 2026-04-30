@@ -283,6 +283,9 @@ def schedule(  # noqa: C901, PLR0915
                     bathy_dir,
                     bathy_stride,
                     tuple(figsize) if isinstance(figsize, list) else figsize,
+                    bathy_contours=bathy_contours,
+                    lat_bounds=lat_bounds,
+                    lon_bounds=lon_bounds,
                     no_ports=no_ports,
                     suffix="schedule",
                 )

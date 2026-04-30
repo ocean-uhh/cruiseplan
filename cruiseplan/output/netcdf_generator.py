@@ -1125,7 +1125,12 @@ class NetCDFGenerator:
 
             for event in timeline:
                 # Convert time to days since epoch for CF compliance
-                time_obj = event.get("time", datetime.now())
+                time_obj = event.get("time")
+                if time_obj is None:
+                    raise ValueError(
+                        f"Event missing required 'time' field: {event.get('label', 'unknown')}"
+                    )
+
                 if isinstance(time_obj, str):
                     time_obj = datetime.fromisoformat(time_obj.replace("Z", "+00:00"))
 
@@ -1137,12 +1142,17 @@ class NetCDFGenerator:
                 epoch_days = (time_obj - datetime(1970, 1, 1)).total_seconds() / 86400.0
                 times.append(epoch_days)
 
-                # Handle end_time
-                end_time_obj = event.get("end_time", datetime.now())
-                if isinstance(end_time_obj, str):
+                # Handle end_time - calculate from duration if missing
+                end_time_obj = event.get("end_time")
+                if end_time_obj is None:
+                    # Calculate end_time from start_time + duration
+                    duration_minutes = event.get("duration_minutes", 0)
+                    end_time_obj = time_obj + timedelta(minutes=duration_minutes)
+                elif isinstance(end_time_obj, str):
                     end_time_obj = datetime.fromisoformat(
                         end_time_obj.replace("Z", "+00:00")
                     )
+
                 if end_time_obj.tzinfo is not None:
                     end_time_obj = end_time_obj.astimezone(timezone.utc).replace(
                         tzinfo=None
