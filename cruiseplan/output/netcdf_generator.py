@@ -403,7 +403,7 @@ class NetCDFGenerator:
                 elif activity == "Transit":
                     categories.append("transit")
                 elif activity == "Port":
-                    categories.append("port")  # Don't map to "other"
+                    categories.append("point_operation")
                 else:
                     categories.append("other")
 
@@ -1196,7 +1196,7 @@ class NetCDFGenerator:
                 elif activity == "Transit":
                     categories.append("transit")
                 elif activity == "Port":
-                    categories.append("port")  # Don't map to "other"
+                    categories.append("point_operation")
                 else:
                     categories.append("other")
 
