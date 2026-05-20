@@ -72,6 +72,8 @@ class ActivityRecord:
     action: Optional[str] = None
     operation_depth: Optional[float] = None  # Depth for operation (e.g. CTD max depth)
     water_depth: Optional[float] = None  # Water depth at location
+    delay_start: Optional[float] = None  # Delay before operation starts in minutes
+    comment: Optional[str] = None  # User comment or description
 
     def __init__(self, data: dict[str, Any]):
         """Initialize from dictionary for compatibility with old system."""
@@ -814,6 +816,11 @@ class TimelineGenerator:
         rules = type("Rules", (), {"config": self.config})()
         duration_minutes = operation.calculate_duration(rules)
 
+        # Apply delay_start if specified
+        delay_start_minutes = getattr(operation, "delay_start", 0.0) or 0.0
+        actual_start_time = self.current_time + timedelta(minutes=delay_start_minutes)
+        
+
         activity = ActivityRecord(
             {
                 "activity": operation.get_operation_type(),
@@ -825,9 +832,11 @@ class TimelineGenerator:
                 "operation_depth": getattr(operation, "operation_depth", None),
                 "water_depth": getattr(operation, "water_depth", None),
                 # Note: depth field has mysterious issues, HTML generator should use operation_depth/water_depth directly
-                "start_time": self.current_time,
-                "end_time": self.current_time + timedelta(minutes=duration_minutes),
+                "start_time": actual_start_time,
+                "end_time": actual_start_time + timedelta(minutes=duration_minutes),
                 "duration_minutes": duration_minutes,
+                "delay_start": delay_start_minutes,
+                "comment": getattr(operation, "comment", None),
                 "dist_nm": getattr(
                     operation, "get_operation_distance_nm", lambda: 0.0
                 )(),

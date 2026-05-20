@@ -194,6 +194,7 @@ class PointOperation(BaseOperation):
         op_type: str = "station",
         action: Optional[str] = None,
         display_name: Optional[str] = None,
+        delay_start: Optional[float] = None,
     ):
         """
         Initialize a point operation.
@@ -214,6 +215,8 @@ class PointOperation(BaseOperation):
             Type of operation ('station' or 'mooring', default: 'station').
         action : str, optional
             Specific action for moorings (deploy/recover).
+        delay_start : float, optional
+            Time to wait before operation begins in minutes.
         """
         super().__init__(name, comment, display_name)
         self.position = position
@@ -222,6 +225,7 @@ class PointOperation(BaseOperation):
         self.manual_duration = duration
         self.op_type = op_type
         self.action = action  # Specific to Moorings
+        self.delay_start = delay_start or 0.0
 
     def get_depth(self) -> float:
         """
@@ -273,15 +277,17 @@ class PointOperation(BaseOperation):
 
         # TODO - why is ADCP on the list? what is this hardcoded list for?
         # Check for station-like operations (CTD, ADCP, etc.) that need CTD time calculation
-        if self.op_type in ["station", "CTD", "ADCP", "XBT", "XCTD"] or (
+        # Exception: yo_yo CTD operations use specified duration like moorings
+        if (self.op_type in ["station", "CTD", "ADCP", "XBT", "XCTD"] and self.action != "yo_yo") or (
             hasattr(self, "operation_depth")
             and self.operation_depth is not None
             and self.operation_depth > 0
+            and self.action != "yo_yo"
         ):
             return calc.calculate_ctd_time(self.get_depth())
         # TODO: replace with default
-        elif self.op_type == "mooring":
-            # Moorings should have manual duration, but fallback to default
+        elif self.op_type == "mooring" or (self.op_type == "CTD" and self.action == "yo_yo"):
+            # Moorings and yo_yo CTD operations should have manual duration, but fallback to default
             return (
                 rules.config.default_mooring_duration
                 if hasattr(rules.config, "default_mooring_duration")
@@ -395,6 +401,7 @@ class PointOperation(BaseOperation):
             comment=obj.comment,
             op_type=display_op_type,
             action=action,
+            delay_start=obj.delay_start,
         )
 
     @classmethod
@@ -426,6 +433,7 @@ class PointOperation(BaseOperation):
                 obj, ACTION_FIELD, "mob"
             ),  # Use port's action or default to mob
             display_name=getattr(obj, "display_name", None),
+            delay_start=obj.delay_start,
         )
 
 

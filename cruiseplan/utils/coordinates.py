@@ -101,6 +101,53 @@ class CoordConverter:
         direction = "E" if decimal_degrees >= 0 else "W"
         return f"{int(degrees):03d} {minutes:06.3f} {direction}"
 
+    @staticmethod
+    def decmin_to_decimal_degrees(decmin_str: str) -> float:
+        """
+        Convert degrees decimal minutes format to decimal degrees.
+
+        Parameters
+        ----------
+        decmin_str : str
+            Coordinate in "DD MM.MMM N/S" or "DDD MM.MMM E/W" format.
+
+        Returns
+        -------
+        float
+            Coordinate in decimal degrees.
+
+        Examples
+        --------
+        >>> CoordConverter.decmin_to_decimal_degrees("65 14.640 N")
+        65.244
+        >>> CoordConverter.decmin_to_decimal_degrees("031 19.062 W")
+        -31.3177
+        >>> CoordConverter.decmin_to_decimal_degrees("65 31.316 N")
+        65.521933...
+        """
+        import re
+        
+        # Parse the decmin string using regex
+        # Handles formats like "65 14.640 N", "031 19.062 W"
+        pattern = r'(\d+)\s+(\d+\.?\d*)\s+([NSEW])'
+        match = re.match(pattern, decmin_str.strip())
+        
+        if not match:
+            raise ValueError(f"Invalid decmin format: '{decmin_str}'. Expected format: 'DD MM.MMM N/S' or 'DDD MM.MMM E/W'")
+        
+        degrees_str, minutes_str, direction = match.groups()
+        degrees = int(degrees_str)
+        minutes = float(minutes_str)
+        
+        # Convert to decimal degrees
+        decimal_degrees = degrees + minutes / 60.0
+        
+        # Apply sign based on direction
+        if direction in ['S', 'W']:
+            decimal_degrees = -decimal_degrees
+        
+        return decimal_degrees
+
 
 def format_ddm_comment(lat: float, lon: float) -> str:
     """
