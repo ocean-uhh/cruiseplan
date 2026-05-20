@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.cli.main &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev17</title>
+  <title>cruiseplan.cli.main &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev19</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=9b5f35d7"></script>
+      <script src="../../../_static/documentation_options.js?v=d73d120c"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -260,7 +260,7 @@
     <span class="c1"># Bathymetry options</span>
     <span class="n">bathymetry_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_dt&quot;</span><span class="p">],</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset to download (default: etopo2022)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -309,7 +309,7 @@
     <span class="c1"># Bathymetry options</span>
     <span class="n">schedule_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_dt&quot;</span><span class="p">],</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset for PNG maps (default: etopo2022)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -412,7 +412,7 @@
     <span class="c1"># Bathymetry options</span>
     <span class="n">stations_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_dt&quot;</span><span class="p">],</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset (default: etopo2022)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -479,7 +479,7 @@
     <span class="c1"># Bathymetry options</span>
     <span class="n">enrich_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_dt&quot;</span><span class="p">],</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset (default: etopo2022)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -524,7 +524,7 @@
     <span class="c1"># Bathymetry options</span>
     <span class="n">validate_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_dt&quot;</span><span class="p">],</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset (default: etopo2022)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -598,7 +598,7 @@
     <span class="c1"># Bathymetry options</span>
     <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_dt&quot;</span><span class="p">],</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset (default: gebco2025)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -775,7 +775,7 @@
     <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_dt&quot;</span><span class="p">],</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset (default: etopo2022)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
@@ -931,6 +931,7 @@
 <span class="s2">  cruiseplan stationplan --schedule data/cruise_schedule.nc --start-index 5 --start-time &quot;2026-08-29T08:00:00&quot; --current-position &quot;65.123,-30.456&quot;</span>
 <span class="s2">  cruiseplan stationplan --schedule data/cruise_schedule.nc --format tex --output station_plan.tex</span>
 <span class="s2">  cruiseplan stationplan --schedule data/cruise_schedule.nc --start-index 5 --duration 48 --format waypoints --output bridge_waypoints.txt</span>
+<span class="s2">  cruiseplan stationplan --schedule data/cruise_schedule.nc --start-index 2 --start-time &quot;2026-05-05 08:00&quot; --duration 24 --format png --output forecast_map.png</span>
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="c1"># Required arguments</span>
@@ -978,9 +979,9 @@
     <span class="c1"># Output control</span>
     <span class="n">stationplan_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--format&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">,</span> <span class="s2">&quot;tex&quot;</span><span class="p">,</span> <span class="s2">&quot;waypoints&quot;</span><span class="p">],</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">,</span> <span class="s2">&quot;tex&quot;</span><span class="p">,</span> <span class="s2">&quot;waypoints&quot;</span><span class="p">,</span> <span class="s2">&quot;kml&quot;</span><span class="p">,</span> <span class="s2">&quot;png&quot;</span><span class="p">],</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;text&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output format: &#39;text&#39; for console/file output, &#39;tex&#39; for LaTeX tables, &#39;waypoints&#39; for bridge navigation (default: text)&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output format: &#39;text&#39; for console/file output, &#39;tex&#39; for LaTeX tables, &#39;waypoints&#39; for bridge navigation, &#39;kml&#39; for Google Earth, &#39;png&#39; for map visualization (default: text)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">stationplan_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
@@ -992,6 +993,61 @@
     <span class="n">stationplan_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--output&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output filename (default: stdout)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">stationplan_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--logo&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to logo image file (PNG, JPG, PDF). If not specified, uses default logo from images/ folder&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">stationplan_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--number&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Workplan number for TeX output (e.g., &#39;28&#39;). Used in title as &#39;TITLE - Workplan XX&#39;&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">stationplan_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--title&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Cruise title for TeX output (e.g., &#39;MSM142&#39;). Used in title as &#39;TITLE - Workplan XX&#39;&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># PNG format specific options</span>
+    <span class="n">stationplan_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_dt&quot;</span><span class="p">],</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset for PNG maps (default: etopo2022)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">stationplan_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bathy-dir&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Directory containing bathymetry data (default: data)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">stationplan_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bathy-stride&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry contour stride for PNG maps (default: 10)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">stationplan_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--figsize&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;WIDTH&quot;</span><span class="p">,</span> <span class="s2">&quot;HEIGHT&quot;</span><span class="p">),</span>
+        <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="mf">12.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Figure size for PNG maps in inches (default: 12 8)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">stationplan_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--lat&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;MIN&quot;</span><span class="p">,</span> <span class="s2">&quot;MAX&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Latitude bounds for map extent (e.g., --lat 60 70)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">stationplan_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--lon&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;MIN&quot;</span><span class="p">,</span> <span class="s2">&quot;MAX&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Longitude bounds for map extent (e.g., --lon -40 -20)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># Parse args</span>

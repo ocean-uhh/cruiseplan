@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.output.netcdf_generator &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev17</title>
+  <title>cruiseplan.output.netcdf_generator &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev19</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=9b5f35d7"></script>
+      <script src="../../../_static/documentation_options.js?v=d73d120c"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -166,7 +166,7 @@
         <span class="n">cruise_name</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">cruise_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
         <span class="n">generated_files</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="c1"># Step 1: Generate master schedule file (featureType: trajectory) with waterdepth</span>
+        <span class="c1"># Step 1: Generate master schedule file (featureType: trajectory) with water_depth</span>
         <span class="n">schedule_file</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cruise_name</span><span class="si">}</span><span class="s2">_schedule.nc&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">generate_master_schedule</span><span class="p">(</span><span class="n">timeline</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">schedule_file</span><span class="p">)</span>
         <span class="n">generated_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">schedule_file</span><span class="p">)</span>
@@ -241,7 +241,7 @@
                             <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">station</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                             <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">station</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
                             <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">station</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
-                            <span class="s2">&quot;waterdepth&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;water_depth&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                            <span class="s2">&quot;water_depth&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;water_depth&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
                             <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
                             <span class="ow">or</span> <span class="mf">0.0</span><span class="p">,</span>
                             <span class="s2">&quot;operation_depth&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span>
@@ -271,7 +271,7 @@
                 <span class="p">[</span><span class="n">op</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">point_operations</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span>
             <span class="p">)</span>
             <span class="n">depths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">op</span><span class="p">[</span><span class="s2">&quot;waterdepth&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">point_operations</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span>
+                <span class="p">[</span><span class="n">op</span><span class="p">[</span><span class="s2">&quot;water_depth&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">point_operations</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span>
             <span class="p">)</span>
             <span class="n">operation_depths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
                 <span class="p">[</span>
@@ -316,7 +316,7 @@
             <span class="c1"># Add category variable with specialized metadata</span>
             <span class="n">category_attrs</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;operation category&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;flag_values&quot;</span><span class="p">:</span> <span class="s2">&quot;point_operation line_operation area_operation transit&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;flag_values&quot;</span><span class="p">:</span> <span class="s2">&quot;point_operation line_operation area_operation transit other&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="s2">&quot;latitude longitude water_depth&quot;</span><span class="p">,</span>
             <span class="p">}</span>
             <span class="n">op_vars</span><span class="p">[</span><span class="s2">&quot;category&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">([</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span> <span class="n">categories</span><span class="p">,</span> <span class="n">category_attrs</span><span class="p">)</span>
@@ -350,7 +350,7 @@
         <span class="bp">self</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Generate master schedule NetCDF from timeline with waterdepth included for all operations.</span>
+<span class="sd">        Generate master schedule NetCDF from timeline with water_depth included for all operations.</span>
 
 <span class="sd">        FeatureType: trajectory (ship&#39;s continuous path)</span>
 <span class="sd">        This is the master file containing all data that other files derive from.</span>
@@ -382,7 +382,7 @@
             <span class="n">times</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">lats</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">lons</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">waterdepths</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># New: waterdepth for all operations</span>
+            <span class="n">water_depths</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># New: water_depth for all operations</span>
             <span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">categories</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">types</span> <span class="o">=</span> <span class="p">[]</span>
@@ -426,9 +426,8 @@
                 <span class="n">leg_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;leg_name&quot;</span><span class="p">])</span>
                 <span class="n">durations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mf">60.0</span><span class="p">)</span>  <span class="c1"># Convert to hours</span>
                 <span class="n">vessel_speeds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;vessel_speed_kt&quot;</span><span class="p">])</span>
-                <span class="n">distances_to_next</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dist_nm&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
-                <span class="p">)</span>  <span class="c1"># Distance already calculated by scheduler</span>
+                <span class="c1"># Will compute distance to next waypoint after processing all events</span>
+                <span class="n">distances_to_next</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>  <span class="c1"># Placeholder, will be computed below</span>
 
                 <span class="c1"># Extract additional ActivityRecord fields for comprehensive preservation</span>
                 <span class="n">exit_lats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
@@ -484,9 +483,9 @@
 
                 <span class="c1"># Add depths to arrays</span>
                 <span class="k">if</span> <span class="n">water_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">waterdepths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">water_depth</span><span class="p">))</span>
+                    <span class="n">water_depths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">water_depth</span><span class="p">))</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">waterdepths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                    <span class="n">water_depths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="n">operation_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">operation_depths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">operation_depth</span><span class="p">))</span>
@@ -501,7 +500,11 @@
                     <span class="n">categories</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;point_operation&quot;</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">activity</span> <span class="o">==</span> <span class="s2">&quot;Area&quot;</span><span class="p">:</span>
                     <span class="n">categories</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;area_operation&quot;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">activity</span> <span class="o">==</span> <span class="s2">&quot;Transit&quot;</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">):</span>
+                    <span class="c1"># Scientific transit with action (ADCP, bathymetry, etc.) = line operation</span>
+                    <span class="n">categories</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;line_operation&quot;</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">activity</span> <span class="o">==</span> <span class="s2">&quot;Transit&quot;</span><span class="p">:</span>
+                    <span class="c1"># Regular navigation transit</span>
                     <span class="n">categories</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;transit&quot;</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">activity</span> <span class="o">==</span> <span class="s2">&quot;Port&quot;</span><span class="p">:</span>
                     <span class="n">categories</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;point_operation&quot;</span><span class="p">)</span>
@@ -512,24 +515,31 @@
                 <span class="n">types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;op_type&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">))</span>
                 <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">))</span>
 
-                <span class="c1"># Add comment (lookup from config if available)</span>
+                <span class="c1"># Add comment - prioritize ActivityRecord field, then fallback to config lookup</span>
                 <span class="n">comment</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-                <span class="k">if</span> <span class="n">activity</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Station&quot;</span><span class="p">,</span> <span class="s2">&quot;Mooring&quot;</span><span class="p">]:</span>
-                    <span class="n">station_name</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
-                    <span class="n">station</span> <span class="o">=</span> <span class="n">station_lookup</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">station_name</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">station</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;comment&quot;</span><span class="p">):</span>
-                        <span class="n">comment</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;comment&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="n">activity</span> <span class="o">==</span> <span class="s2">&quot;Area&quot;</span><span class="p">:</span>
-                    <span class="n">area_name</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
-                    <span class="n">area</span> <span class="o">=</span> <span class="n">area_lookup</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">area_name</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">area</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">area</span><span class="p">,</span> <span class="s2">&quot;comment&quot;</span><span class="p">):</span>
-                        <span class="n">comment</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">area</span><span class="p">,</span> <span class="s2">&quot;comment&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="n">activity</span> <span class="o">==</span> <span class="s2">&quot;Transit&quot;</span><span class="p">:</span>
-                    <span class="n">transit_name</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
-                    <span class="n">line</span> <span class="o">=</span> <span class="n">line_lookup</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">transit_name</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">line</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="s2">&quot;comment&quot;</span><span class="p">):</span>
-                        <span class="n">comment</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="s2">&quot;comment&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-                <span class="n">comments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">comment</span> <span class="k">if</span> <span class="n">comment</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                
+                <span class="c1"># First try to get comment directly from the timeline event</span>
+                <span class="k">if</span> <span class="s2">&quot;comment&quot;</span> <span class="ow">in</span> <span class="n">event</span> <span class="ow">and</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;comment&quot;</span><span class="p">]:</span>
+                    <span class="n">comment</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;comment&quot;</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Fallback to config lookup for backward compatibility</span>
+                    <span class="k">if</span> <span class="n">activity</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Station&quot;</span><span class="p">,</span> <span class="s2">&quot;Mooring&quot;</span><span class="p">]:</span>
+                        <span class="n">station_name</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
+                        <span class="n">station</span> <span class="o">=</span> <span class="n">station_lookup</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">station_name</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">station</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;comment&quot;</span><span class="p">):</span>
+                            <span class="n">comment</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;comment&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
+                    <span class="k">elif</span> <span class="n">activity</span> <span class="o">==</span> <span class="s2">&quot;Area&quot;</span><span class="p">:</span>
+                        <span class="n">area_name</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
+                        <span class="n">area</span> <span class="o">=</span> <span class="n">area_lookup</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">area_name</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">area</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">area</span><span class="p">,</span> <span class="s2">&quot;comment&quot;</span><span class="p">):</span>
+                            <span class="n">comment</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">area</span><span class="p">,</span> <span class="s2">&quot;comment&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
+                    <span class="k">elif</span> <span class="n">activity</span> <span class="o">==</span> <span class="s2">&quot;Transit&quot;</span><span class="p">:</span>
+                        <span class="n">transit_name</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
+                        <span class="n">line</span> <span class="o">=</span> <span class="n">line_lookup</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">transit_name</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">line</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="s2">&quot;comment&quot;</span><span class="p">):</span>
+                            <span class="n">comment</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="s2">&quot;comment&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
+                
+                <span class="n">comments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">comment</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
 
                 <span class="c1"># Extract start/end coordinates for line operations</span>
                 <span class="k">if</span> <span class="n">activity</span> <span class="o">==</span> <span class="s2">&quot;Transit&quot;</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">):</span>
@@ -559,11 +569,22 @@
                     <span class="n">end_lats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
                     <span class="n">end_lons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
 
+            <span class="c1"># Compute actual distance-to-next values based on transit activities</span>
+            <span class="c1"># This matches the logic from stationplan_api.py but moves it into the NetCDF generation</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">event</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">timeline</span><span class="p">):</span>
+                <span class="n">activity</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;activity&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">activity</span> <span class="o">==</span> <span class="s2">&quot;Transit&quot;</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="c1"># This is a transit - find the previous operation and store its distance to next</span>
+                    <span class="n">prev_idx</span> <span class="o">=</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span>
+                    <span class="n">transit_dist</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dist_nm&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">prev_idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">distances_to_next</span><span class="p">):</span>
+                        <span class="n">distances_to_next</span><span class="p">[</span><span class="n">prev_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">transit_dist</span>
+
             <span class="c1"># Convert to numpy arrays</span>
             <span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
             <span class="n">lats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">lats</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
             <span class="n">lons</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">lons</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-            <span class="n">waterdepths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">waterdepths</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="n">water_depths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">water_depths</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
             <span class="n">operation_depths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">operation_depths</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
             <span class="n">durations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">durations</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
             <span class="n">vessel_speeds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vessel_speeds</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
@@ -610,9 +631,9 @@
                             <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;degrees_north&quot;</span><span class="p">,</span>
                         <span class="p">},</span>
                     <span class="p">),</span>
-                    <span class="s2">&quot;waterdepth&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="s2">&quot;water_depth&quot;</span><span class="p">:</span> <span class="p">(</span>
                         <span class="p">[</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span>
-                        <span class="n">waterdepths</span><span class="p">,</span>
+                        <span class="n">water_depths</span><span class="p">,</span>
                         <span class="p">{</span>
                             <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;water depth at operation location&quot;</span><span class="p">,</span>
                             <span class="s2">&quot;standard_name&quot;</span><span class="p">:</span> <span class="s2">&quot;sea_floor_depth_below_sea_surface&quot;</span><span class="p">,</span>
@@ -643,7 +664,7 @@
                         <span class="n">names</span><span class="p">,</span>
                         <span class="p">{</span>
                             <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;activity identifier&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="s2">&quot;time latitude longitude waterdepth&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="s2">&quot;time latitude longitude water_depth&quot;</span><span class="p">,</span>
                         <span class="p">},</span>
                     <span class="p">),</span>
                     <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="p">(</span>
@@ -651,8 +672,8 @@
                         <span class="n">categories</span><span class="p">,</span>
                         <span class="p">{</span>
                             <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;activity category&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;flag_values&quot;</span><span class="p">:</span> <span class="s2">&quot;point_operation line_operation area_operation transit&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="s2">&quot;time latitude longitude waterdepth&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;flag_values&quot;</span><span class="p">:</span> <span class="s2">&quot;point_operation line_operation area_operation transit other&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="s2">&quot;time latitude longitude water_depth&quot;</span><span class="p">,</span>
                         <span class="p">},</span>
                     <span class="p">),</span>
                     <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="p">(</span>
@@ -660,7 +681,7 @@
                         <span class="n">types</span><span class="p">,</span>
                         <span class="p">{</span>
                             <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;specific type of activity&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="s2">&quot;time latitude longitude waterdepth&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="s2">&quot;time latitude longitude water_depth&quot;</span><span class="p">,</span>
                         <span class="p">},</span>
                     <span class="p">),</span>
                     <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="p">(</span>
@@ -668,7 +689,7 @@
                         <span class="n">actions</span><span class="p">,</span>
                         <span class="p">{</span>
                             <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;specific action or method&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="s2">&quot;time latitude longitude waterdepth&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="s2">&quot;time latitude longitude water_depth&quot;</span><span class="p">,</span>
                         <span class="p">},</span>
                     <span class="p">),</span>
                     <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="p">(</span>
@@ -676,7 +697,7 @@
                         <span class="n">comments</span><span class="p">,</span>
                         <span class="p">{</span>
                             <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;activity comments&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="s2">&quot;time latitude longitude waterdepth&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="s2">&quot;time latitude longitude water_depth&quot;</span><span class="p">,</span>
                         <span class="p">},</span>
                     <span class="p">),</span>
                     <span class="s2">&quot;leg_assignment&quot;</span><span class="p">:</span> <span class="p">(</span>
@@ -684,7 +705,7 @@
                         <span class="n">leg_names</span><span class="p">,</span>
                         <span class="p">{</span>
                             <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;cruise leg identifier&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="s2">&quot;time latitude longitude waterdepth&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="s2">&quot;time latitude longitude water_depth&quot;</span><span class="p">,</span>
                         <span class="p">},</span>
                     <span class="p">),</span>
                     <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="p">(</span>
@@ -693,7 +714,7 @@
                         <span class="p">{</span>
                             <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;activity duration&quot;</span><span class="p">,</span>
                             <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;hour&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="s2">&quot;time latitude longitude waterdepth&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="s2">&quot;time latitude longitude water_depth&quot;</span><span class="p">,</span>
                         <span class="p">},</span>
                     <span class="p">),</span>
                     <span class="s2">&quot;vessel_speed&quot;</span><span class="p">:</span> <span class="p">(</span>
@@ -702,7 +723,7 @@
                         <span class="p">{</span>
                             <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;vessel speed&quot;</span><span class="p">,</span>
                             <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;knots&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="s2">&quot;time latitude longitude waterdepth&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="s2">&quot;time latitude longitude water_depth&quot;</span><span class="p">,</span>
                         <span class="p">},</span>
                     <span class="p">),</span>
                     <span class="s2">&quot;distance_to_next&quot;</span><span class="p">:</span> <span class="p">(</span>
@@ -711,7 +732,7 @@
                         <span class="p">{</span>
                             <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;distance to next waypoint&quot;</span><span class="p">,</span>
                             <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;nautical_miles&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="s2">&quot;time latitude longitude waterdepth&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="s2">&quot;time latitude longitude water_depth&quot;</span><span class="p">,</span>
                         <span class="p">},</span>
                     <span class="p">),</span>
                     <span class="c1"># Start/end coordinates for line operations (NaN for other activities)</span>
@@ -900,7 +921,7 @@
                             <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;degrees_north&quot;</span><span class="p">,</span>
                         <span class="p">},</span>
                     <span class="p">),</span>
-                    <span class="s2">&quot;waterdepth&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="s2">&quot;water_depth&quot;</span><span class="p">:</span> <span class="p">(</span>
                         <span class="p">(</span><span class="s2">&quot;obs&quot;</span><span class="p">,),</span>
                         <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
                         <span class="p">{</span>
@@ -1108,10 +1129,10 @@
                 <span class="p">}</span>
             <span class="p">)</span>
 
-            <span class="c1"># Remove waterdepth variable for line operations (not applicable)</span>
-            <span class="k">if</span> <span class="s2">&quot;waterdepth&quot;</span> <span class="ow">in</span> <span class="n">ds_lines</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
-                <span class="n">ds_lines</span> <span class="o">=</span> <span class="n">ds_lines</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">([</span><span class="s2">&quot;waterdepth&quot;</span><span class="p">])</span>
-                <span class="c1"># Update coordinates attributes to remove waterdepth reference</span>
+            <span class="c1"># Remove water_depth variable for line operations (not applicable)</span>
+            <span class="k">if</span> <span class="s2">&quot;water_depth&quot;</span> <span class="ow">in</span> <span class="n">ds_lines</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+                <span class="n">ds_lines</span> <span class="o">=</span> <span class="n">ds_lines</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">([</span><span class="s2">&quot;water_depth&quot;</span><span class="p">])</span>
+                <span class="c1"># Update coordinates attributes to remove water_depth reference</span>
                 <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="p">[</span>
                     <span class="s2">&quot;name&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;category&quot;</span><span class="p">,</span>
@@ -1172,10 +1193,10 @@
                 <span class="p">}</span>
             <span class="p">)</span>
 
-            <span class="c1"># Remove waterdepth variable for area operations (not applicable)</span>
-            <span class="k">if</span> <span class="s2">&quot;waterdepth&quot;</span> <span class="ow">in</span> <span class="n">ds_areas</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
-                <span class="n">ds_areas</span> <span class="o">=</span> <span class="n">ds_areas</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">([</span><span class="s2">&quot;waterdepth&quot;</span><span class="p">])</span>
-                <span class="c1"># Update coordinates attributes to remove waterdepth reference</span>
+            <span class="c1"># Remove water_depth variable for area operations (not applicable)</span>
+            <span class="k">if</span> <span class="s2">&quot;water_depth&quot;</span> <span class="ow">in</span> <span class="n">ds_areas</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+                <span class="n">ds_areas</span> <span class="o">=</span> <span class="n">ds_areas</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">([</span><span class="s2">&quot;water_depth&quot;</span><span class="p">])</span>
+                <span class="c1"># Update coordinates attributes to remove water_depth reference</span>
                 <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="p">[</span>
                     <span class="s2">&quot;name&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;category&quot;</span><span class="p">,</span>
@@ -1306,7 +1327,11 @@
                     <span class="n">categories</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;point_operation&quot;</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">activity</span> <span class="o">==</span> <span class="s2">&quot;Area&quot;</span><span class="p">:</span>
                     <span class="n">categories</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;area_operation&quot;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">activity</span> <span class="o">==</span> <span class="s2">&quot;Transit&quot;</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">):</span>
+                    <span class="c1"># Scientific transit with action (ADCP, bathymetry, etc.) = line operation</span>
+                    <span class="n">categories</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;line_operation&quot;</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">activity</span> <span class="o">==</span> <span class="s2">&quot;Transit&quot;</span><span class="p">:</span>
+                    <span class="c1"># Regular navigation transit</span>
                     <span class="n">categories</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;transit&quot;</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">activity</span> <span class="o">==</span> <span class="s2">&quot;Port&quot;</span><span class="p">:</span>
                     <span class="n">categories</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;point_operation&quot;</span><span class="p">)</span>
@@ -1318,8 +1343,9 @@
                 <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">))</span>
                 <span class="n">operation_classes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;operation_class&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">))</span>
 
-                <span class="c1"># Add comment (placeholder - would need to lookup from config)</span>
-                <span class="n">comments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="c1"># Add comment from ActivityRecord</span>
+                <span class="n">comment</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;comment&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
+                <span class="n">comments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">comment</span><span class="p">)</span>
 
             <span class="c1"># Convert to numpy arrays</span>
             <span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
@@ -1379,7 +1405,7 @@
                         <span class="n">categories</span><span class="p">,</span>
                         <span class="p">{</span>
                             <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;activity category&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;flag_values&quot;</span><span class="p">:</span> <span class="s2">&quot;point_operation line_operation area_operation transit&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;flag_values&quot;</span><span class="p">:</span> <span class="s2">&quot;point_operation line_operation area_operation transit other&quot;</span><span class="p">,</span>
                             <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="s2">&quot;time latitude longitude&quot;</span><span class="p">,</span>
                         <span class="p">},</span>
                     <span class="p">),</span>
@@ -1684,7 +1710,7 @@
                         <span class="n">categories</span><span class="p">,</span>
                         <span class="p">{</span>
                             <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;operation category&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;flag_values&quot;</span><span class="p">:</span> <span class="s2">&quot;point_operation line_operation area_operation transit&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;flag_values&quot;</span><span class="p">:</span> <span class="s2">&quot;point_operation line_operation area_operation transit other&quot;</span><span class="p">,</span>
                         <span class="p">},</span>
                     <span class="p">),</span>
                     <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="p">(</span>

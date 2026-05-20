@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.runtime.operations &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev17</title>
+  <title>cruiseplan.runtime.operations &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev19</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=9b5f35d7"></script>
+      <script src="../../../_static/documentation_options.js?v=d73d120c"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -313,6 +313,7 @@
         <span class="n">op_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;station&quot;</span><span class="p">,</span>
         <span class="n">action</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">display_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">delay_start</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize a point operation.</span>
@@ -333,6 +334,8 @@
 <span class="sd">            Type of operation (&#39;station&#39; or &#39;mooring&#39;, default: &#39;station&#39;).</span>
 <span class="sd">        action : str, optional</span>
 <span class="sd">            Specific action for moorings (deploy/recover).</span>
+<span class="sd">        delay_start : float, optional</span>
+<span class="sd">            Time to wait before operation begins in minutes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">comment</span><span class="p">,</span> <span class="n">display_name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">position</span>
@@ -340,7 +343,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">water_depth</span> <span class="o">=</span> <span class="n">water_depth</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">manual_duration</span> <span class="o">=</span> <span class="n">duration</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">op_type</span> <span class="o">=</span> <span class="n">op_type</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="n">action</span>  <span class="c1"># Specific to Moorings</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="n">action</span>  <span class="c1"># Specific to Moorings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">delay_start</span> <span class="o">=</span> <span class="n">delay_start</span> <span class="ow">or</span> <span class="mf">0.0</span></div>
 
 
 <div class="viewcode-block" id="PointOperation.get_depth">
@@ -398,15 +402,17 @@
 
         <span class="c1"># TODO - why is ADCP on the list? what is this hardcoded list for?</span>
         <span class="c1"># Check for station-like operations (CTD, ADCP, etc.) that need CTD time calculation</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">op_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;station&quot;</span><span class="p">,</span> <span class="s2">&quot;CTD&quot;</span><span class="p">,</span> <span class="s2">&quot;ADCP&quot;</span><span class="p">,</span> <span class="s2">&quot;XBT&quot;</span><span class="p">,</span> <span class="s2">&quot;XCTD&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="p">(</span>
+        <span class="c1"># Exception: yo_yo CTD operations use specified duration like moorings</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">op_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;station&quot;</span><span class="p">,</span> <span class="s2">&quot;CTD&quot;</span><span class="p">,</span> <span class="s2">&quot;ADCP&quot;</span><span class="p">,</span> <span class="s2">&quot;XBT&quot;</span><span class="p">,</span> <span class="s2">&quot;XCTD&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">!=</span> <span class="s2">&quot;yo_yo&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
             <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;operation_depth&quot;</span><span class="p">)</span>
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation_depth</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">!=</span> <span class="s2">&quot;yo_yo&quot;</span>
         <span class="p">):</span>
             <span class="k">return</span> <span class="n">calc</span><span class="o">.</span><span class="n">calculate_ctd_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_depth</span><span class="p">())</span>
         <span class="c1"># TODO: replace with default</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">op_type</span> <span class="o">==</span> <span class="s2">&quot;mooring&quot;</span><span class="p">:</span>
-            <span class="c1"># Moorings should have manual duration, but fallback to default</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">op_type</span> <span class="o">==</span> <span class="s2">&quot;mooring&quot;</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">op_type</span> <span class="o">==</span> <span class="s2">&quot;CTD&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;yo_yo&quot;</span><span class="p">):</span>
+            <span class="c1"># Moorings and yo_yo CTD operations should have manual duration, but fallback to default</span>
             <span class="k">return</span> <span class="p">(</span>
                 <span class="n">rules</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">default_mooring_duration</span>
                 <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">rules</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;default_mooring_duration&quot;</span><span class="p">)</span>
@@ -532,6 +538,7 @@
             <span class="n">comment</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">comment</span><span class="p">,</span>
             <span class="n">op_type</span><span class="o">=</span><span class="n">display_op_type</span><span class="p">,</span>
             <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span>
+            <span class="n">delay_start</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">delay_start</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
@@ -566,6 +573,7 @@
                 <span class="n">obj</span><span class="p">,</span> <span class="n">ACTION_FIELD</span><span class="p">,</span> <span class="s2">&quot;mob&quot;</span>
             <span class="p">),</span>  <span class="c1"># Use port&#39;s action or default to mob</span>
             <span class="n">display_name</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;display_name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">delay_start</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">delay_start</span><span class="p">,</span>
         <span class="p">)</span></div>
 </div>
 

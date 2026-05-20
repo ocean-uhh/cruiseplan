@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>General Utilities &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev17</title>
+  <title>General Utilities &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev19</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=9b5f35d7"></script>
+      <script src="../_static/documentation_options.js?v=d73d120c"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -276,6 +276,32 @@ coordinate representations commonly used in maritime and scientific contexts.</p
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">CoordConverter</span><span class="o">.</span><span class="n">decimal_degrees_to_ddm</span><span class="p">(</span><span class="mf">65.7458</span><span class="p">)</span>
 <span class="go">(65.0, 44.75)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.utils.coordinates.CoordConverter.decmin_to_decimal_degrees">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">decmin_to_decimal_degrees</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decmin_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/coordinates.html#CoordConverter.decmin_to_decimal_degrees"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.coordinates.CoordConverter.decmin_to_decimal_degrees" title="Link to this definition"></a></dt>
+<dd><p>Convert degrees decimal minutes format to decimal degrees.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>decmin_str</strong> (<em>str</em>) – Coordinate in “DD MM.MMM N/S” or “DDD MM.MMM E/W” format.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Coordinate in decimal degrees.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">CoordConverter</span><span class="o">.</span><span class="n">decmin_to_decimal_degrees</span><span class="p">(</span><span class="s2">&quot;65 14.640 N&quot;</span><span class="p">)</span>
+<span class="go">65.244</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">CoordConverter</span><span class="o">.</span><span class="n">decmin_to_decimal_degrees</span><span class="p">(</span><span class="s2">&quot;031 19.062 W&quot;</span><span class="p">)</span>
+<span class="go">-31.3177</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">CoordConverter</span><span class="o">.</span><span class="n">decmin_to_decimal_degrees</span><span class="p">(</span><span class="s2">&quot;65 31.316 N&quot;</span><span class="p">)</span>
+<span class="go">65.521933...</span>
 </pre></div>
 </div>
 </dd></dl>

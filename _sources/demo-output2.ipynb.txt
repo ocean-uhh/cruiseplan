@@ -36,10 +36,10 @@
    "id": "setup-imports",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-04-30T03:14:06.227752Z",
-     "iopub.status.busy": "2026-04-30T03:14:06.227576Z",
-     "iopub.status.idle": "2026-04-30T03:14:06.930790Z",
-     "shell.execute_reply": "2026-04-30T03:14:06.930008Z"
+     "iopub.execute_input": "2026-05-20T12:16:54.668185Z",
+     "iopub.status.busy": "2026-05-20T12:16:54.668001Z",
+     "iopub.status.idle": "2026-05-20T12:16:55.315371Z",
+     "shell.execute_reply": "2026-05-20T12:16:55.314698Z"
     }
    },
    "outputs": [
@@ -100,10 +100,10 @@
    "id": "step1-download",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-04-30T03:14:06.932939Z",
-     "iopub.status.busy": "2026-04-30T03:14:06.932654Z",
-     "iopub.status.idle": "2026-04-30T03:14:17.315181Z",
-     "shell.execute_reply": "2026-04-30T03:14:17.314407Z"
+     "iopub.execute_input": "2026-05-20T12:16:55.317254Z",
+     "iopub.status.busy": "2026-05-20T12:16:55.316983Z",
+     "iopub.status.idle": "2026-05-20T12:17:06.509014Z",
+     "shell.execute_reply": "2026-05-20T12:17:06.508264Z"
     }
    },
    "outputs": [
@@ -124,28 +124,889 @@
      ]
     },
     {
-     "name": "stdout",
+     "name": "stderr",
      "output_type": "stream",
      "text": [
-      "Failed to download from https://www.ngdc.noaa.gov/thredds/fileServer/global/ETOPO2022/60s/60s_bed_elev_netcdf/ETOPO_2022_v1_60s_N90W180_bed.nc\n",
-      "   Error: HTTPSConnectionPool(host='www.ngdc.noaa.gov', port=443): Read timed out. (read timeout=10)\n",
-      "Attempting download from: https://www.ncei.noaa.gov/thredds/fileServer/global/ETOPO2022/60s/60s_bed_elev_netcdf/ETOPO_2022_v1_60s_N90W180_bed.nc\n"
+      "\r",
+      "Downloading ETOPO: 0.00B [00:00, ?B/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 3.37MB [00:00, 34.9MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 7.69MB [00:00, 40.5MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 11.9MB [00:00, 41.7MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 16.3MB [00:00, 43.2MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 20.7MB [00:00, 44.3MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 25.0MB [00:00, 44.2MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 29.4MB [00:00, 44.3MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 33.7MB [00:00, 44.5MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 38.0MB [00:00, 44.2MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 42.4MB [00:01, 44.4MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 46.6MB [00:01, 44.2MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 51.0MB [00:01, 44.5MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 55.4MB [00:01, 44.5MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 59.8MB [00:01, 44.5MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 64.2MB [00:01, 44.9MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 68.5MB [00:01, 44.6MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 72.8MB [00:01, 44.7MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 77.3MB [00:01, 45.0MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 81.6MB [00:01, 44.7MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 86.0MB [00:02, 44.8MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 90.5MB [00:02, 45.1MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 94.8MB [00:02, 44.9MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 99.2MB [00:02, 45.1MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 103MB [00:02, 44.7MB/s] "
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 108MB [00:02, 44.8MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 112MB [00:02, 44.9MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 117MB [00:02, 45.0MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 121MB [00:02, 44.7MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 126MB [00:02, 44.6MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 130MB [00:03, 44.7MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 134MB [00:03, 44.8MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 139MB [00:03, 45.0MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 143MB [00:03, 44.6MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 148MB [00:03, 44.5MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 152MB [00:03, 44.1MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 156MB [00:03, 44.1MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 161MB [00:03, 44.0MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 165MB [00:03, 44.2MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 169MB [00:03, 44.1MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 174MB [00:04, 44.6MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 178MB [00:04, 44.4MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 182MB [00:04, 44.5MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 187MB [00:04, 44.6MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 191MB [00:04, 44.3MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 195MB [00:04, 44.2MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 200MB [00:04, 44.3MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 204MB [00:04, 44.6MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 209MB [00:04, 44.7MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 213MB [00:05, 44.8MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 217MB [00:05, 44.8MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 222MB [00:05, 44.6MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 226MB [00:05, 45.0MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 231MB [00:05, 44.8MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 235MB [00:05, 45.2MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 239MB [00:05, 44.9MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 244MB [00:05, 44.6MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 248MB [00:05, 44.5MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 252MB [00:05, 44.2MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 257MB [00:06, 44.5MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 261MB [00:06, 44.4MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 265MB [00:06, 44.1MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 270MB [00:06, 43.8MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 274MB [00:06, 43.8MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 279MB [00:06, 44.4MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 283MB [00:06, 44.7MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 287MB [00:06, 44.6MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 292MB [00:06, 45.1MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 296MB [00:06, 44.9MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 300MB [00:07, 45.2MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 305MB [00:07, 44.9MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 309MB [00:07, 44.5MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 313MB [00:07, 44.5MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 318MB [00:07, 44.3MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 322MB [00:07, 44.2MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 326MB [00:07, 44.4MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 331MB [00:07, 43.9MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 335MB [00:07, 44.4MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 339MB [00:08, 44.3MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 344MB [00:08, 44.3MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 348MB [00:08, 44.6MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 352MB [00:08, 44.6MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 357MB [00:08, 44.6MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 361MB [00:08, 44.7MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 365MB [00:08, 44.4MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 370MB [00:08, 44.6MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 374MB [00:08, 44.4MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 378MB [00:08, 44.3MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 383MB [00:09, 44.1MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 387MB [00:09, 44.1MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 391MB [00:09, 44.3MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 396MB [00:09, 44.1MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 400MB [00:09, 44.2MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 404MB [00:09, 44.1MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 409MB [00:09, 44.2MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 413MB [00:09, 44.6MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 417MB [00:09, 44.8MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 422MB [00:09, 44.5MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 426MB [00:10, 44.7MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 430MB [00:10, 44.5MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 435MB [00:10, 44.6MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 439MB [00:10, 45.1MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 444MB [00:10, 45.0MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 448MB [00:10, 44.9MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 452MB [00:10, 45.0MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 457MB [00:10, 45.3MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 461MB [00:10, 45.1MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 466MB [00:10, 45.1MB/s]"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\r",
+      "Downloading ETOPO: 469MB [00:11, 44.5MB/s]"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Failed to download from https://www.ncei.noaa.gov/thredds/fileServer/global/ETOPO2022/60s/60s_bed_elev_netcdf/ETOPO_2022_v1_60s_N90W180_bed.nc\n",
-      "   Error: 404 Client Error:  for url: https://www.ncei.noaa.gov/thredds/fileServer/global/ETOPO2022/60s/60s_bed_elev_netcdf/ETOPO_2022_v1_60s_N90W180_bed.nc\n",
       "\n",
-      "============================================================\n",
-      "⛔ AUTOMATIC DOWNLOAD FAILED\n",
-      "============================================================\n",
-      "Please download the file manually using your browser:\n",
-      "URL: https://www.ngdc.noaa.gov/thredds/fileServer/global/ETOPO2022/60s/60s_bed_elev_netcdf/ETOPO_2022_v1_60s_N90W180_bed.nc\n",
-      "Save to: /home/runner/work/cruiseplan/cruiseplan/data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc\n",
-      "============================================================\n",
+      "Download complete!\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
       "\n"
      ]
     }
@@ -179,10 +1040,10 @@
    "id": "step2-pandoi",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-04-30T03:14:17.316892Z",
-     "iopub.status.busy": "2026-04-30T03:14:17.316727Z",
-     "iopub.status.idle": "2026-04-30T03:14:31.130837Z",
-     "shell.execute_reply": "2026-04-30T03:14:31.130100Z"
+     "iopub.execute_input": "2026-05-20T12:17:06.510785Z",
+     "iopub.status.busy": "2026-05-20T12:17:06.510614Z",
+     "iopub.status.idle": "2026-05-20T12:17:19.981692Z",
+     "shell.execute_reply": "2026-05-20T12:17:19.981033Z"
     }
    },
    "outputs": [
@@ -301,6 +1162,13 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
+      "INFO: Fetching PANGAEA dataset: 10.1594/PANGAEA.604857\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
       "INFO: Fetching PANGAEA dataset: 10.1594/PANGAEA.604887\n"
      ]
     },
@@ -317,20 +1185,7 @@
       "/home/runner/micromamba/envs/cruiseplan/lib/python3.13/site-packages/pangaeapy/pandataset.py:1067: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`\n",
       "  self.data[\"Elevation\"] = np.nan\n",
       "/home/runner/micromamba/envs/cruiseplan/lib/python3.13/site-packages/pangaeapy/pandataset.py:1071: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`\n",
-      "  self.data[\"Date/Time\"] = \"NaN\"\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "INFO: Fetching PANGAEA dataset: 10.1594/PANGAEA.604857\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
+      "  self.data[\"Date/Time\"] = \"NaN\"\n",
       "INFO: ✅ PANGAEA processing completed successfully!\n"
      ]
     },
@@ -413,10 +1268,10 @@
    "id": "step4-stations",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-04-30T03:14:31.133023Z",
-     "iopub.status.busy": "2026-04-30T03:14:31.132833Z",
-     "iopub.status.idle": "2026-04-30T03:14:31.147527Z",
-     "shell.execute_reply": "2026-04-30T03:14:31.146839Z"
+     "iopub.execute_input": "2026-05-20T12:17:19.983374Z",
+     "iopub.status.busy": "2026-05-20T12:17:19.983206Z",
+     "iopub.status.idle": "2026-05-20T12:17:19.996374Z",
+     "shell.execute_reply": "2026-05-20T12:17:19.995571Z"
     }
    },
    "outputs": [
@@ -586,10 +1441,10 @@
    "id": "3fcbbee3",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-04-30T03:14:31.149390Z",
-     "iopub.status.busy": "2026-04-30T03:14:31.149188Z",
-     "iopub.status.idle": "2026-04-30T03:14:31.154261Z",
-     "shell.execute_reply": "2026-04-30T03:14:31.153189Z"
+     "iopub.execute_input": "2026-05-20T12:17:19.997823Z",
+     "iopub.status.busy": "2026-05-20T12:17:19.997641Z",
+     "iopub.status.idle": "2026-05-20T12:17:20.001822Z",
+     "shell.execute_reply": "2026-05-20T12:17:20.001199Z"
     }
    },
    "outputs": [
@@ -714,10 +1569,10 @@
    "id": "034aee3b",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-04-30T03:14:31.155902Z",
-     "iopub.status.busy": "2026-04-30T03:14:31.155721Z",
-     "iopub.status.idle": "2026-04-30T03:14:31.847115Z",
-     "shell.execute_reply": "2026-04-30T03:14:31.846239Z"
+     "iopub.execute_input": "2026-05-20T12:17:20.003295Z",
+     "iopub.status.busy": "2026-05-20T12:17:20.003158Z",
+     "iopub.status.idle": "2026-05-20T12:17:21.134573Z",
+     "shell.execute_reply": "2026-05-20T12:17:21.133929Z"
     }
    },
    "outputs": [
@@ -753,14 +1608,7 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "INFO: ⚠️ No bathymetry file found at /home/runner/work/cruiseplan/cruiseplan/data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc. Using MOCK mode.\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "INFO:    Run `cruiseplan.data.bathymetry.download_bathymetry()` to fetch it.\n"
+      "INFO: ✅ Loaded bathymetry from /home/runner/work/cruiseplan/cruiseplan/data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc\n"
      ]
     },
     {
@@ -799,17 +1647,19 @@
      ]
     },
     {
-     "name": "stderr",
+     "name": "stdout",
      "output_type": "stream",
      "text": [
-      "INFO: ⚠️ No bathymetry file found at /home/runner/work/cruiseplan/cruiseplan/data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc. Using MOCK mode.\n"
+      "Type of cruiseplan.process: <class 'function'>\n",
+      "Is callable: True\n",
+      "🔧 Processing configuration (enrich + validate + map)...\n"
      ]
     },
     {
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "INFO:    Run `cruiseplan.data.bathymetry.download_bathymetry()` to fetch it.\n"
+      "INFO: ✅ Loaded bathymetry from /home/runner/work/cruiseplan/cruiseplan/data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc\n"
      ]
     },
     {
@@ -844,14 +1694,7 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "INFO: ⚠️ No bathymetry file found at /home/runner/work/cruiseplan/cruiseplan/data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc. Using MOCK mode.\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "INFO:    Run `cruiseplan.data.bathymetry.download_bathymetry()` to fetch it.\n"
+      "INFO: ✅ Loaded bathymetry from /home/runner/work/cruiseplan/cruiseplan/data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc\n"
      ]
     },
     {
@@ -866,15 +1709,6 @@
      "output_type": "stream",
      "text": [
       "INFO: Map displayed with 7 points, 1 lines, 0 areas\n"
-     ]
-    },
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "Type of cruiseplan.process: <class 'function'>\n",
-      "Is callable: True\n",
-      "🔧 Processing configuration (enrich + validate + map)...\n"
      ]
     },
     {
@@ -963,10 +1797,10 @@
    "id": "step7-schedule",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-04-30T03:14:31.848822Z",
-     "iopub.status.busy": "2026-04-30T03:14:31.848654Z",
-     "iopub.status.idle": "2026-04-30T03:14:31.913537Z",
-     "shell.execute_reply": "2026-04-30T03:14:31.912757Z"
+     "iopub.execute_input": "2026-05-20T12:17:21.136142Z",
+     "iopub.status.busy": "2026-05-20T12:17:21.136002Z",
+     "iopub.status.idle": "2026-05-20T12:17:21.193764Z",
+     "shell.execute_reply": "2026-05-20T12:17:21.193106Z"
     }
    },
    "outputs": [
@@ -1303,10 +2137,10 @@
    "id": "e34f20ff",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-04-30T03:14:31.915162Z",
-     "iopub.status.busy": "2026-04-30T03:14:31.914987Z",
-     "iopub.status.idle": "2026-04-30T03:14:31.942175Z",
-     "shell.execute_reply": "2026-04-30T03:14:31.941475Z"
+     "iopub.execute_input": "2026-05-20T12:17:21.195294Z",
+     "iopub.status.busy": "2026-05-20T12:17:21.195143Z",
+     "iopub.status.idle": "2026-05-20T12:17:21.218541Z",
+     "shell.execute_reply": "2026-05-20T12:17:21.217833Z"
     }
    },
    "outputs": [],
@@ -1331,10 +2165,10 @@
    "id": "405ec080",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-04-30T03:14:31.943842Z",
-     "iopub.status.busy": "2026-04-30T03:14:31.943683Z",
-     "iopub.status.idle": "2026-04-30T03:14:31.952944Z",
-     "shell.execute_reply": "2026-04-30T03:14:31.952143Z"
+     "iopub.execute_input": "2026-05-20T12:17:21.220035Z",
+     "iopub.status.busy": "2026-05-20T12:17:21.219885Z",
+     "iopub.status.idle": "2026-05-20T12:17:21.228117Z",
+     "shell.execute_reply": "2026-05-20T12:17:21.227373Z"
     }
    },
    "outputs": [
@@ -1883,7 +2717,7 @@
        "  filter: drop-shadow(1px 1px 5px var(--xr-font-color2));\n",
        "  stroke-width: 0.8px;\n",
        "}\n",
-       "</style><pre class='xr-text-repr-fallback'>&lt;xarray.Dataset&gt; Size: 9kB\n",
+       "</style><pre class='xr-text-repr-fallback'>&lt;xarray.Dataset&gt; Size: 11kB\n",
        "Dimensions:          (obs: 19)\n",
        "Coordinates:\n",
        "    time             (obs) datetime64[ns] 152B ...\n",
@@ -1895,7 +2729,7 @@
        "    category         (obs) &lt;U15 1kB ...\n",
        "    type             (obs) &lt;U14 1kB ...\n",
        "    action           (obs) &lt;U10 760B ...\n",
-       "    comment          (obs) &lt;U1 76B ...\n",
+       "    comment          (obs) &lt;U26 2kB ...\n",
        "    leg_assignment   (obs) &lt;U11 836B ...\n",
        "    ...               ...\n",
        "    end_time         (obs) datetime64[ns] 152B ...\n",
@@ -1911,11 +2745,11 @@
        "    source:               Scheduler computation from YAML configuration\n",
        "    Conventions:          CF-1.8\n",
        "    cruise_name:          Demo North Atlantic Survey 2025\n",
-       "    total_duration_days:  16.299305170335646\n",
-       "    creation_date:        2026-04-30T03:14:31</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.Dataset</div></div><ul class='xr-sections'><li class='xr-section-item'><input id='section-7fea499b-571c-454d-b1bc-e0fd3f8c1739' class='xr-section-summary-in' type='checkbox' disabled /><label for='section-7fea499b-571c-454d-b1bc-e0fd3f8c1739' class='xr-section-summary'>Dimensions:</label><div class='xr-section-inline-details'><ul class='xr-dim-list'><li><span>obs</span>: 19</li></ul></div></li><li class='xr-section-item'><input id='section-37cba8ef-e535-4d0a-8769-1c13291ecfbc' class='xr-section-summary-in' type='checkbox' checked /><label for='section-37cba8ef-e535-4d0a-8769-1c13291ecfbc' class='xr-section-summary' title='Expand/collapse section'>Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>time</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>datetime64[ns]</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-a41b9fa8-6087-4e4a-8b72-43ce050f807d' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-a41b9fa8-6087-4e4a-8b72-43ce050f807d' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-61f9a812-bf58-4411-aeb2-4d89ec605016' class='xr-var-data-in' type='checkbox'><label for='data-61f9a812-bf58-4411-aeb2-4d89ec605016' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>standard_name :</span></dt><dd>time</dd><dt><span>long_name :</span></dt><dd>time of ship position</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=datetime64[ns]]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>longitude</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-68a620f4-fc23-4afc-9037-301a7fe2ad08' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-68a620f4-fc23-4afc-9037-301a7fe2ad08' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-16b6cafe-ee18-4bfc-a6e2-3ee0b01bb30b' class='xr-var-data-in' type='checkbox'><label for='data-16b6cafe-ee18-4bfc-a6e2-3ee0b01bb30b' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>standard_name :</span></dt><dd>longitude</dd><dt><span>long_name :</span></dt><dd>ship longitude</dd><dt><span>units :</span></dt><dd>degrees_east</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>latitude</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-e1e99e5e-7359-4d69-a4e6-bdecf724432a' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-e1e99e5e-7359-4d69-a4e6-bdecf724432a' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-2e92a2a9-ac6e-4506-b634-c9a8fa421a5a' class='xr-var-data-in' type='checkbox'><label for='data-2e92a2a9-ac6e-4506-b634-c9a8fa421a5a' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>standard_name :</span></dt><dd>latitude</dd><dt><span>long_name :</span></dt><dd>ship latitude</dd><dt><span>units :</span></dt><dd>degrees_north</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-005540cc-2bfe-40dd-9671-50f2fc72c778' class='xr-section-summary-in' type='checkbox' /><label for='section-005540cc-2bfe-40dd-9671-50f2fc72c778' class='xr-section-summary' title='Expand/collapse section'>Data variables: <span>(16)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>name</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U27</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-585ebdb3-03bb-4262-8db8-6b1f982658ff' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-585ebdb3-03bb-4262-8db8-6b1f982658ff' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-75b8c87c-e2fb-4737-b8e4-a96c750b5c90' class='xr-var-data-in' type='checkbox'><label for='data-75b8c87c-e2fb-4737-b8e4-a96c750b5c90' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>activity identifier</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U27]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>category</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U15</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-6c10d206-30f7-4f58-a291-f60fc6fbc1e2' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-6c10d206-30f7-4f58-a291-f60fc6fbc1e2' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-ec00c96a-2a90-4e5b-b595-04bb31ccc9c2' class='xr-var-data-in' type='checkbox'><label for='data-ec00c96a-2a90-4e5b-b595-04bb31ccc9c2' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>activity category</dd><dt><span>flag_values :</span></dt><dd>point_operation line_operation area_operation transit</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U15]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>type</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U14</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-16b7e843-66bf-46c5-8f24-b0a8108d2c05' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-16b7e843-66bf-46c5-8f24-b0a8108d2c05' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-f83ec440-e92b-4750-99e1-fdc069c59dd2' class='xr-var-data-in' type='checkbox'><label for='data-f83ec440-e92b-4750-99e1-fdc069c59dd2' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>specific type of activity</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U14]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>action</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U10</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-bb484452-c4c0-4962-92b3-3c7ec05e6377' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-bb484452-c4c0-4962-92b3-3c7ec05e6377' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-26a49753-6c6f-4b9c-8f0b-7cce3268f1a7' class='xr-var-data-in' type='checkbox'><label for='data-26a49753-6c6f-4b9c-8f0b-7cce3268f1a7' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>specific action or method</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U10]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>comment</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U1</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-dbcca477-5aa5-4855-846e-b3ee423c6841' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-dbcca477-5aa5-4855-846e-b3ee423c6841' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-d3f86c03-488d-440e-a1d3-23dc59a48c04' class='xr-var-data-in' type='checkbox'><label for='data-d3f86c03-488d-440e-a1d3-23dc59a48c04' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>activity comments</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U1]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>leg_assignment</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U11</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-6631fd37-8990-446a-97cf-272ae28470cb' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-6631fd37-8990-446a-97cf-272ae28470cb' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-43408a8a-37a5-45dc-ac54-8fea59644619' class='xr-var-data-in' type='checkbox'><label for='data-43408a8a-37a5-45dc-ac54-8fea59644619' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>cruise leg identifier</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U11]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>duration</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-6869754b-f77f-4998-9d32-3a2ff713da3e' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-6869754b-f77f-4998-9d32-3a2ff713da3e' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-be85cfd4-0c85-4717-9530-6cbd8d13274e' class='xr-var-data-in' type='checkbox'><label for='data-be85cfd4-0c85-4717-9530-6cbd8d13274e' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>activity duration</dd><dt><span>units :</span></dt><dd>hour</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>vessel_speed</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-031eb14d-c22a-45b5-839a-48506991e731' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-031eb14d-c22a-45b5-839a-48506991e731' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-f60db997-34c7-4a36-8fb3-06204c4d3d7e' class='xr-var-data-in' type='checkbox'><label for='data-f60db997-34c7-4a36-8fb3-06204c4d3d7e' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>vessel speed</dd><dt><span>units :</span></dt><dd>knots</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>activity</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U7</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-5d6dbe6e-0c10-4b62-8eef-3d3b17d0c3f0' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-5d6dbe6e-0c10-4b62-8eef-3d3b17d0c3f0' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-a37224b5-d249-4b99-a689-d4c4aec0dca3' class='xr-var-data-in' type='checkbox'><label for='data-a37224b5-d249-4b99-a689-d4c4aec0dca3' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>raw activity type</dd><dt><span>description :</span></dt><dd>Original activity type from cruise configuration</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U7]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>operation_class</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U19</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-2c8e534c-4291-4b86-8856-b1de0ab31ffe' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-2c8e534c-4291-4b86-8856-b1de0ab31ffe' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-de921607-b81c-43af-9948-c4e03c16d831' class='xr-var-data-in' type='checkbox'><label for='data-de921607-b81c-43af-9948-c4e03c16d831' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>operation class</dd><dt><span>description :</span></dt><dd>Classification of operation (PointOperation, Transit, etc.)</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U19]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>end_time</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>datetime64[ns]</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-9f6c9b21-2f7d-44b8-8c94-f88faab416d1' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-9f6c9b21-2f7d-44b8-8c94-f88faab416d1' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-b3f6ff39-aba7-4b66-90ef-224bf9dfea17' class='xr-var-data-in' type='checkbox'><label for='data-b3f6ff39-aba7-4b66-90ef-224bf9dfea17' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>standard_name :</span></dt><dd>time</dd><dt><span>long_name :</span></dt><dd>end time of activity</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=datetime64[ns]]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>exit_latitude</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-5bfa0033-2a95-422a-9ec4-5693d6b5ed02' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-5bfa0033-2a95-422a-9ec4-5693d6b5ed02' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-6d321889-af74-4464-90c8-367dee89cc4b' class='xr-var-data-in' type='checkbox'><label for='data-6d321889-af74-4464-90c8-367dee89cc4b' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>standard_name :</span></dt><dd>latitude</dd><dt><span>long_name :</span></dt><dd>exit latitude</dd><dt><span>units :</span></dt><dd>degrees_north</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>exit_longitude</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-8b13a475-cb3a-459d-8463-09108c937e1f' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-8b13a475-cb3a-459d-8463-09108c937e1f' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-ec780201-f488-4fe9-bb6c-8950afd5ad29' class='xr-var-data-in' type='checkbox'><label for='data-ec780201-f488-4fe9-bb6c-8950afd5ad29' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>standard_name :</span></dt><dd>longitude</dd><dt><span>long_name :</span></dt><dd>exit longitude</dd><dt><span>units :</span></dt><dd>degrees_east</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>dist_nm</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-dc688bda-213a-4e68-b9d3-9d7ef3f96a3a' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-dc688bda-213a-4e68-b9d3-9d7ef3f96a3a' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-37ca829d-39d0-4fdb-94bc-f49233147592' class='xr-var-data-in' type='checkbox'><label for='data-37ca829d-39d0-4fdb-94bc-f49233147592' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>distance</dd><dt><span>units :</span></dt><dd>nautical_miles</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>operation_depth</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-c9b1fe8a-d24c-4195-bbfc-ee70f8be35ee' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-c9b1fe8a-d24c-4195-bbfc-ee70f8be35ee' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-250a5c70-10b9-40f1-a0c6-4e3753f454d1' class='xr-var-data-in' type='checkbox'><label for='data-250a5c70-10b9-40f1-a0c6-4e3753f454d1' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>operation depth</dd><dt><span>units :</span></dt><dd>meters</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>water_depth</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-d66da044-4a2c-40a3-95ba-002c0f435ef7' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-d66da044-4a2c-40a3-95ba-002c0f435ef7' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-4b17704f-7d1d-4abc-ad7e-320ed3295a29' class='xr-var-data-in' type='checkbox'><label for='data-4b17704f-7d1d-4abc-ad7e-320ed3295a29' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>water depth</dd><dt><span>units :</span></dt><dd>meters</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-57179a9b-a540-4b51-9b5e-3882bfd02ebd' class='xr-section-summary-in' type='checkbox' checked /><label for='section-57179a9b-a540-4b51-9b5e-3882bfd02ebd' class='xr-section-summary' title='Expand/collapse section'>Attributes: <span>(8)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'><dt><span>featureType :</span></dt><dd>trajectory</dd><dt><span>title :</span></dt><dd>Ship Schedule: Demo North Atlantic Survey 2025</dd><dt><span>institution :</span></dt><dd>Generated by CruisePlan software</dd><dt><span>source :</span></dt><dd>Scheduler computation from YAML configuration</dd><dt><span>Conventions :</span></dt><dd>CF-1.8</dd><dt><span>cruise_name :</span></dt><dd>Demo North Atlantic Survey 2025</dd><dt><span>total_duration_days :</span></dt><dd>16.299305170335646</dd><dt><span>creation_date :</span></dt><dd>2026-04-30T03:14:31</dd></dl></div></li></ul></div></div>"
+       "    total_duration_days:  16.279997299965277\n",
+       "    creation_date:        2026-05-20T12:17:21</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.Dataset</div></div><ul class='xr-sections'><li class='xr-section-item'><input id='section-9a9144a6-897c-4328-b97d-de328c4b42eb' class='xr-section-summary-in' type='checkbox' disabled /><label for='section-9a9144a6-897c-4328-b97d-de328c4b42eb' class='xr-section-summary'>Dimensions:</label><div class='xr-section-inline-details'><ul class='xr-dim-list'><li><span>obs</span>: 19</li></ul></div></li><li class='xr-section-item'><input id='section-c17b5f90-05e7-4453-9569-1437c9f82cce' class='xr-section-summary-in' type='checkbox' checked /><label for='section-c17b5f90-05e7-4453-9569-1437c9f82cce' class='xr-section-summary' title='Expand/collapse section'>Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>time</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>datetime64[ns]</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-25d90233-35e9-40cd-98e1-ee8f0ffbb95c' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-25d90233-35e9-40cd-98e1-ee8f0ffbb95c' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-58081531-2b57-479f-b386-4761f77dfe6f' class='xr-var-data-in' type='checkbox'><label for='data-58081531-2b57-479f-b386-4761f77dfe6f' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>standard_name :</span></dt><dd>time</dd><dt><span>long_name :</span></dt><dd>time of ship position</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=datetime64[ns]]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>longitude</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-879b30ba-057b-4b96-9d64-4e864a7b0965' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-879b30ba-057b-4b96-9d64-4e864a7b0965' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-ee0fec5b-9f04-4e99-8ae3-9cdff6b1771c' class='xr-var-data-in' type='checkbox'><label for='data-ee0fec5b-9f04-4e99-8ae3-9cdff6b1771c' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>standard_name :</span></dt><dd>longitude</dd><dt><span>long_name :</span></dt><dd>ship longitude</dd><dt><span>units :</span></dt><dd>degrees_east</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>latitude</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-b869f242-b190-4a57-b8f5-915c74e59779' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-b869f242-b190-4a57-b8f5-915c74e59779' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-9600b2c5-4b43-403c-bb0b-b086f545dd9f' class='xr-var-data-in' type='checkbox'><label for='data-9600b2c5-4b43-403c-bb0b-b086f545dd9f' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>standard_name :</span></dt><dd>latitude</dd><dt><span>long_name :</span></dt><dd>ship latitude</dd><dt><span>units :</span></dt><dd>degrees_north</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-0af8acff-90f8-40ec-bde9-1016b5fc1428' class='xr-section-summary-in' type='checkbox' /><label for='section-0af8acff-90f8-40ec-bde9-1016b5fc1428' class='xr-section-summary' title='Expand/collapse section'>Data variables: <span>(16)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>name</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U27</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-8844f569-b587-403d-946d-1fc036ee0e8a' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-8844f569-b587-403d-946d-1fc036ee0e8a' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-84a30fbd-f495-4b2f-9455-7532fba7b321' class='xr-var-data-in' type='checkbox'><label for='data-84a30fbd-f495-4b2f-9455-7532fba7b321' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>activity identifier</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U27]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>category</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U15</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-fcaf2401-1b8f-4b68-9fe7-1238a6cea771' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-fcaf2401-1b8f-4b68-9fe7-1238a6cea771' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-f63f27d1-2475-4e66-a930-5065f31d2dfa' class='xr-var-data-in' type='checkbox'><label for='data-f63f27d1-2475-4e66-a930-5065f31d2dfa' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>activity category</dd><dt><span>flag_values :</span></dt><dd>point_operation line_operation area_operation transit other</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U15]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>type</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U14</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-737429fe-f328-42f8-b080-6ea9ecbaba09' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-737429fe-f328-42f8-b080-6ea9ecbaba09' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-8968c8f2-abc6-46b4-a602-2de4814aac78' class='xr-var-data-in' type='checkbox'><label for='data-8968c8f2-abc6-46b4-a602-2de4814aac78' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>specific type of activity</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U14]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>action</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U10</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-1f846b35-4e08-496b-aaac-57cf25f37e07' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-1f846b35-4e08-496b-aaac-57cf25f37e07' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-d5ac1b1d-11be-4ab8-a539-7a0cbb048899' class='xr-var-data-in' type='checkbox'><label for='data-d5ac1b1d-11be-4ab8-a539-7a0cbb048899' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>specific action or method</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U10]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>comment</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U26</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-9726da78-4e92-45ad-a890-5aadc7c1d883' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-9726da78-4e92-45ad-a890-5aadc7c1d883' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-85f87238-965f-4a2d-9a6c-43fa4ee943ef' class='xr-var-data-in' type='checkbox'><label for='data-85f87238-965f-4a2d-9a6c-43fa4ee943ef' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>activity comments</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U26]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>leg_assignment</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U11</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-74fb6188-cff2-4294-b62d-46e2bdb94517' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-74fb6188-cff2-4294-b62d-46e2bdb94517' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-7363a0b8-592a-4509-b53c-3fec0a252b32' class='xr-var-data-in' type='checkbox'><label for='data-7363a0b8-592a-4509-b53c-3fec0a252b32' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>cruise leg identifier</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U11]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>duration</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-fe1de083-e478-46db-8621-71b8a769b92a' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-fe1de083-e478-46db-8621-71b8a769b92a' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-94bdf32e-190f-4a97-8c02-aa05d65d39a3' class='xr-var-data-in' type='checkbox'><label for='data-94bdf32e-190f-4a97-8c02-aa05d65d39a3' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>activity duration</dd><dt><span>units :</span></dt><dd>hour</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>vessel_speed</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-24a34a01-edf2-4d53-b6a0-fbc2a9a643aa' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-24a34a01-edf2-4d53-b6a0-fbc2a9a643aa' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-20a2a99e-72d5-401f-ab22-435c3c3c448a' class='xr-var-data-in' type='checkbox'><label for='data-20a2a99e-72d5-401f-ab22-435c3c3c448a' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>vessel speed</dd><dt><span>units :</span></dt><dd>knots</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>activity</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U7</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-9292c6cf-acef-4311-8868-c61932a8b62d' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-9292c6cf-acef-4311-8868-c61932a8b62d' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-fffe245f-7b73-4250-91ff-a37964ef6c64' class='xr-var-data-in' type='checkbox'><label for='data-fffe245f-7b73-4250-91ff-a37964ef6c64' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>raw activity type</dd><dt><span>description :</span></dt><dd>Original activity type from cruise configuration</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U7]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>operation_class</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U19</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-a110b5b5-5727-44b0-966b-b28683b99d48' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-a110b5b5-5727-44b0-966b-b28683b99d48' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-57005548-0f3f-402e-85c6-ca637ab2f98f' class='xr-var-data-in' type='checkbox'><label for='data-57005548-0f3f-402e-85c6-ca637ab2f98f' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>operation class</dd><dt><span>description :</span></dt><dd>Classification of operation (PointOperation, Transit, etc.)</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U19]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>end_time</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>datetime64[ns]</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-0881b0c5-5ae6-48c2-8ea0-7500d182c9ee' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-0881b0c5-5ae6-48c2-8ea0-7500d182c9ee' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-482f5124-f1ba-4bdd-ba1d-d2f64c155261' class='xr-var-data-in' type='checkbox'><label for='data-482f5124-f1ba-4bdd-ba1d-d2f64c155261' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>standard_name :</span></dt><dd>time</dd><dt><span>long_name :</span></dt><dd>end time of activity</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=datetime64[ns]]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>exit_latitude</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-063ce972-be6a-42bb-a0e1-5462cba9d389' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-063ce972-be6a-42bb-a0e1-5462cba9d389' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-b45382e2-e02d-4db9-bb3c-d55adefe8cf8' class='xr-var-data-in' type='checkbox'><label for='data-b45382e2-e02d-4db9-bb3c-d55adefe8cf8' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>standard_name :</span></dt><dd>latitude</dd><dt><span>long_name :</span></dt><dd>exit latitude</dd><dt><span>units :</span></dt><dd>degrees_north</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>exit_longitude</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-7dddb2eb-d86f-46a4-aaf0-b17ed9851aba' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-7dddb2eb-d86f-46a4-aaf0-b17ed9851aba' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-457d0889-7b1c-42b8-bb29-1b9e026bf90e' class='xr-var-data-in' type='checkbox'><label for='data-457d0889-7b1c-42b8-bb29-1b9e026bf90e' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>standard_name :</span></dt><dd>longitude</dd><dt><span>long_name :</span></dt><dd>exit longitude</dd><dt><span>units :</span></dt><dd>degrees_east</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>dist_nm</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-d3547760-e949-4ba3-8eee-616ab019694a' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-d3547760-e949-4ba3-8eee-616ab019694a' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-81fd5dfb-0811-4c3d-a85f-ad7e4a19c581' class='xr-var-data-in' type='checkbox'><label for='data-81fd5dfb-0811-4c3d-a85f-ad7e4a19c581' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>distance</dd><dt><span>units :</span></dt><dd>nautical_miles</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>operation_depth</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-1208346a-9370-4bd0-8341-984f5ad5f40b' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-1208346a-9370-4bd0-8341-984f5ad5f40b' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-73c7d92a-c6fa-4d1b-8d3b-bf393845a4e4' class='xr-var-data-in' type='checkbox'><label for='data-73c7d92a-c6fa-4d1b-8d3b-bf393845a4e4' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>operation depth</dd><dt><span>units :</span></dt><dd>meters</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>water_depth</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-208afb14-8a3a-41ad-ab2c-514a36ac1e8a' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-208afb14-8a3a-41ad-ab2c-514a36ac1e8a' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-505fe183-b0b2-4651-a009-ebdcbb57aec7' class='xr-var-data-in' type='checkbox'><label for='data-505fe183-b0b2-4651-a009-ebdcbb57aec7' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>water depth</dd><dt><span>units :</span></dt><dd>meters</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-6213d044-cd9e-4c42-b302-dc72552d25ee' class='xr-section-summary-in' type='checkbox' checked /><label for='section-6213d044-cd9e-4c42-b302-dc72552d25ee' class='xr-section-summary' title='Expand/collapse section'>Attributes: <span>(8)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'><dt><span>featureType :</span></dt><dd>trajectory</dd><dt><span>title :</span></dt><dd>Ship Schedule: Demo North Atlantic Survey 2025</dd><dt><span>institution :</span></dt><dd>Generated by CruisePlan software</dd><dt><span>source :</span></dt><dd>Scheduler computation from YAML configuration</dd><dt><span>Conventions :</span></dt><dd>CF-1.8</dd><dt><span>cruise_name :</span></dt><dd>Demo North Atlantic Survey 2025</dd><dt><span>total_duration_days :</span></dt><dd>16.279997299965277</dd><dt><span>creation_date :</span></dt><dd>2026-05-20T12:17:21</dd></dl></div></li></ul></div></div>"
       ],
       "text/plain": [
-       "<xarray.Dataset> Size: 9kB\n",
+       "<xarray.Dataset> Size: 11kB\n",
        "Dimensions:          (obs: 19)\n",
        "Coordinates:\n",
        "    time             (obs) datetime64[ns] 152B ...\n",
@@ -1927,7 +2761,7 @@
        "    category         (obs) <U15 1kB ...\n",
        "    type             (obs) <U14 1kB ...\n",
        "    action           (obs) <U10 760B ...\n",
-       "    comment          (obs) <U1 76B ...\n",
+       "    comment          (obs) <U26 2kB ...\n",
        "    leg_assignment   (obs) <U11 836B ...\n",
        "    ...               ...\n",
        "    end_time         (obs) datetime64[ns] 152B ...\n",
@@ -1943,8 +2777,8 @@
        "    source:               Scheduler computation from YAML configuration\n",
        "    Conventions:          CF-1.8\n",
        "    cruise_name:          Demo North Atlantic Survey 2025\n",
-       "    total_duration_days:  16.299305170335646\n",
-       "    creation_date:        2026-04-30T03:14:31"
+       "    total_duration_days:  16.279997299965277\n",
+       "    creation_date:        2026-05-20T12:17:21"
       ]
      },
      "execution_count": 9,
@@ -1972,10 +2806,10 @@
    "id": "summary",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-04-30T03:14:31.954586Z",
-     "iopub.status.busy": "2026-04-30T03:14:31.954409Z",
-     "iopub.status.idle": "2026-04-30T03:14:31.958037Z",
-     "shell.execute_reply": "2026-04-30T03:14:31.957330Z"
+     "iopub.execute_input": "2026-05-20T12:17:21.229709Z",
+     "iopub.status.busy": "2026-05-20T12:17:21.229549Z",
+     "iopub.status.idle": "2026-05-20T12:17:21.232863Z",
+     "shell.execute_reply": "2026-05-20T12:17:21.232207Z"
     }
    },
    "outputs": [

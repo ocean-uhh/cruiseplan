@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.data.bathymetry &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev17</title>
+  <title>cruiseplan.data.bathymetry &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev19</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=9b5f35d7"></script>
+      <script src="../../../_static/documentation_options.js?v=d73d120c"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -127,6 +127,11 @@
 <span class="c1"># GEBCO 2023 Constants</span>
 <span class="n">GEBCO_2023_NC_FILENAME</span> <span class="o">=</span> <span class="s2">&quot;GEBCO_2023.nc&quot;</span>
 
+<span class="c1"># MSM142 Bathymetry Constants</span>
+<span class="n">MSM142_JJ_NC_FILENAME</span> <span class="o">=</span> <span class="s2">&quot;MSM142_bathyJJ.nc&quot;</span>
+<span class="n">MSM142_DT_NC_FILENAME</span> <span class="o">=</span> <span class="s2">&quot;MSM142_bathyDT.nc&quot;</span>
+<span class="n">MSM142_LEGACY_NC_FILENAME</span> <span class="o">=</span> <span class="s2">&quot;msm142.nc&quot;</span>  <span class="c1"># Legacy filename</span>
+
 <span class="c1"># Constants from Spec</span>
 <span class="n">DEPTH_CONTOURS</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">5000</span><span class="p">,</span> <span class="o">-</span><span class="mi">4000</span><span class="p">,</span> <span class="o">-</span><span class="mi">3000</span><span class="p">,</span> <span class="o">-</span><span class="mi">2000</span><span class="p">,</span> <span class="o">-</span><span class="mi">1000</span><span class="p">,</span> <span class="o">-</span><span class="mi">750</span><span class="p">,</span> <span class="o">-</span><span class="mi">500</span><span class="p">,</span> <span class="o">-</span><span class="mi">200</span><span class="p">,</span> <span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
 
@@ -190,9 +195,9 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        str</span>
-<span class="sd">            &#39;z&#39; for ETOPO, &#39;elevation&#39; for GEBCO</span>
+<span class="sd">            &#39;z&#39; for ETOPO, &#39;elevation&#39; for GEBCO and MSM142</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_dt&quot;</span><span class="p">]:</span>
             <span class="k">return</span> <span class="s2">&quot;elevation&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="s2">&quot;z&quot;</span>  <span class="c1"># Default for ETOPO and other sources</span>
@@ -215,6 +220,15 @@
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">:</span>
             <span class="n">filename</span> <span class="o">=</span> <span class="n">GEBCO_2023_NC_FILENAME</span>
             <span class="n">min_size_mb</span> <span class="o">=</span> <span class="mi">6900</span>  <span class="c1"># GEBCO 2023 is similar size to 2025, ~7.5 GB</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;msm142&quot;</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">MSM142_LEGACY_NC_FILENAME</span>
+            <span class="n">min_size_mb</span> <span class="o">=</span> <span class="mf">2.0</span>  <span class="c1"># Legacy MSM142 is ~2.8 MB</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;msm142_jj&quot;</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">MSM142_JJ_NC_FILENAME</span>
+            <span class="n">min_size_mb</span> <span class="o">=</span> <span class="mf">0.1</span>  <span class="c1"># MSM142_JJ is ~167 KB, small regional dataset</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;msm142_dt&quot;</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">MSM142_DT_NC_FILENAME</span>
+            <span class="n">min_size_mb</span> <span class="o">=</span> <span class="mf">2.0</span>  <span class="c1"># MSM142_DT is ~2.8 MB, same as legacy</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="si">}</span><span class="s2">.nc&quot;</span>
             <span class="n">min_size_mb</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># Generic minimum for custom sources</span>
@@ -682,7 +696,7 @@
 <span class="sd">        Files will be saved directly in this directory.</span>
 <span class="sd">    source : str, optional</span>
 <span class="sd">        Bathymetry source to download (default: &quot;etopo2022&quot;).</span>
-<span class="sd">        Options: &quot;etopo2022&quot;, &quot;gebco2025&quot;.</span>
+<span class="sd">        Options: &quot;etopo2022&quot;, &quot;gebco2025&quot;, &quot;msm142&quot;, &quot;msm142_jj&quot;, &quot;msm142_dt&quot;.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -734,6 +748,48 @@
             <span class="k">return</span> <span class="kc">False</span>
         <span class="c1"># Return file path on success</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">gebco_path</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;msm142&quot;</span><span class="p">:</span>
+        <span class="c1"># Handle legacy MSM142 bathymetry (already local, just check availability)</span>
+        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+        <span class="n">msm142_legacy_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="n">MSM142_LEGACY_NC_FILENAME</span>
+
+        <span class="k">if</span> <span class="n">msm142_legacy_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">file_size_kb</span> <span class="o">=</span> <span class="n">msm142_legacy_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="o">/</span> <span class="mi">1024</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MSM142 (legacy) bathymetry available at </span><span class="si">{</span><span class="n">msm142_legacy_path</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">file_size_kb</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> KB)&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">msm142_legacy_path</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ MSM142 (legacy) bathymetry file not found at </span><span class="si">{</span><span class="n">msm142_legacy_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;   This is a local dataset that should be manually placed in the data/bathymetry directory.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">elif</span> <span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;msm142_jj&quot;</span><span class="p">:</span>
+        <span class="c1"># Handle MSM142_JJ bathymetry (already local, just check availability)</span>
+        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+        <span class="n">msm142_jj_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="n">MSM142_JJ_NC_FILENAME</span>
+
+        <span class="k">if</span> <span class="n">msm142_jj_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">file_size_kb</span> <span class="o">=</span> <span class="n">msm142_jj_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="o">/</span> <span class="mi">1024</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MSM142_JJ bathymetry available at </span><span class="si">{</span><span class="n">msm142_jj_path</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">file_size_kb</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> KB)&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">msm142_jj_path</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ MSM142_JJ bathymetry file not found at </span><span class="si">{</span><span class="n">msm142_jj_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;   This is a local dataset that should be manually placed in the data/bathymetry directory.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">elif</span> <span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;msm142_dt&quot;</span><span class="p">:</span>
+        <span class="c1"># Handle MSM142_DT bathymetry (already local, just check availability)</span>
+        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+        <span class="n">msm142_dt_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="n">MSM142_DT_NC_FILENAME</span>
+
+        <span class="k">if</span> <span class="n">msm142_dt_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">file_size_kb</span> <span class="o">=</span> <span class="n">msm142_dt_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="o">/</span> <span class="mi">1024</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MSM142_DT bathymetry available at </span><span class="si">{</span><span class="n">msm142_dt_path</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">file_size_kb</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> KB)&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">msm142_dt_path</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ MSM142_DT bathymetry file not found at </span><span class="si">{</span><span class="n">msm142_dt_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;   This is a local dataset that should be manually placed in the data/bathymetry directory.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
 
     <span class="c1"># Handle ETOPO 2022 download (existing logic)</span>
     <span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
@@ -861,15 +917,30 @@
     <span class="k">if</span> <span class="n">check_bathymetry_availability</span><span class="p">(</span><span class="n">requested_source</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">requested_source</span>
 
-    <span class="c1"># Try alternative source</span>
-    <span class="n">alternative</span> <span class="o">=</span> <span class="s2">&quot;gebco2025&quot;</span> <span class="k">if</span> <span class="n">requested_source</span> <span class="o">==</span> <span class="s2">&quot;etopo2022&quot;</span> <span class="k">else</span> <span class="s2">&quot;etopo2022&quot;</span>
+    <span class="c1"># Try alternative sources in order of preference</span>
+    <span class="n">alternatives</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">requested_source</span> <span class="o">==</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">:</span>
+        <span class="n">alternatives</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_dt&quot;</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">requested_source</span> <span class="o">==</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">:</span>
+        <span class="n">alternatives</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_dt&quot;</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">requested_source</span> <span class="o">==</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">:</span>
+        <span class="n">alternatives</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_dt&quot;</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">requested_source</span> <span class="o">==</span> <span class="s2">&quot;msm142&quot;</span><span class="p">:</span>
+        <span class="n">alternatives</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_dt&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">requested_source</span> <span class="o">==</span> <span class="s2">&quot;msm142_jj&quot;</span><span class="p">:</span>
+        <span class="n">alternatives</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;msm142_dt&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">requested_source</span> <span class="o">==</span> <span class="s2">&quot;msm142_dt&quot;</span><span class="p">:</span>
+        <span class="n">alternatives</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">alternatives</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_dt&quot;</span><span class="p">]</span>
 
-    <span class="k">if</span> <span class="n">check_bathymetry_availability</span><span class="p">(</span><span class="n">alternative</span><span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;📁 Requested </span><span class="si">{</span><span class="n">requested_source</span><span class="si">}</span><span class="s2"> not available, &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;automatically switching to </span><span class="si">{</span><span class="n">alternative</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">alternative</span>
+    <span class="k">for</span> <span class="n">alternative</span> <span class="ow">in</span> <span class="n">alternatives</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">check_bathymetry_availability</span><span class="p">(</span><span class="n">alternative</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;📁 Requested </span><span class="si">{</span><span class="n">requested_source</span><span class="si">}</span><span class="s2"> not available, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;automatically switching to </span><span class="si">{</span><span class="n">alternative</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">alternative</span>
 
     <span class="c1"># Neither available - return requested (will trigger mock mode with appropriate warning)</span>
     <span class="k">return</span> <span class="n">requested_source</span></div>
