@@ -1,23 +1,23 @@
 # Scientific computing
-numpy>=1.21
-pandas>=1.3.0
-xarray>=2023.12.0
-netCDF4>=1.5.8
+numpy>=2.0.2
+pandas>=2.3.3
+xarray>=2024.7.0
+netCDF4>=1.7.2
 scipy>=1.7.0
 
 # Web and data sources
 requests>=2.25.0
-pangaeapy>=1.0.7
+pangaeapy>=1.0.22
 
 # Configuration and validation
 pydantic>=2.0.0
-ruamel.yaml>=0.17.0,<0.20.0
+ruamel.yaml>=0.19.1,<0.20.0
 
 # Visualization
-matplotlib>=3.7
+matplotlib>=3.9.4
 folium
 branca  # Folium dependency, good to be explicit
 
 # User interface
-tqdm>=4.65
+tqdm>=4.67.3
 jinja2
