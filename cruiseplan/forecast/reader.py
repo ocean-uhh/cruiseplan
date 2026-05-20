@@ -215,9 +215,6 @@ def netcdf_to_activity_records(schedule: xr.Dataset) -> List[ActivityRecord]:
         if "water_depth" in schedule.variables:
             water_depth = float(schedule.water_depth[i].values)
             data["water_depth"] = water_depth if not np.isnan(water_depth) else None
-        elif "waterdepth" in schedule.variables:  # Legacy name
-            water_depth = float(schedule.waterdepth[i].values)
-            data["water_depth"] = water_depth if not np.isnan(water_depth) else None
 
         if "comment" in schedule.variables:
             comment_str = str(schedule.comment[i].values)

@@ -344,17 +344,7 @@ def stationplan_forecast_tex(
         # Convert forecast activities to ActivityRecord objects for TeX generation
         # generate_forecast returns tuples: (index, time, category, type, action, duration, lat, lon, name)
         
-        # First pass: collect transit distances for repositioning
-        transit_distances = {}  # Maps operation_index -> transit_distance_to_next
-        for i, activity_tuple in enumerate(forecast_activities):
-            index, time, category, activity_type, action, duration, latitude, longitude, name = activity_tuple
-            if category == "transit" and i > 0:
-                # This is a transit - find the previous operation
-                prev_activity = forecast_activities[i-1]
-                prev_index = prev_activity[0]
-                # Get transit distance from NetCDF
-                transit_dist = float(schedule.dist_nm[index].values) if "dist_nm" in schedule.variables else 0.0
-                transit_distances[prev_index] = transit_dist
+        # No longer need to manually compute transit distances - they're now in distance_to_next field
         
         activity_records = []
         for activity_tuple in forecast_activities:
@@ -422,8 +412,8 @@ def stationplan_forecast_tex(
             # Get operation distance from NetCDF (for line operations)
             operation_distance = float(schedule.dist_nm[index].values) if "dist_nm" in schedule.variables else 0.0
             
-            # Get transit distance to next operation (for repositioning)
-            next_transit_distance = transit_distances.get(index, 0.0)
+            # Get transit distance to next operation from NetCDF distance_to_next field
+            next_transit_distance = float(schedule.distance_to_next[index].values) if "distance_to_next" in schedule.variables else 0.0
 
             # Single record for operation
             record_data = {
@@ -762,21 +752,25 @@ def _map_activity_to_work_code(
 
     Work codes: 1=Transit, 2=CTD, 3=Mooring, 4=PIES, 5=Float/Drifter, 6=Survey
     """
-    if activity_type in ["ctd", "station"]:
+    # Normalize inputs to lowercase for case-insensitive comparison
+    activity_type_lower = activity_type.lower()
+    name_lower = name.lower()
+    
+    if activity_type_lower in ["ctd", "station"]:
         return 2  # CTD
-    elif activity_type in ["mooring"]:
+    elif activity_type_lower in ["mooring"]:
         return 3  # Mooring
-    elif activity_type in ["pies"]:
+    elif activity_type_lower in ["pies"]:
         return 4  # PIES
-    elif activity_type in ["float", "drifter"]:
+    elif activity_type_lower in ["float", "drifter"]:
         return 5  # Float/Drifter
-    elif activity_type in ["survey"]:
+    elif activity_type_lower in ["survey"]:
         return 6  # Survey
-    elif activity_type in ["navigation", "transit"]:
+    elif activity_type_lower in ["navigation", "transit"]:
         return 1  # Transit
-    elif activity_type in ["unknown"] and "Transit_" in name:
+    elif activity_type_lower in ["unknown"] and "transit_" in name_lower:
         return 6  # Survey lines (Transit_X_Y pattern)
-    elif activity_type in ["underway"] or "Bathy_" in name:
+    elif activity_type_lower in ["underway"] or "bathy_" in name_lower:
         return 6  # Survey lines (underway operations or Bathy_X_Y pattern)
     else:
         return 2  # Default to CTD for unknown types
@@ -1043,7 +1037,7 @@ def stationplan_forecast_png(
                 "op_type": activity_type,
             }
 
-            # Add operation depth and water depth if available from schedule
+            # Add operation depth and water depth if available from schedule  
             try:
                 if "water_depth" in schedule.variables:
                     depth_val = schedule.water_depth[index].values

@@ -716,9 +716,9 @@ class LaTeXGenerator:
             start_date = station_records[0].start_time
             end_date = station_records[-1].start_time
             
-            # Format dates for title
-            start_str = start_date.strftime("%-d")  # Day without leading zero
-            end_str = end_date.strftime("%-d")      # Day without leading zero  
+            # Format dates for title using portable day formatting
+            start_str = str(start_date.day)  # Day without leading zero
+            end_str = str(end_date.day)      # Day without leading zero  
             month_year = end_date.strftime("%B %Y")  # Full month name and year
             
             date_range = f"{start_str}--{end_str} {month_year}"
@@ -982,7 +982,10 @@ def generate_letsgo_table_from_netcdf(
 
     # Read NetCDF and convert to ActivityRecord objects
     schedule = read_schedule(netcdf_path)
-    records = netcdf_to_activity_records(schedule)
+    try:
+        records = netcdf_to_activity_records(schedule)
+    finally:
+        schedule.close()
 
     # Generate TeX table
     generator = LaTeXGenerator()
