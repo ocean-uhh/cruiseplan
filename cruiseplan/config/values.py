@@ -137,6 +137,7 @@ class ActionEnum(str, Enum):
     DEPLOYMENT = "deployment"
     RECOVERY = "recovery"
     CALIBRATION = "calibration"
+    YO_YO = "yo_yo"
 
     # v0.3.1 Port operation actions
     MOB = "mob"  # Port departure (mobilization)

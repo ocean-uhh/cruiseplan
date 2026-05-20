@@ -14,7 +14,7 @@ paginated to fit within LaTeX float environments.
 
 import logging
 from pathlib import Path
-from typing import Any
+from typing import Any, Union
 
 import numpy as np
 from jinja2 import Environment, FileSystemLoader
@@ -549,6 +549,9 @@ class LaTeXGenerator:
         records: list[ActivityRecord],
         cruise_name: str = "Cruise",
         config: Any = None,
+        logo_path: Union[str, Path] = None,
+        workplan_number: str = None,
+        cruise_title: str = None,
     ) -> str:
         """
         Generate TeX table in letsgo.m format from ActivityRecord objects.
@@ -579,7 +582,8 @@ class LaTeXGenerator:
         # First print the date
         if station_records:
             first_date = station_records[0].start_time.strftime("%d.%m.%Y")
-            tex_lines.append(f"& {first_date} & & & & \\\\")
+            first_day = station_records[0].start_time.strftime("%A")
+            tex_lines.append(f"\\rowcolor{{pink!40}}\\multicolumn{{2}}{{l}}{{\\textbf{{{first_date} {first_day}}}}} & & & & \\\\")
             current_date = station_records[0].start_time.date()
 
         for i, record in enumerate(station_records):
@@ -587,110 +591,214 @@ class LaTeXGenerator:
             if record.start_time.date() != current_date:
                 current_date = record.start_time.date()
                 date_str = record.start_time.strftime("%d.%m.%Y")
-                tex_lines.append(f"& {date_str} & & & & \\\\")
+                day_str = record.start_time.strftime("%A")
+                tex_lines.append(f"\\rowcolor{{pink!40}}\\multicolumn{{2}}{{l}}{{\\textbf{{{date_str} {day_str}}}}} & & & & \\\\")
 
-            # Time and position - verify coordinates against original config
-            # Round time to nearest 10 minutes like letsgo.m (rnd = 144)
+            # Time and position
             rounded_time = self._round_time_to_10min(record.start_time)
             time_str = rounded_time.strftime("%H:%M")
-            verified_lat, verified_lon, coord_note = self._verify_station_coordinates(
-                record, config
+            
+            # Use entry coordinates from NetCDF data
+            lat_str, lon_str = self._format_lat_lon_dms(record.entry_lat, record.entry_lon)
+            position = f"{time_str} & {lat_str}\\quad{lon_str}"
+
+            # Determine if this is a line operation (has different exit coordinates)
+            is_line_operation = (
+                hasattr(record, 'exit_lat') and hasattr(record, 'exit_lon') and
+                (abs(record.exit_lat - record.entry_lat) > 0.001 or 
+                 abs(record.exit_lon - record.entry_lon) > 0.001)
+                # and 'bathy' in record.label.lower()  # Focus on bathymetry surveys - commented out to include all line operations
             )
-            lat_str, lon_str = self._format_lat_lon_dms(verified_lat, verified_lon)
 
-            # Only show position if distance > 0.5 nm (like MATLAB version)
-            if (i > 0 and distances[i] > 0.5) or i == 0:
-                position = f"& {time_str} & {lat_str} & {lon_str}"
-            else:
-                position = f"& {time_str} & & "
-
-            # Water depth logic matching letsgo.m: show depth if distance > 0.5 nm AND it's a station
-            # For forecast mode, stations might have category='transit' but have station-like names
+            # Water depth logic for stations
             is_station = (
-                record.activity in ["Station", "Mooring"]
+                record.activity in ["Station", "Mooring", "CTD"]
                 or (
                     hasattr(record, "op_type")
-                    and record.op_type in ["ctd", "mooring", "station"]
+                    and record.op_type in ["ctd", "mooring", "station", "CTD"]
                 )
                 or (
                     hasattr(record, "label")
                     and any(
                         pattern in record.label.lower()
-                        for pattern in ["ctd", "fd-", "ds-", "station", "mooring"]
+                        for pattern in ["ctd", "fd-", "ds-", "station", "mooring", "svp", "yoyo"]
                     )
                 )
             )
 
-            if i > 0 and distances[i] > 0.5 and is_station:
-                # Show depth for stations with distance > 0.5nm
-                if record.water_depth and not np.isnan(record.water_depth):
-                    depth_str = f" & {record.water_depth:4.0f} m"
-                else:
-                    depth_str = " &       "
-            elif i == 0:
-                # First entry - show depth if it's a station
-                if (
-                    is_station
-                    and record.water_depth
-                    and not np.isnan(record.water_depth)
-                ):
-                    depth_str = f" & {record.water_depth:4.0f} m"
-                else:
-                    depth_str = " &       "
+            if is_station and record.water_depth is not None and not np.isnan(record.water_depth):
+                depth_str = f" & {record.water_depth:4.0f} m"
             else:
-                # Transit or other non-station activity
                 depth_str = " &       "
 
-            # Comment (station name/label) - escape LaTeX special characters
-            comment = self._escape_latex_text(record.label)
-            tex_lines.append(f"{position}{depth_str} &         & {comment} \\\\")
-
-            # Distance to next station (if > 0.5 nm)
-            if i < len(station_records) - 1 and distances[i + 1] > 0.5:
-                tex_lines.append(
-                    f" &       &                       "
-                    f"&                        &        & {distances[i+1]:4.0f} nm & \\\\"
-                )
+            # Add midrule before each new activity (except the first one)
+            if i > 0:
+                tex_lines.append("\\midrule")
+            
+            # Station name/label and comment
+            station_name = self._escape_latex_text(record.label)
+            comment = self._escape_latex_text(getattr(record, 'comment', '') or '')
+            
+            if is_line_operation:
+                # For line operations: show start position with operation distance on same line
+                operation_distance = getattr(record, 'dist_nm', 0.0)
+                if operation_distance > 0.5:
+                    distance_str = f"{operation_distance:.1f} nm"
+                else:
+                    distance_str = ""
+                    
+                tex_lines.append(f"{position}{depth_str} & {distance_str} & {station_name} & {comment} \\\\")
+                
+                # Show end position on next line (without time)
+                exit_lat_str, exit_lon_str = self._format_lat_lon_dms(record.exit_lat, record.exit_lon)
+                tex_lines.append(f"  & {exit_lat_str}\\quad{exit_lon_str} &        & &  &  \\\\")
+                
+                # Add repositioning distance to next activity if > 0.5 nm
+                transit_dist = getattr(record, 'transit_dist_nm', 0.0)
+                if transit_dist > 0.5:
+                    tex_lines.append(
+                        f" &                       "
+                        f"&        & +{transit_dist:.1f} nm &  \\\\"
+                    )
+            else:
+                # For point operations: show normally
+                tex_lines.append(f"{position}{depth_str} & & {station_name} & {comment} \\\\")
+                
+                # Add transit distance to next station if > 0.5 nm
+                transit_dist = getattr(record, 'transit_dist_nm', 0.0)
+                if transit_dist > 0.5:
+                    tex_lines.append(
+                        f" &                       "
+                        f"&        & +{transit_dist:.1f} nm &  \\\\"
+                    )
 
         # Wrap in complete LaTeX document structure
         table_content = "\n".join(tex_lines)
 
-        # Escape LaTeX special characters in cruise name
-        safe_cruise_name = self._escape_latex_text(cruise_name)
+        # Create new title format: "MSM142 - Workplan XX" and date range
+        # Use provided cruise title or extract from cruise name
+        if cruise_title:
+            main_cruise_name = cruise_title
+        else:
+            # Extract cruise name and clean it up as fallback
+            base_cruise_name = cruise_name
+            
+            # Remove various suffixes
+            suffixes_to_remove = [
+                " schedule forecast",
+                "schedule forecast", 
+                " schedule",
+                "schedule"
+            ]
+            for suffix in suffixes_to_remove:
+                if suffix in base_cruise_name.lower():
+                    # Case-insensitive removal
+                    idx = base_cruise_name.lower().find(suffix.lower())
+                    if idx >= 0:
+                        base_cruise_name = base_cruise_name[:idx] + base_cruise_name[idx + len(suffix):]
+                        break
+            
+            # Replace underscores with spaces and clean up
+            base_cruise_name = base_cruise_name.replace("_", " ").strip()
+            
+            # Extract just the cruise identifier (e.g., "MSM142" from "MSM142 StJohns")
+            cruise_parts = base_cruise_name.split()
+            if cruise_parts:
+                main_cruise_name = cruise_parts[0]  # e.g., "MSM142"
+            else:
+                main_cruise_name = base_cruise_name
+        
+        # Use provided workplan number or default
+        workplan_num = workplan_number if workplan_number else "01"
+        
+        # Calculate date range from records
+        if station_records:
+            start_date = station_records[0].start_time
+            end_date = station_records[-1].start_time
+            
+            # Format dates for title using portable day formatting
+            start_str = str(start_date.day)  # Day without leading zero
+            end_str = str(end_date.day)      # Day without leading zero  
+            month_year = end_date.strftime("%B %Y")  # Full month name and year
+            
+            date_range = f"{start_str}--{end_str} {month_year}"
+        else:
+            date_range = ""
+
+        # Handle logo inclusion
+        logo_header = ""
+        logo_packages = ""
+        
+        if logo_path:
+            # Convert to Path object for easier handling
+            logo_file = Path(logo_path)
+            if logo_file.exists():
+                logo_packages = "\\usepackage{graphicx}\n"
+                # Create header with logo and new title format
+                logo_header = f"""\\begin{{center}}
+\\includegraphics[width=0.3\\textwidth]{{{str(logo_file)}}}\\\\[0.5cm]
+\\Large \\textbf{{{main_cruise_name} - Workplan {workplan_num}}}\\\\
+\\textbf{{{date_range}}}
+\\end{{center}}
+\\vspace{{0.5cm}}
+
+"""
+            else:
+                # Logo file doesn't exist, fall back to text title
+                logo_header = f"""\\section*{{\\textbf{{{main_cruise_name} - Workplan {workplan_num}}}}}
+\\textbf{{{date_range}}}
+
+"""
+        else:
+            # Try to find default logo
+            default_logos = [
+                "images/mixsed_logo_coarse.png",
+                "images/Logo_UHH_rgb.pdf",
+            ]
+            
+            for default_logo in default_logos:
+                logo_file = Path(default_logo)
+                if logo_file.exists():
+                    logo_packages = "\\usepackage{graphicx}\n"
+                    logo_header = f"""\\begin{{center}}
+\\includegraphics[width=0.3\\textwidth]{{{str(logo_file)}}}\\\\[0.5cm]
+\\Large \\textbf{{{main_cruise_name} - Workplan {workplan_num}}}\\\\
+\\textbf{{{date_range}}}
+\\end{{center}}
+\\vspace{{0.5cm}}
+
+"""
+                    break
+            else:
+                # No logo found, use text title
+                logo_header = f"""\\section*{{\\textbf{{{main_cruise_name} - Workplan {workplan_num}}}}}
+\\textbf{{{date_range}}}
+
+"""
 
         full_document = f"""\\documentclass{{article}}
 \\usepackage{{booktabs}}
-\\usepackage{{longtable}}
 \\usepackage{{geometry}}
 \\usepackage{{textcomp}}
-\\geometry{{landscape,margin=1in}}
+\\usepackage{{xcolor}}
+\\usepackage{{colortbl}}
+{logo_packages}\\geometry{{a4paper,margin=1in}}
 
 \\begin{{document}}
 
-\\section*{{Station Plan: {safe_cruise_name}}}
+{logo_header}
 
-\\begin{{longtable}}{{lllllll}}
+\\begin{{table}}[h]
+\\centering
+\\begin{{tabular}}{{lllllp{{2in}}}}
 \\toprule
-Date & Time & Latitude & Longitude & Depth & Distance & Station \\\\
+Time & Position & Depth & Distance & Station & Comment \\\\
+\\ LT & &\\quad m & \\quad nm & \\\\
 \\midrule
-\\endfirsthead
-
-\\multicolumn{{7}}{{l}}{{\\textit{{Continued from previous page}}}} \\\\
-\\toprule
-Date & Time & Latitude & Longitude & Depth & Distance & Station \\\\
-\\midrule
-\\endhead
-
-\\midrule
-\\multicolumn{{7}}{{r}}{{\\textit{{Continued on next page}}}} \\\\
-\\endfoot
-
-\\bottomrule
-\\endlastfoot
-
 {table_content}
-
-\\end{{longtable}}
+\\bottomrule
+\\end{{tabular}}
+\\end{{table}}
 
 \\end{{document}}
 """
@@ -846,7 +954,11 @@ Date & Time & Latitude & Longitude & Depth & Distance & Station \\\\
 
 
 def generate_letsgo_table_from_netcdf(
-    netcdf_path: Path, output_path: Path = None
+    netcdf_path: Path, 
+    output_path: Path = None, 
+    logo_path: Union[str, Path] = None,
+    workplan_number: str = None,
+    cruise_title: str = None,
 ) -> Path:
     """
     Generate TeX table in letsgo.m format from NetCDF schedule file.
@@ -870,12 +982,21 @@ def generate_letsgo_table_from_netcdf(
 
     # Read NetCDF and convert to ActivityRecord objects
     schedule = read_schedule(netcdf_path)
-    records = netcdf_to_activity_records(schedule)
+    try:
+        records = netcdf_to_activity_records(schedule)
+    finally:
+        schedule.close()
 
     # Generate TeX table
     generator = LaTeXGenerator()
     cruise_name = netcdf_path.stem
-    tex_content = generator.generate_letsgo_table(records, cruise_name)
+    tex_content = generator.generate_letsgo_table(
+        records, 
+        cruise_name, 
+        logo_path=logo_path,
+        workplan_number=workplan_number,
+        cruise_title=cruise_title
+    )
 
     # Write to file
     output_path.write_text(tex_content, encoding="utf-8")

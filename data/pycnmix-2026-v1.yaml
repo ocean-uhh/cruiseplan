@@ -58,96 +58,96 @@ points:
     action: "deployment"
     duration: 120
 
-  - name: "LDEO_heavy_shallow"
-    comment: "LDEO heavy shallow station"
+  - name: "LDEO_heavy_shallow_recovery"
+    comment: "LDEO heavy shallow station recovery"
     latitude: -74.9721
     longitude: 163.9636
     operation_type: "mooring"
     action: "recovery"
     duration: 120.0
 
-  - name: "LDEO_heavy_shallow"
-    comment: "LDEO heavy shallow station"
+  - name: "LDEO_heavy_shallow_deployment"
+    comment: "LDEO heavy shallow station deployment"
     latitude: -74.9721
     longitude: 163.9636
     operation_type: "mooring"
     action: "deployment"
     duration: 120.0
 
-  - name: "LDEO_heavy_deep"
-    comment: "LDEO heavy deep station"
+  - name: "LDEO_heavy_deep_recovery"
+    comment: "LDEO heavy deep station recovery"
     latitude: -75.0091
     longitude: 164.4623
     operation_type: "mooring"
     action: "recovery"
     duration: 120.0
 
-  - name: "LDEO_heavy_deep"
-    comment: "LDEO heavy deep station"
+  - name: "LDEO_heavy_deep_deployment"
+    comment: "LDEO heavy deep station deployment"
     latitude: -75.0091
     longitude: 164.4623
     operation_type: "mooring"
     action: "deployment"
     duration: 120.0
 
-  - name: "LDEO_bottom1"
-    comment: "LDEO bottom station 1"
+  - name: "LDEO_bottom1_recovery"
+    comment: "LDEO bottom station 1 recovery"
     latitude: -75.0140
     longitude: 165.5531
     operation_type: "mooring"
     action: "recovery"
     duration: 120.0
 
-  - name: "LDEO_bottom1"
-    comment: "LDEO bottom station 1"
+  - name: "LDEO_bottom1_deployment"
+    comment: "LDEO bottom station 1 deployment"
     latitude: -75.0140
     longitude: 165.5531
     operation_type: "mooring"
     action: "deployment"
     duration: 120.0
 
-  - name: "LDEO_bottom2"
-    comment: "LDEO bottom station 2"
+  - name: "LDEO_bottom2_recovery"
+    comment: "LDEO bottom station 2 recovery"
     latitude: -74.6455
     longitude: 167.1584
     operation_type: "mooring"
     action: "recovery"
     duration: 120.0
 
-  - name: "LDEO_bottom2"
-    comment: "LDEO bottom station 2"
+  - name: "LDEO_bottom2_deployment"
+    comment: "LDEO bottom station 2 deployment"
     latitude: -74.6455
     longitude: 167.1584
     operation_type: "mooring"
     action: "deployment"
     duration: 120.0
 
-  - name: "LDEO_bottom3"
-    comment: "LDEO bottom station 3"
+  - name: "LDEO_bottom3_recovery"
+    comment: "LDEO bottom station 3 recovery"
     latitude: -73.8559
     longitude: 170.6318
     operation_type: "mooring"
     action: "recovery"
     duration: 120.0
   
-  - name: "LDEO_bottom3"
-    comment: "LDEO bottom station 3"
+  - name: "LDEO_bottom3_deployment"
+    comment: "LDEO bottom station 3 deployment"
     latitude: -73.8559
     longitude: 170.6318
     operation_type: "mooring"
     action: "deployment"
     duration: 120.0
 
-  - name: "LDEO_bottom4"
-    comment: "LDEO bottom station 4"
+  - name: "LDEO_bottom4_recovery"
+    comment: "LDEO bottom station 4 recovery"
     latitude: -72.9783
     longitude: 171.4218
     operation_type: "mooring"
     action: "recovery"
     duration: 120.0
 
-  - name: "LDEO_bottom4"
-    comment: "LDEO bottom station 4"
+  - name: "LDEO_bottom4_deployment"
+    comment: "LDEO bottom station 4 deployment"
     latitude: -72.9783
     longitude: 171.4218
     operation_type: "mooring"
@@ -162,16 +162,16 @@ points:
     action: "recovery"
     duration: 120.0
 
-  - name: "NIWA_DITD"
-    comment: "NIWA DITD station"
+  - name: "NIWA_DITD_deployment"
+    comment: "NIWA DITD station deployment"
     latitude: -75.3431
     longitude: 164.8010
     operation_type: "mooring"
     action: "deployment"
     duration: 120.0
 
-  - name: "NIWA_DITD"
-    comment: "NIWA DITD station"
+  - name: "NIWA_DITD_recovery"
+    comment: "NIWA DITD station recovery"
     latitude: -75.3431
     longitude: 164.8010
     operation_type: "mooring"

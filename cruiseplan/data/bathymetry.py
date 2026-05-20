@@ -36,6 +36,11 @@ GEBCO_NC_FILENAME = "GEBCO_2025.nc"
 # GEBCO 2023 Constants
 GEBCO_2023_NC_FILENAME = "GEBCO_2023.nc"
 
+# MSM142 Bathymetry Constants
+MSM142_JJ_NC_FILENAME = "MSM142_bathyJJ.nc"
+MSM142_DT_NC_FILENAME = "MSM142_bathyDT.nc"
+MSM142_LEGACY_NC_FILENAME = "msm142.nc"  # Legacy filename
+
 # Constants from Spec
 DEPTH_CONTOURS = [-5000, -4000, -3000, -2000, -1000, -750, -500, -200, -100, -50, 0]
 
@@ -94,9 +99,9 @@ class BathymetryManager:
         Returns
         -------
         str
-            'z' for ETOPO, 'elevation' for GEBCO
+            'z' for ETOPO, 'elevation' for GEBCO and MSM142
         """
-        if self.source in ["gebco2025", "gebco2023"]:
+        if self.source in ["gebco2025", "gebco2023", "msm142", "msm142_jj", "msm142_dt"]:
             return "elevation"
         else:
             return "z"  # Default for ETOPO and other sources
@@ -119,6 +124,15 @@ class BathymetryManager:
         elif self.source == "gebco2023":
             filename = GEBCO_2023_NC_FILENAME
             min_size_mb = 6900  # GEBCO 2023 is similar size to 2025, ~7.5 GB
+        elif self.source == "msm142":
+            filename = MSM142_LEGACY_NC_FILENAME
+            min_size_mb = 2.0  # Legacy MSM142 is ~2.8 MB
+        elif self.source == "msm142_jj":
+            filename = MSM142_JJ_NC_FILENAME
+            min_size_mb = 0.1  # MSM142_JJ is ~167 KB, small regional dataset
+        elif self.source == "msm142_dt":
+            filename = MSM142_DT_NC_FILENAME
+            min_size_mb = 2.0  # MSM142_DT is ~2.8 MB, same as legacy
         else:
             filename = f"{self.source}.nc"
             min_size_mb = 10  # Generic minimum for custom sources
@@ -571,7 +585,7 @@ def download_bathymetry(
         Files will be saved directly in this directory.
     source : str, optional
         Bathymetry source to download (default: "etopo2022").
-        Options: "etopo2022", "gebco2025".
+        Options: "etopo2022", "gebco2025", "msm142", "msm142_jj", "msm142_dt".
 
     Returns
     -------
@@ -623,6 +637,48 @@ def download_bathymetry(
             return False
         # Return file path on success
         return str(gebco_path)
+
+    elif source == "msm142":
+        # Handle legacy MSM142 bathymetry (already local, just check availability)
+        output_dir = Path(target_dir).resolve()
+        msm142_legacy_path = output_dir / MSM142_LEGACY_NC_FILENAME
+
+        if msm142_legacy_path.exists():
+            file_size_kb = msm142_legacy_path.stat().st_size / 1024
+            print(f"MSM142 (legacy) bathymetry available at {msm142_legacy_path} ({file_size_kb:.1f} KB)")
+            return str(msm142_legacy_path)
+        else:
+            print(f"❌ MSM142 (legacy) bathymetry file not found at {msm142_legacy_path}")
+            print("   This is a local dataset that should be manually placed in the data/bathymetry directory.")
+            return False
+
+    elif source == "msm142_jj":
+        # Handle MSM142_JJ bathymetry (already local, just check availability)
+        output_dir = Path(target_dir).resolve()
+        msm142_jj_path = output_dir / MSM142_JJ_NC_FILENAME
+
+        if msm142_jj_path.exists():
+            file_size_kb = msm142_jj_path.stat().st_size / 1024
+            print(f"MSM142_JJ bathymetry available at {msm142_jj_path} ({file_size_kb:.1f} KB)")
+            return str(msm142_jj_path)
+        else:
+            print(f"❌ MSM142_JJ bathymetry file not found at {msm142_jj_path}")
+            print("   This is a local dataset that should be manually placed in the data/bathymetry directory.")
+            return False
+
+    elif source == "msm142_dt":
+        # Handle MSM142_DT bathymetry (already local, just check availability)
+        output_dir = Path(target_dir).resolve()
+        msm142_dt_path = output_dir / MSM142_DT_NC_FILENAME
+
+        if msm142_dt_path.exists():
+            file_size_kb = msm142_dt_path.stat().st_size / 1024
+            print(f"MSM142_DT bathymetry available at {msm142_dt_path} ({file_size_kb:.1f} KB)")
+            return str(msm142_dt_path)
+        else:
+            print(f"❌ MSM142_DT bathymetry file not found at {msm142_dt_path}")
+            print("   This is a local dataset that should be manually placed in the data/bathymetry directory.")
+            return False
 
     # Handle ETOPO 2022 download (existing logic)
     output_dir = Path(target_dir).resolve()
@@ -744,15 +800,30 @@ def determine_bathymetry_source(requested_source: str) -> str:
     if check_bathymetry_availability(requested_source):
         return requested_source
 
-    # Try alternative source
-    alternative = "gebco2025" if requested_source == "etopo2022" else "etopo2022"
+    # Try alternative sources in order of preference
+    alternatives = []
+    if requested_source == "etopo2022":
+        alternatives = ["gebco2025", "gebco2023", "msm142_jj", "msm142_dt"]
+    elif requested_source == "gebco2025":
+        alternatives = ["gebco2023", "etopo2022", "msm142_jj", "msm142_dt"]
+    elif requested_source == "gebco2023":
+        alternatives = ["gebco2025", "etopo2022", "msm142_jj", "msm142_dt"]
+    elif requested_source == "msm142":
+        alternatives = ["msm142_jj", "msm142_dt", "gebco2025", "gebco2023", "etopo2022"]
+    elif requested_source == "msm142_jj":
+        alternatives = ["msm142_dt", "msm142", "gebco2025", "gebco2023", "etopo2022"]
+    elif requested_source == "msm142_dt":
+        alternatives = ["msm142_jj", "msm142", "gebco2025", "gebco2023", "etopo2022"]
+    else:
+        alternatives = ["gebco2025", "gebco2023", "etopo2022", "msm142", "msm142_jj", "msm142_dt"]
 
-    if check_bathymetry_availability(alternative):
-        logger.info(
-            f"📁 Requested {requested_source} not available, "
-            f"automatically switching to {alternative}"
-        )
-        return alternative
+    for alternative in alternatives:
+        if check_bathymetry_availability(alternative):
+            logger.info(
+                f"📁 Requested {requested_source} not available, "
+                f"automatically switching to {alternative}"
+            )
+            return alternative
 
     # Neither available - return requested (will trigger mock mode with appropriate warning)
     return requested_source

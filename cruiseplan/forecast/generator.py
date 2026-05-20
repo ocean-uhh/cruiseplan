@@ -252,6 +252,7 @@ def generate_forecast(
         time_offsets = [pd.Timedelta(hours=float(t)) for t in time_data]
     else:
         times = pd.to_datetime(time_data)
+        # Always use first time entry as reference, regardless of its absolute value
         start_time_orig = times[0]
         time_offsets = [t - start_time_orig for t in times]
 
@@ -265,6 +266,7 @@ def generate_forecast(
         activity_offset = time_offsets[i]
 
         # Calculate new absolute time: new_start_time + (activity_offset - start_activity_offset)
+        # This ensures the activity at start_index occurs exactly at new_start_time
         time_diff = activity_offset - start_activity_offset
         absolute_time = new_start_time + time_diff
 

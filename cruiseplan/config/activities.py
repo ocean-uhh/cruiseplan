@@ -22,6 +22,7 @@ from cruiseplan.utils.coordinates import (
     _validate_latitude,
     _validate_longitude,
     format_ddm_comment,
+    CoordConverter,
 )
 
 from .values import (
@@ -64,8 +65,9 @@ class FlexibleLocationModel(BaseModel):
     """
     Base class that allows users to define location in multiple formats.
 
-    Supports both explicit latitude/longitude fields and string format
-    ("lat, lon") in YAML input for user convenience.
+    Supports both explicit latitude/longitude fields, string format
+    ("lat, lon"), and decmin format ("DD MM.MMM N/S") in YAML input
+    for user convenience.
 
     Attributes
     ----------
@@ -73,10 +75,16 @@ class FlexibleLocationModel(BaseModel):
         Latitude in decimal degrees.
     longitude : Optional[float]
         Longitude in decimal degrees.
+    latitude_decmin : Optional[str]
+        Latitude in degrees decimal minutes format (e.g., "65 14.640 N").
+    longitude_decmin : Optional[str]
+        Longitude in degrees decimal minutes format (e.g., "031 19.062 W").
     """
 
     latitude: Optional[float] = None
     longitude: Optional[float] = None
+    latitude_decmin: Optional[str] = None
+    longitude_decmin: Optional[str] = None
 
     @model_validator(mode="before")
     @classmethod
@@ -84,7 +92,8 @@ class FlexibleLocationModel(BaseModel):
         """
         Unify different coordinate input formats.
 
-        Handles both explicit lat/lon fields and string position format.
+        Handles explicit lat/lon fields, string position format,
+        and decmin format fields.
 
         Parameters
         ----------
@@ -99,19 +108,39 @@ class FlexibleLocationModel(BaseModel):
         Raises
         ------
         ValueError
-            If position string cannot be parsed as "lat, lon".
+            If coordinate formats are invalid or incomplete.
         """
         if isinstance(data, dict):
             # Check for incomplete coordinate pairs
-            has_lat = "latitude" in data
-            has_lon = "longitude" in data
+            has_lat = "latitude" in data and data["latitude"] is not None
+            has_lon = "longitude" in data and data["longitude"] is not None
+            has_lat_decmin = "latitude_decmin" in data and data["latitude_decmin"] is not None
+            has_lon_decmin = "longitude_decmin" in data and data["longitude_decmin"] is not None
 
+            # Check for incomplete decimal degree pairs
             if has_lat and not has_lon:
                 msg = "Both latitude and longitude must be provided together"
                 raise ValueError(msg)
             if has_lon and not has_lat:
                 msg = "Both latitude and longitude must be provided together"
                 raise ValueError(msg)
+
+            # Check for incomplete decmin pairs
+            if has_lat_decmin and not has_lon_decmin:
+                msg = "Both latitude_decmin and longitude_decmin must be provided together"
+                raise ValueError(msg)
+            if has_lon_decmin and not has_lat_decmin:
+                msg = "Both latitude_decmin and longitude_decmin must be provided together"
+                raise ValueError(msg)
+
+            # Convert decmin to decimal degrees if available and no decimal degrees provided
+            if has_lat_decmin and has_lon_decmin and not has_lat and not has_lon:
+                try:
+                    data["latitude"] = CoordConverter.decmin_to_decimal_degrees(data["latitude_decmin"])
+                    data["longitude"] = CoordConverter.decmin_to_decimal_degrees(data["longitude_decmin"])
+                except ValueError as exc:
+                    msg = f"Invalid decmin format: {exc}"
+                    raise ValueError(msg) from exc
 
             # TODO: Remove in v0.4.0 - Legacy position format support
             # Case B: String Position (convert to lat/lon)

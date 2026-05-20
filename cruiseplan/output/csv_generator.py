@@ -104,6 +104,7 @@ class CSVGenerator:
             "Transit dist [nm]",
             "Vessel speed [kt]",
             "Duration [hrs]",
+            "Delay [min]",
             "Depth [m]",
             "Lat [deg]",
             "Lon [deg]",
@@ -169,6 +170,10 @@ class CSVGenerator:
                 lat_min = round(lat_min if lat_decimal >= 0 else -lat_min, 2)
                 lon_min = round(lon_min if lon_decimal >= 0 else -lon_min, 2)
 
+                # Get delay_start value from activity (0 if not specified)
+                delay_start_min = activity.get("delay_start", 0.0) or 0.0
+                
+                
                 row = {
                     "activity": activity["activity"],
                     "label": activity["label"],
@@ -178,6 +183,7 @@ class CSVGenerator:
                     "Transit dist [nm]": transit_dist_nm,
                     "Vessel speed [kt]": vessel_speed,
                     "Duration [hrs]": duration_hours,
+                    "Delay [min]": delay_start_min,
                     "Depth [m]": self._get_depth_value(activity),
                     "Lat [deg]": round(
                         lat_decimal, 6

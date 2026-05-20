@@ -152,7 +152,7 @@ Examples:
     # Bathymetry options
     bathymetry_parser.add_argument(
         "--bathy-source",
-        choices=["etopo2022", "gebco2023", "gebco2025"],
+        choices=["etopo2022", "gebco2023", "gebco2025", "msm142", "msm142_jj", "msm142_dt"],
         default="etopo2022",
         help="Bathymetry dataset to download (default: etopo2022)",
     )
@@ -201,7 +201,7 @@ Examples:
     # Bathymetry options
     schedule_parser.add_argument(
         "--bathy-source",
-        choices=["etopo2022", "gebco2023", "gebco2025"],
+        choices=["etopo2022", "gebco2023", "gebco2025", "msm142", "msm142_jj", "msm142_dt"],
         default="etopo2022",
         help="Bathymetry dataset for PNG maps (default: etopo2022)",
     )
@@ -304,7 +304,7 @@ Examples:
     # Bathymetry options
     stations_parser.add_argument(
         "--bathy-source",
-        choices=["etopo2022", "gebco2023", "gebco2025"],
+        choices=["etopo2022", "gebco2023", "gebco2025", "msm142", "msm142_jj", "msm142_dt"],
         default="etopo2022",
         help="Bathymetry dataset (default: etopo2022)",
     )
@@ -371,7 +371,7 @@ Examples:
     # Bathymetry options
     enrich_parser.add_argument(
         "--bathy-source",
-        choices=["etopo2022", "gebco2023", "gebco2025"],
+        choices=["etopo2022", "gebco2023", "gebco2025", "msm142", "msm142_jj", "msm142_dt"],
         default="etopo2022",
         help="Bathymetry dataset (default: etopo2022)",
     )
@@ -416,7 +416,7 @@ Examples:
     # Bathymetry options
     validate_parser.add_argument(
         "--bathy-source",
-        choices=["etopo2022", "gebco2023", "gebco2025"],
+        choices=["etopo2022", "gebco2023", "gebco2025", "msm142", "msm142_jj", "msm142_dt"],
         default="etopo2022",
         help="Bathymetry dataset (default: etopo2022)",
     )
@@ -490,7 +490,7 @@ Examples:
     # Bathymetry options
     map_parser.add_argument(
         "--bathy-source",
-        choices=["etopo2022", "gebco2023", "gebco2025"],
+        choices=["etopo2022", "gebco2023", "gebco2025", "msm142", "msm142_jj", "msm142_dt"],
         default="gebco2025",
         help="Bathymetry dataset (default: gebco2025)",
     )
@@ -667,7 +667,7 @@ Examples:
     process_parser.add_argument(
         "--bathy-source",
         default="etopo2022",
-        choices=["etopo2022", "gebco2023", "gebco2025"],
+        choices=["etopo2022", "gebco2023", "gebco2025", "msm142", "msm142_jj", "msm142_dt"],
         help="Bathymetry dataset (default: etopo2022)",
     )
     process_parser.add_argument(
@@ -823,6 +823,7 @@ Examples:
   cruiseplan stationplan --schedule data/cruise_schedule.nc --start-index 5 --start-time "2026-08-29T08:00:00" --current-position "65.123,-30.456"
   cruiseplan stationplan --schedule data/cruise_schedule.nc --format tex --output station_plan.tex
   cruiseplan stationplan --schedule data/cruise_schedule.nc --start-index 5 --duration 48 --format waypoints --output bridge_waypoints.txt
+  cruiseplan stationplan --schedule data/cruise_schedule.nc --start-index 2 --start-time "2026-05-05 08:00" --duration 24 --format png --output forecast_map.png
         """,
     )
     # Required arguments
@@ -870,9 +871,9 @@ Examples:
     # Output control
     stationplan_parser.add_argument(
         "--format",
-        choices=["text", "tex", "waypoints"],
+        choices=["text", "tex", "waypoints", "kml", "png"],
         default="text",
-        help="Output format: 'text' for console/file output, 'tex' for LaTeX tables, 'waypoints' for bridge navigation (default: text)",
+        help="Output format: 'text' for console/file output, 'tex' for LaTeX tables, 'waypoints' for bridge navigation, 'kml' for Google Earth, 'png' for map visualization (default: text)",
     )
     stationplan_parser.add_argument(
         "-o",
@@ -884,6 +885,61 @@ Examples:
     stationplan_parser.add_argument(
         "--output",
         help="Output filename (default: stdout)",
+    )
+    stationplan_parser.add_argument(
+        "--logo",
+        type=Path,
+        help="Path to logo image file (PNG, JPG, PDF). If not specified, uses default logo from images/ folder",
+    )
+    stationplan_parser.add_argument(
+        "--number",
+        help="Workplan number for TeX output (e.g., '28'). Used in title as 'TITLE - Workplan XX'",
+    )
+    stationplan_parser.add_argument(
+        "--title",
+        help="Cruise title for TeX output (e.g., 'MSM142'). Used in title as 'TITLE - Workplan XX'",
+    )
+
+    # PNG format specific options
+    stationplan_parser.add_argument(
+        "--bathy-source",
+        choices=["etopo2022", "gebco2023", "gebco2025", "msm142", "msm142_jj", "msm142_dt"],
+        default="etopo2022",
+        help="Bathymetry dataset for PNG maps (default: etopo2022)",
+    )
+    stationplan_parser.add_argument(
+        "--bathy-dir",
+        type=Path,
+        default=Path("data"),
+        help="Directory containing bathymetry data (default: data)",
+    )
+    stationplan_parser.add_argument(
+        "--bathy-stride",
+        type=int,
+        default=10,
+        help="Bathymetry contour stride for PNG maps (default: 10)",
+    )
+    stationplan_parser.add_argument(
+        "--figsize",
+        nargs=2,
+        type=float,
+        metavar=("WIDTH", "HEIGHT"),
+        default=[12.0, 8.0],
+        help="Figure size for PNG maps in inches (default: 12 8)",
+    )
+    stationplan_parser.add_argument(
+        "--lat",
+        nargs=2,
+        type=float,
+        metavar=("MIN", "MAX"),
+        help="Latitude bounds for map extent (e.g., --lat 60 70)",
+    )
+    stationplan_parser.add_argument(
+        "--lon",
+        nargs=2,
+        type=float,
+        metavar=("MIN", "MAX"),
+        help="Longitude bounds for map extent (e.g., --lon -40 -20)",
     )
 
     # Parse args

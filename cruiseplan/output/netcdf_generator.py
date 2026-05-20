@@ -71,7 +71,7 @@ class NetCDFGenerator:
         cruise_name = config.cruise_name.replace(" ", "_")
         generated_files = []
 
-        # Step 1: Generate master schedule file (featureType: trajectory) with waterdepth
+        # Step 1: Generate master schedule file (featureType: trajectory) with water_depth
         schedule_file = output_dir / f"{cruise_name}_schedule.nc"
         self.generate_master_schedule(timeline, config, schedule_file)
         generated_files.append(schedule_file)
@@ -143,7 +143,7 @@ class NetCDFGenerator:
                             "name": station.name,
                             "latitude": station.latitude,
                             "longitude": station.longitude,
-                            "waterdepth": getattr(station, "water_depth", None)
+                            "water_depth": getattr(station, "water_depth", None)
                             or getattr(station, "depth", 0.0)
                             or 0.0,
                             "operation_depth": getattr(
@@ -173,7 +173,7 @@ class NetCDFGenerator:
                 [op["longitude"] for op in point_operations], dtype=np.float32
             )
             depths = np.array(
-                [op["waterdepth"] for op in point_operations], dtype=np.float32
+                [op["water_depth"] for op in point_operations], dtype=np.float32
             )
             operation_depths = np.array(
                 [
@@ -218,7 +218,7 @@ class NetCDFGenerator:
             # Add category variable with specialized metadata
             category_attrs = {
                 "long_name": "operation category",
-                "flag_values": "point_operation line_operation area_operation transit",
+                "flag_values": "point_operation line_operation area_operation transit other",
                 "coordinates": "latitude longitude water_depth",
             }
             op_vars["category"] = (["obs"], categories, category_attrs)
@@ -249,7 +249,7 @@ class NetCDFGenerator:
         self, timeline: list[ActivityRecord], config: CruiseConfig, output_path: Path
     ) -> None:
         """
-        Generate master schedule NetCDF from timeline with waterdepth included for all operations.
+        Generate master schedule NetCDF from timeline with water_depth included for all operations.
 
         FeatureType: trajectory (ship's continuous path)
         This is the master file containing all data that other files derive from.
@@ -281,7 +281,7 @@ class NetCDFGenerator:
             times = []
             lats = []
             lons = []
-            waterdepths = []  # New: waterdepth for all operations
+            water_depths = []  # New: water_depth for all operations
             names = []
             categories = []
             types = []
@@ -325,9 +325,8 @@ class NetCDFGenerator:
                 leg_names.append(event["leg_name"])
                 durations.append(event["duration_minutes"] / 60.0)  # Convert to hours
                 vessel_speeds.append(event["vessel_speed_kt"])
-                distances_to_next.append(
-                    event.get("dist_nm", 0.0)
-                )  # Distance already calculated by scheduler
+                # Will compute distance to next waypoint after processing all events
+                distances_to_next.append(0.0)  # Placeholder, will be computed below
 
                 # Extract additional ActivityRecord fields for comprehensive preservation
                 exit_lats.append(
@@ -383,9 +382,9 @@ class NetCDFGenerator:
 
                 # Add depths to arrays
                 if water_depth is not None:
-                    waterdepths.append(float(water_depth))
+                    water_depths.append(float(water_depth))
                 else:
-                    waterdepths.append(np.nan)
+                    water_depths.append(np.nan)
 
                 if operation_depth is not None:
                     operation_depths.append(float(operation_depth))
@@ -400,7 +399,11 @@ class NetCDFGenerator:
                     categories.append("point_operation")
                 elif activity == "Area":
                     categories.append("area_operation")
+                elif activity == "Transit" and event.get("action"):
+                    # Scientific transit with action (ADCP, bathymetry, etc.) = line operation
+                    categories.append("line_operation")
                 elif activity == "Transit":
+                    # Regular navigation transit
                     categories.append("transit")
                 elif activity == "Port":
                     categories.append("point_operation")
@@ -411,24 +414,31 @@ class NetCDFGenerator:
                 types.append(event.get("op_type", "unknown"))
                 actions.append(event.get("action", "unknown"))
 
-                # Add comment (lookup from config if available)
+                # Add comment - prioritize ActivityRecord field, then fallback to config lookup
                 comment = ""
-                if activity in ["Station", "Mooring"]:
-                    station_name = event["label"]
-                    station = station_lookup.get(station_name)
-                    if station and hasattr(station, "comment"):
-                        comment = getattr(station, "comment", "")
-                elif activity == "Area":
-                    area_name = event["label"]
-                    area = area_lookup.get(area_name)
-                    if area and hasattr(area, "comment"):
-                        comment = getattr(area, "comment", "")
-                elif activity == "Transit":
-                    transit_name = event["label"]
-                    line = line_lookup.get(transit_name)
-                    if line and hasattr(line, "comment"):
-                        comment = getattr(line, "comment", "")
-                comments.append(comment if comment is not None else "")
+                
+                # First try to get comment directly from the timeline event
+                if "comment" in event and event["comment"]:
+                    comment = str(event["comment"])
+                else:
+                    # Fallback to config lookup for backward compatibility
+                    if activity in ["Station", "Mooring"]:
+                        station_name = event["label"]
+                        station = station_lookup.get(station_name)
+                        if station and hasattr(station, "comment"):
+                            comment = getattr(station, "comment", "") or ""
+                    elif activity == "Area":
+                        area_name = event["label"]
+                        area = area_lookup.get(area_name)
+                        if area and hasattr(area, "comment"):
+                            comment = getattr(area, "comment", "") or ""
+                    elif activity == "Transit":
+                        transit_name = event["label"]
+                        line = line_lookup.get(transit_name)
+                        if line and hasattr(line, "comment"):
+                            comment = getattr(line, "comment", "") or ""
+                
+                comments.append(comment or "")
 
                 # Extract start/end coordinates for line operations
                 if activity == "Transit" and event.get("action"):
@@ -458,11 +468,22 @@ class NetCDFGenerator:
                     end_lats.append(np.nan)
                     end_lons.append(np.nan)
 
+            # Compute actual distance-to-next values based on transit activities
+            # This matches the logic from stationplan_api.py but moves it into the NetCDF generation
+            for i, event in enumerate(timeline):
+                activity = event["activity"]
+                if activity == "Transit" and i > 0:
+                    # This is a transit - find the previous operation and store its distance to next
+                    prev_idx = i - 1
+                    transit_dist = event.get("dist_nm", 0.0)
+                    if prev_idx < len(distances_to_next):
+                        distances_to_next[prev_idx] = transit_dist
+
             # Convert to numpy arrays
             times = np.array(times, dtype=np.float64)
             lats = np.array(lats, dtype=np.float32)
             lons = np.array(lons, dtype=np.float32)
-            waterdepths = np.array(waterdepths, dtype=np.float32)
+            water_depths = np.array(water_depths, dtype=np.float32)
             operation_depths = np.array(operation_depths, dtype=np.float32)
             durations = np.array(durations, dtype=np.float32)
             vessel_speeds = np.array(vessel_speeds, dtype=np.float32)
@@ -509,9 +530,9 @@ class NetCDFGenerator:
                             "units": "degrees_north",
                         },
                     ),
-                    "waterdepth": (
+                    "water_depth": (
                         ["obs"],
-                        waterdepths,
+                        water_depths,
                         {
                             "long_name": "water depth at operation location",
                             "standard_name": "sea_floor_depth_below_sea_surface",
@@ -542,7 +563,7 @@ class NetCDFGenerator:
                         names,
                         {
                             "long_name": "activity identifier",
-                            "coordinates": "time latitude longitude waterdepth",
+                            "coordinates": "time latitude longitude water_depth",
                         },
                     ),
                     "category": (
@@ -550,8 +571,8 @@ class NetCDFGenerator:
                         categories,
                         {
                             "long_name": "activity category",
-                            "flag_values": "point_operation line_operation area_operation transit",
-                            "coordinates": "time latitude longitude waterdepth",
+                            "flag_values": "point_operation line_operation area_operation transit other",
+                            "coordinates": "time latitude longitude water_depth",
                         },
                     ),
                     "type": (
@@ -559,7 +580,7 @@ class NetCDFGenerator:
                         types,
                         {
                             "long_name": "specific type of activity",
-                            "coordinates": "time latitude longitude waterdepth",
+                            "coordinates": "time latitude longitude water_depth",
                         },
                     ),
                     "action": (
@@ -567,7 +588,7 @@ class NetCDFGenerator:
                         actions,
                         {
                             "long_name": "specific action or method",
-                            "coordinates": "time latitude longitude waterdepth",
+                            "coordinates": "time latitude longitude water_depth",
                         },
                     ),
                     "comment": (
@@ -575,7 +596,7 @@ class NetCDFGenerator:
                         comments,
                         {
                             "long_name": "activity comments",
-                            "coordinates": "time latitude longitude waterdepth",
+                            "coordinates": "time latitude longitude water_depth",
                         },
                     ),
                     "leg_assignment": (
@@ -583,7 +604,7 @@ class NetCDFGenerator:
                         leg_names,
                         {
                             "long_name": "cruise leg identifier",
-                            "coordinates": "time latitude longitude waterdepth",
+                            "coordinates": "time latitude longitude water_depth",
                         },
                     ),
                     "duration": (
@@ -592,7 +613,7 @@ class NetCDFGenerator:
                         {
                             "long_name": "activity duration",
                             "units": "hour",
-                            "coordinates": "time latitude longitude waterdepth",
+                            "coordinates": "time latitude longitude water_depth",
                         },
                     ),
                     "vessel_speed": (
@@ -601,7 +622,7 @@ class NetCDFGenerator:
                         {
                             "long_name": "vessel speed",
                             "units": "knots",
-                            "coordinates": "time latitude longitude waterdepth",
+                            "coordinates": "time latitude longitude water_depth",
                         },
                     ),
                     "distance_to_next": (
@@ -610,7 +631,7 @@ class NetCDFGenerator:
                         {
                             "long_name": "distance to next waypoint",
                             "units": "nautical_miles",
-                            "coordinates": "time latitude longitude waterdepth",
+                            "coordinates": "time latitude longitude water_depth",
                         },
                     ),
                     # Start/end coordinates for line operations (NaN for other activities)
@@ -798,7 +819,7 @@ class NetCDFGenerator:
                             "units": "degrees_north",
                         },
                     ),
-                    "waterdepth": (
+                    "water_depth": (
                         ("obs",),
                         np.array([], dtype=np.float64),
                         {
@@ -1001,10 +1022,10 @@ class NetCDFGenerator:
                 }
             )
 
-            # Remove waterdepth variable for line operations (not applicable)
-            if "waterdepth" in ds_lines.data_vars:
-                ds_lines = ds_lines.drop_vars(["waterdepth"])
-                # Update coordinates attributes to remove waterdepth reference
+            # Remove water_depth variable for line operations (not applicable)
+            if "water_depth" in ds_lines.data_vars:
+                ds_lines = ds_lines.drop_vars(["water_depth"])
+                # Update coordinates attributes to remove water_depth reference
                 for var_name in [
                     "name",
                     "category",
@@ -1062,10 +1083,10 @@ class NetCDFGenerator:
                 }
             )
 
-            # Remove waterdepth variable for area operations (not applicable)
-            if "waterdepth" in ds_areas.data_vars:
-                ds_areas = ds_areas.drop_vars(["waterdepth"])
-                # Update coordinates attributes to remove waterdepth reference
+            # Remove water_depth variable for area operations (not applicable)
+            if "water_depth" in ds_areas.data_vars:
+                ds_areas = ds_areas.drop_vars(["water_depth"])
+                # Update coordinates attributes to remove water_depth reference
                 for var_name in [
                     "name",
                     "category",
@@ -1193,7 +1214,11 @@ class NetCDFGenerator:
                     categories.append("point_operation")
                 elif activity == "Area":
                     categories.append("area_operation")
+                elif activity == "Transit" and event.get("action"):
+                    # Scientific transit with action (ADCP, bathymetry, etc.) = line operation
+                    categories.append("line_operation")
                 elif activity == "Transit":
+                    # Regular navigation transit
                     categories.append("transit")
                 elif activity == "Port":
                     categories.append("point_operation")
@@ -1205,8 +1230,9 @@ class NetCDFGenerator:
                 actions.append(event.get("action", "unknown"))
                 operation_classes.append(event.get("operation_class", "unknown"))
 
-                # Add comment (placeholder - would need to lookup from config)
-                comments.append("")
+                # Add comment from ActivityRecord
+                comment = event.get("comment", "") or ""
+                comments.append(comment)
 
             # Convert to numpy arrays
             times = np.array(times, dtype=np.float64)
@@ -1266,7 +1292,7 @@ class NetCDFGenerator:
                         categories,
                         {
                             "long_name": "activity category",
-                            "flag_values": "point_operation line_operation area_operation transit",
+                            "flag_values": "point_operation line_operation area_operation transit other",
                             "coordinates": "time latitude longitude",
                         },
                     ),
@@ -1568,7 +1594,7 @@ class NetCDFGenerator:
                         categories,
                         {
                             "long_name": "operation category",
-                            "flag_values": "point_operation line_operation area_operation transit",
+                            "flag_values": "point_operation line_operation area_operation transit other",
                         },
                     ),
                     "type": (
