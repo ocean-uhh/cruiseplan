@@ -411,24 +411,31 @@ class NetCDFGenerator:
                 types.append(event.get("op_type", "unknown"))
                 actions.append(event.get("action", "unknown"))
 
-                # Add comment (lookup from config if available)
+                # Add comment - prioritize ActivityRecord field, then fallback to config lookup
                 comment = ""
-                if activity in ["Station", "Mooring"]:
-                    station_name = event["label"]
-                    station = station_lookup.get(station_name)
-                    if station and hasattr(station, "comment"):
-                        comment = getattr(station, "comment", "")
-                elif activity == "Area":
-                    area_name = event["label"]
-                    area = area_lookup.get(area_name)
-                    if area and hasattr(area, "comment"):
-                        comment = getattr(area, "comment", "")
-                elif activity == "Transit":
-                    transit_name = event["label"]
-                    line = line_lookup.get(transit_name)
-                    if line and hasattr(line, "comment"):
-                        comment = getattr(line, "comment", "")
-                comments.append(comment if comment is not None else "")
+                
+                # First try to get comment directly from the timeline event
+                if "comment" in event and event["comment"]:
+                    comment = str(event["comment"])
+                else:
+                    # Fallback to config lookup for backward compatibility
+                    if activity in ["Station", "Mooring"]:
+                        station_name = event["label"]
+                        station = station_lookup.get(station_name)
+                        if station and hasattr(station, "comment"):
+                            comment = getattr(station, "comment", "") or ""
+                    elif activity == "Area":
+                        area_name = event["label"]
+                        area = area_lookup.get(area_name)
+                        if area and hasattr(area, "comment"):
+                            comment = getattr(area, "comment", "") or ""
+                    elif activity == "Transit":
+                        transit_name = event["label"]
+                        line = line_lookup.get(transit_name)
+                        if line and hasattr(line, "comment"):
+                            comment = getattr(line, "comment", "") or ""
+                
+                comments.append(comment or "")
 
                 # Extract start/end coordinates for line operations
                 if activity == "Transit" and event.get("action"):
@@ -1205,8 +1212,9 @@ class NetCDFGenerator:
                 actions.append(event.get("action", "unknown"))
                 operation_classes.append(event.get("operation_class", "unknown"))
 
-                # Add comment (placeholder - would need to lookup from config)
-                comments.append("")
+                # Add comment from ActivityRecord
+                comment = event.get("comment", "") or ""
+                comments.append(comment)
 
             # Convert to numpy arrays
             times = np.array(times, dtype=np.float64)

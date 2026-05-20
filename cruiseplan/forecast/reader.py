@@ -219,6 +219,10 @@ def netcdf_to_activity_records(schedule: xr.Dataset) -> List[ActivityRecord]:
             water_depth = float(schedule.waterdepth[i].values)
             data["water_depth"] = water_depth if not np.isnan(water_depth) else None
 
+        if "comment" in schedule.variables:
+            comment_str = str(schedule.comment[i].values)
+            data["comment"] = comment_str if comment_str and comment_str != "nan" else ""
+
         # Create ActivityRecord object
         activity_record = ActivityRecord(data)
         activity_records.append(activity_record)
