@@ -814,7 +814,6 @@ def stationplan_forecast_kml(
         Result object with success status, message, and output path
     """
     try:
-        import netCDF4
         from datetime import datetime
         import pandas as pd
         from cruiseplan.config.cruise_config import CruiseConfig
@@ -825,129 +824,63 @@ def stationplan_forecast_kml(
                 success=False, message=f"Schedule file not found: {schedule_path}"
             )
 
-        # Convert start_time string to datetime
-        try:
-            forecast_start = pd.to_datetime(start_time)
-        except Exception as e:
-            return StationplanResult(
-                success=False,
-                message=f"Invalid start time format '{start_time}': {e}",
-            )
+        from cruiseplan.forecast.generator import generate_forecast
+        from cruiseplan.forecast.reader import read_schedule
 
-        forecast_end = forecast_start + pd.Timedelta(hours=duration_hours)
+        # Read schedule and generate forecast with proper time shifting
+        schedule = read_schedule(schedule_file)
+        forecast_activities_raw = generate_forecast(
+            schedule, start_index, start_time, duration_hours
+        )
 
-        # Read the NetCDF schedule
-        with netCDF4.Dataset(schedule_path, "r") as schedule:
-            # Get basic dimensions and data
-            num_activities = len(schedule.dimensions["index"])
-            
-            if start_index >= num_activities:
-                return StationplanResult(
-                    success=False,
-                    message=f"Start index {start_index} is beyond available activities (max: {num_activities - 1})",
-                )
+        # Convert forecast activities to the format expected by KML generation
+        forecast_activities = []
+        
+        for activity in forecast_activities_raw:
+            if len(activity) >= 9:
+                (
+                    index,
+                    time,
+                    category,
+                    activity_type,
+                    action,
+                    duration,
+                    latitude,
+                    longitude,
+                    name,
+                ) = activity
 
-            # Extract time data
-            time_data = schedule.variables["time"][:]
-            time_units = schedule.variables["time"].units
-            
-            # Convert to datetime
-            times = pd.to_datetime(netCDF4.num2date(time_data, time_units))
-            
-            # Find activities within forecast window
-            forecast_activities = []
-            
-            for i in range(start_index, num_activities):
-                activity_time = times[i]
+                # Skip invalid coordinates
+                if np.isnan(latitude) or np.isnan(longitude):
+                    continue
+
+                # Skip transit activities - only include scientific operations
+                if category == "transit":
+                    continue
                 
-                # Stop if we've gone beyond forecast window
-                if activity_time > forecast_end:
-                    break
-                
-                # Include activities that start within or overlap the forecast window
-                if activity_time >= forecast_start:
-                    latitude = float(schedule.variables["latitude"][i])
-                    longitude = float(schedule.variables["longitude"][i])
-                    
-                    # Skip if coordinates are invalid
-                    if np.isnan(latitude) or np.isnan(longitude):
-                        continue
-                    
-                    # Get activity details
-                    name = str(schedule.variables["name"][i])
-                    if isinstance(name, bytes):
-                        name = name.decode('utf-8')
-                    
-                    category = str(schedule.variables["category"][i])
-                    if isinstance(category, bytes):
-                        category = category.decode('utf-8')
-                    
-                    activity_type = str(schedule.variables["activity"][i])
-                    if isinstance(activity_type, bytes):
-                        activity_type = activity_type.decode('utf-8')
-                    
-                    action = ""
-                    if "action" in schedule.variables:
-                        action = str(schedule.variables["action"][i])
-                        if isinstance(action, bytes):
-                            action = action.decode('utf-8')
-                    
-                    duration = float(schedule.variables["duration"][i])
-                    
-                    # Get water depth
-                    water_depth = None
-                    if "water_depth" in schedule.variables:
-                        depth_val = schedule.variables["water_depth"][i]
-                        if not np.isnan(depth_val):
-                            water_depth = float(depth_val)
-                    
-                    # Get operation distance for line operations
-                    operation_distance = 0.0
-                    if "dist_nm" in schedule.variables:
-                        dist_val = schedule.variables["dist_nm"][i]
-                        if not np.isnan(dist_val):
-                            operation_distance = float(dist_val)
-                    
-                    # Skip transit activities - only include scientific operations
-                    if category == "transit":
-                        continue
-                    
-                    # Create activity record compatible with KMLGenerator
-                    activity_record = {
-                        "label": name,
-                        "lat": latitude,
-                        "lon": longitude,
-                        "start_time": activity_time,
-                        "duration_minutes": duration * 60.0,
-                        "activity": "Station" if category in ["station", "ctd"] else category.title(),
-                        "action": action,
-                        "depth": water_depth,
-                        "dist_nm": operation_distance,
-                    }
-                    
-                    # Add line operation coordinates if available
-                    if operation_distance > 0.1:  # Line operation
-                        # Try to get start coordinates (entry point)
-                        if i > 0:
-                            start_lat = float(schedule.variables["latitude"][i-1])
-                            start_lon = float(schedule.variables["longitude"][i-1])
-                            if not (np.isnan(start_lat) or np.isnan(start_lon)):
-                                activity_record["start_lat"] = start_lat
-                                activity_record["start_lon"] = start_lon
-                    
-                    forecast_activities.append(activity_record)
+                # Create activity record compatible with KMLGenerator
+                forecast_activities.append({
+                    "name": name,
+                    "latitude": latitude,
+                    "longitude": longitude,
+                    "time": pd.to_datetime(time),
+                    "category": category,
+                    "activity_type": activity_type,
+                    "action": action,
+                    "duration": duration,
+                })
 
         if not forecast_activities:
             return StationplanResult(
                 success=False,
-                message=f"No scientific activities found in forecast window {forecast_start} to {forecast_end}",
+                message=f"No scientific activities found in forecast window starting from index {start_index} for {duration_hours} hours",
             )
 
         # Create a minimal cruise config for KML generation
         class MockCruiseConfig:
             def __init__(self):
                 self.cruise_name = schedule_path.stem
-                self.description = f"Forecast from {forecast_start.strftime('%Y-%m-%d %H:%M')} for {duration_hours}h"
+                self.description = f"Forecast starting from {start_time} for {duration_hours}h"
 
         mock_config = MockCruiseConfig()
 
