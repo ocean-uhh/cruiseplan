@@ -25,9 +25,9 @@ class TestSchedulerDebug:
         if not Path(yaml_path).exists():
             pytest.skip(f"Fixture {yaml_path} not found")
 
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"Debugging Scheduler: {fixture_name}")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
 
         try:
             # Create temporary enriched file
@@ -65,10 +65,10 @@ class TestSchedulerDebug:
                 for i, stn in enumerate(config.points):
                     if hasattr(stn, "latitude") and stn.latitude is not None:
                         print(
-                            f"     {i+1}. {stn.name} at {stn.latitude}, {stn.longitude}"
+                            f"     {i + 1}. {stn.name} at {stn.latitude}, {stn.longitude}"
                         )
                     else:
-                        print(f"     {i+1}. {stn.name} - NO POSITION!")
+                        print(f"     {i + 1}. {stn.name} - NO POSITION!")
 
             # Count mooring operations from stations list
             mooring_operations = [
@@ -82,10 +82,10 @@ class TestSchedulerDebug:
                     if hasattr(mooring, "latitude") and mooring.latitude is not None:
                         duration = getattr(mooring, "duration", "not set")
                         print(
-                            f"     {i+1}. {mooring.name} at {mooring.latitude}, {mooring.longitude} ({duration} min)"
+                            f"     {i + 1}. {mooring.name} at {mooring.latitude}, {mooring.longitude} ({duration} min)"
                         )
                     else:
-                        print(f"     {i+1}. {mooring.name} - NO POSITION!")
+                        print(f"     {i + 1}. {mooring.name} - NO POSITION!")
 
             print(f"\n   Lines: {len(config.lines or [])}")
             if config.lines:
@@ -96,15 +96,17 @@ class TestSchedulerDebug:
                         if vessel_speed
                         else " (default speed)"
                     )
-                    print(f"     {i+1}. {line.name}{speed_str}")
+                    print(f"     {i + 1}. {line.name}{speed_str}")
                     for j, point in enumerate(line.route):
-                        print(f"        {j+1}. {point.latitude}, {point.longitude}")
+                        print(f"        {j + 1}. {point.latitude}, {point.longitude}")
 
             print(f"\n   Legs: {len(config.legs or [])}")
             if config.legs:
                 for i, leg in enumerate(config.legs):
                     activities = getattr(leg, "activities", [])
-                    print(f"     {i+1}. {leg.name}: activities={len(activities)} items")
+                    print(
+                        f"     {i + 1}. {leg.name}: activities={len(activities)} items"
+                    )
 
             print("\n   Port information (leg-level):")
             for leg in config.legs:
@@ -120,7 +122,7 @@ class TestSchedulerDebug:
                     transit_dist = activity.get("dist_nm", 0)
                     lat, lon = activity["entry_lat"], activity["entry_lon"]
                     print(
-                        f"   {i+1}. {activity['activity']}: {activity['label']} at ({lat:.3f}, {lon:.3f})"
+                        f"   {i + 1}. {activity['activity']}: {activity['label']} at ({lat:.3f}, {lon:.3f})"
                     )
                     print(
                         f"      Duration: {activity['duration_minutes']:.1f} min, Transit to here: {transit_dist:.2f} nm"

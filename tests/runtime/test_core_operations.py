@@ -72,7 +72,9 @@ class TestPointOperation:
     def test_calculate_duration_manual_override(self):
         """Test duration calculation with manual override."""
         op = PointOperation(
-            name="STN_001", position=(60.0, -20.0), duration=150.0  # Manual duration
+            name="STN_001",
+            position=(60.0, -20.0),
+            duration=150.0,  # Manual duration
         )
 
         # Mock rules object

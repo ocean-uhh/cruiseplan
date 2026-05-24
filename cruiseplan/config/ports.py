@@ -108,8 +108,8 @@ GLOBAL_PORTS: dict[str, dict[str, Union[str, float]]] = {
     "port_kiel": {
         "name": "Kiel",
         "display_name": "Kiel, Germany",
-        "latitude": 54.3233,
-        "longitude": 10.1394,
+        "latitude": 54.328990,
+        "longitude": 10.178761,
         "timezone": "Europe/Berlin",
     },
     # French Research Ports

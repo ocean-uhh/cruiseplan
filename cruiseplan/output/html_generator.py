@@ -119,7 +119,7 @@ class HTMLGenerator:
 </head>
 <body>
     <h1>{config.cruise_name}</h1>
-    {f'<p class="description">{config.description}</p>' if config.description else ''}
+    {f'<p class="description">{config.description}</p>' if config.description else ""}
 
     <h2>1. Cruise Schedule</h2>
     <table cellpadding="5" cellspacing="0" border="1">
@@ -254,12 +254,12 @@ class HTMLGenerator:
 
                 html_content += f"""
         <tr>
-            <td>{mooring['label']}</td>
+            <td>{mooring["label"]}</td>
             <td>{comment}</td>
             <td>{lat:.6f}, {lon:.6f}</td>
             <td>{lat_ddm}, {lon_ddm}</td>
             <td class="number">{depth:.0f}</td>
-            <td class="number">{mooring['duration_minutes']/60:.1f}</td>
+            <td class="number">{mooring["duration_minutes"] / 60:.1f}</td>
             <td>{action}</td>
         </tr>
 """
@@ -372,13 +372,13 @@ class HTMLGenerator:
 
                 html_content += f"""
         <tr>
-            <td>{activity.get('label', 'Unknown')}</td>
+            <td>{activity.get("label", "Unknown")}</td>
             <td>{activity_type}</td>
             <td>{entry_position}</td>
             <td>{exit_position}</td>
             <td class="number">{distance_nm}</td>
             <td class="number">{duration_hrs:.1f}</td>
-            <td>{activity.get('comment', '')}</td>
+            <td>{activity.get("comment", "")}</td>
         </tr>
 """
 

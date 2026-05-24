@@ -126,41 +126,47 @@ class CoordConverter:
         65.521933...
         """
         import re
-        
+
         # Parse the decmin string using anchored regex
         # Handles formats like "65 14.640 N", "031 19.062 W"
-        pattern = r'^(\d+)\s+(\d+\.?\d*)\s+([NSEWnsew])$'
+        pattern = r"^(\d+)\s+(\d+\.?\d*)\s+([NSEWnsew])$"
         match = re.match(pattern, decmin_str.strip())
-        
+
         if not match:
-            raise ValueError(f"Invalid decmin format: '{decmin_str}'. Expected format: 'DD MM.MMM N/S' or 'DDD MM.MMM E/W'")
-        
+            raise ValueError(
+                f"Invalid decmin format: '{decmin_str}'. Expected format: 'DD MM.MMM N/S' or 'DDD MM.MMM E/W'"
+            )
+
         degrees_str, minutes_str, direction = match.groups()
         degrees = int(degrees_str)
         minutes = float(minutes_str)
         direction = direction.upper()  # Normalize to uppercase
-        
+
         # Validate minutes range
         if not (0 <= minutes < 60):
             raise ValueError(f"Minutes must be in range [0, 60), got {minutes}")
-        
+
         # Validate degree ranges based on direction
-        if direction in ['N', 'S']:
+        if direction in ["N", "S"]:
             # Latitude: -90 to +90
             if not (0 <= degrees <= 90):
-                raise ValueError(f"Latitude degrees must be in range [0, 90], got {degrees}")
-        elif direction in ['E', 'W']:
+                raise ValueError(
+                    f"Latitude degrees must be in range [0, 90], got {degrees}"
+                )
+        elif direction in ["E", "W"]:
             # Longitude: -180 to +180, but degrees part should be [0, 180]
             if not (0 <= degrees <= 180):
-                raise ValueError(f"Longitude degrees must be in range [0, 180], got {degrees}")
-        
+                raise ValueError(
+                    f"Longitude degrees must be in range [0, 180], got {degrees}"
+                )
+
         # Convert to decimal degrees
         decimal_degrees = degrees + minutes / 60.0
-        
+
         # Apply sign based on direction
-        if direction in ['S', 'W']:
+        if direction in ["S", "W"]:
             decimal_degrees = -decimal_degrees
-        
+
         return decimal_degrees
 
 

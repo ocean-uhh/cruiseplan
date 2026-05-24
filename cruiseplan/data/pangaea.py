@@ -175,7 +175,7 @@ class PangaeaManager:
                     progress_callback(
                         i - 1,
                         len(doi_list),
-                        f"Processing interrupted at {i-1}/{len(doi_list)} DOIs",
+                        f"Processing interrupted at {i - 1}/{len(doi_list)} DOIs",
                     )
                 break
 
@@ -208,7 +208,10 @@ class PangaeaManager:
         return results
 
     def create_map(
-        self, datasets: list[dict[str, Any]], filename: str = "pangaea_map.html"
+        self,
+        datasets: list[dict[str, Any]],
+        filename: str = "pangaea_map.html",
+        include_eez: bool = True,
     ) -> Path:
         """
         Convenience wrapper to visualize datasets fetched by this manager.
@@ -219,6 +222,8 @@ class PangaeaManager:
             List of dataset dictionaries with latitude/longitude data.
         filename : str, optional
             Output filename for the HTML map (default: "pangaea_map.html").
+        include_eez : bool, optional
+            Include EEZ boundaries on the map (default: True).
 
         Returns
         -------
@@ -229,7 +234,9 @@ class PangaeaManager:
         # don't exactly match what generate_folium_map expects.
         # But if they match (latitude, longitude, label), just pass them through:
 
-        return generate_folium_map(datasets, output_file=filename)
+        return generate_folium_map(
+            datasets, output_file=filename, include_eez=include_eez
+        )
 
     def _clean_doi(self, doi: str) -> str:
         """

@@ -19,10 +19,10 @@ from typing import Any, Optional
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 from cruiseplan.utils.coordinates import (
+    CoordConverter,
     _validate_latitude,
     _validate_longitude,
     format_ddm_comment,
-    CoordConverter,
 )
 
 from .values import (
@@ -114,8 +114,12 @@ class FlexibleLocationModel(BaseModel):
             # Check for incomplete coordinate pairs
             has_lat = "latitude" in data and data["latitude"] is not None
             has_lon = "longitude" in data and data["longitude"] is not None
-            has_lat_decmin = "latitude_decmin" in data and data["latitude_decmin"] is not None
-            has_lon_decmin = "longitude_decmin" in data and data["longitude_decmin"] is not None
+            has_lat_decmin = (
+                "latitude_decmin" in data and data["latitude_decmin"] is not None
+            )
+            has_lon_decmin = (
+                "longitude_decmin" in data and data["longitude_decmin"] is not None
+            )
 
             # Check for incomplete decimal degree pairs
             if has_lat and not has_lon:
@@ -136,8 +140,12 @@ class FlexibleLocationModel(BaseModel):
             # Convert decmin to decimal degrees if available and no decimal degrees provided
             if has_lat_decmin and has_lon_decmin and not has_lat and not has_lon:
                 try:
-                    data["latitude"] = CoordConverter.decmin_to_decimal_degrees(data["latitude_decmin"])
-                    data["longitude"] = CoordConverter.decmin_to_decimal_degrees(data["longitude_decmin"])
+                    data["latitude"] = CoordConverter.decmin_to_decimal_degrees(
+                        data["latitude_decmin"]
+                    )
+                    data["longitude"] = CoordConverter.decmin_to_decimal_degrees(
+                        data["longitude_decmin"]
+                    )
                 except ValueError as exc:
                     msg = f"Invalid decmin format: {exc}"
                     raise ValueError(msg) from exc

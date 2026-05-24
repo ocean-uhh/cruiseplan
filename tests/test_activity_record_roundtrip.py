@@ -90,9 +90,9 @@ def test_activity_record_netcdf_roundtrip():
             for f in result.files_created
             if f.suffix == ".nc" and "schedule" in f.name
         ]
-        assert (
-            len(netcdf_files) == 1
-        ), f"Expected 1 schedule NetCDF file, got {len(netcdf_files)}"
+        assert len(netcdf_files) == 1, (
+            f"Expected 1 schedule NetCDF file, got {len(netcdf_files)}"
+        )
         netcdf_path = netcdf_files[0]
 
         print(f"Generated NetCDF file: {netcdf_path}")
@@ -112,9 +112,9 @@ def test_activity_record_netcdf_roundtrip():
         print(f"Recovered {len(recovered_records)} ActivityRecord objects from NetCDF")
 
         # Verify we have the same number of records
-        assert len(recovered_records) == len(
-            original_timeline
-        ), f"Expected {len(original_timeline)} records, got {len(recovered_records)}"
+        assert len(recovered_records) == len(original_timeline), (
+            f"Expected {len(original_timeline)} records, got {len(recovered_records)}"
+        )
 
         # Create reference ActivityRecord objects from the original timeline
         original_records = [
@@ -136,15 +136,15 @@ def test_activity_record_netcdf_roundtrip():
             )
 
             # Activity should be preserved exactly now
-            assert (
-                recovered.activity == orig.activity
-            ), f"Activity mismatch: {recovered.activity} != {orig.activity}"
-            assert (
-                recovered.label == orig.label
-            ), f"Label mismatch: {recovered.label} != {orig.label}"
-            assert (
-                recovered.leg_name == orig.leg_name
-            ), f"Leg name mismatch: {recovered.leg_name} != {orig.leg_name}"
+            assert recovered.activity == orig.activity, (
+                f"Activity mismatch: {recovered.activity} != {orig.activity}"
+            )
+            assert recovered.label == orig.label, (
+                f"Label mismatch: {recovered.label} != {orig.label}"
+            )
+            assert recovered.leg_name == orig.leg_name, (
+                f"Leg name mismatch: {recovered.leg_name} != {orig.leg_name}"
+            )
 
             # Operation type and class should be preserved exactly now
             print(f"op_type: orig='{orig.op_type}', recovered='{recovered.op_type}'")
@@ -152,74 +152,74 @@ def test_activity_record_netcdf_roundtrip():
                 f"operation_class: orig='{orig.operation_class}', recovered='{recovered.operation_class}'"
             )
 
-            assert (
-                recovered.op_type == orig.op_type
-            ), f"Op type mismatch: {recovered.op_type} != {orig.op_type}"
-            assert (
-                recovered.operation_class == orig.operation_class
-            ), f"Operation class mismatch: {recovered.operation_class} != {orig.operation_class}"
+            assert recovered.op_type == orig.op_type, (
+                f"Op type mismatch: {recovered.op_type} != {orig.op_type}"
+            )
+            assert recovered.operation_class == orig.operation_class, (
+                f"Operation class mismatch: {recovered.operation_class} != {orig.operation_class}"
+            )
 
             # Coordinate fields (with small floating point tolerance)
-            assert (
-                abs(recovered.entry_lat - orig.entry_lat) < 1e-6
-            ), f"Entry lat mismatch: {recovered.entry_lat} != {orig.entry_lat}"
-            assert (
-                abs(recovered.entry_lon - orig.entry_lon) < 1e-6
-            ), f"Entry lon mismatch: {recovered.entry_lon} != {orig.entry_lon}"
-            assert (
-                abs(recovered.exit_lat - orig.exit_lat) < 1e-6
-            ), f"Exit lat mismatch: {recovered.exit_lat} != {orig.exit_lat}"
-            assert (
-                abs(recovered.exit_lon - orig.exit_lon) < 1e-6
-            ), f"Exit lon mismatch: {recovered.exit_lon} != {orig.exit_lon}"
+            assert abs(recovered.entry_lat - orig.entry_lat) < 1e-6, (
+                f"Entry lat mismatch: {recovered.entry_lat} != {orig.entry_lat}"
+            )
+            assert abs(recovered.entry_lon - orig.entry_lon) < 1e-6, (
+                f"Entry lon mismatch: {recovered.entry_lon} != {orig.entry_lon}"
+            )
+            assert abs(recovered.exit_lat - orig.exit_lat) < 1e-6, (
+                f"Exit lat mismatch: {recovered.exit_lat} != {orig.exit_lat}"
+            )
+            assert abs(recovered.exit_lon - orig.exit_lon) < 1e-6, (
+                f"Exit lon mismatch: {recovered.exit_lon} != {orig.exit_lon}"
+            )
 
             # Time fields (with small tolerance for datetime conversion)
             time_tolerance = timedelta(seconds=1)
-            assert (
-                abs(recovered.start_time - orig.start_time) < time_tolerance
-            ), f"Start time mismatch: {recovered.start_time} != {orig.start_time}"
-            assert (
-                abs(recovered.end_time - orig.end_time) < time_tolerance
-            ), f"End time mismatch: {recovered.end_time} != {orig.end_time}"
+            assert abs(recovered.start_time - orig.start_time) < time_tolerance, (
+                f"Start time mismatch: {recovered.start_time} != {orig.start_time}"
+            )
+            assert abs(recovered.end_time - orig.end_time) < time_tolerance, (
+                f"End time mismatch: {recovered.end_time} != {orig.end_time}"
+            )
 
             # Numeric fields
-            assert (
-                abs(recovered.duration_minutes - orig.duration_minutes) < 0.1
-            ), f"Duration mismatch: {recovered.duration_minutes} != {orig.duration_minutes}"
-            assert (
-                abs(recovered.dist_nm - orig.dist_nm) < 0.1
-            ), f"Distance mismatch: {recovered.dist_nm} != {orig.dist_nm}"
-            assert (
-                abs(recovered.vessel_speed_kt - orig.vessel_speed_kt) < 0.1
-            ), f"Speed mismatch: {recovered.vessel_speed_kt} != {orig.vessel_speed_kt}"
+            assert abs(recovered.duration_minutes - orig.duration_minutes) < 0.1, (
+                f"Duration mismatch: {recovered.duration_minutes} != {orig.duration_minutes}"
+            )
+            assert abs(recovered.dist_nm - orig.dist_nm) < 0.1, (
+                f"Distance mismatch: {recovered.dist_nm} != {orig.dist_nm}"
+            )
+            assert abs(recovered.vessel_speed_kt - orig.vessel_speed_kt) < 0.1, (
+                f"Speed mismatch: {recovered.vessel_speed_kt} != {orig.vessel_speed_kt}"
+            )
 
             # Optional fields (handle None values)
             if orig.action is not None:
                 print(f"action: orig='{orig.action}', recovered='{recovered.action}'")
                 # Actions should be preserved exactly now
-                assert (
-                    recovered.action == orig.action
-                ), f"Action mismatch: {recovered.action} != {orig.action}"
+                assert recovered.action == orig.action, (
+                    f"Action mismatch: {recovered.action} != {orig.action}"
+                )
 
             if orig.operation_depth is not None:
-                assert (
-                    recovered.operation_depth is not None
-                ), "Operation depth should not be None"
-                assert (
-                    abs(recovered.operation_depth - orig.operation_depth) < 0.1
-                ), f"Operation depth mismatch: {recovered.operation_depth} != {orig.operation_depth}"
+                assert recovered.operation_depth is not None, (
+                    "Operation depth should not be None"
+                )
+                assert abs(recovered.operation_depth - orig.operation_depth) < 0.1, (
+                    f"Operation depth mismatch: {recovered.operation_depth} != {orig.operation_depth}"
+                )
             else:
                 assert recovered.operation_depth is None or np.isnan(
                     recovered.operation_depth
                 ), "Operation depth should be None or NaN"
 
             if orig.water_depth is not None:
-                assert (
-                    recovered.water_depth is not None
-                ), "Water depth should not be None"
-                assert (
-                    abs(recovered.water_depth - orig.water_depth) < 0.1
-                ), f"Water depth mismatch: {recovered.water_depth} != {orig.water_depth}"
+                assert recovered.water_depth is not None, (
+                    "Water depth should not be None"
+                )
+                assert abs(recovered.water_depth - orig.water_depth) < 0.1, (
+                    f"Water depth mismatch: {recovered.water_depth} != {orig.water_depth}"
+                )
             else:
                 assert recovered.water_depth is None or np.isnan(
                     recovered.water_depth
@@ -256,9 +256,9 @@ def test_activity_record_required_fields_present():
             for f in result.files_created
             if f.suffix == ".nc" and "schedule" in f.name
         ]
-        assert (
-            len(netcdf_files) == 1
-        ), f"Expected 1 schedule NetCDF file, got {len(netcdf_files)}"
+        assert len(netcdf_files) == 1, (
+            f"Expected 1 schedule NetCDF file, got {len(netcdf_files)}"
+        )
         netcdf_path = netcdf_files[0]
 
         # Read back and check variables
@@ -296,9 +296,9 @@ def test_activity_record_required_fields_present():
                         continue
                     missing_vars.append(var)
 
-            assert (
-                not missing_vars
-            ), f"Missing ActivityRecord variables in NetCDF: {missing_vars}"
+            assert not missing_vars, (
+                f"Missing ActivityRecord variables in NetCDF: {missing_vars}"
+            )
 
             print(
                 f"✅ All {len(expected_variables)} expected ActivityRecord variables present in NetCDF"

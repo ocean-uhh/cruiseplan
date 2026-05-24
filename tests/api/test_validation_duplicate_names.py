@@ -99,9 +99,9 @@ class TestDuplicateNameCollisionResolution:
 
         # New stations should have collision-resolved names
         new_names = [name for name in station_names if name != "Test_Section_Stn001"]
-        assert any(
-            "Test_Section_Stn001_" in name for name in new_names
-        ), f"No collision-resolved names found in: {new_names}"
+        assert any("Test_Section_Stn001_" in name for name in new_names), (
+            f"No collision-resolved names found in: {new_names}"
+        )
 
         # All names should be unique
         assert len(station_names) == len(set(station_names))
@@ -144,9 +144,9 @@ class TestDuplicateNameCollisionResolution:
             for name in station_names
             if "_01" in name or "_02" in name or "_03" in name
         ]
-        assert (
-            len(collision_names) > 0
-        ), f"No collision resolution found in: {station_names}"
+        assert len(collision_names) > 0, (
+            f"No collision resolution found in: {station_names}"
+        )
 
         # Original stations should still exist
         assert "Route_A_Stn001" in station_names
@@ -221,9 +221,9 @@ class TestDuplicateNameCollisionResolution:
 
         # Should detect collision and resolve it
         assert "Test_Route_Stn001" in station_names  # Original
-        assert any(
-            "Test_Route_Stn001_" in name for name in station_names
-        ), f"No collision resolution in: {station_names}"
+        assert any("Test_Route_Stn001_" in name for name in station_names), (
+            f"No collision resolution in: {station_names}"
+        )
 
         # All names unique
         assert len(station_names) == len(set(station_names))
@@ -254,9 +254,9 @@ class TestNameSanitization:
 
         for name in station_names:
             # Should only contain alphanumeric and underscores
-            assert all(
-                c.isalnum() or c == "_" for c in name
-            ), f"Invalid characters in: {name}"
+            assert all(c.isalnum() or c == "_" for c in name), (
+                f"Invalid characters in: {name}"
+            )
             # Should not start/end with underscore
             assert not name.startswith("_"), f"Name starts with underscore: {name}"
             assert not name.endswith("_"), f"Name ends with underscore: {name}"
@@ -286,9 +286,9 @@ class TestNameSanitization:
         # Should properly sanitize unicode characters
         for name in station_names:
             assert all(c.isascii() for c in name), f"Non-ASCII character in: {name}"
-            assert all(
-                c.isalnum() or c == "_" for c in name
-            ), f"Invalid character in: {name}"
+            assert all(c.isalnum() or c == "_" for c in name), (
+                f"Invalid character in: {name}"
+            )
 
     def test_empty_name_after_sanitization(self):
         """Test handling when name becomes empty after sanitization."""

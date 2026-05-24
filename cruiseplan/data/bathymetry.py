@@ -101,7 +101,13 @@ class BathymetryManager:
         str
             'z' for ETOPO, 'elevation' for GEBCO and MSM142
         """
-        if self.source in ["gebco2025", "gebco2023", "msm142", "msm142_jj", "msm142_dt"]:
+        if self.source in [
+            "gebco2025",
+            "gebco2023",
+            "msm142",
+            "msm142_jj",
+            "msm142_dt",
+        ]:
             return "elevation"
         else:
             return "z"  # Default for ETOPO and other sources
@@ -645,11 +651,17 @@ def download_bathymetry(
 
         if msm142_legacy_path.exists():
             file_size_kb = msm142_legacy_path.stat().st_size / 1024
-            print(f"MSM142 (legacy) bathymetry available at {msm142_legacy_path} ({file_size_kb:.1f} KB)")
+            print(
+                f"MSM142 (legacy) bathymetry available at {msm142_legacy_path} ({file_size_kb:.1f} KB)"
+            )
             return str(msm142_legacy_path)
         else:
-            print(f"❌ MSM142 (legacy) bathymetry file not found at {msm142_legacy_path}")
-            print("   This is a local dataset that should be manually placed in the data/bathymetry directory.")
+            print(
+                f"❌ MSM142 (legacy) bathymetry file not found at {msm142_legacy_path}"
+            )
+            print(
+                "   This is a local dataset that should be manually placed in the data/bathymetry directory."
+            )
             return False
 
     elif source == "msm142_jj":
@@ -659,11 +671,15 @@ def download_bathymetry(
 
         if msm142_jj_path.exists():
             file_size_kb = msm142_jj_path.stat().st_size / 1024
-            print(f"MSM142_JJ bathymetry available at {msm142_jj_path} ({file_size_kb:.1f} KB)")
+            print(
+                f"MSM142_JJ bathymetry available at {msm142_jj_path} ({file_size_kb:.1f} KB)"
+            )
             return str(msm142_jj_path)
         else:
             print(f"❌ MSM142_JJ bathymetry file not found at {msm142_jj_path}")
-            print("   This is a local dataset that should be manually placed in the data/bathymetry directory.")
+            print(
+                "   This is a local dataset that should be manually placed in the data/bathymetry directory."
+            )
             return False
 
     elif source == "msm142_dt":
@@ -673,11 +689,15 @@ def download_bathymetry(
 
         if msm142_dt_path.exists():
             file_size_kb = msm142_dt_path.stat().st_size / 1024
-            print(f"MSM142_DT bathymetry available at {msm142_dt_path} ({file_size_kb:.1f} KB)")
+            print(
+                f"MSM142_DT bathymetry available at {msm142_dt_path} ({file_size_kb:.1f} KB)"
+            )
             return str(msm142_dt_path)
         else:
             print(f"❌ MSM142_DT bathymetry file not found at {msm142_dt_path}")
-            print("   This is a local dataset that should be manually placed in the data/bathymetry directory.")
+            print(
+                "   This is a local dataset that should be manually placed in the data/bathymetry directory."
+            )
             return False
 
     # Handle ETOPO 2022 download (existing logic)
@@ -815,7 +835,14 @@ def determine_bathymetry_source(requested_source: str) -> str:
     elif requested_source == "msm142_dt":
         alternatives = ["msm142_jj", "msm142", "gebco2025", "gebco2023", "etopo2022"]
     else:
-        alternatives = ["gebco2025", "gebco2023", "etopo2022", "msm142", "msm142_jj", "msm142_dt"]
+        alternatives = [
+            "gebco2025",
+            "gebco2023",
+            "etopo2022",
+            "msm142",
+            "msm142_jj",
+            "msm142_dt",
+        ]
 
     for alternative in alternatives:
         if check_bathymetry_availability(alternative):

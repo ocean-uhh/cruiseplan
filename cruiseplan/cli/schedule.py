@@ -51,6 +51,7 @@ def main(args: argparse.Namespace) -> None:
             lon_bounds=getattr(args, "lon", None),
             figsize=getattr(args, "figsize", None),
             no_ports=getattr(args, "no_ports", False),
+            include_eez=not getattr(args, "no_eez", False),
             verbose=getattr(args, "verbose", False),
         )
 

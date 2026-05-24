@@ -181,7 +181,7 @@ def generate_netcdf_format(
     logger.info(f"   Timeline contains {len(timeline)} activities")
 
     generator = NetCDFGenerator()
-    generator.generate_ship_schedule(timeline, cruise_config, output_path)
+    generator.generate_master_schedule(timeline, cruise_config, output_path)
     logger.info(f"✅ Generated NetCDF schedule: {output_path}")
     return output_path
 

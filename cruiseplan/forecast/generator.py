@@ -230,7 +230,7 @@ def generate_forecast(
     num_activities = len(schedule.time)
     if start_index < 0 or start_index >= num_activities:
         raise ValueError(
-            f"start_index {start_index} out of range (0-{num_activities-1})"
+            f"start_index {start_index} out of range (0-{num_activities - 1})"
         )
 
     # Parse start_time

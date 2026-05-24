@@ -23,7 +23,6 @@ def picker():
         ) as MockCampaignSelector,
         patch("cruiseplan.interactive.station_picker.bathymetry") as mock_bathy,
     ):
-
         # 1. Setup the main axes mocks
         mock_ax_campaigns = MagicMock()
         mock_ax_map = MagicMock()
@@ -292,7 +291,6 @@ def test_handle_line_click_workflow(picker):
         patch.object(picker.ax_map, "plot") as mock_plot,
         patch.object(picker, "_reset_line_state") as mock_reset,
     ):
-
         # Configure mock_plot: First call returns the temp marker, second returns the final line
         mock_plot.side_effect = [
             (MagicMock(),),  # First call (yellow marker)

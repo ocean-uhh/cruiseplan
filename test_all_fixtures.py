@@ -13,7 +13,7 @@ from pathlib import Path
 
 def run_command(cmd: list[str]) -> bool:
     """Run a command and return success status."""
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"Running: {' '.join(cmd)}")
     print("=" * 60)
 
@@ -72,9 +72,9 @@ def main():
 
     # Process each fixture
     for fixture_file in fixture_files:
-        print(f"\n{'#'*70}")
+        print(f"\n{'#' * 70}")
         print(f"# Processing: {fixture_file.name}")
-        print(f"{'#'*70}")
+        print(f"{'#' * 70}")
 
         # Extract cruise name from YAML for consistent naming
         import yaml
@@ -136,9 +136,9 @@ def main():
             successes.append(fixture_file.name)
 
     # Print summary
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print("SUMMARY")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
     print(f"Total fixtures processed: {len(fixture_files)}")
     print(f"✅ Successful: {len(successes)}")
     print(f"❌ Failed: {len(failures)}")

@@ -152,7 +152,14 @@ Examples:
     # Bathymetry options
     bathymetry_parser.add_argument(
         "--bathy-source",
-        choices=["etopo2022", "gebco2023", "gebco2025", "msm142", "msm142_jj", "msm142_dt"],
+        choices=[
+            "etopo2022",
+            "gebco2023",
+            "gebco2025",
+            "msm142",
+            "msm142_jj",
+            "msm142_dt",
+        ],
         default="etopo2022",
         help="Bathymetry dataset to download (default: etopo2022)",
     )
@@ -201,7 +208,14 @@ Examples:
     # Bathymetry options
     schedule_parser.add_argument(
         "--bathy-source",
-        choices=["etopo2022", "gebco2023", "gebco2025", "msm142", "msm142_jj", "msm142_dt"],
+        choices=[
+            "etopo2022",
+            "gebco2023",
+            "gebco2025",
+            "msm142",
+            "msm142_jj",
+            "msm142_dt",
+        ],
         default="etopo2022",
         help="Bathymetry dataset for PNG maps (default: etopo2022)",
     )
@@ -255,6 +269,11 @@ Examples:
         action="store_true",
         help="Exclude ports from PNG schedule maps",
     )
+    schedule_parser.add_argument(
+        "--no-eez",
+        action="store_true",
+        help="Exclude EEZ boundaries from interactive maps (visualization only - not legal boundaries)",
+    )
 
     # --- 3. Stations Subcommand ---
     stations_parser = subparsers.add_parser(
@@ -304,7 +323,14 @@ Examples:
     # Bathymetry options
     stations_parser.add_argument(
         "--bathy-source",
-        choices=["etopo2022", "gebco2023", "gebco2025", "msm142", "msm142_jj", "msm142_dt"],
+        choices=[
+            "etopo2022",
+            "gebco2023",
+            "gebco2025",
+            "msm142",
+            "msm142_jj",
+            "msm142_dt",
+        ],
         default="etopo2022",
         help="Bathymetry dataset (default: etopo2022)",
     )
@@ -371,7 +397,14 @@ Examples:
     # Bathymetry options
     enrich_parser.add_argument(
         "--bathy-source",
-        choices=["etopo2022", "gebco2023", "gebco2025", "msm142", "msm142_jj", "msm142_dt"],
+        choices=[
+            "etopo2022",
+            "gebco2023",
+            "gebco2025",
+            "msm142",
+            "msm142_jj",
+            "msm142_dt",
+        ],
         default="etopo2022",
         help="Bathymetry dataset (default: etopo2022)",
     )
@@ -416,7 +449,14 @@ Examples:
     # Bathymetry options
     validate_parser.add_argument(
         "--bathy-source",
-        choices=["etopo2022", "gebco2023", "gebco2025", "msm142", "msm142_jj", "msm142_dt"],
+        choices=[
+            "etopo2022",
+            "gebco2023",
+            "gebco2025",
+            "msm142",
+            "msm142_jj",
+            "msm142_dt",
+        ],
         default="etopo2022",
         help="Bathymetry dataset (default: etopo2022)",
     )
@@ -466,6 +506,11 @@ Examples:
         action="store_true",
         help="Suppress plotting of departure and arrival ports in both PNG and KML outputs",
     )
+    map_parser.add_argument(
+        "--no-eez",
+        action="store_true",
+        help="Exclude EEZ boundaries from interactive maps (visualization only - not legal boundaries)",
+    )
 
     # Output control
     map_parser.add_argument(
@@ -490,7 +535,14 @@ Examples:
     # Bathymetry options
     map_parser.add_argument(
         "--bathy-source",
-        choices=["etopo2022", "gebco2023", "gebco2025", "msm142", "msm142_jj", "msm142_dt"],
+        choices=[
+            "etopo2022",
+            "gebco2023",
+            "gebco2025",
+            "msm142",
+            "msm142_jj",
+            "msm142_dt",
+        ],
         default="gebco2025",
         help="Bathymetry dataset (default: gebco2025)",
     )
@@ -667,7 +719,14 @@ Examples:
     process_parser.add_argument(
         "--bathy-source",
         default="etopo2022",
-        choices=["etopo2022", "gebco2023", "gebco2025", "msm142", "msm142_jj", "msm142_dt"],
+        choices=[
+            "etopo2022",
+            "gebco2023",
+            "gebco2025",
+            "msm142",
+            "msm142_jj",
+            "msm142_dt",
+        ],
         help="Bathymetry dataset (default: etopo2022)",
     )
     process_parser.add_argument(
@@ -903,7 +962,14 @@ Examples:
     # PNG format specific options
     stationplan_parser.add_argument(
         "--bathy-source",
-        choices=["etopo2022", "gebco2023", "gebco2025", "msm142", "msm142_jj", "msm142_dt"],
+        choices=[
+            "etopo2022",
+            "gebco2023",
+            "gebco2025",
+            "msm142",
+            "msm142_jj",
+            "msm142_dt",
+        ],
         default="etopo2022",
         help="Bathymetry dataset for PNG maps (default: etopo2022)",
     )

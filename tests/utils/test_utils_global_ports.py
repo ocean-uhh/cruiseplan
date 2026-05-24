@@ -155,9 +155,9 @@ class TestPortValidation:
             assert -90 <= lat <= 90, f"Port {port_id} has invalid latitude: {lat}"
 
             # Longitude should be between -180 and 180 (or 0 and 360)
-            assert (-180 <= lon <= 180) or (
-                0 <= lon <= 360
-            ), f"Port {port_id} has invalid longitude: {lon}"
+            assert (-180 <= lon <= 180) or (0 <= lon <= 360), (
+                f"Port {port_id} has invalid longitude: {lon}"
+            )
 
     def test_port_definition_creation_from_global(self):
         """Test that PointDefinition is created correctly from global port data."""
@@ -204,12 +204,12 @@ class TestPortRegistry:
         for port_id, port_data in GLOBAL_PORTS.items():
             # Check required fields
             for field in required_fields:
-                assert (
-                    field in port_data
-                ), f"Port {port_id} missing required field: {field}"
-                assert (
-                    port_data[field] is not None
-                ), f"Port {port_id} has None value for: {field}"
+                assert field in port_data, (
+                    f"Port {port_id} missing required field: {field}"
+                )
+                assert port_data[field] is not None, (
+                    f"Port {port_id} has None value for: {field}"
+                )
 
             # Check that only known fields are present
             all_fields = required_fields | optional_fields

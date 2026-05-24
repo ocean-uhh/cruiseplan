@@ -661,7 +661,6 @@ def _validate_configuration(
 
         # Still try to collect warnings even when validation fails
         try:
-
             # Check cruise metadata from raw YAML
             if raw_config:
                 metadata_warnings = _check_cruise_metadata_raw(raw_config)

@@ -106,7 +106,7 @@ class KMLGenerator:
 <kml xmlns="http://www.opengis.net/kml/2.2">
     <Document>
         <name>{config.cruise_name} - Schedule</name>
-        <description>{config.description or 'Cruise schedule'}</description>
+        <description>{config.description or "Cruise schedule"}</description>
 
         <!-- Styles for different operation types -->
         <Style id="stationStyle">
@@ -169,12 +169,12 @@ class KMLGenerator:
 
                 kml_content += f"""
         <Placemark>
-            <name>{activity['label']} - {action_str}</name>
+            <name>{activity["label"]} - {action_str}</name>
             <description>
-                Activity: {activity['activity']} ({action_str})
-                Start: {activity['start_time'].strftime('%Y-%m-%d %H:%M')}
-                Duration: {activity['duration_minutes']:.1f} min
-                Operation Distance: {activity.get('dist_nm', 0):.1f} nm
+                Activity: {activity["activity"]} ({action_str})
+                Start: {activity["start_time"].strftime("%Y-%m-%d %H:%M")}
+                Duration: {activity["duration_minutes"]:.1f} min
+                Operation Distance: {activity.get("dist_nm", 0):.1f} nm
             </description>
             <styleUrl>#lineOpStyle</styleUrl>
             <LineString>
@@ -186,7 +186,7 @@ class KMLGenerator:
         </Placemark>
 
         <Placemark>
-            <name>{activity['label']}</name>
+            <name>{activity["label"]}</name>
             <description>Midpoint label for {action_str} operation</description>
             <Point>
                 <coordinates>{mid_lon},{mid_lat},0</coordinates>
@@ -213,11 +213,11 @@ class KMLGenerator:
 
                     kml_content += f"""
         <Placemark>
-            <name>{activity['label']} - {action_str}</name>
+            <name>{activity["label"]} - {action_str}</name>
             <description>
-                Activity: {activity['activity']} ({action_str})
-                Start: {activity['start_time'].strftime('%Y-%m-%d %H:%M')}
-                Duration: {activity['duration_minutes']:.1f} min
+                Activity: {activity["activity"]} ({action_str})
+                Start: {activity["start_time"].strftime("%Y-%m-%d %H:%M")}
+                Duration: {activity["duration_minutes"]:.1f} min
                 Area: {len(corners)} corners
             </description>
             <styleUrl>#areaStyle</styleUrl>
@@ -234,15 +234,15 @@ class KMLGenerator:
                     # Fallback to center point if no corners defined
                     kml_content += f"""
         <Placemark>
-            <name>{activity['label']}</name>
+            <name>{activity["label"]}</name>
             <description>
-                Activity: {activity['activity']} (Area - no corners defined)
-                Start: {activity['start_time'].strftime('%Y-%m-%d %H:%M')}
-                Duration: {activity['duration_minutes']:.1f} min
+                Activity: {activity["activity"]} (Area - no corners defined)
+                Start: {activity["start_time"].strftime("%Y-%m-%d %H:%M")}
+                Duration: {activity["duration_minutes"]:.1f} min
             </description>
             <styleUrl>#stationStyle</styleUrl>
             <Point>
-                <coordinates>{activity['lon']},{activity['lat']},0</coordinates>
+                <coordinates>{activity["lon"]},{activity["lat"]},0</coordinates>
             </Point>
         </Placemark>
 """
@@ -261,16 +261,16 @@ class KMLGenerator:
 
                 kml_content += f"""
         <Placemark>
-            <name>{activity['label']}</name>
+            <name>{activity["label"]}</name>
             <description>
-                Activity: {activity['activity']}
-                Start: {activity['start_time'].strftime('%Y-%m-%d %H:%M')}
-                Duration: {activity['duration_minutes']:.1f} min
+                Activity: {activity["activity"]}
+                Start: {activity["start_time"].strftime("%Y-%m-%d %H:%M")}
+                Duration: {activity["duration_minutes"]:.1f} min
                 {depth_str}
             </description>
             <styleUrl>#{style_id}</styleUrl>
             <Point>
-                <coordinates>{activity['lon']},{activity['lat']},0</coordinates>
+                <coordinates>{activity["lon"]},{activity["lat"]},0</coordinates>
             </Point>
         </Placemark>
 """
@@ -376,7 +376,7 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
                 Port: {port.name}
                 Type: Departure Port
                 Location: {port.latitude:.6f}°N, {port.longitude:.6f}°W
-                Timezone: {getattr(port, 'timezone', 'N/A')}
+                Timezone: {getattr(port, "timezone", "N/A")}
             </description>
             <styleUrl>#portStyle</styleUrl>
             <Point>
@@ -393,7 +393,7 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
                 Port: {port.name}
                 Type: Arrival Port
                 Location: {port.latitude:.6f}°N, {port.longitude:.6f}°W
-                Timezone: {getattr(port, 'timezone', 'N/A')}
+                Timezone: {getattr(port, "timezone", "N/A")}
             </description>
             <styleUrl>#portStyle</styleUrl>
             <Point>

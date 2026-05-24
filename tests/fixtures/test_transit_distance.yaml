@@ -1,0 +1,38 @@
+cruise_name: "Transit Distance Test"
+default_vessel_speed: 10.0
+turnaround_time: 30.0
+start_date: '1970-01-01T00:00:00+00:00'
+
+points:
+  - name: "Mooring_A"
+    latitude: 60.0
+    longitude: -30.0
+    water_depth: 2000
+    operation_depth: 1500
+    operation_type: "mooring"
+    action: "deployment"
+    duration_minutes: 60
+    comment: "First mooring deployment"
+
+  - name: "Mooring_B" 
+    latitude: 61.0
+    longitude: -30.0
+    water_depth: 1800
+    operation_depth: 1400
+    operation_type: "mooring"
+    action: "deployment" 
+    duration_minutes: 60
+    comment: "Second mooring deployment"
+
+legs:
+  - name: "Test_Leg"
+    departure_port: port_test
+    arrival_port: port_test
+    activities:
+      - "Mooring_A"
+      - "Mooring_B"
+
+ports:
+  - name: port_test
+    latitude: 60.0
+    longitude: -30.0

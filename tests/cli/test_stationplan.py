@@ -9,8 +9,6 @@ import argparse
 from pathlib import Path
 from unittest.mock import patch
 
-import pytest
-
 from cruiseplan.api.stationplan_api import StationplanResult
 from cruiseplan.cli.stationplan import main
 

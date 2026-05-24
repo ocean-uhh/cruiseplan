@@ -416,37 +416,37 @@ class NetCDFGenerator:
 
                 # Add comment - prioritize ActivityRecord field, then fallback to config lookup
                 comment = ""
-                
+
                 # First try to get comment directly from the timeline event
-                if "comment" in event and event["comment"]:
-                    comment = str(event["comment"])
-                else:
-                    # Fallback to config lookup for backward compatibility
-                    if activity in ["Station", "Mooring"]:
-                        station_name = event["label"]
-                        station = station_lookup.get(station_name)
-                        if station and hasattr(station, "comment"):
-                            comment = getattr(station, "comment", "") or ""
-                    elif activity == "Area":
-                        area_name = event["label"]
-                        area = area_lookup.get(area_name)
-                        if area and hasattr(area, "comment"):
-                            comment = getattr(area, "comment", "") or ""
-                    elif activity == "Transit":
-                        transit_name = event["label"]
-                        line = line_lookup.get(transit_name)
-                        if line and hasattr(line, "comment"):
-                            comment = getattr(line, "comment", "") or ""
-                
+                event_comment = getattr(event, "comment", None)
+                if event_comment:
+                    comment = str(event_comment)
+                # Fallback to config lookup for backward compatibility
+                elif activity in ["Station", "Mooring"]:
+                    station_name = event["label"]
+                    station = station_lookup.get(station_name)
+                    if station and hasattr(station, "comment"):
+                        comment = getattr(station, "comment", "") or ""
+                elif activity == "Area":
+                    area_name = event["label"]
+                    area = area_lookup.get(area_name)
+                    if area and hasattr(area, "comment"):
+                        comment = getattr(area, "comment", "") or ""
+                elif activity == "Transit":
+                    transit_name = event["label"]
+                    line = line_lookup.get(transit_name)
+                    if line and hasattr(line, "comment"):
+                        comment = getattr(line, "comment", "") or ""
+
                 comments.append(comment or "")
 
                 # Extract start/end coordinates for line operations
-                if activity == "Transit" and event.get("action"):
+                if activity == "Transit" and getattr(event, "action", None):
                     # This is a line operation - use provided start coordinates
                     start_lats.append(event.get("start_lat", event["entry_lat"]))
                     start_lons.append(event.get("start_lon", event["entry_lon"]))
                     # For end coordinates, use route end point from transit definition if available
-                    transit_name = event["label"]
+                    transit_name = event.label
                     line_def = line_lookup.get(transit_name)
 
                     if (
@@ -1038,9 +1038,9 @@ class NetCDFGenerator:
                     "vessel_speed",
                 ]:
                     if var_name in ds_lines.data_vars:
-                        ds_lines[var_name].attrs[
-                            "coordinates"
-                        ] = "time latitude longitude"
+                        ds_lines[var_name].attrs["coordinates"] = (
+                            "time latitude longitude"
+                        )
 
         # Write derived file
         ds_lines.to_netcdf(lines_file, format="NETCDF4")
@@ -1099,357 +1099,15 @@ class NetCDFGenerator:
                     "vessel_speed",
                 ]:
                     if var_name in ds_areas.data_vars:
-                        ds_areas[var_name].attrs[
-                            "coordinates"
-                        ] = "time latitude longitude"
+                        ds_areas[var_name].attrs["coordinates"] = (
+                            "time latitude longitude"
+                        )
 
         # Write derived file
         ds_areas.to_netcdf(areas_file, format="NETCDF4")
         logger.info(f"Area operations NetCDF derived and written to: {areas_file}")
         ds_master.close()
         ds_areas.close()
-
-    def generate_ship_schedule(
-        self, timeline: list[ActivityRecord], config: CruiseConfig, output_path: Path
-    ) -> None:
-        """
-        Generate ship schedule NetCDF from timeline.
-
-        FeatureType: trajectory (ship's continuous path).
-        """
-        logger.info(f"Generating ship schedule NetCDF: {output_path}")
-
-        if not timeline:
-            # Create empty dataset
-            ds = xr.Dataset()
-        else:
-            # Extract timeline data
-            times = []
-            end_times = []
-            lats = []
-            lons = []
-            exit_lats = []
-            exit_lons = []
-            names = []
-            categories = []
-            types = []
-            actions = []
-            comments = []
-            leg_names = []
-            durations = []
-            vessel_speeds = []
-            dist_nms = []
-            operation_depths = []
-            water_depths = []
-            activities = []  # Raw activity values
-            operation_classes = []  # Operation class values
-
-            for event in timeline:
-                # Convert time to days since epoch for CF compliance
-                time_obj = event.get("time")
-                if time_obj is None:
-                    raise ValueError(
-                        f"Event missing required 'time' field: {event.get('label', 'unknown')}"
-                    )
-
-                if isinstance(time_obj, str):
-                    time_obj = datetime.fromisoformat(time_obj.replace("Z", "+00:00"))
-
-                # Handle timezone-aware datetime objects properly
-                if time_obj.tzinfo is not None:
-                    # Convert to UTC and then to naive datetime
-                    time_obj = time_obj.astimezone(timezone.utc).replace(tzinfo=None)
-
-                epoch_days = (time_obj - datetime(1970, 1, 1)).total_seconds() / 86400.0
-                times.append(epoch_days)
-
-                # Handle end_time - calculate from duration if missing
-                end_time_obj = event.get("end_time")
-                if end_time_obj is None:
-                    # Calculate end_time from start_time + duration
-                    duration_minutes = event.get("duration_minutes", 0)
-                    end_time_obj = time_obj + timedelta(minutes=duration_minutes)
-                elif isinstance(end_time_obj, str):
-                    end_time_obj = datetime.fromisoformat(
-                        end_time_obj.replace("Z", "+00:00")
-                    )
-
-                if end_time_obj.tzinfo is not None:
-                    end_time_obj = end_time_obj.astimezone(timezone.utc).replace(
-                        tzinfo=None
-                    )
-                end_epoch_days = (
-                    end_time_obj - datetime(1970, 1, 1)
-                ).total_seconds() / 86400.0
-                end_times.append(end_epoch_days)
-
-                # Coordinate fields
-                lats.append(event["entry_lat"])
-                lons.append(event["entry_lon"])
-                exit_lats.append(event["exit_lat"])
-                exit_lons.append(event["exit_lon"])
-
-                # Basic fields
-                names.append(event["label"])
-                leg_names.append(event["leg_name"])
-                durations.append(event["duration_minutes"] / 60.0)  # Convert to hours
-                vessel_speeds.append(event["vessel_speed_kt"])
-                dist_nms.append(event.get("dist_nm", 0.0))
-
-                # Optional depth fields (handle None values)
-                operation_depth = event.get("operation_depth")
-                operation_depths.append(
-                    operation_depth if operation_depth is not None else np.nan
-                )
-
-                water_depth = event.get("water_depth")
-                water_depths.append(water_depth if water_depth is not None else np.nan)
-
-                # Preserve original ActivityRecord fields instead of transforming
-                activity = event["activity"]
-                activities.append(activity)  # Store raw activity value
-
-                # Category mapping for CF compliance while preserving activity
-                if activity in ["Station", "Mooring"]:
-                    categories.append("point_operation")
-                elif activity == "Area":
-                    categories.append("area_operation")
-                elif activity == "Transit" and event.get("action"):
-                    # Scientific transit with action (ADCP, bathymetry, etc.) = line operation
-                    categories.append("line_operation")
-                elif activity == "Transit":
-                    # Regular navigation transit
-                    categories.append("transit")
-                elif activity == "Port":
-                    categories.append("point_operation")
-                else:
-                    categories.append("other")
-
-                # Preserve original operation type and action from ActivityRecord
-                types.append(event.get("op_type", "unknown"))
-                actions.append(event.get("action", "unknown"))
-                operation_classes.append(event.get("operation_class", "unknown"))
-
-                # Add comment from ActivityRecord
-                comment = event.get("comment", "") or ""
-                comments.append(comment)
-
-            # Convert to numpy arrays
-            times = np.array(times, dtype=np.float64)
-            end_times = np.array(end_times, dtype=np.float64)
-            lats = np.array(lats, dtype=np.float32)
-            lons = np.array(lons, dtype=np.float32)
-            exit_lats = np.array(exit_lats, dtype=np.float32)
-            exit_lons = np.array(exit_lons, dtype=np.float32)
-            durations = np.array(durations, dtype=np.float32)
-            vessel_speeds = np.array(vessel_speeds, dtype=np.float32)
-            dist_nms = np.array(dist_nms, dtype=np.float32)
-            operation_depths = np.array(operation_depths, dtype=np.float32)
-            water_depths = np.array(water_depths, dtype=np.float32)
-
-            # Create xarray Dataset
-            ds = xr.Dataset(
-                {
-                    # CF coordinate variables
-                    "time": (
-                        ["obs"],
-                        times,
-                        {
-                            "standard_name": "time",
-                            "long_name": "time of ship position",
-                            "units": "days since 1970-01-01 00:00:00",
-                        },
-                    ),
-                    "longitude": (
-                        ["obs"],
-                        lons,
-                        {
-                            "standard_name": "longitude",
-                            "long_name": "ship longitude",
-                            "units": "degrees_east",
-                        },
-                    ),
-                    "latitude": (
-                        ["obs"],
-                        lats,
-                        {
-                            "standard_name": "latitude",
-                            "long_name": "ship latitude",
-                            "units": "degrees_north",
-                        },
-                    ),
-                    # Schedule metadata
-                    "name": (
-                        ["obs"],
-                        names,
-                        {
-                            "long_name": "activity identifier",
-                            "coordinates": "time latitude longitude",
-                        },
-                    ),
-                    "category": (
-                        ["obs"],
-                        categories,
-                        {
-                            "long_name": "activity category",
-                            "flag_values": "point_operation line_operation area_operation transit other",
-                            "coordinates": "time latitude longitude",
-                        },
-                    ),
-                    "type": (
-                        ["obs"],
-                        types,
-                        {
-                            "long_name": "specific type of activity",
-                            "coordinates": "time latitude longitude",
-                        },
-                    ),
-                    "action": (
-                        ["obs"],
-                        actions,
-                        {
-                            "long_name": "specific action or method",
-                            "coordinates": "time latitude longitude",
-                        },
-                    ),
-                    "comment": (
-                        ["obs"],
-                        comments,
-                        {
-                            "long_name": "activity comments",
-                            "coordinates": "time latitude longitude",
-                        },
-                    ),
-                    "leg_assignment": (
-                        ["obs"],
-                        leg_names,
-                        {
-                            "long_name": "cruise leg identifier",
-                            "coordinates": "time latitude longitude",
-                        },
-                    ),
-                    "duration": (
-                        ["obs"],
-                        durations,
-                        {
-                            "long_name": "activity duration",
-                            "units": "hour",
-                            "coordinates": "time latitude longitude",
-                        },
-                    ),
-                    "vessel_speed": (
-                        ["obs"],
-                        vessel_speeds,
-                        {
-                            "long_name": "vessel speed",
-                            "units": "knots",
-                            "coordinates": "time latitude longitude",
-                        },
-                    ),
-                    "activity": (
-                        ["obs"],
-                        activities,
-                        {
-                            "long_name": "raw activity type",
-                            "description": "Original activity type from cruise configuration",
-                            "coordinates": "time latitude longitude",
-                        },
-                    ),
-                    "operation_class": (
-                        ["obs"],
-                        operation_classes,
-                        {
-                            "long_name": "operation class",
-                            "description": "Classification of operation (PointOperation, Transit, etc.)",
-                            "coordinates": "time latitude longitude",
-                        },
-                    ),
-                    "end_time": (
-                        ["obs"],
-                        end_times,
-                        {
-                            "standard_name": "time",
-                            "long_name": "end time of activity",
-                            "units": "days since 1970-01-01 00:00:00",
-                            "coordinates": "time latitude longitude",
-                        },
-                    ),
-                    "exit_latitude": (
-                        ["obs"],
-                        exit_lats,
-                        {
-                            "standard_name": "latitude",
-                            "long_name": "exit latitude",
-                            "units": "degrees_north",
-                            "coordinates": "time latitude longitude",
-                        },
-                    ),
-                    "exit_longitude": (
-                        ["obs"],
-                        exit_lons,
-                        {
-                            "standard_name": "longitude",
-                            "long_name": "exit longitude",
-                            "units": "degrees_east",
-                            "coordinates": "time latitude longitude",
-                        },
-                    ),
-                    "dist_nm": (
-                        ["obs"],
-                        dist_nms,
-                        {
-                            "long_name": "distance",
-                            "units": "nautical_miles",
-                            "coordinates": "time latitude longitude",
-                        },
-                    ),
-                    "operation_depth": (
-                        ["obs"],
-                        operation_depths,
-                        {
-                            "long_name": "operation depth",
-                            "units": "meters",
-                            "coordinates": "time latitude longitude",
-                        },
-                    ),
-                    "water_depth": (
-                        ["obs"],
-                        water_depths,
-                        {
-                            "long_name": "water depth",
-                            "units": "meters",
-                            "coordinates": "time latitude longitude",
-                        },
-                    ),
-                }
-            )
-
-        # Set global attributes
-        if not timeline:
-            total_duration_days = 0.0
-        # Calculate total cruise duration in days, handling edge cases
-        elif len(times) > 1:
-            total_duration_days = max(0.0, times[-1] - times[0])
-        else:
-            total_duration_days = 0.0
-        ds.attrs.update(
-            {
-                "featureType": "trajectory",
-                "title": f"Ship Schedule: {config.cruise_name}",
-                "institution": "Generated by CruisePlan software",
-                "source": "Scheduler computation from YAML configuration",
-                "Conventions": self.cf_conventions,
-                "cruise_name": config.cruise_name,
-                "total_duration_days": total_duration_days,
-                "creation_date": datetime.now().replace(microsecond=0).isoformat(),
-            }
-        )
-
-        # Write to NetCDF file - remove existing file first to avoid permission issues
-        if output_path.exists():
-            output_path.unlink()
-        ds.to_netcdf(output_path, format="NETCDF4")
-        logger.info(f"Ship schedule NetCDF written to: {output_path}")
 
     def generate_line_operations(
         self, config: CruiseConfig, timeline: list[ActivityRecord], output_path: Path

@@ -169,7 +169,7 @@ class LaTeXGenerator:
                         "position": f"({start_pos_str}) to ({end_pos_str})",
                         "depth_m": depth_str,
                         "start_time": op["start_time"].strftime("%Y-%m-%d %H:%M"),
-                        "duration_hours": f"{op['duration_minutes']/60:.1f}",
+                        "duration_hours": f"{op['duration_minutes'] / 60:.1f}",
                     }
                 )
 
@@ -187,7 +187,7 @@ class LaTeXGenerator:
                         "position": f"Center: {position_str}",
                         "depth_m": "Variable",  # Areas typically span multiple depths
                         "start_time": op["start_time"].strftime("%Y-%m-%d %H:%M"),
-                        "duration_hours": f"{op['duration_minutes']/60:.1f}",
+                        "duration_hours": f"{op['duration_minutes'] / 60:.1f}",
                     }
                 )
 
@@ -203,7 +203,7 @@ class LaTeXGenerator:
                         "position": position_str,
                         "depth_m": _format_depth_for_latex(op),
                         "start_time": op["start_time"].strftime("%Y-%m-%d %H:%M"),
-                        "duration_hours": f"{op['duration_minutes']/60:.1f}",
+                        "duration_hours": f"{op['duration_minutes'] / 60:.1f}",
                     }
                 )
 
@@ -576,37 +576,66 @@ class LaTeXGenerator:
         # Calculate distances between stations
         distances = self._calculate_distances_nm(station_records)
 
-        # Generate TeX content
+        # Generate TeX content with table breaking support
         tex_lines = []
+        table_sections = []  # Store table sections for breaking long tables
+        current_table_lines = []
+        line_count = 0
+        max_lines_per_table = 36
+
+        # Track current date for potential break points
+        current_date = None
+        potential_break_points = []  # Store indices where we could break at date changes
 
         # First print the date
         if station_records:
             first_date = station_records[0].start_time.strftime("%d.%m.%Y")
             first_day = station_records[0].start_time.strftime("%A")
-            tex_lines.append(f"\\rowcolor{{pink!40}}\\multicolumn{{2}}{{l}}{{\\textbf{{{first_date} {first_day}}}}} & & & & \\\\")
+            date_line = f"\\rowcolor{{pink!40}}\\multicolumn{{2}}{{l}}{{\\textbf{{{first_date} {first_day}}}}} & & & & \\\\"
+            current_table_lines.append(date_line)
+            line_count += 1
             current_date = station_records[0].start_time.date()
 
         for i, record in enumerate(station_records):
-            # Check for new day
+            # Check for new day and potential table break point
             if record.start_time.date() != current_date:
                 current_date = record.start_time.date()
                 date_str = record.start_time.strftime("%d.%m.%Y")
                 day_str = record.start_time.strftime("%A")
-                tex_lines.append(f"\\rowcolor{{pink!40}}\\multicolumn{{2}}{{l}}{{\\textbf{{{date_str} {day_str}}}}} & & & & \\\\")
+
+                # Check if we need to break the table before adding this date
+                if line_count > max_lines_per_table:
+                    # Break the table here - save current table and start new one
+                    table_sections.append(current_table_lines)
+                    current_table_lines = []
+                    line_count = 0
+                    potential_break_points = []
+
+                # Mark this as a potential break point for future use
+                potential_break_points.append((len(current_table_lines), line_count))
+
+                date_line = f"\\rowcolor{{pink!40}}\\multicolumn{{2}}{{l}}{{\\textbf{{{date_str} {day_str}}}}} & & & & \\\\"
+                current_table_lines.append(date_line)
+                line_count += 1
 
             # Time and position
             rounded_time = self._round_time_to_10min(record.start_time)
             time_str = rounded_time.strftime("%H:%M")
-            
+
             # Use entry coordinates from NetCDF data
-            lat_str, lon_str = self._format_lat_lon_dms(record.entry_lat, record.entry_lon)
+            lat_str, lon_str = self._format_lat_lon_dms(
+                record.entry_lat, record.entry_lon
+            )
             position = f"{time_str} & {lat_str}\\quad{lon_str}"
 
             # Determine if this is a line operation (has different exit coordinates)
             is_line_operation = (
-                hasattr(record, 'exit_lat') and hasattr(record, 'exit_lon') and
-                (abs(record.exit_lat - record.entry_lat) > 0.001 or 
-                 abs(record.exit_lon - record.entry_lon) > 0.001)
+                hasattr(record, "exit_lat")
+                and hasattr(record, "exit_lon")
+                and (
+                    abs(record.exit_lat - record.entry_lat) > 0.001
+                    or abs(record.exit_lon - record.entry_lon) > 0.001
+                )
                 # and 'bathy' in record.label.lower()  # Focus on bathymetry surveys - commented out to include all line operations
             )
 
@@ -621,59 +650,96 @@ class LaTeXGenerator:
                     hasattr(record, "label")
                     and any(
                         pattern in record.label.lower()
-                        for pattern in ["ctd", "fd-", "ds-", "station", "mooring", "svp", "yoyo"]
+                        for pattern in [
+                            "ctd",
+                            "fd-",
+                            "ds-",
+                            "station",
+                            "mooring",
+                            "svp",
+                            "yoyo",
+                        ]
                     )
                 )
             )
 
-            if is_station and record.water_depth is not None and not np.isnan(record.water_depth):
+            if (
+                is_station
+                and record.water_depth is not None
+                and not np.isnan(record.water_depth)
+            ):
                 depth_str = f" & {record.water_depth:4.0f} m"
             else:
                 depth_str = " &       "
 
             # Add midrule before each new activity (except the first one)
             if i > 0:
-                tex_lines.append("\\midrule")
-            
+                current_table_lines.append("\\midrule")
+                line_count += 1
+
             # Station name/label and comment
             station_name = self._escape_latex_text(record.label)
-            comment = self._escape_latex_text(getattr(record, 'comment', '') or '')
-            
+            comment = self._escape_latex_text(getattr(record, "comment", "") or "")
+
             if is_line_operation:
                 # For line operations: show start position with operation distance on same line
-                operation_distance = getattr(record, 'dist_nm', 0.0)
+                operation_distance = getattr(record, "dist_nm", 0.0)
                 if operation_distance > 0.5:
                     distance_str = f"{operation_distance:.1f} nm"
                 else:
                     distance_str = ""
-                    
-                tex_lines.append(f"{position}{depth_str} & {distance_str} & {station_name} & {comment} \\\\")
-                
+
+                current_table_lines.append(
+                    f"{position}{depth_str} & {distance_str} & {station_name} & {comment} \\\\"
+                )
+                line_count += 1
+
                 # Show end position on next line (without time)
-                exit_lat_str, exit_lon_str = self._format_lat_lon_dms(record.exit_lat, record.exit_lon)
-                tex_lines.append(f"  & {exit_lat_str}\\quad{exit_lon_str} &        & &  &  \\\\")
-                
+                exit_lat_str, exit_lon_str = self._format_lat_lon_dms(
+                    record.exit_lat, record.exit_lon
+                )
+                current_table_lines.append(
+                    f"  & {exit_lat_str}\\quad{exit_lon_str} &        & &  &  \\\\"
+                )
+                line_count += 1
+
                 # Add repositioning distance to next activity if > 0.5 nm
-                transit_dist = getattr(record, 'transit_dist_nm', 0.0)
+                transit_dist = getattr(record, "transit_dist_nm", 0.0)
                 if transit_dist > 0.5:
-                    tex_lines.append(
+                    current_table_lines.append(
                         f" &                       "
                         f"&        & +{transit_dist:.1f} nm &  \\\\"
                     )
+                    line_count += 1
             else:
                 # For point operations: show normally
-                tex_lines.append(f"{position}{depth_str} & & {station_name} & {comment} \\\\")
-                
+                current_table_lines.append(
+                    f"{position}{depth_str} & & {station_name} & {comment} \\\\"
+                )
+                line_count += 1
+
                 # Add transit distance to next station if > 0.5 nm
-                transit_dist = getattr(record, 'transit_dist_nm', 0.0)
+                transit_dist = getattr(record, "transit_dist_nm", 0.0)
                 if transit_dist > 0.5:
-                    tex_lines.append(
+                    current_table_lines.append(
                         f" &                       "
                         f"&        & +{transit_dist:.1f} nm &  \\\\"
                     )
+                    line_count += 1
 
-        # Wrap in complete LaTeX document structure
-        table_content = "\n".join(tex_lines)
+        # Add the final table section
+        if current_table_lines:
+            table_sections.append(current_table_lines)
+
+        # If no sections were created (table is <= 36 lines), use all lines as single table
+        if not table_sections:
+            table_sections = [current_table_lines]
+
+        # Generate multiple table content sections
+        table_contents = []
+        for section_lines in table_sections:
+            table_content = "\n".join(section_lines)
+            table_contents.append(table_content)
 
         # Create new title format: "MSM142 - Workplan XX" and date range
         # Use provided cruise title or extract from cruise name
@@ -682,45 +748,48 @@ class LaTeXGenerator:
         else:
             # Extract cruise name and clean it up as fallback
             base_cruise_name = cruise_name
-            
+
             # Remove various suffixes
             suffixes_to_remove = [
                 " schedule forecast",
-                "schedule forecast", 
+                "schedule forecast",
                 " schedule",
-                "schedule"
+                "schedule",
             ]
             for suffix in suffixes_to_remove:
                 if suffix in base_cruise_name.lower():
                     # Case-insensitive removal
                     idx = base_cruise_name.lower().find(suffix.lower())
                     if idx >= 0:
-                        base_cruise_name = base_cruise_name[:idx] + base_cruise_name[idx + len(suffix):]
+                        base_cruise_name = (
+                            base_cruise_name[:idx]
+                            + base_cruise_name[idx + len(suffix) :]
+                        )
                         break
-            
+
             # Replace underscores with spaces and clean up
             base_cruise_name = base_cruise_name.replace("_", " ").strip()
-            
+
             # Extract just the cruise identifier (e.g., "MSM142" from "MSM142 StJohns")
             cruise_parts = base_cruise_name.split()
             if cruise_parts:
                 main_cruise_name = cruise_parts[0]  # e.g., "MSM142"
             else:
                 main_cruise_name = base_cruise_name
-        
+
         # Use provided workplan number or default
         workplan_num = workplan_number if workplan_number else "01"
-        
+
         # Calculate date range from records
         if station_records:
             start_date = station_records[0].start_time
             end_date = station_records[-1].start_time
-            
+
             # Format dates for title using portable day formatting
             start_str = str(start_date.day)  # Day without leading zero
-            end_str = str(end_date.day)      # Day without leading zero  
+            end_str = str(end_date.day)  # Day without leading zero
             month_year = end_date.strftime("%B %Y")  # Full month name and year
-            
+
             date_range = f"{start_str}--{end_str} {month_year}"
         else:
             date_range = ""
@@ -728,7 +797,7 @@ class LaTeXGenerator:
         # Handle logo inclusion
         logo_header = ""
         logo_packages = ""
-        
+
         if logo_path:
             # Convert to Path object for easier handling
             logo_file = Path(logo_path)
@@ -736,7 +805,7 @@ class LaTeXGenerator:
                 logo_packages = "\\usepackage{graphicx}\n"
                 # Create header with logo and new title format
                 logo_header = f"""\\begin{{center}}
-\\includegraphics[width=0.3\\textwidth]{{{str(logo_file)}}}\\\\[0.5cm]
+\\includegraphics[width=0.3\\textwidth]{{{logo_file!s}}}\\\\[0.5cm]
 \\Large \\textbf{{{main_cruise_name} - Workplan {workplan_num}}}\\\\
 \\textbf{{{date_range}}}
 \\end{{center}}
@@ -755,13 +824,13 @@ class LaTeXGenerator:
                 "images/mixsed_logo_coarse.png",
                 "images/Logo_UHH_rgb.pdf",
             ]
-            
+
             for default_logo in default_logos:
                 logo_file = Path(default_logo)
                 if logo_file.exists():
                     logo_packages = "\\usepackage{graphicx}\n"
                     logo_header = f"""\\begin{{center}}
-\\includegraphics[width=0.3\\textwidth]{{{str(logo_file)}}}\\\\[0.5cm]
+\\includegraphics[width=0.3\\textwidth]{{{logo_file!s}}}\\\\[0.5cm]
 \\Large \\textbf{{{main_cruise_name} - Workplan {workplan_num}}}\\\\
 \\textbf{{{date_range}}}
 \\end{{center}}
@@ -776,6 +845,27 @@ class LaTeXGenerator:
 
 """
 
+        # Generate table blocks for each section
+        table_blocks = []
+        for i, table_content in enumerate(table_contents):
+            table_block = f"""\\begin{{table}}[htbp]
+\\begin{{tabular}}{{lllllp{{2in}}}}
+\\toprule
+Time & Position & Depth & Distance & Station & Comment \\\\
+\\ LT & &\\quad m & \\quad nm & \\\\
+\\midrule
+{table_content}
+\\bottomrule
+\\end{{tabular}}
+\\end{{table}}"""
+            table_blocks.append(table_block)
+
+        # Join tables with page breaks between them if there are multiple tables
+        if len(table_blocks) > 1:
+            all_tables = "\n\n\\clearpage\n\n".join(table_blocks)
+        else:
+            all_tables = table_blocks[0]
+
         full_document = f"""\\documentclass{{article}}
 \\usepackage{{booktabs}}
 \\usepackage{{geometry}}
@@ -788,17 +878,7 @@ class LaTeXGenerator:
 
 {logo_header}
 
-\\begin{{table}}[h]
-\\centering
-\\begin{{tabular}}{{lllllp{{2in}}}}
-\\toprule
-Time & Position & Depth & Distance & Station & Comment \\\\
-\\ LT & &\\quad m & \\quad nm & \\\\
-\\midrule
-{table_content}
-\\bottomrule
-\\end{{tabular}}
-\\end{{table}}
+{all_tables}
 
 \\end{{document}}
 """
@@ -954,8 +1034,8 @@ Time & Position & Depth & Distance & Station & Comment \\\\
 
 
 def generate_letsgo_table_from_netcdf(
-    netcdf_path: Path, 
-    output_path: Path = None, 
+    netcdf_path: Path,
+    output_path: Path = None,
     logo_path: Union[str, Path] = None,
     workplan_number: str = None,
     cruise_title: str = None,
@@ -991,11 +1071,11 @@ def generate_letsgo_table_from_netcdf(
     generator = LaTeXGenerator()
     cruise_name = netcdf_path.stem
     tex_content = generator.generate_letsgo_table(
-        records, 
-        cruise_name, 
+        records,
+        cruise_name,
         logo_path=logo_path,
         workplan_number=workplan_number,
-        cruise_title=cruise_title
+        cruise_title=cruise_title,
     )
 
     # Write to file

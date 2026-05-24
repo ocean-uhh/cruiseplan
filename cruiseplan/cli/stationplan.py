@@ -67,9 +67,9 @@ def main(args: argparse.Namespace) -> None:
                     start_time=args.start_time,
                     duration_hours=args.duration,
                     output_path=output_path,
-                    logo_path=getattr(args, 'logo', None),
-                    workplan_number=getattr(args, 'number', None),
-                    cruise_title=getattr(args, 'title', None),
+                    logo_path=getattr(args, "logo", None),
+                    workplan_number=getattr(args, "number", None),
+                    cruise_title=getattr(args, "title", None),
                 )
 
                 if result.success:
@@ -124,8 +124,10 @@ def main(args: argparse.Namespace) -> None:
                 if args.output:
                     # If user provided Stationsplan28.txt, make it Stationsplan28.kml
                     output_file = Path(args.output)
-                    if output_file.suffix.lower() in ['.txt', '.tex']:
-                        output_path = args.output_dir / output_file.with_suffix('.kml').name
+                    if output_file.suffix.lower() in [".txt", ".tex"]:
+                        output_path = (
+                            args.output_dir / output_file.with_suffix(".kml").name
+                        )
                     else:
                         output_path = args.output_dir / args.output
 
@@ -149,17 +151,19 @@ def main(args: argparse.Namespace) -> None:
                 if args.output:
                     # If user provided Stationsplan28.txt, make it Stationsplan28.png
                     output_file = Path(args.output)
-                    if output_file.suffix.lower() in ['.txt', '.tex', '.kml']:
-                        output_path = args.output_dir / output_file.with_suffix('.png').name
+                    if output_file.suffix.lower() in [".txt", ".tex", ".kml"]:
+                        output_path = (
+                            args.output_dir / output_file.with_suffix(".png").name
+                        )
                     else:
                         output_path = args.output_dir / args.output
 
                 # Prepare bounds if specified
                 lat_bounds = None
                 lon_bounds = None
-                if hasattr(args, 'lat') and args.lat:
+                if hasattr(args, "lat") and args.lat:
                     lat_bounds = args.lat
-                if hasattr(args, 'lon') and args.lon:
+                if hasattr(args, "lon") and args.lon:
                     lon_bounds = args.lon
 
                 result = stationplan_forecast_png(
@@ -168,10 +172,10 @@ def main(args: argparse.Namespace) -> None:
                     start_time=args.start_time,
                     duration_hours=args.duration,
                     output_path=output_path,
-                    bathy_source=getattr(args, 'bathy_source', 'etopo2022'),
-                    bathy_dir=getattr(args, 'bathy_dir', 'data'),
-                    bathy_stride=getattr(args, 'bathy_stride', 10),
-                    figsize=tuple(getattr(args, 'figsize', [12.0, 8.0])),
+                    bathy_source=getattr(args, "bathy_source", "etopo2022"),
+                    bathy_dir=getattr(args, "bathy_dir", "data"),
+                    bathy_stride=getattr(args, "bathy_stride", 10),
+                    figsize=tuple(getattr(args, "figsize", [12.0, 8.0])),
                     lat_bounds=lat_bounds,
                     lon_bounds=lon_bounds,
                 )
@@ -224,7 +228,13 @@ def main(args: argparse.Namespace) -> None:
                 if args.output:
                     output_path = args.output_dir / args.output
 
-                result = stationplan_tex(schedule_file, output_path, getattr(args, 'logo', None), getattr(args, 'number', None), getattr(args, 'title', None))
+                result = stationplan_tex(
+                    schedule_file,
+                    output_path,
+                    getattr(args, "logo", None),
+                    getattr(args, "number", None),
+                    getattr(args, "title", None),
+                )
 
                 if result.success:
                     print(f"✅ Generated TeX station table: {result.output}")
@@ -271,7 +281,7 @@ def main(args: argparse.Namespace) -> None:
                 else:
                     print(f"❌ {result.message}", file=sys.stderr)
                     sys.exit(1)
-                    
+
             elif format_type == "kml":
                 # For KML without forecast parameters, we need start_index and start_time
                 print(

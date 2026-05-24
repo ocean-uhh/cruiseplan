@@ -172,8 +172,7 @@ class CSVGenerator:
 
                 # Get delay_start value from activity (0 if not specified)
                 delay_start_min = activity.get("delay_start", 0.0) or 0.0
-                
-                
+
                 row = {
                     "activity": activity["activity"],
                     "label": activity["label"],

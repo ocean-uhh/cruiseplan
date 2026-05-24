@@ -321,7 +321,6 @@ class TestBathymetrySimpleCoverage:
             patch("netCDF4.Dataset", side_effect=Exception("Corrupted NetCDF")),
             patch.object(Path, "stat") as mock_stat,
         ):
-
             # Mock file size to be large enough
             mock_stat_obj = MagicMock()
             mock_stat_obj.st_size = 500 * 1024 * 1024  # 500 MB
@@ -353,7 +352,6 @@ class TestBathymetrySimpleCoverage:
             ),
             patch("cruiseplan.data.bathymetry.logger") as mock_logger,
         ):
-
             result = manager.get_depth_at_point(45.0, -60.0)
 
             # Should return fallback depth
@@ -482,7 +480,6 @@ class TestBathymetrySimpleCoverage:
             patch("traceback.extract_stack", return_value=[mock_frame] * 5),
             patch("cruiseplan.data.bathymetry.logger") as mock_logger,
         ):
-
             manager = bathy_module.BathymetryManager(source="etopo2022")
             manager.data_dir = bathymetry_dir
             manager._initialize_data()
@@ -540,7 +537,6 @@ class TestGEBCO2025Functionality:
             patch.object(Path, "stat") as mock_stat,
             patch("requests.get") as mock_get,
         ):
-
             # Configure mocks
             mock_exists.return_value = True
             mock_stat_obj = MagicMock()
@@ -562,7 +558,6 @@ class TestGEBCO2025Functionality:
             patch.object(Path, "exists", return_value=False),
             patch("shutil.disk_usage") as mock_disk_usage,
         ):
-
             # Configure insufficient disk space
             mock_disk_usage_obj = MagicMock()
             mock_disk_usage_obj.free = 5_000_000_000  # Only 5 GB free (need 12 GB)
@@ -583,7 +578,6 @@ class TestGEBCO2025Functionality:
             patch("cruiseplan.data.bathymetry.tqdm") as mock_tqdm,
             patch("sys.modules") as mock_modules,
         ):
-
             # Remove pytest from modules to bypass test environment detection
             if "pytest" in mock_modules:
                 del mock_modules["pytest"]
@@ -621,7 +615,6 @@ class TestGEBCO2025Functionality:
             patch("cruiseplan.data.bathymetry.tqdm") as mock_tqdm,
             patch("sys.modules") as mock_modules,
         ):
-
             # Remove pytest from modules to bypass test environment detection
             if "pytest" in mock_modules:
                 del mock_modules["pytest"]
@@ -663,7 +656,6 @@ class TestGEBCO2025Functionality:
             patch("cruiseplan.data.bathymetry.tqdm") as mock_tqdm,
             patch("sys.modules") as mock_modules,
         ):
-
             # Remove pytest from modules to bypass test environment detection
             if "pytest" in mock_modules:
                 del mock_modules["pytest"]
@@ -711,7 +703,6 @@ class TestGEBCO2025Functionality:
             patch("cruiseplan.data.bathymetry.tqdm") as mock_tqdm,
             patch("sys.modules") as mock_modules,
         ):
-
             # Remove pytest from modules to bypass test environment detection
             if "pytest" in mock_modules:
                 del mock_modules["pytest"]
@@ -753,7 +744,6 @@ class TestGEBCO2025Functionality:
     def test_test_environment_detection(self, bathymetry_manager, test_bathymetry_dir):
         """Test that method returns False in test environment without prompting."""
         with patch.object(Path, "exists", return_value=False):
-
             # Test the method (pytest should be detected in sys.modules)
             result = bathymetry_manager.ensure_gebco_2025()
 
@@ -767,7 +757,6 @@ class TestGEBCO2025Functionality:
             patch.object(Path, "stat") as mock_stat,
             patch("cruiseplan.data.bathymetry.logger") as mock_logger,
         ):
-
             # Configure valid file size
             mock_stat_obj = MagicMock()
             mock_stat_obj.st_size = 7_500_000_000  # 7.5 GB

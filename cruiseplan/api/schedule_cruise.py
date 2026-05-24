@@ -90,6 +90,7 @@ def schedule(  # noqa: C901, PLR0915
     lon_bounds: Optional[list] = None,
     figsize: Optional[list] = None,
     no_ports: bool = False,
+    include_eez: bool = True,
     verbose: bool = False,
 ) -> ScheduleResult:
     """
@@ -120,6 +121,9 @@ def schedule(  # noqa: C901, PLR0915
         Figure size for PNG maps [width, height] (default: [12, 8])
     no_ports : bool
         Exclude ports from PNG schedule maps (default: False)
+    include_eez : bool
+        Include EEZ boundaries on interactive maps (default: True).
+        Note: Boundaries are for visualization only and may not reflect official agreements.
     verbose : bool
         Enable verbose logging (default: False)
 

@@ -89,15 +89,15 @@ def validate_timeline_structure(timeline: list[dict[str, Any]]) -> bool:
             assert field in activity, f"Activity {i} missing required field: {field}"
 
         # Check that times are properly formatted
-        assert isinstance(
-            activity["start_time"], str
-        ), f"Activity {i} start_time must be string"
-        assert isinstance(
-            activity["end_time"], str
-        ), f"Activity {i} end_time must be string"
-        assert isinstance(
-            activity["duration"], (int, float)
-        ), f"Activity {i} duration must be numeric"
+        assert isinstance(activity["start_time"], str), (
+            f"Activity {i} start_time must be string"
+        )
+        assert isinstance(activity["end_time"], str), (
+            f"Activity {i} end_time must be string"
+        )
+        assert isinstance(activity["duration"], (int, float)), (
+            f"Activity {i} duration must be numeric"
+        )
 
     return True
 
@@ -160,9 +160,9 @@ def assert_activity_duration_positive(timeline: list[dict[str, Any]]) -> None:
     """
     for i, activity in enumerate(timeline):
         duration = activity.get("duration", 0)
-        assert (
-            duration > 0
-        ), f"Activity {i} ({activity.get('name', 'unnamed')}) has non-positive duration: {duration}"
+        assert duration > 0, (
+            f"Activity {i} ({activity.get('name', 'unnamed')}) has non-positive duration: {duration}"
+        )
 
 
 def assert_timeline_chronological(timeline: list[dict[str, Any]]) -> None:

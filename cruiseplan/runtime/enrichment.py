@@ -240,7 +240,7 @@ def expand_sections(
             )
 
             # Generate unique station name (handle duplicates)
-            base_station_name = f"{base_name}_Stn{ii+1:03d}"
+            base_station_name = f"{base_name}_Stn{ii + 1:03d}"
             station_name = _generate_unique_name(
                 base_station_name, cruise_instance.point_registry
             )
@@ -250,8 +250,8 @@ def expand_sections(
 
             station_attrs = {
                 "name": station_name,
-                "latitude": round(lat, 5),
-                "longitude": round(lon, 5),
+                "latitude": round(lat, 7),
+                "longitude": round(lon, 7),
                 "operation_type": "CTD",
                 "action": "profile",
                 "history": f"expanded from line operation: {section_name};",

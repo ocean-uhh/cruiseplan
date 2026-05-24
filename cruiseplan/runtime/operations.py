@@ -278,7 +278,10 @@ class PointOperation(BaseOperation):
         # TODO - why is ADCP on the list? what is this hardcoded list for?
         # Check for station-like operations (CTD, ADCP, etc.) that need CTD time calculation
         # Exception: yo_yo CTD operations use specified duration like moorings
-        if (self.op_type in ["station", "CTD", "ADCP", "XBT", "XCTD"] and self.action != "yo_yo") or (
+        if (
+            self.op_type in ["station", "CTD", "ADCP", "XBT", "XCTD"]
+            and self.action != "yo_yo"
+        ) or (
             hasattr(self, "operation_depth")
             and self.operation_depth is not None
             and self.operation_depth > 0
@@ -286,7 +289,9 @@ class PointOperation(BaseOperation):
         ):
             return calc.calculate_ctd_time(self.get_depth())
         # TODO: replace with default
-        elif self.op_type == "mooring" or (self.op_type == "CTD" and self.action == "yo_yo"):
+        elif self.op_type == "mooring" or (
+            self.op_type == "CTD" and self.action == "yo_yo"
+        ):
             # Moorings and yo_yo CTD operations should have manual duration, but fallback to default
             return (
                 rules.config.default_mooring_duration

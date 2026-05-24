@@ -1,0 +1,42 @@
+# Test cruise with only decmin coordinates
+cruise_name: Test_DecMin
+description: Testing decmin coordinate conversion
+
+# Points with only decmin coordinates
+points:
+  - name: test_station_1
+    comment: Test station with only decmin coordinates
+    operation_type: CTD
+    action: profile
+    duration: 60.0
+    latitude_decmin: 65 31.316 N
+    longitude_decmin: 029 32.796 W
+  - name: test_station_2
+    comment: Another test station
+    operation_type: mooring
+    action: deployment
+    duration: 120.0
+    latitude_decmin: 64 45.123 N
+    longitude_decmin: 030 15.456 W
+
+legs:
+  - name: Test_Leg
+    departure_port:
+      name: test_port
+      display_name: Test Port
+      operation_type: port
+      action: mob
+      latitude: 64.0
+      longitude: -30.0
+    arrival_port:
+      name: test_port
+      display_name: Test Port
+      operation_type: port
+      action: demob
+      latitude: 64.0
+      longitude: -30.0
+    first_activity: test_station_1
+    last_activity: test_station_2
+    activities:
+      - test_station_1
+      - test_station_2

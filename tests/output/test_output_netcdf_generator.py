@@ -82,8 +82,8 @@ class TestNetCDFCoverageBoost:
             pass
 
     @patch("cruiseplan.output.netcdf_generator.xr.Dataset.to_netcdf")
-    def test_generate_ship_schedule_call_coverage(self, mock_to_netcdf):
-        """Test that generate_ship_schedule can be called (coverage only)."""
+    def test_generate_master_schedule_call_coverage(self, mock_to_netcdf):
+        """Test that generate_master_schedule can be called (coverage only)."""
         config = self.create_basic_config()
         timeline = self.create_basic_timeline()
         output_path = self.temp_dir / "test_schedule.nc"
@@ -92,7 +92,7 @@ class TestNetCDFCoverageBoost:
 
         # This should execute the uncovered lines 1041-1236
         try:
-            self.generator.generate_ship_schedule(timeline, config, output_path)
+            self.generator.generate_master_schedule(timeline, config, output_path)
         except Exception:
             # Tactical coverage test - exceptions expected due to incomplete mocking
             # We only care about exercising code paths, not functional correctness
@@ -196,7 +196,7 @@ class TestNetCDFCoverageBoost:
                 pass
 
             try:
-                self.generator.generate_ship_schedule(
+                self.generator.generate_master_schedule(
                     empty_timeline, config, self.temp_dir / "empty2.nc"
                 )
             except Exception:
@@ -297,7 +297,7 @@ class TestNetCDFCoverageBoost:
 
         with patch("cruiseplan.output.netcdf_generator.xr.Dataset.to_netcdf"):
             try:
-                self.generator.generate_ship_schedule(
+                self.generator.generate_master_schedule(
                     timeline, config, self.temp_dir / "mixed_ops.nc"
                 )
             except Exception:

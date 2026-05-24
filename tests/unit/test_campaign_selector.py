@@ -145,7 +145,6 @@ def test_toggle_all_state_and_display_update(
 
     # Mock the visual update call
     with patch.object(selector, "_update_campaign_display") as mock_update_display:
-
         # 1. Toggle all OFF
         selector.toggle_all(False)
 

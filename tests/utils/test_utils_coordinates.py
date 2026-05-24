@@ -343,7 +343,10 @@ class TestComputeFinalLimits:
         """Test basic aspect ratio correction."""
         # Square region at equator should remain roughly square
         min_lon, max_lon, min_lat, max_lat = compute_final_limits(
-            -1.0, 1.0, -1.0, 1.0  # 2x2 degree square at equator
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,  # 2x2 degree square at equator
         )
 
         # At equator, aspect ratio is ~1, so should remain similar
@@ -356,7 +359,10 @@ class TestComputeFinalLimits:
         """Test aspect ratio correction at high latitude."""
         # Small region at high latitude needs longitude expansion
         min_lon, max_lon, min_lat, max_lat = compute_final_limits(
-            -1.0, 1.0, 70.0, 72.0  # 2x2 degree region at 71°N
+            -1.0,
+            1.0,
+            70.0,
+            72.0,  # 2x2 degree region at 71°N
         )
 
         # Should expand longitude to maintain proper aspect ratio
@@ -369,7 +375,10 @@ class TestComputeFinalLimits:
         """Test aspect ratio correction at extreme latitude."""
         # Test near poles where aspect ratio becomes very large
         min_lon, max_lon, min_lat, max_lat = compute_final_limits(
-            -1.0, 1.0, 85.0, 87.0  # Near north pole
+            -1.0,
+            1.0,
+            85.0,
+            87.0,  # Near north pole
         )
 
         # Should expand longitude significantly but cap the expansion
@@ -385,7 +394,10 @@ class TestComputeFinalLimits:
         """Test when longitude range is already large."""
         # Wide longitude range should expand latitude instead
         min_lon, max_lon, min_lat, max_lat = compute_final_limits(
-            -10.0, 10.0, 45.0, 46.0  # 20° lon x 1° lat at 45°N
+            -10.0,
+            10.0,
+            45.0,
+            46.0,  # 20° lon x 1° lat at 45°N
         )
 
         lon_range = max_lon - min_lon

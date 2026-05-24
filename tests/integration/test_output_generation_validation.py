@@ -64,29 +64,29 @@ class TestOutputGenerationValidation:
 
                 # Verify LaTeX files were created
                 latex_files = list(output_path.glob("*.tex"))
-                assert (
-                    len(latex_files) > 0
-                ), f"No LaTeX files generated for {config_path}"
+                assert len(latex_files) > 0, (
+                    f"No LaTeX files generated for {config_path}"
+                )
 
                 # Should have both stations and work_days tables
                 stations_files = list(output_path.glob("*_stations.tex"))
                 work_days_files = list(output_path.glob("*_work_days.tex"))
-                assert (
-                    len(stations_files) > 0
-                ), f"No stations table generated for {config_path}"
-                assert (
-                    len(work_days_files) > 0
-                ), f"No work days table generated for {config_path}"
+                assert len(stations_files) > 0, (
+                    f"No stations table generated for {config_path}"
+                )
+                assert len(work_days_files) > 0, (
+                    f"No work days table generated for {config_path}"
+                )
 
                 # Verify LaTeX file has content
                 latex_file = latex_files[0]
                 content = latex_file.read_text()
-                assert (
-                    len(content) > 100
-                ), f"LaTeX file suspiciously small for {config_path}"
-                assert (
-                    "\\begin{tabular}" in content
-                ), f"LaTeX file missing table content for {config_path}"
+                assert len(content) > 100, (
+                    f"LaTeX file suspiciously small for {config_path}"
+                )
+                assert "\\begin{tabular}" in content, (
+                    f"LaTeX file missing table content for {config_path}"
+                )
 
     @pytest.mark.slow
     def test_png_output_generation(self, sample_configs):
@@ -115,9 +115,9 @@ class TestOutputGenerationValidation:
                 # Verify PNG file has reasonable size (not empty)
                 png_file = png_files[0]
                 file_size = png_file.stat().st_size
-                assert (
-                    file_size > 1000
-                ), f"PNG file suspiciously small ({file_size} bytes) for {config_path}"
+                assert file_size > 1000, (
+                    f"PNG file suspiciously small ({file_size} bytes) for {config_path}"
+                )
 
     def test_all_formats_generation(self):
         """Test that all output formats generate successfully together."""
@@ -156,9 +156,9 @@ class TestOutputGenerationValidation:
 
             for pattern in expected_patterns:
                 files = list(output_path.glob(pattern))
-                assert (
-                    len(files) > 0
-                ), f"No files matching pattern '{pattern}' found in {list(output_path.iterdir())}"
+                assert len(files) > 0, (
+                    f"No files matching pattern '{pattern}' found in {list(output_path.iterdir())}"
+                )
 
     def test_output_failure_detection(self):
         """Test that output generation failures are properly detected."""
@@ -184,9 +184,9 @@ cruise_name: "Broken Test"
                     schedule_main(args)
 
                 # Verify it failed (non-zero exit code)
-                assert (
-                    exc_info.value.code != 0
-                ), "Expected generation to fail with broken config"
+                assert exc_info.value.code != 0, (
+                    "Expected generation to fail with broken config"
+                )
 
         finally:
             Path(broken_config).unlink()  # Clean up temp file
@@ -274,12 +274,12 @@ class TestSpecificOutputFormats:
             # Basic file size check (should be substantial for a map)
             png_file = png_files[0]
             file_size = png_file.stat().st_size
-            assert (
-                file_size > 10000
-            ), f"PNG map seems too small ({file_size} bytes)"  # Maps should be > 10KB
+            assert file_size > 10000, (
+                f"PNG map seems too small ({file_size} bytes)"
+            )  # Maps should be > 10KB
 
             # Check filename contains expected elements
             filename = png_file.name
-            assert (
-                "_map" in filename.lower() or "_schedule" in filename.lower()
-            ), "PNG filename should indicate map content"
+            assert "_map" in filename.lower() or "_schedule" in filename.lower(), (
+                "PNG filename should indicate map content"
+            )

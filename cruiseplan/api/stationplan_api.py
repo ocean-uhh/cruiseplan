@@ -209,7 +209,7 @@ def stationplan_forecast(
 
 
 def stationplan_tex(
-    schedule_file: Union[str, Path], 
+    schedule_file: Union[str, Path],
     output_path: Union[str, Path] = None,
     logo_path: Union[str, Path] = None,
     workplan_number: str = None,
@@ -258,7 +258,9 @@ def stationplan_tex(
             output_file = Path(output_path)
 
         # Generate TeX table using our letsgo-style generator
-        generated_file = generate_letsgo_table_from_netcdf(schedule_path, output_file, logo_path, workplan_number, cruise_title)
+        generated_file = generate_letsgo_table_from_netcdf(
+            schedule_path, output_file, logo_path, workplan_number, cruise_title
+        )
 
         logger.info(f"Successfully generated TeX table: {generated_file}")
 
@@ -316,7 +318,6 @@ def stationplan_forecast_tex(
         Result object with success status and generated file path
     """
     try:
-
         import numpy as np
 
         from cruiseplan.forecast.generator import generate_forecast
@@ -343,9 +344,9 @@ def stationplan_forecast_tex(
 
         # Convert forecast activities to ActivityRecord objects for TeX generation
         # generate_forecast returns tuples: (index, time, category, type, action, duration, lat, lon, name)
-        
+
         # No longer need to manually compute transit distances - they're now in distance_to_next field
-        
+
         activity_records = []
         for activity_tuple in forecast_activities:
             (
@@ -364,7 +365,7 @@ def stationplan_forecast_tex(
             water_depth = None
             operation_depth = None
             comment = ""
-            
+
             if "water_depth" in schedule.variables:
                 try:
                     depth_val = schedule.water_depth[index].values
@@ -380,7 +381,7 @@ def stationplan_forecast_tex(
                         operation_depth = float(op_depth_val)
                 except (TypeError, ValueError):
                     pass  # Keep operation_depth as None
-                    
+
             if "comment" in schedule.variables:
                 comment_val = str(schedule.comment[index].values)
                 if comment_val and comment_val != "nan" and comment_val != "_":
@@ -407,13 +408,22 @@ def stationplan_forecast_tex(
             # Create single record for all operations (including line operations)
             # Calculate end time
             from datetime import timedelta
+
             end_time = time + timedelta(hours=duration)
 
             # Get operation distance from NetCDF (for line operations)
-            operation_distance = float(schedule.dist_nm[index].values) if "dist_nm" in schedule.variables else 0.0
-            
+            operation_distance = (
+                float(schedule.dist_nm[index].values)
+                if "dist_nm" in schedule.variables
+                else 0.0
+            )
+
             # Get transit distance to next operation from NetCDF distance_to_next field
-            next_transit_distance = float(schedule.distance_to_next[index].values) if "distance_to_next" in schedule.variables else 0.0
+            next_transit_distance = (
+                float(schedule.distance_to_next[index].values)
+                if "distance_to_next" in schedule.variables
+                else 0.0
+            )
 
             # Single record for operation
             record_data = {
@@ -433,7 +443,9 @@ def stationplan_forecast_tex(
                 "vessel_speed_kt": 10.0,
                 "leg_name": "forecast",
                 "op_type": activity_type,
-                "operation_class": "LineOperation" if operation_distance > 0.1 else "PointOperation",
+                "operation_class": "LineOperation"
+                if operation_distance > 0.1
+                else "PointOperation",
                 "action": action if action else None,
                 "comment": comment,
             }
@@ -456,11 +468,11 @@ def stationplan_forecast_tex(
         generator = LaTeXGenerator()
         cruise_name = f"{schedule_path.stem} forecast"
         tex_content = generator.generate_letsgo_table(
-            activity_records, 
-            cruise_name, 
+            activity_records,
+            cruise_name,
             logo_path=logo_path,
             workplan_number=workplan_number,
-            cruise_title=cruise_title
+            cruise_title=cruise_title,
         )
 
         # Write to file
@@ -564,9 +576,13 @@ def stationplan_waypoints(
                 waypoint_lines.append(f"% start_date = {start_time}")
 
             waypoint_lines.append("%")
-            
+
             # Add coordinate format indicator
-            format_type = "Decimal Degrees" if use_decimal_degrees else "Degrees Decimal Minutes (DDM)"
+            format_type = (
+                "Decimal Degrees"
+                if use_decimal_degrees
+                else "Degrees Decimal Minutes (DDM)"
+            )
             waypoint_lines.append(f"% Coordinate format: {format_type}")
 
             # Add legend header
@@ -606,7 +622,9 @@ def stationplan_waypoints(
                         continue
 
                     # Map activity types to work codes
-                    work_code = _map_activity_to_work_code(category, activity_type, name)
+                    work_code = _map_activity_to_work_code(
+                        category, activity_type, name
+                    )
 
                     # For stations, we need both entry and exit positions
                     # Check if we have separate exit coordinates in the original schedule
@@ -619,9 +637,15 @@ def stationplan_waypoints(
                                 "exit_latitude" in schedule.variables
                                 and "exit_longitude" in schedule.variables
                             ):
-                                exit_lat_val = float(schedule.exit_latitude[index].values)
-                                exit_lon_val = float(schedule.exit_longitude[index].values)
-                                if not (np.isnan(exit_lat_val) or np.isnan(exit_lon_val)):
+                                exit_lat_val = float(
+                                    schedule.exit_latitude[index].values
+                                )
+                                exit_lon_val = float(
+                                    schedule.exit_longitude[index].values
+                                )
+                                if not (
+                                    np.isnan(exit_lat_val) or np.isnan(exit_lon_val)
+                                ):
                                     exit_lat, exit_lon = exit_lat_val, exit_lon_val
                             # For line operations without explicit exit coordinates,
                             # use the next waypoint as the exit position
@@ -679,24 +703,30 @@ def stationplan_waypoints(
         if output_path:
             output_file = Path(output_path)
             output_file.parent.mkdir(exist_ok=True, parents=True)
-            
+
             # Generate both filenames based on the provided path
             # If output_path is "route/Stationsplan28.txt", generate:
             # - route/Stationsplan28_ddm.txt (degrees decimal minutes)
             # - route/Stationsplan28_decdeg.txt (decimal degrees)
-            
-            base_path = output_file.with_suffix('')  # Remove .txt extension
-            ddm_file = Path(str(base_path) + '_ddm.txt')
-            decdeg_file = Path(str(base_path) + '_decdeg.txt')
-            
+
+            base_path = output_file.with_suffix("")  # Remove .txt extension
+            ddm_file = Path(str(base_path) + "_ddm.txt")
+            decdeg_file = Path(str(base_path) + "_decdeg.txt")
+
             # Write both files
             ddm_file.write_text(waypoint_content_ddm, encoding="utf-8")
             decdeg_file.write_text(waypoint_content_decdeg, encoding="utf-8")
 
             logger.info(f"Generated bridge waypoints: {ddm_file} and {decdeg_file}")
-            
+
             # Count waypoints (exclude comment lines)
-            waypoint_count = len([l for l in waypoint_content_ddm.split('\n') if l and not l.startswith('%')])
+            waypoint_count = len(
+                [
+                    l
+                    for l in waypoint_content_ddm.split("\n")
+                    if l and not l.startswith("%")
+                ]
+            )
 
             return StationplanResult(
                 success=True,
@@ -705,7 +735,13 @@ def stationplan_waypoints(
             )
         else:
             # Return DDM content directly (default format)
-            waypoint_count = len([l for l in waypoint_content_ddm.split('\n') if l and not l.startswith('%')])
+            waypoint_count = len(
+                [
+                    l
+                    for l in waypoint_content_ddm.split("\n")
+                    if l and not l.startswith("%")
+                ]
+            )
             return StationplanResult(
                 success=True,
                 message=f"Generated {waypoint_count} waypoints (DDM format)",
@@ -740,7 +776,7 @@ def _format_decimal_degrees(decimal_degrees: float, coord_type: str) -> str:
         # Latitude: format with 6 decimal places, signed (negative for South)
         return f"{decimal_degrees:8.5f}"
     else:  # longitude
-        # Longitude: format with 6 decimal places, signed (negative for West)  
+        # Longitude: format with 6 decimal places, signed (negative for West)
         return f"{decimal_degrees:9.5f}"
 
 
@@ -755,7 +791,7 @@ def _map_activity_to_work_code(
     # Normalize inputs to lowercase for case-insensitive comparison
     activity_type_lower = activity_type.lower()
     name_lower = name.lower()
-    
+
     if activity_type_lower in ["ctd", "station"]:
         return 2  # CTD
     elif activity_type_lower in ["mooring"]:
@@ -808,9 +844,7 @@ def stationplan_forecast_kml(
         Result object with success status, message, and output path
     """
     try:
-        from datetime import datetime
         import pandas as pd
-        from cruiseplan.config.cruise_config import CruiseConfig
 
         schedule_path = Path(schedule_file)
         if not schedule_path.exists():
@@ -829,7 +863,7 @@ def stationplan_forecast_kml(
 
         # Convert forecast activities to the format expected by KML generation
         forecast_activities = []
-        
+
         for activity in forecast_activities_raw:
             if len(activity) >= 9:
                 (
@@ -851,18 +885,20 @@ def stationplan_forecast_kml(
                 # Skip transit activities - only include scientific operations
                 if category == "transit":
                     continue
-                
+
                 # Create activity record compatible with KMLGenerator
-                forecast_activities.append({
-                    "name": name,
-                    "latitude": latitude,
-                    "longitude": longitude,
-                    "time": pd.to_datetime(time),
-                    "category": category,
-                    "activity_type": activity_type,
-                    "action": action,
-                    "duration": duration,
-                })
+                forecast_activities.append(
+                    {
+                        "name": name,
+                        "latitude": latitude,
+                        "longitude": longitude,
+                        "time": pd.to_datetime(time),
+                        "category": category,
+                        "activity_type": activity_type,
+                        "action": action,
+                        "duration": duration,
+                    }
+                )
 
         if not forecast_activities:
             return StationplanResult(
@@ -874,7 +910,9 @@ def stationplan_forecast_kml(
         class MockCruiseConfig:
             def __init__(self):
                 self.cruise_name = schedule_path.stem
-                self.description = f"Forecast starting from {start_time} for {duration_hours}h"
+                self.description = (
+                    f"Forecast starting from {start_time} for {duration_hours}h"
+                )
 
         mock_config = MockCruiseConfig()
 
@@ -883,17 +921,19 @@ def stationplan_forecast_kml(
             def __init__(self, data):
                 for key, value in data.items():
                     setattr(self, key, value)
-                
+
                 # Convert to dict access for KML generator compatibility
                 self.data = data
-                
+
             def __getitem__(self, key):
                 return self.data[key]
-                
+
             def get(self, key, default=None):
                 return self.data.get(key, default)
 
-        activity_records = [MockActivityRecord(activity) for activity in forecast_activities]
+        activity_records = [
+            MockActivityRecord(activity) for activity in forecast_activities
+        ]
 
         # Determine output path
         if output_path is None:
@@ -903,10 +943,12 @@ def stationplan_forecast_kml(
 
         # Generate KML
         generator = KMLGenerator()
-        output_file = generator.generate_schedule_kml(mock_config, activity_records, output_file)
+        output_file = generator.generate_schedule_kml(
+            mock_config, activity_records, output_file
+        )
 
         logger.info(f"Successfully generated KML forecast: {output_file}")
-        
+
         # Count activities
         activity_count = len(forecast_activities)
 
@@ -938,7 +980,7 @@ def stationplan_forecast_png(
     """
     Generate PNG map forecast from a cruise schedule for a specific time window.
 
-    Creates a static PNG map showing scientific operations within the specified 
+    Creates a static PNG map showing scientific operations within the specified
     forecast period, using the same map generation system as 'cruiseplan schedule --format png'
     but filtered to show only work from the start-index for the specified duration.
 
@@ -1003,7 +1045,7 @@ def stationplan_forecast_png(
         # Convert forecast activities to timeline format compatible with map generator
         # The map generator expects timeline data similar to what comes from the scheduler
         timeline_for_map = []
-        
+
         for activity_tuple in forecast_activities:
             (
                 index,
@@ -1037,20 +1079,20 @@ def stationplan_forecast_png(
                 "op_type": activity_type,
             }
 
-            # Add operation depth and water depth if available from schedule  
+            # Add operation depth and water depth if available from schedule
             try:
                 if "water_depth" in schedule.variables:
                     depth_val = schedule.water_depth[index].values
                     if not np.isnan(float(depth_val)):
                         timeline_record["water_depth"] = float(depth_val)
-                        
+
                 if "operation_depth" in schedule.variables:
                     op_depth_val = schedule.operation_depth[index].values
                     if not np.isnan(float(op_depth_val)):
                         timeline_record["operation_depth"] = float(op_depth_val)
             except:
                 pass  # Skip if depth data unavailable
-                
+
             timeline_for_map.append(timeline_record)
 
         # Determine output path
@@ -1058,8 +1100,8 @@ def stationplan_forecast_png(
             output_file = schedule_path.with_name(f"{schedule_path.stem}_forecast.png")
         else:
             output_file = Path(output_path)
-            if output_file.suffix.lower() in ['.txt', '.tex', '.kml']:
-                output_file = output_file.with_suffix('.png')
+            if output_file.suffix.lower() in [".txt", ".tex", ".kml"]:
+                output_file = output_file.with_suffix(".png")
 
         # Generate PNG map using the same function as cruiseplan schedule
         map_file = generate_map_from_timeline(

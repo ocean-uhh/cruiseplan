@@ -93,7 +93,6 @@ def test_missing_event_attribute():
 
 
 class TestDOIValidation:
-
     @pytest.mark.parametrize(
         "doi",
         [
@@ -192,7 +191,6 @@ def test_merge_handles_inconsistent_data():
 
 
 class TestLoadCampaignData:
-
     @pytest.fixture
     def mock_merged_data(self):
         """Standardized, simple mock data representing merged campaigns."""

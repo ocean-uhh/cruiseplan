@@ -182,6 +182,11 @@ def netcdf_to_activity_records(schedule: xr.Dataset) -> List[ActivityRecord]:
             "dist_nm": (
                 float(schedule.dist_nm[i].values) if "dist_nm" in schedule else 0.0
             ),
+            "transit_dist_nm": (
+                float(schedule.distance_to_next[i].values)
+                if "distance_to_next" in schedule
+                else 0.0
+            ),
             "vessel_speed_kt": (
                 float(schedule.vessel_speed[i].values)
                 if "vessel_speed" in schedule
@@ -218,7 +223,9 @@ def netcdf_to_activity_records(schedule: xr.Dataset) -> List[ActivityRecord]:
 
         if "comment" in schedule.variables:
             comment_str = str(schedule.comment[i].values)
-            data["comment"] = comment_str if comment_str and comment_str != "nan" else ""
+            data["comment"] = (
+                comment_str if comment_str and comment_str != "nan" else ""
+            )
 
         # Create ActivityRecord object
         activity_record = ActivityRecord(data)

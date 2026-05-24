@@ -49,17 +49,17 @@ class TestTC3ClustersIntegration:
 
         # Expected: 12 mooring operations total (2 per leg × 6 legs)
         # Each leg has STN_003 and STN_004 with mooring operations
-        assert (
-            len(mooring_ops) == 12
-        ), f"Expected 12 mooring operations, got {len(mooring_ops)}"
+        assert len(mooring_ops) == 12, (
+            f"Expected 12 mooring operations, got {len(mooring_ops)}"
+        )
 
         # Verify total mooring duration is 12 hours (1 hour per operation)
         total_mooring_hours = sum(
             op.get("duration_minutes", 0) / 60.0 for op in mooring_ops
         )
-        assert (
-            total_mooring_hours == 12.0
-        ), f"Expected 12 hours of mooring, got {total_mooring_hours}"
+        assert total_mooring_hours == 12.0, (
+            f"Expected 12 hours of mooring, got {total_mooring_hours}"
+        )
 
     def test_tc3_ctd_stations_count(self, tc3_cruise):
         """Test that configuration generates expected number of CTD stations."""
@@ -92,12 +92,12 @@ class TestTC3ClustersIntegration:
         )
 
         # Leg_Survey should use default speed (None), Leg_Survey_Faster should have 12.0
-        assert (
-            leg_survey.vessel_speed is None
-        ), "Leg_Survey should use default vessel speed"
-        assert (
-            leg_faster.vessel_speed == 12.0
-        ), "Leg_Survey_Faster should have vessel_speed 12.0"
+        assert leg_survey.vessel_speed is None, (
+            "Leg_Survey should use default vessel speed"
+        )
+        assert leg_faster.vessel_speed == 12.0, (
+            "Leg_Survey_Faster should have vessel_speed 12.0"
+        )
 
         # Verify that leg-specific speeds are applied in timeline generation
         timeline = generate_timeline(tc3_cruise)
@@ -118,14 +118,14 @@ class TestTC3ClustersIntegration:
 
         # Verify transit speeds are applied correctly
         for transit in leg_survey_transits:
-            assert (
-                transit.get("vessel_speed_kt") == 10.0
-            ), "Leg_Survey should use default 10.0 kt speed"
+            assert transit.get("vessel_speed_kt") == 10.0, (
+                "Leg_Survey should use default 10.0 kt speed"
+            )
 
         for transit in leg_faster_transits:
-            assert (
-                transit.get("vessel_speed_kt") == 12.0
-            ), "Leg_Survey_Faster should use 12.0 kt speed"
+            assert transit.get("vessel_speed_kt") == 12.0, (
+                "Leg_Survey_Faster should use 12.0 kt speed"
+            )
 
         # Calculate total leg durations and verify speed difference
         leg_survey_activities = [
@@ -147,9 +147,9 @@ class TestTC3ClustersIntegration:
         time_difference = leg_survey_hours - leg_faster_hours
 
         # Verify Leg_Survey_Faster is approximately 21.3 hours faster
-        assert (
-            20.0 < time_difference < 23.0
-        ), f"Expected ~21.3h difference, got {time_difference:.1f}h"
+        assert 20.0 < time_difference < 23.0, (
+            f"Expected ~21.3h difference, got {time_difference:.1f}h"
+        )
 
     def test_tc3_duplicate_station_warnings(self, tc3_config):
         """Test warnings for stations appearing as both routing anchors and cluster activities."""
@@ -197,6 +197,6 @@ class TestTC3ClustersIntegration:
             timeline = generate_timeline(tc3_cruise)
 
             # Verify timeline has expected activity count
-            assert (
-                len(timeline) > 50
-            ), f"Expected >50 activities for 6-leg cruise, got {len(timeline)}"
+            assert len(timeline) > 50, (
+                f"Expected >50 activities for 6-leg cruise, got {len(timeline)}"
+            )

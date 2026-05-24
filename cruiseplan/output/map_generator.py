@@ -204,7 +204,6 @@ def extract_areas_from_timeline(timeline_data) -> list[dict[str, Any]]:
             and activity.get("corners")
             and len(activity.get("corners", [])) >= 3
         ):
-
             # Convert corners to the expected format
             corners = [
                 {
@@ -363,7 +362,6 @@ def extract_points_from_timeline(timeline, include_ports=True) -> list[dict[str,
             and activity["lon"] is not None
             and not (activity["lat"] == 0.0 and activity["lon"] == 0.0)
         ):  # Skip zero coordinates
-
             # Determine entity type from activity type
             activity_type = activity.get("activity", "Unknown")
             if activity_type == "Port_Departure":
@@ -403,7 +401,7 @@ def extract_points_from_timeline(timeline, include_ports=True) -> list[dict[str,
             # Extract clean port name for port activities
             if activity_type in ["Port_Departure", "Port_Arrival"]:
                 # Extract port name from verbose labels like "Departure: Halifax to Operations"
-                label = activity.get("label", f"{activity_type}_{len(points)+1}")
+                label = activity.get("label", f"{activity_type}_{len(points) + 1}")
                 if ":" in label and " to " in label:
                     # Extract port name between ":" and " to "
                     if activity_type == "Port_Departure":
@@ -415,7 +413,7 @@ def extract_points_from_timeline(timeline, include_ports=True) -> list[dict[str,
                 else:
                     port_name = label
             else:
-                port_name = activity.get("label", f"{activity_type}_{len(points)+1}")
+                port_name = activity.get("label", f"{activity_type}_{len(points) + 1}")
 
             points.append(
                 {
@@ -1223,7 +1221,9 @@ def generate_map_from_timeline(
 
 
 def generate_folium_map(
-    tracks: list[dict[str, Any]], output_file: Union[str, Path] = "cruise_map.html"
+    tracks: list[dict[str, Any]],
+    output_file: Union[str, Path] = "cruise_map.html",
+    include_eez: bool = True,
 ) -> Optional[Path]:
     """
     Generates an interactive Leaflet map from merged cruise tracks.
@@ -1235,6 +1235,8 @@ def generate_folium_map(
         Each track contains coordinate lists and metadata.
     output_file : str or Path, optional
         Path or string for the output HTML file. Default is "cruise_map.html".
+    include_eez : bool, optional
+        Whether to include EEZ boundary overlay. Default is True.
 
     Returns
     -------
@@ -1269,7 +1271,14 @@ def generate_folium_map(
 
     m = folium.Map(location=[avg_lat, avg_lon], zoom_start=6, tiles="Cartodb Positron")
 
-    # 2. Draw Each Track
+    # 2. Add EEZ boundaries if requested
+    if include_eez:
+        try:
+            _add_eez_boundaries(m, tracks)
+        except Exception as e:
+            logger.warning(f"Could not add EEZ boundaries: {e}")
+
+    # 3. Draw Each Track
     colors = ["blue", "red", "green", "purple", "orange", "darkblue"]
 
     for i, track in enumerate(tracks):
@@ -1333,3 +1342,99 @@ def generate_folium_map(
     logger.info(f"Map successfully saved to {output_path.resolve()}")
 
     return output_path.resolve()
+
+
+def _add_eez_boundaries(folium_map, tracks: list[dict[str, Any]]) -> None:
+    """
+    Add EEZ boundary overlay to a Folium map.
+
+    **IMPORTANT WARNING**: EEZ boundaries shown are from Marine Regions database
+    and are for visualization purposes only. These may NOT represent officially
+    agreed boundaries by your country or reflect current diplomatic agreements.
+    Always consult official maritime authorities for legal boundary information.
+
+    Parameters
+    ----------
+    folium_map : folium.Map
+        The Folium map object to add boundaries to.
+    tracks : list of dict
+        Track data to determine appropriate bounding box.
+    """
+    try:
+        import geopandas as gpd
+
+        from cruiseplan.data.eez_boundaries import load_eez_data
+    except ImportError as e:
+        logger.warning(f"Cannot add EEZ boundaries - missing dependencies: {e}")
+        return
+
+    # Calculate bounding box from all tracks
+    all_lats = []
+    all_lons = []
+
+    for track in tracks:
+        if track.get("latitude") and track.get("longitude"):
+            all_lats.extend(track["latitude"])
+            all_lons.extend(track["longitude"])
+
+    if not all_lats or not all_lons:
+        logger.warning("No track coordinates found - cannot determine EEZ area")
+        return
+
+    # Create bounding box with padding
+    min_lat, max_lat = min(all_lats), max(all_lats)
+    min_lon, max_lon = min(all_lons), max(all_lons)
+
+    lat_padding = (max_lat - min_lat) * 0.1
+    lon_padding = (max_lon - min_lon) * 0.1
+
+    bbox = (
+        min_lon - lon_padding,
+        min_lat - lat_padding,
+        max_lon + lon_padding,
+        max_lat + lat_padding,
+    )
+
+    # Load EEZ data for the area
+    logger.debug("Loading EEZ boundary data...")
+    eez_gdf = load_eez_data(bbox=bbox)
+
+    if eez_gdf.empty:
+        logger.info("No EEZ boundaries found in cruise area")
+        return
+
+    logger.info(f"Adding {len(eez_gdf)} EEZ boundaries to map")
+    logger.warning(
+        "EEZ boundaries are for visualization only - consult official maritime authorities for legal boundaries"
+    )
+
+    # Add EEZ boundaries to map
+    for idx, eez in eez_gdf.iterrows():
+        # Get country and zone info
+        country = eez.get("SOVEREIGN1", "Unknown")
+        zone_name = eez.get("GEONAME", "Unknown EEZ")
+
+        # Create popup text with disclaimer
+        popup_text = f"""
+        <b>{zone_name}</b><br>
+        Country: {country}<br>
+        Area: {eez.get("AREA_KM2", 0):.0f} km²<br>
+        <br>
+        <small><b>DISCLAIMER:</b> Boundaries shown are for<br>
+        visualization only. May not reflect officially<br>
+        agreed boundaries. Consult maritime authorities.</small>
+        """
+
+        # Add boundary to map
+        folium.GeoJson(
+            eez.geometry,
+            style_function=lambda x: {
+                "fillColor": "lightblue",
+                "color": "navy",
+                "weight": 2,
+                "fillOpacity": 0.1,
+                "opacity": 0.8,
+            },
+            popup=folium.Popup(popup_text, max_width=250),
+            tooltip=f"{country} EEZ (visualization only)",
+        ).add_to(folium_map)

@@ -70,6 +70,9 @@ class ActivityRecord:
     op_type: str  # Main operation type: "station", "port", "transit", "area", etc.
     operation_class: str  # Implementation class: PointOperation, LineOperation, AreaOperation, NavigationalTransit
     action: Optional[str] = None
+    transit_dist_nm: Optional[float] = (
+        None  # Distance to next operation (for stationplan display)
+    )
     operation_depth: Optional[float] = None  # Depth for operation (e.g. CTD max depth)
     water_depth: Optional[float] = None  # Water depth at location
     delay_start: Optional[float] = None  # Delay before operation starts in minutes
@@ -819,7 +822,6 @@ class TimelineGenerator:
         # Apply delay_start if specified
         delay_start_minutes = getattr(operation, "delay_start", 0.0) or 0.0
         actual_start_time = self.current_time + timedelta(minutes=delay_start_minutes)
-        
 
         activity = ActivityRecord(
             {
