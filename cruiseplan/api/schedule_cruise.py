@@ -71,6 +71,7 @@ def schedule_with_config(
         bathy_dir=config.bathymetry.directory,
         bathy_stride=config.bathymetry.stride,
         figsize=config.visualization.figsize,
+        include_eez=config.visualization.include_eez,
         verbose=config.output.verbose,
     )
 
