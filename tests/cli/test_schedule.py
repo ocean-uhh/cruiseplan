@@ -66,6 +66,7 @@ class TestScheduleThinCLI:
                 lon_bounds=None,
                 figsize=None,
                 no_ports=False,
+                include_eez=True,
                 verbose=False,
             )
 
@@ -112,6 +113,7 @@ class TestScheduleThinCLI:
                 lon_bounds=None,
                 figsize=None,
                 no_ports=False,
+                include_eez=True,
                 verbose=True,
             )
 
@@ -281,6 +283,7 @@ class TestScheduleThinCLI:
                 lon_bounds=None,  # default
                 figsize=None,  # default
                 no_ports=False,  # default
+                include_eez=True,  # default
                 verbose=False,  # default
             )
 
