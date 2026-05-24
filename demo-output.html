@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CruisePlan Demo &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev28</title>
+  <title>CruisePlan Demo &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev30</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css?v=2aa19091" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=de15e6d9"></script>
+      <script src="_static/documentation_options.js?v=99490592"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -149,13 +149,13 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan</span><span class="w"> </span><span class="kn">import</span> <span class="n">bathymetry</span><span class="p">,</span> <span class="n">pangaea</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">schedule</span>
 
 <span class="c1"># Set up output directory</span>
-<span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../tests_output/demo&#39;</span><span class="p">)</span>
+<span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;../tests_output/demo&quot;</span><span class="p">)</span>
 <span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Demo outputs will be saved to: </span><span class="si">{</span><span class="n">output_dir</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="c1"># Configure logging to see what&#39;s happening</span>
-<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%(levelname)s</span><span class="s1">: </span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(levelname)s</span><span class="s2">: </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -236,7 +236,7 @@ File already exists at /Users/eddifying/Cloudfree/github/cruiseplan/data/bathyme
         <span class="n">lon_bounds</span><span class="o">=</span><span class="n">lon_bounds</span><span class="p">,</span>
         <span class="n">max_results</span><span class="o">=</span><span class="n">limit</span><span class="p">,</span>
         <span class="n">output_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">output_dir</span><span class="p">),</span>
-        <span class="n">output</span><span class="o">=</span><span class="s2">&quot;demo&quot;</span>
+        <span class="n">output</span><span class="o">=</span><span class="s2">&quot;demo&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">pangaea_files</span><span class="p">:</span>
@@ -331,103 +331,109 @@ INFO: 🚀 Next step: cruiseplan stations -p /Users/eddifying/Cloudfree/github/c
 
 <span class="c1"># Create a sample cruise configuration</span>
 <span class="n">cruise_config</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;cruise_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Demo North Atlantic Survey 2025&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;default_vessel_speed&#39;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>
-    <span class="s1">&#39;turnaround_time&#39;</span><span class="p">:</span> <span class="mf">30.0</span><span class="p">,</span>
-    <span class="s1">&#39;ctd_descent_rate&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
-    <span class="s1">&#39;ctd_ascent_rate&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
-    <span class="s1">&#39;calculate_transfer_between_sections&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="s1">&#39;calculate_depth_via_bathymetry&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="s1">&#39;start_date&#39;</span><span class="p">:</span> <span class="s1">&#39;2025-06-01T00:00:00Z&#39;</span><span class="p">,</span>
-
+    <span class="s2">&quot;cruise_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Demo North Atlantic Survey 2025&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;default_vessel_speed&quot;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>
+    <span class="s2">&quot;turnaround_time&quot;</span><span class="p">:</span> <span class="mf">30.0</span><span class="p">,</span>
+    <span class="s2">&quot;ctd_descent_rate&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="s2">&quot;ctd_ascent_rate&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="s2">&quot;calculate_transfer_between_sections&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s2">&quot;calculate_depth_via_bathymetry&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s2">&quot;start_date&quot;</span><span class="p">:</span> <span class="s2">&quot;2025-06-01T00:00:00Z&quot;</span><span class="p">,</span>
     <span class="c1"># Define points along a transect</span>
-    <span class="s1">&#39;points&#39;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="s2">&quot;points&quot;</span><span class="p">:</span> <span class="p">[</span>
         <span class="p">{</span>
-            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;STN_001&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;latitude&#39;</span><span class="p">:</span> <span class="mf">55.0</span><span class="p">,</span>
-            <span class="s1">&#39;longitude&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">50.0</span><span class="p">,</span>
-            <span class="s1">&#39;operation_type&#39;</span><span class="p">:</span> <span class="s1">&#39;CTD&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;action&#39;</span><span class="p">:</span> <span class="s1">&#39;profile&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Continental shelf station&#39;</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;STN_001&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="mf">55.0</span><span class="p">,</span>
+            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">50.0</span><span class="p">,</span>
+            <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;CTD&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;profile&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;Continental shelf station&quot;</span><span class="p">,</span>
         <span class="p">},</span>
         <span class="p">{</span>
-            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;STN_002&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;latitude&#39;</span><span class="p">:</span> <span class="mf">57.0</span><span class="p">,</span>
-            <span class="s1">&#39;longitude&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">45.0</span><span class="p">,</span>
-            <span class="s1">&#39;operation_type&#39;</span><span class="p">:</span> <span class="s1">&#39;CTD&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;action&#39;</span><span class="p">:</span> <span class="s1">&#39;profile&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Slope station&#39;</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;STN_002&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="mf">57.0</span><span class="p">,</span>
+            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">45.0</span><span class="p">,</span>
+            <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;CTD&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;profile&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;Slope station&quot;</span><span class="p">,</span>
         <span class="p">},</span>
         <span class="p">{</span>
-            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;STN_003&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;latitude&#39;</span><span class="p">:</span> <span class="mf">59.0</span><span class="p">,</span>
-            <span class="s1">&#39;longitude&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">40.0</span><span class="p">,</span>
-            <span class="s1">&#39;operation_type&#39;</span><span class="p">:</span> <span class="s1">&#39;CTD&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;action&#39;</span><span class="p">:</span> <span class="s1">&#39;profile&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Deep water station&#39;</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;STN_003&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="mf">59.0</span><span class="p">,</span>
+            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">40.0</span><span class="p">,</span>
+            <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;CTD&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;profile&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;Deep water station&quot;</span><span class="p">,</span>
         <span class="p">},</span>
         <span class="p">{</span>
-            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;STN_004&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;latitude&#39;</span><span class="p">:</span> <span class="mf">61.0</span><span class="p">,</span>
-            <span class="s1">&#39;longitude&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">35.0</span><span class="p">,</span>
-            <span class="s1">&#39;operation_type&#39;</span><span class="p">:</span> <span class="s1">&#39;water_sampling&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;action&#39;</span><span class="p">:</span> <span class="s1">&#39;sampling&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;duration&#39;</span><span class="p">:</span> <span class="mf">180.0</span><span class="p">,</span>
-            <span class="s1">&#39;comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Water sampling station&#39;</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;STN_004&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="mf">61.0</span><span class="p">,</span>
+            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">35.0</span><span class="p">,</span>
+            <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;water_sampling&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;sampling&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mf">180.0</span><span class="p">,</span>
+            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;Water sampling station&quot;</span><span class="p">,</span>
         <span class="p">},</span>
         <span class="p">{</span>
-            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;MOOR_001&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;latitude&#39;</span><span class="p">:</span> <span class="mf">60.5</span><span class="p">,</span>
-            <span class="s1">&#39;longitude&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">38.0</span><span class="p">,</span>
-            <span class="s1">&#39;operation_type&#39;</span><span class="p">:</span> <span class="s1">&#39;mooring&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;action&#39;</span><span class="p">:</span> <span class="s1">&#39;deployment&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;duration&#39;</span><span class="p">:</span> <span class="mf">240.0</span><span class="p">,</span>
-            <span class="s1">&#39;comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Mooring deployment&#39;</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;MOOR_001&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="mf">60.5</span><span class="p">,</span>
+            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">38.0</span><span class="p">,</span>
+            <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;mooring&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;deployment&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mf">240.0</span><span class="p">,</span>
+            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;Mooring deployment&quot;</span><span class="p">,</span>
         <span class="p">},</span>
         <span class="p">{</span>
-            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;STN_005&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;latitude&#39;</span><span class="p">:</span> <span class="mf">63.0</span><span class="p">,</span>
-            <span class="s1">&#39;longitude&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">30.0</span><span class="p">,</span>
-            <span class="s1">&#39;operation_type&#39;</span><span class="p">:</span> <span class="s1">&#39;CTD&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;action&#39;</span><span class="p">:</span> <span class="s1">&#39;profile&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Northern end station&#39;</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;STN_005&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="mf">63.0</span><span class="p">,</span>
+            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">30.0</span><span class="p">,</span>
+            <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;CTD&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;profile&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;Northern end station&quot;</span><span class="p">,</span>
         <span class="p">},</span>
         <span class="p">{</span>
-            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;STN_006&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;latitude&#39;</span><span class="p">:</span> <span class="mf">58.0</span><span class="p">,</span>
-            <span class="s1">&#39;longitude&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">42.0</span><span class="p">,</span>
-            <span class="s1">&#39;operation_type&#39;</span><span class="p">:</span> <span class="s1">&#39;CTD&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;action&#39;</span><span class="p">:</span> <span class="s1">&#39;profile&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Return transect station&#39;</span>
-        <span class="p">}</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;STN_006&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="mf">58.0</span><span class="p">,</span>
+            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">42.0</span><span class="p">,</span>
+            <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;CTD&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;profile&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;Return transect station&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
     <span class="p">],</span>
-
     <span class="c1"># Add scientific lines</span>
-    <span class="s1">&#39;lines&#39;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="s2">&quot;lines&quot;</span><span class="p">:</span> <span class="p">[</span>
         <span class="p">{</span>
-            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;Demo_ADCP_Survey&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;operation_type&#39;</span><span class="p">:</span> <span class="s1">&#39;underway&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;action&#39;</span><span class="p">:</span> <span class="s1">&#39;ADCP&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;vessel_speed&#39;</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">,</span>
-            <span class="s1">&#39;route&#39;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="p">{</span><span class="s1">&#39;latitude&#39;</span><span class="p">:</span> <span class="mf">56.0</span><span class="p">,</span> <span class="s1">&#39;longitude&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">48.0</span><span class="p">},</span>
-                <span class="p">{</span><span class="s1">&#39;latitude&#39;</span><span class="p">:</span> <span class="mf">56.0</span><span class="p">,</span> <span class="s1">&#39;longitude&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">38.0</span><span class="p">}</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Demo_ADCP_Survey&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;underway&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;ADCP&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vessel_speed&quot;</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">,</span>
+            <span class="s2">&quot;route&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="mf">56.0</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">48.0</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="mf">56.0</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">38.0</span><span class="p">},</span>
             <span class="p">],</span>
-            <span class="s1">&#39;comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Zonal ADCP survey transect&#39;</span>
+            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;Zonal ADCP survey transect&quot;</span><span class="p">,</span>
         <span class="p">}</span>
     <span class="p">],</span>
-
     <span class="c1"># Define execution order with leg-based port definitions</span>
-    <span class="s1">&#39;legs&#39;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="s2">&quot;legs&quot;</span><span class="p">:</span> <span class="p">[</span>
         <span class="p">{</span>
-            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;Demo_Survey&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;departure_port&#39;</span><span class="p">:</span> <span class="s1">&#39;port_st_johns&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;arrival_port&#39;</span><span class="p">:</span> <span class="s1">&#39;port_st_johns&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;first_waypoint&#39;</span><span class="p">:</span> <span class="s1">&#39;STN_001&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;last_waypoint&#39;</span><span class="p">:</span> <span class="s1">&#39;STN_006&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;activities&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;STN_001&#39;</span><span class="p">,</span> <span class="s1">&#39;STN_002&#39;</span><span class="p">,</span> <span class="s1">&#39;STN_003&#39;</span><span class="p">,</span> <span class="s1">&#39;Demo_ADCP_Survey&#39;</span><span class="p">,</span> <span class="s1">&#39;STN_004&#39;</span><span class="p">,</span> <span class="s1">&#39;MOOR_001&#39;</span><span class="p">,</span> <span class="s1">&#39;STN_005&#39;</span><span class="p">,</span> <span class="s1">&#39;STN_006&#39;</span><span class="p">]</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Demo_Survey&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;departure_port&quot;</span><span class="p">:</span> <span class="s2">&quot;port_st_johns&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;arrival_port&quot;</span><span class="p">:</span> <span class="s2">&quot;port_st_johns&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;first_waypoint&quot;</span><span class="p">:</span> <span class="s2">&quot;STN_001&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;last_waypoint&quot;</span><span class="p">:</span> <span class="s2">&quot;STN_006&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;activities&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;STN_001&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;STN_002&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;STN_003&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Demo_ADCP_Survey&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;STN_004&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;MOOR_001&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;STN_005&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;STN_006&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
         <span class="p">}</span>
-    <span class="p">]</span>
+    <span class="p">],</span>
 <span class="p">}</span>
 
 <span class="c1"># Save configuration</span>
@@ -470,26 +476,28 @@ INFO: 🚀 Next step: cruiseplan stations -p /Users/eddifying/Cloudfree/github/c
 
 <span class="c1"># Display them nicely</span>
 <span class="k">for</span> <span class="n">port_id</span><span class="p">,</span> <span class="n">description</span> <span class="ow">in</span> <span class="n">ports</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-   <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">port_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">port_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="c1"># Or get ports in a specific region</span>
 <span class="n">north_atlantic_ports</span> <span class="o">=</span> <span class="n">list_ports_in_region</span><span class="p">(</span>
-      <span class="n">min_lat</span><span class="o">=</span><span class="mf">50.0</span><span class="p">,</span> <span class="n">max_lat</span><span class="o">=</span><span class="mf">70.0</span><span class="p">,</span>
-      <span class="n">min_lon</span><span class="o">=-</span><span class="mf">30.0</span><span class="p">,</span> <span class="n">max_lon</span><span class="o">=</span><span class="mf">20.0</span>
-  <span class="p">)</span>
+    <span class="n">min_lat</span><span class="o">=</span><span class="mf">50.0</span><span class="p">,</span> <span class="n">max_lat</span><span class="o">=</span><span class="mf">70.0</span><span class="p">,</span> <span class="n">min_lon</span><span class="o">=-</span><span class="mf">30.0</span><span class="p">,</span> <span class="n">max_lon</span><span class="o">=</span><span class="mf">20.0</span>
+<span class="p">)</span>
 
 <span class="k">for</span> <span class="n">port_id</span><span class="p">,</span> <span class="n">port_name</span> <span class="ow">in</span> <span class="n">north_atlantic_ports</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">port_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">port_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="c1"># If you want to add a custom port for your project</span>
-<span class="n">add_custom_port</span><span class="p">(</span><span class="s2">&quot;port_my_station&quot;</span><span class="p">,</span> <span class="p">{</span>
-    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;My Research Station&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;display_name&quot;</span><span class="p">:</span> <span class="s2">&quot;My Research Station, Location&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="mf">60.0</span><span class="p">,</span>
-    <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">20.0</span><span class="p">,</span>
-    <span class="s2">&quot;timezone&quot;</span><span class="p">:</span> <span class="s2">&quot;GMT+0&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Custom research station for this cruise&quot;</span>
-<span class="p">})</span>
+<span class="n">add_custom_port</span><span class="p">(</span>
+    <span class="s2">&quot;port_my_station&quot;</span><span class="p">,</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;My Research Station&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;display_name&quot;</span><span class="p">:</span> <span class="s2">&quot;My Research Station, Location&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="mf">60.0</span><span class="p">,</span>
+        <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">20.0</span><span class="p">,</span>
+        <span class="s2">&quot;timezone&quot;</span><span class="p">:</span> <span class="s2">&quot;GMT+0&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Custom research station for this cruise&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -585,7 +593,7 @@ port_update: Reykjavik (DEFAULT in stations.yaml)
         <span class="n">bathy_stride</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
         <span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
         <span class="n">depth_check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">tolerance</span><span class="o">=</span><span class="mi">10</span>
+        <span class="n">tolerance</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">cruise_config</span><span class="p">:</span>
@@ -600,8 +608,9 @@ port_update: Reykjavik (DEFAULT in stations.yaml)
 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ Processing failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
+
     <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
-<br/></pre></div>
+</pre></div>
 </div>
 </div>
 <div class="nboutput docutils container">
@@ -671,7 +680,7 @@ INFO: ✅ Processing workflow completed successfully!
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">generated_config_files</span><span class="p">:</span>
-    <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">files</span><span class="p">)</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;enriched.yaml&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">files</span><span class="p">)</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;enriched.yaml&quot;</span><span class="p">):</span>
         <span class="n">enriched_config_file</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;demo_cruise_enriched.yaml&quot;</span>
 
 
@@ -685,7 +694,7 @@ INFO: ✅ Processing workflow completed successfully!
         <span class="n">output</span><span class="o">=</span><span class="s2">&quot;demo_cruise&quot;</span><span class="p">,</span>
         <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;html,csv,netcdf&quot;</span><span class="p">,</span>
         <span class="n">leg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">derive_netcdf</span><span class="o">=</span><span class="kc">True</span>
+        <span class="n">derive_netcdf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;✅ Schedule generated successfully!&quot;</span><span class="p">)</span>
@@ -703,6 +712,7 @@ INFO: ✅ Processing workflow completed successfully!
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ Schedule generation failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="c1"># Optionally show the full traceback for debugging</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
+
     <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -752,7 +762,7 @@ INFO: 📅 Schedule generation complete! Generated 3 files
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Find the *.nc file in generated_files list of paths</span>
 <span class="n">schedule_file</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">generated_files</span><span class="p">:</span>
-    <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">file</span><span class="p">)</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.nc&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">file</span><span class="p">)</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.nc&quot;</span><span class="p">):</span>
         <span class="n">schedule_file</span> <span class="o">=</span> <span class="n">file</span>
         <span class="k">break</span>
 <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">schedule_file</span><span class="p">)</span>
@@ -1284,7 +1294,7 @@ Attributes:
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📁 Generated files: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">all_files</span><span class="p">)</span><span class="si">}</span><span class="s2"> files in </span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">/&quot;</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">all_files</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   📄 </span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<br/></pre></div>
+</pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">

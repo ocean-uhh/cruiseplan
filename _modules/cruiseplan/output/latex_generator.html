@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.output.latex_generator &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev28</title>
+  <title>cruiseplan.output.latex_generator &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev30</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=de15e6d9"></script>
+      <script src="../../../_static/documentation_options.js?v=99490592"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -262,7 +262,7 @@
                         <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">start_pos_str</span><span class="si">}</span><span class="s2">) to (</span><span class="si">{</span><span class="n">end_pos_str</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
                         <span class="s2">&quot;depth_m&quot;</span><span class="p">:</span> <span class="n">depth_str</span><span class="p">,</span>
                         <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="n">op</span><span class="p">[</span><span class="s2">&quot;start_time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M&quot;</span><span class="p">),</span>
-                        <span class="s2">&quot;duration_hours&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">op</span><span class="p">[</span><span class="s1">&#39;duration_minutes&#39;</span><span class="p">]</span><span class="o">/</span><span class="mi">60</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;duration_hours&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">op</span><span class="p">[</span><span class="s1">&#39;duration_minutes&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">60</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                     <span class="p">}</span>
                 <span class="p">)</span>
 
@@ -280,7 +280,7 @@
                         <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Center: </span><span class="si">{</span><span class="n">position_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                         <span class="s2">&quot;depth_m&quot;</span><span class="p">:</span> <span class="s2">&quot;Variable&quot;</span><span class="p">,</span>  <span class="c1"># Areas typically span multiple depths</span>
                         <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="n">op</span><span class="p">[</span><span class="s2">&quot;start_time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M&quot;</span><span class="p">),</span>
-                        <span class="s2">&quot;duration_hours&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">op</span><span class="p">[</span><span class="s1">&#39;duration_minutes&#39;</span><span class="p">]</span><span class="o">/</span><span class="mi">60</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;duration_hours&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">op</span><span class="p">[</span><span class="s1">&#39;duration_minutes&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">60</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                     <span class="p">}</span>
                 <span class="p">)</span>
 
@@ -296,7 +296,7 @@
                         <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="n">position_str</span><span class="p">,</span>
                         <span class="s2">&quot;depth_m&quot;</span><span class="p">:</span> <span class="n">_format_depth_for_latex</span><span class="p">(</span><span class="n">op</span><span class="p">),</span>
                         <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="n">op</span><span class="p">[</span><span class="s2">&quot;start_time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M&quot;</span><span class="p">),</span>
-                        <span class="s2">&quot;duration_hours&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">op</span><span class="p">[</span><span class="s1">&#39;duration_minutes&#39;</span><span class="p">]</span><span class="o">/</span><span class="mi">60</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;duration_hours&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">op</span><span class="p">[</span><span class="s1">&#39;duration_minutes&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">60</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                     <span class="p">}</span>
                 <span class="p">)</span>
 
@@ -677,37 +677,66 @@
         <span class="c1"># Calculate distances between stations</span>
         <span class="n">distances</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_distances_nm</span><span class="p">(</span><span class="n">station_records</span><span class="p">)</span>
 
-        <span class="c1"># Generate TeX content</span>
+        <span class="c1"># Generate TeX content with table breaking support</span>
         <span class="n">tex_lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">table_sections</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Store table sections for breaking long tables</span>
+        <span class="n">current_table_lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">line_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">max_lines_per_table</span> <span class="o">=</span> <span class="mi">36</span>
+
+        <span class="c1"># Track current date for potential break points</span>
+        <span class="n">current_date</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">potential_break_points</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Store indices where we could break at date changes</span>
 
         <span class="c1"># First print the date</span>
         <span class="k">if</span> <span class="n">station_records</span><span class="p">:</span>
             <span class="n">first_date</span> <span class="o">=</span> <span class="n">station_records</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">start_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">.%m.%Y&quot;</span><span class="p">)</span>
             <span class="n">first_day</span> <span class="o">=</span> <span class="n">station_records</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">start_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%A&quot;</span><span class="p">)</span>
-            <span class="n">tex_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">rowcolor</span><span class="se">{{</span><span class="s2">pink!40</span><span class="se">}}\\</span><span class="s2">multicolumn</span><span class="se">{{</span><span class="s2">2</span><span class="se">}}{{</span><span class="s2">l</span><span class="se">}}{{\\</span><span class="s2">textbf</span><span class="se">{{</span><span class="si">{</span><span class="n">first_date</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">first_day</span><span class="si">}</span><span class="se">}}}}</span><span class="s2"> &amp; &amp; &amp; &amp; </span><span class="se">\\\\</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">date_line</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">rowcolor</span><span class="se">{{</span><span class="s2">pink!40</span><span class="se">}}\\</span><span class="s2">multicolumn</span><span class="se">{{</span><span class="s2">2</span><span class="se">}}{{</span><span class="s2">l</span><span class="se">}}{{\\</span><span class="s2">textbf</span><span class="se">{{</span><span class="si">{</span><span class="n">first_date</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">first_day</span><span class="si">}</span><span class="se">}}}}</span><span class="s2"> &amp; &amp; &amp; &amp; </span><span class="se">\\\\</span><span class="s2">&quot;</span>
+            <span class="n">current_table_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">date_line</span><span class="p">)</span>
+            <span class="n">line_count</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="n">current_date</span> <span class="o">=</span> <span class="n">station_records</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">start_time</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">record</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">station_records</span><span class="p">):</span>
-            <span class="c1"># Check for new day</span>
+            <span class="c1"># Check for new day and potential table break point</span>
             <span class="k">if</span> <span class="n">record</span><span class="o">.</span><span class="n">start_time</span><span class="o">.</span><span class="n">date</span><span class="p">()</span> <span class="o">!=</span> <span class="n">current_date</span><span class="p">:</span>
                 <span class="n">current_date</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">start_time</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
                 <span class="n">date_str</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">start_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">.%m.%Y&quot;</span><span class="p">)</span>
                 <span class="n">day_str</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">start_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%A&quot;</span><span class="p">)</span>
-                <span class="n">tex_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">rowcolor</span><span class="se">{{</span><span class="s2">pink!40</span><span class="se">}}\\</span><span class="s2">multicolumn</span><span class="se">{{</span><span class="s2">2</span><span class="se">}}{{</span><span class="s2">l</span><span class="se">}}{{\\</span><span class="s2">textbf</span><span class="se">{{</span><span class="si">{</span><span class="n">date_str</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">day_str</span><span class="si">}</span><span class="se">}}}}</span><span class="s2"> &amp; &amp; &amp; &amp; </span><span class="se">\\\\</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                <span class="c1"># Check if we need to break the table before adding this date</span>
+                <span class="k">if</span> <span class="n">line_count</span> <span class="o">&gt;</span> <span class="n">max_lines_per_table</span><span class="p">:</span>
+                    <span class="c1"># Break the table here - save current table and start new one</span>
+                    <span class="n">table_sections</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_table_lines</span><span class="p">)</span>
+                    <span class="n">current_table_lines</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">line_count</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">potential_break_points</span> <span class="o">=</span> <span class="p">[]</span>
+
+                <span class="c1"># Mark this as a potential break point for future use</span>
+                <span class="n">potential_break_points</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">current_table_lines</span><span class="p">),</span> <span class="n">line_count</span><span class="p">))</span>
+
+                <span class="n">date_line</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">rowcolor</span><span class="se">{{</span><span class="s2">pink!40</span><span class="se">}}\\</span><span class="s2">multicolumn</span><span class="se">{{</span><span class="s2">2</span><span class="se">}}{{</span><span class="s2">l</span><span class="se">}}{{\\</span><span class="s2">textbf</span><span class="se">{{</span><span class="si">{</span><span class="n">date_str</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">day_str</span><span class="si">}</span><span class="se">}}}}</span><span class="s2"> &amp; &amp; &amp; &amp; </span><span class="se">\\\\</span><span class="s2">&quot;</span>
+                <span class="n">current_table_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">date_line</span><span class="p">)</span>
+                <span class="n">line_count</span> <span class="o">+=</span> <span class="mi">1</span>
 
             <span class="c1"># Time and position</span>
             <span class="n">rounded_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_round_time_to_10min</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span>
             <span class="n">time_str</span> <span class="o">=</span> <span class="n">rounded_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%H:%M&quot;</span><span class="p">)</span>
-            
+
             <span class="c1"># Use entry coordinates from NetCDF data</span>
-            <span class="n">lat_str</span><span class="p">,</span> <span class="n">lon_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_lat_lon_dms</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">entry_lat</span><span class="p">,</span> <span class="n">record</span><span class="o">.</span><span class="n">entry_lon</span><span class="p">)</span>
+            <span class="n">lat_str</span><span class="p">,</span> <span class="n">lon_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_lat_lon_dms</span><span class="p">(</span>
+                <span class="n">record</span><span class="o">.</span><span class="n">entry_lat</span><span class="p">,</span> <span class="n">record</span><span class="o">.</span><span class="n">entry_lon</span>
+            <span class="p">)</span>
             <span class="n">position</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">time_str</span><span class="si">}</span><span class="s2"> &amp; </span><span class="si">{</span><span class="n">lat_str</span><span class="si">}</span><span class="se">\\</span><span class="s2">quad</span><span class="si">{</span><span class="n">lon_str</span><span class="si">}</span><span class="s2">&quot;</span>
 
             <span class="c1"># Determine if this is a line operation (has different exit coordinates)</span>
             <span class="n">is_line_operation</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="nb">hasattr</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="s1">&#39;exit_lat&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="s1">&#39;exit_lon&#39;</span><span class="p">)</span> <span class="ow">and</span>
-                <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">exit_lat</span> <span class="o">-</span> <span class="n">record</span><span class="o">.</span><span class="n">entry_lat</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.001</span> <span class="ow">or</span> 
-                 <span class="nb">abs</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">exit_lon</span> <span class="o">-</span> <span class="n">record</span><span class="o">.</span><span class="n">entry_lon</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.001</span><span class="p">)</span>
+                <span class="nb">hasattr</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="s2">&quot;exit_lat&quot;</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="s2">&quot;exit_lon&quot;</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="p">(</span>
+                    <span class="nb">abs</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">exit_lat</span> <span class="o">-</span> <span class="n">record</span><span class="o">.</span><span class="n">entry_lat</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.001</span>
+                    <span class="ow">or</span> <span class="nb">abs</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">exit_lon</span> <span class="o">-</span> <span class="n">record</span><span class="o">.</span><span class="n">entry_lon</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.001</span>
+                <span class="p">)</span>
                 <span class="c1"># and &#39;bathy&#39; in record.label.lower()  # Focus on bathymetry surveys - commented out to include all line operations</span>
             <span class="p">)</span>
 
@@ -722,59 +751,96 @@
                     <span class="nb">hasattr</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">)</span>
                     <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span>
                         <span class="n">pattern</span> <span class="ow">in</span> <span class="n">record</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-                        <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ctd&quot;</span><span class="p">,</span> <span class="s2">&quot;fd-&quot;</span><span class="p">,</span> <span class="s2">&quot;ds-&quot;</span><span class="p">,</span> <span class="s2">&quot;station&quot;</span><span class="p">,</span> <span class="s2">&quot;mooring&quot;</span><span class="p">,</span> <span class="s2">&quot;svp&quot;</span><span class="p">,</span> <span class="s2">&quot;yoyo&quot;</span><span class="p">]</span>
+                        <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="p">[</span>
+                            <span class="s2">&quot;ctd&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;fd-&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;ds-&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;station&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;mooring&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;svp&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;yoyo&quot;</span><span class="p">,</span>
+                        <span class="p">]</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
             <span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">is_station</span> <span class="ow">and</span> <span class="n">record</span><span class="o">.</span><span class="n">water_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">water_depth</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">is_station</span>
+                <span class="ow">and</span> <span class="n">record</span><span class="o">.</span><span class="n">water_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">water_depth</span><span class="p">)</span>
+            <span class="p">):</span>
                 <span class="n">depth_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot; &amp; </span><span class="si">{</span><span class="n">record</span><span class="o">.</span><span class="n">water_depth</span><span class="si">:</span><span class="s2">4.0f</span><span class="si">}</span><span class="s2"> m&quot;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">depth_str</span> <span class="o">=</span> <span class="s2">&quot; &amp;       &quot;</span>
 
             <span class="c1"># Add midrule before each new activity (except the first one)</span>
             <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">tex_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">midrule&quot;</span><span class="p">)</span>
-            
+                <span class="n">current_table_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">midrule&quot;</span><span class="p">)</span>
+                <span class="n">line_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
             <span class="c1"># Station name/label and comment</span>
             <span class="n">station_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_escape_latex_text</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
-            <span class="n">comment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_escape_latex_text</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="s1">&#39;comment&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
-            
+            <span class="n">comment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_escape_latex_text</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="s2">&quot;comment&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
             <span class="k">if</span> <span class="n">is_line_operation</span><span class="p">:</span>
                 <span class="c1"># For line operations: show start position with operation distance on same line</span>
-                <span class="n">operation_distance</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="s1">&#39;dist_nm&#39;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+                <span class="n">operation_distance</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="s2">&quot;dist_nm&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">operation_distance</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">:</span>
                     <span class="n">distance_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">operation_distance</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> nm&quot;</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">distance_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-                    
-                <span class="n">tex_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">position</span><span class="si">}{</span><span class="n">depth_str</span><span class="si">}</span><span class="s2"> &amp; </span><span class="si">{</span><span class="n">distance_str</span><span class="si">}</span><span class="s2"> &amp; </span><span class="si">{</span><span class="n">station_name</span><span class="si">}</span><span class="s2"> &amp; </span><span class="si">{</span><span class="n">comment</span><span class="si">}</span><span class="s2"> </span><span class="se">\\\\</span><span class="s2">&quot;</span><span class="p">)</span>
-                
+
+                <span class="n">current_table_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">position</span><span class="si">}{</span><span class="n">depth_str</span><span class="si">}</span><span class="s2"> &amp; </span><span class="si">{</span><span class="n">distance_str</span><span class="si">}</span><span class="s2"> &amp; </span><span class="si">{</span><span class="n">station_name</span><span class="si">}</span><span class="s2"> &amp; </span><span class="si">{</span><span class="n">comment</span><span class="si">}</span><span class="s2"> </span><span class="se">\\\\</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="n">line_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
                 <span class="c1"># Show end position on next line (without time)</span>
-                <span class="n">exit_lat_str</span><span class="p">,</span> <span class="n">exit_lon_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_lat_lon_dms</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">exit_lat</span><span class="p">,</span> <span class="n">record</span><span class="o">.</span><span class="n">exit_lon</span><span class="p">)</span>
-                <span class="n">tex_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  &amp; </span><span class="si">{</span><span class="n">exit_lat_str</span><span class="si">}</span><span class="se">\\</span><span class="s2">quad</span><span class="si">{</span><span class="n">exit_lon_str</span><span class="si">}</span><span class="s2"> &amp;        &amp; &amp;  &amp;  </span><span class="se">\\\\</span><span class="s2">&quot;</span><span class="p">)</span>
-                
+                <span class="n">exit_lat_str</span><span class="p">,</span> <span class="n">exit_lon_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_lat_lon_dms</span><span class="p">(</span>
+                    <span class="n">record</span><span class="o">.</span><span class="n">exit_lat</span><span class="p">,</span> <span class="n">record</span><span class="o">.</span><span class="n">exit_lon</span>
+                <span class="p">)</span>
+                <span class="n">current_table_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;  &amp; </span><span class="si">{</span><span class="n">exit_lat_str</span><span class="si">}</span><span class="se">\\</span><span class="s2">quad</span><span class="si">{</span><span class="n">exit_lon_str</span><span class="si">}</span><span class="s2"> &amp;        &amp; &amp;  &amp;  </span><span class="se">\\\\</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="n">line_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
                 <span class="c1"># Add repositioning distance to next activity if &gt; 0.5 nm</span>
-                <span class="n">transit_dist</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="s1">&#39;transit_dist_nm&#39;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+                <span class="n">transit_dist</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="s2">&quot;transit_dist_nm&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">transit_dist</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">:</span>
-                    <span class="n">tex_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">current_table_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot; &amp;                       &quot;</span>
                         <span class="sa">f</span><span class="s2">&quot;&amp;        &amp; +</span><span class="si">{</span><span class="n">transit_dist</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> nm &amp;  </span><span class="se">\\\\</span><span class="s2">&quot;</span>
                     <span class="p">)</span>
+                    <span class="n">line_count</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># For point operations: show normally</span>
-                <span class="n">tex_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">position</span><span class="si">}{</span><span class="n">depth_str</span><span class="si">}</span><span class="s2"> &amp; &amp; </span><span class="si">{</span><span class="n">station_name</span><span class="si">}</span><span class="s2"> &amp; </span><span class="si">{</span><span class="n">comment</span><span class="si">}</span><span class="s2"> </span><span class="se">\\\\</span><span class="s2">&quot;</span><span class="p">)</span>
-                
+                <span class="n">current_table_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">position</span><span class="si">}{</span><span class="n">depth_str</span><span class="si">}</span><span class="s2"> &amp; &amp; </span><span class="si">{</span><span class="n">station_name</span><span class="si">}</span><span class="s2"> &amp; </span><span class="si">{</span><span class="n">comment</span><span class="si">}</span><span class="s2"> </span><span class="se">\\\\</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="n">line_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
                 <span class="c1"># Add transit distance to next station if &gt; 0.5 nm</span>
-                <span class="n">transit_dist</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="s1">&#39;transit_dist_nm&#39;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+                <span class="n">transit_dist</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="s2">&quot;transit_dist_nm&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">transit_dist</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">:</span>
-                    <span class="n">tex_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">current_table_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot; &amp;                       &quot;</span>
                         <span class="sa">f</span><span class="s2">&quot;&amp;        &amp; +</span><span class="si">{</span><span class="n">transit_dist</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> nm &amp;  </span><span class="se">\\\\</span><span class="s2">&quot;</span>
                     <span class="p">)</span>
+                    <span class="n">line_count</span> <span class="o">+=</span> <span class="mi">1</span>
 
-        <span class="c1"># Wrap in complete LaTeX document structure</span>
-        <span class="n">table_content</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tex_lines</span><span class="p">)</span>
+        <span class="c1"># Add the final table section</span>
+        <span class="k">if</span> <span class="n">current_table_lines</span><span class="p">:</span>
+            <span class="n">table_sections</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_table_lines</span><span class="p">)</span>
+
+        <span class="c1"># If no sections were created (table is &lt;= 36 lines), use all lines as single table</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">table_sections</span><span class="p">:</span>
+            <span class="n">table_sections</span> <span class="o">=</span> <span class="p">[</span><span class="n">current_table_lines</span><span class="p">]</span>
+
+        <span class="c1"># Generate multiple table content sections</span>
+        <span class="n">table_contents</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">section_lines</span> <span class="ow">in</span> <span class="n">table_sections</span><span class="p">:</span>
+            <span class="n">table_content</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">section_lines</span><span class="p">)</span>
+            <span class="n">table_contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">table_content</span><span class="p">)</span>
 
         <span class="c1"># Create new title format: &quot;MSM142 - Workplan XX&quot; and date range</span>
         <span class="c1"># Use provided cruise title or extract from cruise name</span>
@@ -783,45 +849,48 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Extract cruise name and clean it up as fallback</span>
             <span class="n">base_cruise_name</span> <span class="o">=</span> <span class="n">cruise_name</span>
-            
+
             <span class="c1"># Remove various suffixes</span>
             <span class="n">suffixes_to_remove</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="s2">&quot; schedule forecast&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;schedule forecast&quot;</span><span class="p">,</span> 
+                <span class="s2">&quot;schedule forecast&quot;</span><span class="p">,</span>
                 <span class="s2">&quot; schedule&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;schedule&quot;</span>
+                <span class="s2">&quot;schedule&quot;</span><span class="p">,</span>
             <span class="p">]</span>
             <span class="k">for</span> <span class="n">suffix</span> <span class="ow">in</span> <span class="n">suffixes_to_remove</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">suffix</span> <span class="ow">in</span> <span class="n">base_cruise_name</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
                     <span class="c1"># Case-insensitive removal</span>
                     <span class="n">idx</span> <span class="o">=</span> <span class="n">base_cruise_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
                     <span class="k">if</span> <span class="n">idx</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="n">base_cruise_name</span> <span class="o">=</span> <span class="n">base_cruise_name</span><span class="p">[:</span><span class="n">idx</span><span class="p">]</span> <span class="o">+</span> <span class="n">base_cruise_name</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">suffix</span><span class="p">):]</span>
+                        <span class="n">base_cruise_name</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="n">base_cruise_name</span><span class="p">[:</span><span class="n">idx</span><span class="p">]</span>
+                            <span class="o">+</span> <span class="n">base_cruise_name</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">suffix</span><span class="p">)</span> <span class="p">:]</span>
+                        <span class="p">)</span>
                         <span class="k">break</span>
-            
+
             <span class="c1"># Replace underscores with spaces and clean up</span>
             <span class="n">base_cruise_name</span> <span class="o">=</span> <span class="n">base_cruise_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-            
+
             <span class="c1"># Extract just the cruise identifier (e.g., &quot;MSM142&quot; from &quot;MSM142 StJohns&quot;)</span>
             <span class="n">cruise_parts</span> <span class="o">=</span> <span class="n">base_cruise_name</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">cruise_parts</span><span class="p">:</span>
                 <span class="n">main_cruise_name</span> <span class="o">=</span> <span class="n">cruise_parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># e.g., &quot;MSM142&quot;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">main_cruise_name</span> <span class="o">=</span> <span class="n">base_cruise_name</span>
-        
+
         <span class="c1"># Use provided workplan number or default</span>
         <span class="n">workplan_num</span> <span class="o">=</span> <span class="n">workplan_number</span> <span class="k">if</span> <span class="n">workplan_number</span> <span class="k">else</span> <span class="s2">&quot;01&quot;</span>
-        
+
         <span class="c1"># Calculate date range from records</span>
         <span class="k">if</span> <span class="n">station_records</span><span class="p">:</span>
             <span class="n">start_date</span> <span class="o">=</span> <span class="n">station_records</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">start_time</span>
             <span class="n">end_date</span> <span class="o">=</span> <span class="n">station_records</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">start_time</span>
-            
+
             <span class="c1"># Format dates for title using portable day formatting</span>
             <span class="n">start_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">start_date</span><span class="o">.</span><span class="n">day</span><span class="p">)</span>  <span class="c1"># Day without leading zero</span>
-            <span class="n">end_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">end_date</span><span class="o">.</span><span class="n">day</span><span class="p">)</span>      <span class="c1"># Day without leading zero  </span>
+            <span class="n">end_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">end_date</span><span class="o">.</span><span class="n">day</span><span class="p">)</span>  <span class="c1"># Day without leading zero</span>
             <span class="n">month_year</span> <span class="o">=</span> <span class="n">end_date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%B %Y&quot;</span><span class="p">)</span>  <span class="c1"># Full month name and year</span>
-            
+
             <span class="n">date_range</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">start_str</span><span class="si">}</span><span class="s2">--</span><span class="si">{</span><span class="n">end_str</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">month_year</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">date_range</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
@@ -829,7 +898,7 @@
         <span class="c1"># Handle logo inclusion</span>
         <span class="n">logo_header</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="n">logo_packages</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-        
+
         <span class="k">if</span> <span class="n">logo_path</span><span class="p">:</span>
             <span class="c1"># Convert to Path object for easier handling</span>
             <span class="n">logo_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">logo_path</span><span class="p">)</span>
@@ -837,7 +906,7 @@
                 <span class="n">logo_packages</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">usepackage</span><span class="si">{graphicx}</span><span class="se">\n</span><span class="s2">&quot;</span>
                 <span class="c1"># Create header with logo and new title format</span>
                 <span class="n">logo_header</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\\</span><span class="s2">begin</span><span class="se">{{</span><span class="s2">center</span><span class="se">}}</span>
-<span class="se">\\</span><span class="s2">includegraphics[width=0.3</span><span class="se">\\</span><span class="s2">textwidth]</span><span class="se">{{</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">logo_file</span><span class="p">)</span><span class="si">}</span><span class="se">}}\\\\</span><span class="s2">[0.5cm]</span>
+<span class="se">\\</span><span class="s2">includegraphics[width=0.3</span><span class="se">\\</span><span class="s2">textwidth]</span><span class="se">{{</span><span class="si">{</span><span class="n">logo_file</span><span class="si">!s}</span><span class="se">}}\\\\</span><span class="s2">[0.5cm]</span>
 <span class="se">\\</span><span class="s2">Large </span><span class="se">\\</span><span class="s2">textbf</span><span class="se">{{</span><span class="si">{</span><span class="n">main_cruise_name</span><span class="si">}</span><span class="s2"> - Workplan </span><span class="si">{</span><span class="n">workplan_num</span><span class="si">}</span><span class="se">}}\\\\</span>
 <span class="se">\\</span><span class="s2">textbf</span><span class="se">{{</span><span class="si">{</span><span class="n">date_range</span><span class="si">}</span><span class="se">}}</span>
 <span class="se">\\</span><span class="s2">end</span><span class="se">{{</span><span class="s2">center</span><span class="se">}}</span>
@@ -856,13 +925,13 @@
                 <span class="s2">&quot;images/mixsed_logo_coarse.png&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;images/Logo_UHH_rgb.pdf&quot;</span><span class="p">,</span>
             <span class="p">]</span>
-            
+
             <span class="k">for</span> <span class="n">default_logo</span> <span class="ow">in</span> <span class="n">default_logos</span><span class="p">:</span>
                 <span class="n">logo_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">default_logo</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">logo_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
                     <span class="n">logo_packages</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">usepackage</span><span class="si">{graphicx}</span><span class="se">\n</span><span class="s2">&quot;</span>
                     <span class="n">logo_header</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\\</span><span class="s2">begin</span><span class="se">{{</span><span class="s2">center</span><span class="se">}}</span>
-<span class="se">\\</span><span class="s2">includegraphics[width=0.3</span><span class="se">\\</span><span class="s2">textwidth]</span><span class="se">{{</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">logo_file</span><span class="p">)</span><span class="si">}</span><span class="se">}}\\\\</span><span class="s2">[0.5cm]</span>
+<span class="se">\\</span><span class="s2">includegraphics[width=0.3</span><span class="se">\\</span><span class="s2">textwidth]</span><span class="se">{{</span><span class="si">{</span><span class="n">logo_file</span><span class="si">!s}</span><span class="se">}}\\\\</span><span class="s2">[0.5cm]</span>
 <span class="se">\\</span><span class="s2">Large </span><span class="se">\\</span><span class="s2">textbf</span><span class="se">{{</span><span class="si">{</span><span class="n">main_cruise_name</span><span class="si">}</span><span class="s2"> - Workplan </span><span class="si">{</span><span class="n">workplan_num</span><span class="si">}</span><span class="se">}}\\\\</span>
 <span class="se">\\</span><span class="s2">textbf</span><span class="se">{{</span><span class="si">{</span><span class="n">date_range</span><span class="si">}</span><span class="se">}}</span>
 <span class="se">\\</span><span class="s2">end</span><span class="se">{{</span><span class="s2">center</span><span class="se">}}</span>
@@ -877,6 +946,27 @@
 
 <span class="s2">&quot;&quot;&quot;</span>
 
+        <span class="c1"># Generate table blocks for each section</span>
+        <span class="n">table_blocks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">table_content</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">table_contents</span><span class="p">):</span>
+            <span class="n">table_block</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\\</span><span class="s2">begin</span><span class="se">{{</span><span class="s2">table</span><span class="se">}}</span><span class="s2">[htbp]</span>
+<span class="se">\\</span><span class="s2">begin</span><span class="se">{{</span><span class="s2">tabular</span><span class="se">}}{{</span><span class="s2">lllllp</span><span class="se">{{</span><span class="s2">2in</span><span class="se">}}}}</span>
+<span class="se">\\</span><span class="s2">toprule</span>
+<span class="s2">Time &amp; Position &amp; Depth &amp; Distance &amp; Station &amp; Comment </span><span class="se">\\\\</span>
+<span class="se">\\</span><span class="s2"> LT &amp; &amp;</span><span class="se">\\</span><span class="s2">quad m &amp; </span><span class="se">\\</span><span class="s2">quad nm &amp; </span><span class="se">\\\\</span>
+<span class="se">\\</span><span class="s2">midrule</span>
+<span class="si">{</span><span class="n">table_content</span><span class="si">}</span>
+<span class="se">\\</span><span class="s2">bottomrule</span>
+<span class="se">\\</span><span class="s2">end</span><span class="se">{{</span><span class="s2">tabular</span><span class="se">}}</span>
+<span class="se">\\</span><span class="s2">end</span><span class="se">{{</span><span class="s2">table</span><span class="se">}}</span><span class="s2">&quot;&quot;&quot;</span>
+            <span class="n">table_blocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">table_block</span><span class="p">)</span>
+
+        <span class="c1"># Join tables with page breaks between them if there are multiple tables</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">table_blocks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">all_tables</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n\n\\</span><span class="s2">clearpage</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">table_blocks</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">all_tables</span> <span class="o">=</span> <span class="n">table_blocks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
         <span class="n">full_document</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\\</span><span class="s2">documentclass</span><span class="se">{{</span><span class="s2">article</span><span class="se">}}</span>
 <span class="se">\\</span><span class="s2">usepackage</span><span class="se">{{</span><span class="s2">booktabs</span><span class="se">}}</span>
 <span class="se">\\</span><span class="s2">usepackage</span><span class="se">{{</span><span class="s2">geometry</span><span class="se">}}</span>
@@ -889,17 +979,7 @@
 
 <span class="si">{</span><span class="n">logo_header</span><span class="si">}</span>
 
-<span class="se">\\</span><span class="s2">begin</span><span class="se">{{</span><span class="s2">table</span><span class="se">}}</span><span class="s2">[h]</span>
-<span class="se">\\</span><span class="s2">centering</span>
-<span class="se">\\</span><span class="s2">begin</span><span class="se">{{</span><span class="s2">tabular</span><span class="se">}}{{</span><span class="s2">lllllp</span><span class="se">{{</span><span class="s2">2in</span><span class="se">}}}}</span>
-<span class="se">\\</span><span class="s2">toprule</span>
-<span class="s2">Time &amp; Position &amp; Depth &amp; Distance &amp; Station &amp; Comment </span><span class="se">\\\\</span>
-<span class="se">\\</span><span class="s2"> LT &amp; &amp;</span><span class="se">\\</span><span class="s2">quad m &amp; </span><span class="se">\\</span><span class="s2">quad nm &amp; </span><span class="se">\\\\</span>
-<span class="se">\\</span><span class="s2">midrule</span>
-<span class="si">{</span><span class="n">table_content</span><span class="si">}</span>
-<span class="se">\\</span><span class="s2">bottomrule</span>
-<span class="se">\\</span><span class="s2">end</span><span class="se">{{</span><span class="s2">tabular</span><span class="se">}}</span>
-<span class="se">\\</span><span class="s2">end</span><span class="se">{{</span><span class="s2">table</span><span class="se">}}</span>
+<span class="si">{</span><span class="n">all_tables</span><span class="si">}</span>
 
 <span class="se">\\</span><span class="s2">end</span><span class="se">{{</span><span class="s2">document</span><span class="se">}}</span>
 <span class="s2">&quot;&quot;&quot;</span>
@@ -1059,8 +1139,8 @@
 <div class="viewcode-block" id="generate_letsgo_table_from_netcdf">
 <a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.latex_generator.generate_letsgo_table_from_netcdf">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">generate_letsgo_table_from_netcdf</span><span class="p">(</span>
-    <span class="n">netcdf_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> 
-    <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+    <span class="n">netcdf_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">logo_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">workplan_number</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">cruise_title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1096,11 +1176,11 @@
     <span class="n">generator</span> <span class="o">=</span> <span class="n">LaTeXGenerator</span><span class="p">()</span>
     <span class="n">cruise_name</span> <span class="o">=</span> <span class="n">netcdf_path</span><span class="o">.</span><span class="n">stem</span>
     <span class="n">tex_content</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">generate_letsgo_table</span><span class="p">(</span>
-        <span class="n">records</span><span class="p">,</span> 
-        <span class="n">cruise_name</span><span class="p">,</span> 
+        <span class="n">records</span><span class="p">,</span>
+        <span class="n">cruise_name</span><span class="p">,</span>
         <span class="n">logo_path</span><span class="o">=</span><span class="n">logo_path</span><span class="p">,</span>
         <span class="n">workplan_number</span><span class="o">=</span><span class="n">workplan_number</span><span class="p">,</span>
-        <span class="n">cruise_title</span><span class="o">=</span><span class="n">cruise_title</span>
+        <span class="n">cruise_title</span><span class="o">=</span><span class="n">cruise_title</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># Write to file</span>

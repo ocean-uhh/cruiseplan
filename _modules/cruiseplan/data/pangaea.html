@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.data.pangaea &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev28</title>
+  <title>cruiseplan.data.pangaea &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev30</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=de15e6d9"></script>
+      <script src="../../../_static/documentation_options.js?v=99490592"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -276,7 +276,7 @@
                     <span class="n">progress_callback</span><span class="p">(</span>
                         <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
                         <span class="nb">len</span><span class="p">(</span><span class="n">doi_list</span><span class="p">),</span>
-                        <span class="sa">f</span><span class="s2">&quot;Processing interrupted at </span><span class="si">{</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">doi_list</span><span class="p">)</span><span class="si">}</span><span class="s2"> DOIs&quot;</span><span class="p">,</span>
+                        <span class="sa">f</span><span class="s2">&quot;Processing interrupted at </span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">doi_list</span><span class="p">)</span><span class="si">}</span><span class="s2"> DOIs&quot;</span><span class="p">,</span>
                     <span class="p">)</span>
                 <span class="k">break</span>
 
@@ -312,7 +312,10 @@
 <div class="viewcode-block" id="PangaeaManager.create_map">
 <a class="viewcode-back" href="../../../api/cruiseplan.data.html#cruiseplan.data.pangaea.PangaeaManager.create_map">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">create_map</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">datasets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pangaea_map.html&quot;</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">datasets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span>
+        <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pangaea_map.html&quot;</span><span class="p">,</span>
+        <span class="n">include_eez</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenience wrapper to visualize datasets fetched by this manager.</span>
@@ -323,6 +326,8 @@
 <span class="sd">            List of dataset dictionaries with latitude/longitude data.</span>
 <span class="sd">        filename : str, optional</span>
 <span class="sd">            Output filename for the HTML map (default: &quot;pangaea_map.html&quot;).</span>
+<span class="sd">        include_eez : bool, optional</span>
+<span class="sd">            Include EEZ boundaries on the map (default: True).</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -333,7 +338,9 @@
         <span class="c1"># don&#39;t exactly match what generate_folium_map expects.</span>
         <span class="c1"># But if they match (latitude, longitude, label), just pass them through:</span>
 
-        <span class="k">return</span> <span class="n">generate_folium_map</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">output_file</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">generate_folium_map</span><span class="p">(</span>
+            <span class="n">datasets</span><span class="p">,</span> <span class="n">output_file</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">include_eez</span><span class="o">=</span><span class="n">include_eez</span>
+        <span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_clean_doi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doi</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>

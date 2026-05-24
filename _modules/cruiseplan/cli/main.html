@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.cli.main &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev28</title>
+  <title>cruiseplan.cli.main &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev30</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=de15e6d9"></script>
+      <script src="../../../_static/documentation_options.js?v=99490592"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -260,7 +260,14 @@
     <span class="c1"># Bathymetry options</span>
     <span class="n">bathymetry_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_dt&quot;</span><span class="p">],</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msm142&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msm142_dt&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset to download (default: etopo2022)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -309,7 +316,14 @@
     <span class="c1"># Bathymetry options</span>
     <span class="n">schedule_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_dt&quot;</span><span class="p">],</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msm142&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msm142_dt&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset for PNG maps (default: etopo2022)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -363,6 +377,11 @@
         <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Exclude ports from PNG schedule maps&quot;</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="n">schedule_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--no-eez&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Exclude EEZ boundaries from interactive maps (visualization only - not legal boundaries)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
 
     <span class="c1"># --- 3. Stations Subcommand ---</span>
     <span class="n">stations_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
@@ -412,7 +431,14 @@
     <span class="c1"># Bathymetry options</span>
     <span class="n">stations_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_dt&quot;</span><span class="p">],</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msm142&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msm142_dt&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset (default: etopo2022)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -479,7 +505,14 @@
     <span class="c1"># Bathymetry options</span>
     <span class="n">enrich_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_dt&quot;</span><span class="p">],</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msm142&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msm142_dt&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset (default: etopo2022)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -524,7 +557,14 @@
     <span class="c1"># Bathymetry options</span>
     <span class="n">validate_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_dt&quot;</span><span class="p">],</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msm142&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msm142_dt&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset (default: etopo2022)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -574,6 +614,11 @@
         <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Suppress plotting of departure and arrival ports in both PNG and KML outputs&quot;</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--no-eez&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Exclude EEZ boundaries from interactive maps (visualization only - not legal boundaries)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
 
     <span class="c1"># Output control</span>
     <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
@@ -598,7 +643,14 @@
     <span class="c1"># Bathymetry options</span>
     <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_dt&quot;</span><span class="p">],</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msm142&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msm142_dt&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset (default: gebco2025)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -775,7 +827,14 @@
     <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_dt&quot;</span><span class="p">],</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msm142&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msm142_dt&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset (default: etopo2022)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
@@ -1011,7 +1070,14 @@
     <span class="c1"># PNG format specific options</span>
     <span class="n">stationplan_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span> <span class="s2">&quot;msm142_dt&quot;</span><span class="p">],</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;gebco2023&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msm142&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msm142_jj&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msm142_dt&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset for PNG maps (default: etopo2022)&quot;</span><span class="p">,</span>
     <span class="p">)</span>

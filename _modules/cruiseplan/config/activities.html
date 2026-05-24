@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.config.activities &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev28</title>
+  <title>cruiseplan.config.activities &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev30</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=de15e6d9"></script>
+      <script src="../../../_static/documentation_options.js?v=99490592"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -110,10 +110,10 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">field_validator</span><span class="p">,</span> <span class="n">model_validator</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.coordinates</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CoordConverter</span><span class="p">,</span>
     <span class="n">_validate_latitude</span><span class="p">,</span>
     <span class="n">_validate_longitude</span><span class="p">,</span>
     <span class="n">format_ddm_comment</span><span class="p">,</span>
-    <span class="n">CoordConverter</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.values</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -218,8 +218,12 @@
             <span class="c1"># Check for incomplete coordinate pairs</span>
             <span class="n">has_lat</span> <span class="o">=</span> <span class="s2">&quot;latitude&quot;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="n">has_lon</span> <span class="o">=</span> <span class="s2">&quot;longitude&quot;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="n">has_lat_decmin</span> <span class="o">=</span> <span class="s2">&quot;latitude_decmin&quot;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;latitude_decmin&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="n">has_lon_decmin</span> <span class="o">=</span> <span class="s2">&quot;longitude_decmin&quot;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;longitude_decmin&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="n">has_lat_decmin</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;latitude_decmin&quot;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;latitude_decmin&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="p">)</span>
+            <span class="n">has_lon_decmin</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;longitude_decmin&quot;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;longitude_decmin&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="p">)</span>
 
             <span class="c1"># Check for incomplete decimal degree pairs</span>
             <span class="k">if</span> <span class="n">has_lat</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">has_lon</span><span class="p">:</span>
@@ -240,8 +244,12 @@
             <span class="c1"># Convert decmin to decimal degrees if available and no decimal degrees provided</span>
             <span class="k">if</span> <span class="n">has_lat_decmin</span> <span class="ow">and</span> <span class="n">has_lon_decmin</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">has_lat</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">has_lon</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">CoordConverter</span><span class="o">.</span><span class="n">decmin_to_decimal_degrees</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;latitude_decmin&quot;</span><span class="p">])</span>
-                    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">CoordConverter</span><span class="o">.</span><span class="n">decmin_to_decimal_degrees</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;longitude_decmin&quot;</span><span class="p">])</span>
+                    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">CoordConverter</span><span class="o">.</span><span class="n">decmin_to_decimal_degrees</span><span class="p">(</span>
+                        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;latitude_decmin&quot;</span><span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">CoordConverter</span><span class="o">.</span><span class="n">decmin_to_decimal_degrees</span><span class="p">(</span>
+                        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;longitude_decmin&quot;</span><span class="p">]</span>
+                    <span class="p">)</span>
                 <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
                     <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Invalid decmin format: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
