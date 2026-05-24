@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.api.stations_api &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev30</title>
+  <title>cruiseplan.api.stations_api &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev31</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=99490592"></script>
+      <script src="../../../_static/documentation_options.js?v=3d31818b"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -339,26 +339,14 @@
                 <span class="n">all_lats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">latitude</span><span class="p">)</span>
                 <span class="n">all_lons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span>
 
-        <span class="c1"># Extract line data separately for proper line plotting</span>
-        <span class="n">lines_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># Include line coordinates in bounds calculation</span>
         <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">lines</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">lines</span><span class="p">:</span>
                 <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="s2">&quot;route&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">line</span><span class="o">.</span><span class="n">route</span><span class="p">:</span>
-                    <span class="c1"># Extract full route for line plotting</span>
-                    <span class="n">route_points</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="c1"># Add line route points to bounds calculation</span>
                     <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">route</span><span class="p">:</span>
-                        <span class="n">route_points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                            <span class="p">{</span><span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">point</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">point</span><span class="o">.</span><span class="n">longitude</span><span class="p">}</span>
-                        <span class="p">)</span>
                         <span class="n">all_lats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">latitude</span><span class="p">)</span>
                         <span class="n">all_lons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span>
-
-                    <span class="n">line_data</span> <span class="o">=</span> <span class="p">{</span>
-                        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">line</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                        <span class="s2">&quot;route&quot;</span><span class="p">:</span> <span class="n">route_points</span><span class="p">,</span>
-                        <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;transect&quot;</span><span class="p">,</span>
-                    <span class="p">}</span>
-                    <span class="n">lines_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line_data</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">stations_data</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No stations found in configuration file </span><span class="si">{</span><span class="n">config_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
