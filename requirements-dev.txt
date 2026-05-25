@@ -12,7 +12,7 @@ myst-parser>=3.0.1
 
 # Testing
 pytest>=8.4.2
-pytest-cov>=4.1  # optional
+pytest-cov>=7.1.0  # optional
 mock
 pyyaml>=6.0
 
