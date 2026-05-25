@@ -10,7 +10,7 @@ requests>=2.32.5
 pangaeapy>=1.0.22
 
 # Configuration and validation
-pydantic>=2.13.3
+pydantic>=2.13.4
 ruamel.yaml>=0.19.1,<0.20.0
 
 # Visualization
