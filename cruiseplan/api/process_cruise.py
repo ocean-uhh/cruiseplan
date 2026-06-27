@@ -1131,6 +1131,7 @@ def process(
     figsize: Optional[list] = None,
     no_port_map: bool = False,
     verbose: bool = False,
+    max_depth: Optional[int] = None,
 ) -> ProcessResult:
     """
     Process cruise configuration with unified workflow (mirrors: cruiseplan process).
@@ -1262,6 +1263,7 @@ def process(
                 figsize=figsize,
                 no_ports=no_port_map,
                 verbose=verbose,
+                max_depth=max_depth,
             )
             generated_files.extend(map_result.map_files)
 

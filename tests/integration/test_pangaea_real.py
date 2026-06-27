@@ -80,9 +80,9 @@ def test_pangaea_natl_campaign_validation():
     # Validate expected campaigns exist
     expected_campaigns = {"MSM21/1a", "VA176", "DY081"}
     actual_campaigns = set(campaigns.keys())
-    assert actual_campaigns == expected_campaigns, (
-        f"Expected campaigns {expected_campaigns}, got {actual_campaigns}"
-    )
+    assert (
+        actual_campaigns == expected_campaigns
+    ), f"Expected campaigns {expected_campaigns}, got {actual_campaigns}"
 
     # Validate station counts for each campaign
     expected_counts = {
@@ -96,28 +96,28 @@ def test_pangaea_natl_campaign_validation():
 
         if campaign_label == "DY081":
             # DY081 should have 2 datasets, each with 1 station
-            assert len(campaign_datasets) == 2, (
-                f"Expected 2 DY081 datasets, got {len(campaign_datasets)}"
-            )
+            assert (
+                len(campaign_datasets) == 2
+            ), f"Expected 2 DY081 datasets, got {len(campaign_datasets)}"
             for dataset in campaign_datasets:
                 events_count = len(dataset.get("events", []))
                 station_count = len(dataset.get("latitude", []))
                 actual_count = max(events_count, station_count)
-                assert actual_count == expected_count, (
-                    f"DY081 dataset expected {expected_count} stations, got {actual_count}"
-                )
+                assert (
+                    actual_count == expected_count
+                ), f"DY081 dataset expected {expected_count} stations, got {actual_count}"
         else:
             # MSM21/1a and VA176 should have 1 dataset each
-            assert len(campaign_datasets) == 1, (
-                f"Expected 1 {campaign_label} dataset, got {len(campaign_datasets)}"
-            )
+            assert (
+                len(campaign_datasets) == 1
+            ), f"Expected 1 {campaign_label} dataset, got {len(campaign_datasets)}"
             dataset = campaign_datasets[0]
             events_count = len(dataset.get("events", []))
             station_count = len(dataset.get("latitude", []))
             actual_count = max(events_count, station_count)
-            assert actual_count == expected_count, (
-                f"{campaign_label} expected {expected_count} stations, got {actual_count}"
-            )
+            assert (
+                actual_count == expected_count
+            ), f"{campaign_label} expected {expected_count} stations, got {actual_count}"
 
     # Validate that all datasets have required fields
     for dataset in datasets:
@@ -202,20 +202,20 @@ def test_pangaea_merge_campaigns():
     datasets_merged = manager.fetch_datasets(dois, rate_limit=0.5, merge_campaigns=True)
 
     # Unmerged should have 4 datasets (one per DOI)
-    assert len(datasets_unmerged) == 4, (
-        f"Expected 4 unmerged datasets, got {len(datasets_unmerged)}"
-    )
+    assert (
+        len(datasets_unmerged) == 4
+    ), f"Expected 4 unmerged datasets, got {len(datasets_unmerged)}"
 
     # Merged should have 3 datasets (DY081 entries merged)
-    assert len(datasets_merged) == 3, (
-        f"Expected 3 merged datasets, got {len(datasets_merged)}"
-    )
+    assert (
+        len(datasets_merged) == 3
+    ), f"Expected 3 merged datasets, got {len(datasets_merged)}"
 
     # Find the merged DY081 dataset
     dy081_datasets = [ds for ds in datasets_merged if ds.get("label") == "DY081"]
-    assert len(dy081_datasets) == 1, (
-        f"Expected 1 merged DY081 dataset, got {len(dy081_datasets)}"
-    )
+    assert (
+        len(dy081_datasets) == 1
+    ), f"Expected 1 merged DY081 dataset, got {len(dy081_datasets)}"
 
     merged_dy081 = dy081_datasets[0]
 
@@ -233,12 +233,12 @@ def test_pangaea_merge_campaigns():
         for doi in dois
         if "DY081" in doi or doi in ["10.1594/PANGAEA.935444", "10.1594/PANGAEA.935448"]
     ]
-    assert len(dois_in_merged) == 2, (
-        f"Expected 2 DOIs in merged DY081, got {len(dois_in_merged)}"
-    )
-    assert set(dy081_dois).issubset(set(dois_in_merged)), (
-        "Merged dataset should contain both DY081 DOIs"
-    )
+    assert (
+        len(dois_in_merged) == 2
+    ), f"Expected 2 DOIs in merged DY081, got {len(dois_in_merged)}"
+    assert set(dy081_dois).issubset(
+        set(dois_in_merged)
+    ), "Merged dataset should contain both DY081 DOIs"
 
 
 # New integration tests for API tri-modal functionality

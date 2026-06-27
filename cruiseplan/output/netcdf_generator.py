@@ -1038,9 +1038,9 @@ class NetCDFGenerator:
                     "vessel_speed",
                 ]:
                     if var_name in ds_lines.data_vars:
-                        ds_lines[var_name].attrs["coordinates"] = (
-                            "time latitude longitude"
-                        )
+                        ds_lines[var_name].attrs[
+                            "coordinates"
+                        ] = "time latitude longitude"
 
         # Write derived file
         ds_lines.to_netcdf(lines_file, format="NETCDF4")
@@ -1099,9 +1099,9 @@ class NetCDFGenerator:
                     "vessel_speed",
                 ]:
                     if var_name in ds_areas.data_vars:
-                        ds_areas[var_name].attrs["coordinates"] = (
-                            "time latitude longitude"
-                        )
+                        ds_areas[var_name].attrs[
+                            "coordinates"
+                        ] = "time latitude longitude"
 
         # Write derived file
         ds_areas.to_netcdf(areas_file, format="NETCDF4")

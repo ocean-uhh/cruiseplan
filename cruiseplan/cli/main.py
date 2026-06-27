@@ -238,6 +238,13 @@ Examples:
         metavar="DEPTH",
         help="Custom bathymetry contour levels in meters (space-separated positive values), e.g., '500 400 300'",
     )
+    schedule_parser.add_argument(
+        "--max-depth",
+        type=int,
+        default=None,
+        metavar="METRES",
+        help="Maximum water depth (m) for the bathymetry colour scale. Clips the deep end so shallow-water structure uses the full colour range. Example: --max-depth 1000",
+    )
 
     # Map bounds
     schedule_parser.add_argument(
@@ -596,6 +603,13 @@ Examples:
         metavar="DEPTH",
         help="Custom bathymetry contour levels in meters (space-separated positive values), e.g., '500 400 300'",
     )
+    map_parser.add_argument(
+        "--max-depth",
+        type=int,
+        default=None,
+        metavar="METRES",
+        help="Maximum water depth (m) for the bathymetry colour scale. Clips the deep end so shallow-water structure uses the full colour range. Example: --max-depth 1000",
+    )
 
     # General options
     map_parser.add_argument(
@@ -747,6 +761,13 @@ Examples:
         nargs="+",
         metavar="DEPTH",
         help="Custom bathymetry contour levels in meters (space-separated positive values), e.g., '500 400 300'. Replaces default contours.",
+    )
+    process_parser.add_argument(
+        "--max-depth",
+        type=int,
+        default=None,
+        metavar="METRES",
+        help="Maximum water depth (m) for the bathymetry colour scale. Clips the deep end so shallow-water structure uses the full colour range. Example: --max-depth 1000",
     )
 
     # Map bounds

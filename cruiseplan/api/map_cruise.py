@@ -90,6 +90,7 @@ def map(
     no_ports: bool = False,
     include_eez: bool = True,
     verbose: bool = False,
+    max_depth: Optional[int] = None,
 ) -> MapResult:
     """
     Generate cruise track map (mirrors: cruiseplan map).
@@ -175,6 +176,7 @@ def map(
                 figsize=tuple(figsize),
                 show_plot=show_plot,
                 include_ports=not no_ports,  # Convert no_ports to include_ports
+                max_depth=max_depth,
             )
             if result:
                 generated_files.append(result)

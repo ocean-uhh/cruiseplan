@@ -93,9 +93,9 @@ class TestTC4MixedOpsComprehensive:
             # Verify activity type matches expected
             if i in expected_activity_types:
                 expected_type = expected_activity_types[i]
-                assert activity_type == expected_type, (
-                    f"Activity {i} type mismatch: expected {expected_type}, got {activity_type}"
-                )
+                assert (
+                    activity_type == expected_type
+                ), f"Activity {i} type mismatch: expected {expected_type}, got {activity_type}"
 
             # Verify duration matches expected (with flexible tolerance for CTD operations)
             if i in expected_durations:
@@ -107,16 +107,16 @@ class TestTC4MixedOpsComprehensive:
                     and "CTD" in str(activity.get("operation_type", ""))
                     else 0.2
                 )
-                assert abs(duration_h - expected_duration) < tolerance, (
-                    f"Activity {i} duration mismatch: expected {expected_duration:.1f}h, got {duration_h:.1f}h (tolerance: {tolerance}h)"
-                )
+                assert (
+                    abs(duration_h - expected_duration) < tolerance
+                ), f"Activity {i} duration mismatch: expected {expected_duration:.1f}h, got {duration_h:.1f}h (tolerance: {tolerance}h)"
 
             # Verify transit distance matches expected
             if i in expected_transit_distances:
                 expected_distance = expected_transit_distances[i]
-                assert abs(transit_dist - expected_distance) < 0.1, (
-                    f"Activity {i} transit distance mismatch: expected {expected_distance:.1f}nm, got {transit_dist:.1f}nm"
-                )
+                assert (
+                    abs(transit_dist - expected_distance) < 0.1
+                ), f"Activity {i} transit distance mismatch: expected {expected_distance:.1f}nm, got {transit_dist:.1f}nm"
 
             total_duration_h += duration_h
 
@@ -178,9 +178,9 @@ class TestTC4MixedOpsComprehensive:
             "Cadiz",
         ]
 
-        assert operation_names == expected_sequence, (
-            f"Operation sequence mismatch: expected {expected_sequence}, got {operation_names}"
-        )
+        assert (
+            operation_names == expected_sequence
+        ), f"Operation sequence mismatch: expected {expected_sequence}, got {operation_names}"
 
         # Verify timing progression (each operation should start after previous ends)
         for i in range(len(timeline) - 1):

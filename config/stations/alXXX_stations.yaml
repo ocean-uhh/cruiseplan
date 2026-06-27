@@ -1,0 +1,360 @@
+# Cruise metadata
+cruise_name: alXXX
+description: ALKOR Student cruise plan - Baltic Sea sections
+turnaround_time: 20.0
+vessel_speed: 10.0
+start_date: "2027-08-01T08:00:00Z"
+
+# Global catalog - define your operations
+points:
+  - name: Stn_001
+    comment: Test-Station; CTD/Rosette
+    operation_type: CTD
+    action: profile
+    latitude: 54.5667
+    longitude: 10.6667
+    
+  - name: Stn_002
+    comment: CTD/Rosette; Begin section L
+    operation_type: CTD
+    action: profile
+    latitude: 54.6083
+    longitude: 10.9167
+    
+  - name: Stn_003
+    comment: CTD/Rosette; section L
+    operation_type: CTD
+    action: profile
+    latitude: 54.5917
+    longitude: 11.0833
+    
+  - name: Stn_004
+    comment: Begin Schnitt C1; CTD/Rosette
+    operation_type: CTD
+    action: profile
+    latitude: 54.5467
+    longitude: 11.1633
+    
+  - name: Stn_005
+    comment: CTD/Rosette; also section L
+    operation_type: CTD
+    action: profile
+    latitude: 54.5667
+    longitude: 11.1850
+    
+  - name: Stn_006
+    comment: CTD/Rosette
+    operation_type: CTD
+    action: profile
+    latitude: 54.5833
+    longitude: 11.2083
+    
+  - name: Stn_007
+    comment: CTD/Rosette
+    operation_type: CTD
+    action: profile
+    latitude: 54.6000
+    longitude: 11.2250
+    
+  - name: Stn_008
+    comment: CTD/Rosette
+    operation_type: CTD
+    action: profile
+    latitude: 54.6117
+    longitude: 11.2417
+    
+  - name: Stn_009
+    comment: CTD/Rosette; End section C1
+    operation_type: CTD
+    action: profile
+    latitude: 54.6250
+    longitude: 11.2583
+    
+  - name: Stn_010
+    comment: CTD/Rosette at mooring position
+    operation_type: CTD
+    action: profile
+    latitude: 54.5217
+    longitude: 11.3050
+    
+  - name: Mooring_Recovery
+    comment: Recovery mooring
+    operation_type: mooring
+    action: recovery
+    duration: 60
+    latitude: 54.5089
+    longitude: 11.3118
+    
+  - name: Stn_011
+    comment: CTD/Rosette
+    operation_type: CTD
+    action: profile
+    latitude: 54.4500
+    longitude: 11.5000
+    
+  - name: Stn_012
+    comment: CTD/Rosette
+    operation_type: CTD
+    action: profile
+    delay_start: 0
+    latitude: 54.3500
+    longitude: 11.6667
+    
+  - name: Stn_013
+    comment: CTD/Rosette
+    operation_type: CTD
+    action: profile
+    latitude: 54.3500
+    longitude: 11.8333
+    
+  - name: Stn_014
+    comment: CTD/Rosette
+    operation_type: CTD
+    action: profile
+    latitude: 54.6333
+    longitude: 12.5000
+    delay_start: 420
+    
+  - name: Stn_015
+    comment: CTD/Rosette
+    operation_type: CTD
+    action: profile
+    latitude: 54.5333
+    longitude: 12.3000
+    
+  - name: Stn_016
+    comment: CTD/Rosette
+    operation_type: CTD
+    action: profile
+    latitude: 54.4000
+    longitude: 12.1667
+    
+  - name: Stn_017
+    comment: CTD/Rosette
+    operation_type: CTD
+    action: profile
+    latitude: 54.3583
+    longitude: 12.0000
+    
+  - name: Stn_018
+    comment: CTD/Rosette
+    operation_type: CTD
+    action: profile
+    latitude: 54.3500
+    longitude: 11.9167
+    
+  - name: Stn_019
+    comment: CTD/Rosette
+    operation_type: CTD
+    action: profile
+    latitude: 54.6333
+    longitude: 14.3500
+    delay_start: 560
+    
+  - name: Stn_020
+    comment: CTD/Rosette
+    operation_type: CTD
+    action: profile
+    latitude: 54.7833
+    longitude: 14.0000
+    
+  - name: Stn_021
+    comment: CTD/Rosette
+    operation_type: CTD
+    action: profile
+    latitude: 54.9167
+    longitude: 13.5000
+    
+  - name: Stn_022
+    comment: CTD/Rosette
+    operation_type: CTD
+    action: profile
+    latitude: 54.8583
+    longitude: 13.2000
+    
+  - name: Stn_023
+    comment: CTD/Rosette
+    operation_type: CTD
+    action: profile
+    latitude: 54.8083
+    longitude: 12.9167
+    
+  - name: Stn_024
+    comment: CTD/Rosette
+    operation_type: CTD
+    action: profile
+    latitude: 54.5417
+    longitude: 12.7167
+    
+  - name: Stn_025
+    comment: CTD/Rosette; KD Section
+    operation_type: CTD
+    action: profile
+    latitude: 54.3250
+    longitude: 12.2167
+    
+  - name: Stn_026
+    comment: CTD/Rosette; KD Section
+    operation_type: CTD
+    action: profile
+    latitude: 54.3583
+    longitude: 12.2000
+    
+  - name: Stn_027
+    comment: CTD/Rosette; KD Section
+    operation_type: CTD
+    action: profile
+    latitude: 54.4333
+    longitude: 12.1667
+    delay_start: 610
+    
+  - name: Stn_028
+    comment: CTD/Rosette; KD Section
+    operation_type: CTD
+    action: profile
+    latitude: 54.4683
+    longitude: 12.1667
+    
+  - name: Stn_030
+    comment: CTD/Rosette at mooring position
+    operation_type: CTD
+    action: profile
+    latitude: 54.5217
+    longitude: 11.3050
+    
+  - name: Mooring_Deployment
+    comment: Deployment of mooring
+    operation_type: mooring
+    action: deployment
+    duration: 60
+    latitude: 54.5217
+    longitude: 11.3050
+    
+  - name: Stn_031
+    comment: Section C; CTD/Rosette
+    operation_type: CTD
+    action: profile
+    latitude: 54.5467
+    longitude: 11.1633
+    
+  - name: Stn_032
+    comment: CTD/Rosette
+    operation_type: CTD
+    action: profile
+    latitude: 54.5667
+    longitude: 11.1850
+    
+  - name: Stn_033
+    comment: CTD/Rosette
+    operation_type: CTD
+    action: profile
+    latitude: 54.5667
+    longitude: 11.1850
+    
+  - name: Stn_034
+    comment: CTD/Rosette
+    operation_type: CTD
+    action: profile
+    latitude: 54.5667
+    longitude: 11.1850
+    
+  - name: Stn_035
+    comment: CTD/Rosette
+    operation_type: CTD
+    action: profile
+    latitude: 54.5833
+    longitude: 11.2083
+    
+  - name: Stn_036
+    comment: CTD/Rosette
+    operation_type: CTD
+    action: profile
+    latitude: 54.6000
+    longitude: 11.2250
+    
+  - name: Stn_037
+    comment: CTD/Rosette
+    operation_type: CTD
+    action: profile
+    latitude: 54.6117
+    longitude: 11.2417
+    
+  - name: Stn_038
+    comment: CTD/Rosette; end section C
+    operation_type: CTD
+    action: profile
+    latitude: 54.6250
+    longitude: 11.2583
+
+# Underway operations
+lines:
+  - name: Fehmarn_Belt_ADCP
+    comment: ADCP section through Fehmarn Belt
+    operation_type: underway
+    action: ADCP
+    vessel_speed: 8
+    route:
+      - latitude: 54.6250
+        longitude: 11.2583
+      - latitude: 54.3500
+        longitude: 11.8333
+        
+
+
+# Schedule organization  
+legs:
+  - name: Leg_1
+    departure_port: "port_kiel"
+    arrival_port: "port_rostock"
+    first_activity: Stn_001
+    last_activity: Stn_018
+    activities:
+      - Stn_001
+      - Stn_002
+      - Stn_003
+      - Stn_004
+      - Stn_005
+      - Stn_006
+      - Stn_007
+      - Stn_008
+      - Stn_009
+      - Stn_010
+      - Mooring_Recovery
+      - Stn_011
+      - Stn_012
+      - Stn_013
+      - Stn_014
+      - Stn_015
+      - Stn_016
+      - Stn_017
+      - Stn_018
+    clusters: []
+    
+  - name: Leg_2
+    departure_port: "port_rostock"
+    arrival_port: "port_kiel"
+    first_activity: Stn_019
+    last_activity: Stn_038
+    delay_start: 290
+    activities:
+      - Stn_019
+      - Stn_020
+      - Stn_021
+      - Stn_022
+      - Stn_023
+      - Stn_024
+      - Stn_025
+      - Stn_026
+      - Stn_027
+      - Stn_028
+      - Stn_030
+      - Mooring_Deployment
+      - Stn_031
+      - Stn_032
+      - Stn_033
+      - Stn_034
+      - Stn_035
+      - Stn_036
+      - Stn_037
+      - Stn_038
+    clusters: []

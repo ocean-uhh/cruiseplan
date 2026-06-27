@@ -172,9 +172,9 @@ class TestCTDSectionExpansion:
 
         # Should have original station plus new ones with suffixes
         assert "Test_Section_Stn001" in station_names  # Original
-        assert any("Test_Section_Stn001_" in name for name in station_names), (
-            "No collision-resolved names found"
-        )
+        assert any(
+            "Test_Section_Stn001_" in name for name in station_names
+        ), "No collision-resolved names found"
 
     def test_expand_section_with_max_depth_override(self):
         """Test CTD section expansion with max_depth override from transit."""

@@ -581,6 +581,7 @@ def plot_bathymetry(
     bathy_stride: int = 5,
     bathy_dir: str = "data",
     custom_contours: Optional[list] = None,
+    max_depth: Optional[int] = None,
 ) -> bool:
     """
     Plot bathymetry contours on a matplotlib axis.
@@ -597,6 +598,9 @@ def plot_bathymetry(
         Bathymetry dataset to use (default "gebco2025")
     bathy_stride : int, optional
         Downsampling factor for bathymetry (default 5)
+    max_depth : int, optional
+        Maximum water depth (m) for the colour scale. When provided, the colour
+        scale spans -max_depth to +200 m instead of the default -8000 to +200 m.
 
     Returns
     -------
@@ -605,7 +609,10 @@ def plot_bathymetry(
     """
     try:
         from cruiseplan.data.bathymetry import BathymetryManager
-        from cruiseplan.utils.plot_config import get_colormap
+        from cruiseplan.utils.plot_config import (
+            create_bathymetry_colormap,
+            get_colormap,
+        )
 
         logger.info(
             f"Loading bathymetry for region: {bathy_min_lat:.1f}°-{bathy_max_lat:.1f}°N, {bathy_min_lon:.1f}°-{bathy_max_lon:.1f}°E"
@@ -627,34 +634,58 @@ def plot_bathymetry(
 
         lons_grid, lats_grid, depths_grid = bathy_data
 
-        # Use same colormap as station picker
-        cmap = get_colormap("bathymetry")
+        # Use same colormap as station picker; build a clipped one if max_depth set
+        if max_depth is not None:
+            cmap = create_bathymetry_colormap(max_depth=max_depth)
+        else:
+            cmap = get_colormap("bathymetry")
 
-        # Always use default levels for filled contours to preserve color mapping
-        filled_levels = [
-            -6000,
-            -5000,
-            -4000,
-            -3000,
-            -2000,
-            -1500,
-            -1000,
-            -750,
-            -500,
-            -200,
-            -100,
-            -50,
-            0,
-            200,
-        ]
+        # Filled contour levels
+        if max_depth is not None:
+            # Generate ~5 evenly spaced levels rounded to a "nice" step size
+            raw_step = max_depth / 5.0
+            magnitude = 10 ** math.floor(math.log10(raw_step))
+            for factor in (1, 2, 5, 10):
+                if raw_step <= factor * magnitude:
+                    step = factor * magnitude
+                    break
+            else:
+                step = magnitude * 10
+            filled_levels = [
+                -max_depth + i * step for i in range(int(max_depth / step))
+            ] + [0, 200]
+        else:
+            filled_levels = [
+                -6000,
+                -5000,
+                -4000,
+                -3000,
+                -2000,
+                -1500,
+                -1000,
+                -750,
+                -500,
+                -200,
+                -100,
+                -50,
+                0,
+                200,
+            ]
 
-        # Add filled contours (unchanged from original)
+        # norm must match the colormap's internal depth-to-0-1 normalization so
+        # contourf assigns colours by depth value rather than by level index.
+        import matplotlib.colors as mcolors
+
+        depth_min_for_norm = -max_depth if max_depth is not None else -8000
+        norm = mcolors.Normalize(vmin=depth_min_for_norm, vmax=200)
+
         cs_filled = ax.contourf(
             lons_grid,
             lats_grid,
             depths_grid,
             levels=filled_levels,
             cmap=cmap,
+            norm=norm,
             alpha=0.7,
             extend="both",
         )
@@ -899,6 +930,7 @@ def generate_map(
     show_plot: bool = False,
     figsize: tuple[float, float] = (10, 8.1),
     include_ports: bool = True,
+    max_depth: Optional[int] = None,
 ) -> Optional[Path]:
     """
     Generate a static PNG map from either cruise config or timeline data.
@@ -1054,7 +1086,13 @@ def generate_map(
 
     # Plot bathymetry and get contour object for colorbar
     cs_filled = plot_bathymetry(
-        ax, *bathy_limits, bathy_source, bathy_stride, bathy_dir, bathy_contours
+        ax,
+        *bathy_limits,
+        bathy_source,
+        bathy_stride,
+        bathy_dir,
+        bathy_contours,
+        max_depth=max_depth,
     )
 
     # Plot cruise elements using new structured data (this applies the final aspect ratio)
@@ -1170,6 +1208,7 @@ def generate_map_from_timeline(
     figsize: tuple[float, float] = (10, 8),
     no_ports: bool = False,
     config=None,
+    max_depth: Optional[int] = None,
 ) -> Optional[Path]:
     """
     Generate a static PNG map from timeline data showing scheduled sequence.
@@ -1195,6 +1234,8 @@ def generate_map_from_timeline(
         If True, exclude departure and arrival ports from the map. Default is False.
     config : CruiseConfig, optional
         Cruise configuration object to extract port information
+    max_depth : int, optional
+        Maximum water depth (m) for the colour scale. See ``generate_map``.
 
     Returns
     -------
@@ -1217,6 +1258,7 @@ def generate_map_from_timeline(
         show_plot=False,
         figsize=figsize,
         include_ports=not no_ports,
+        max_depth=max_depth,
     )
 
 

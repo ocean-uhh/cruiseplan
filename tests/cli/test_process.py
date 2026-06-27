@@ -86,6 +86,7 @@ class TestProcessThinCLI:
                 figsize=None,
                 no_port_map=False,
                 verbose=False,
+                max_depth=None,
             )
 
     def test_process_with_custom_options(self):
@@ -146,6 +147,7 @@ class TestProcessThinCLI:
                 figsize=[12, 8],
                 no_port_map=True,
                 verbose=True,
+                max_depth=None,
             )
 
     def test_process_failure(self):
@@ -304,6 +306,7 @@ class TestProcessThinCLI:
                 figsize=None,  # default
                 no_port_map=False,  # default
                 verbose=False,  # default
+                max_depth=None,  # default
             )
 
 

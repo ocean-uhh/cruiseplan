@@ -141,12 +141,12 @@ class TestTC2TwoLegsIntegration:
         # Validate first leg ports are resolved
         leg_atlantic = cruise.runtime_legs[0]
         assert leg_atlantic.name == "Leg_Atlantic"
-        assert hasattr(leg_atlantic.departure_port, "latitude"), (
-            "Departure port should be resolved"
-        )
-        assert hasattr(leg_atlantic.arrival_port, "latitude"), (
-            "Arrival port should be resolved"
-        )
+        assert hasattr(
+            leg_atlantic.departure_port, "latitude"
+        ), "Departure port should be resolved"
+        assert hasattr(
+            leg_atlantic.arrival_port, "latitude"
+        ), "Arrival port should be resolved"
         assert leg_atlantic.departure_port.name == "Halifax"
         assert leg_atlantic.arrival_port.name == "Bremerhaven"
         assert abs(leg_atlantic.departure_port.latitude - 44.6488) < 0.001
@@ -154,12 +154,12 @@ class TestTC2TwoLegsIntegration:
         # Validate second leg ports are resolved
         leg_north = cruise.runtime_legs[1]
         assert leg_north.name == "Leg_North"
-        assert hasattr(leg_north.departure_port, "latitude"), (
-            "Departure port should be resolved"
-        )
-        assert hasattr(leg_north.arrival_port, "latitude"), (
-            "Arrival port should be resolved"
-        )
+        assert hasattr(
+            leg_north.departure_port, "latitude"
+        ), "Departure port should be resolved"
+        assert hasattr(
+            leg_north.arrival_port, "latitude"
+        ), "Arrival port should be resolved"
         assert leg_north.departure_port.name == "Bremerhaven"
         assert leg_north.arrival_port.name == "Reykjavik"
 
@@ -221,9 +221,9 @@ class TestTC2TwoLegsIntegration:
         # Validate timeline structure for two-leg cruise: should have 10 activities
         # Leg1: Port_Departure (Halifax), Transit, Station (STN_001), Transit, Port_Arrival (Bremerhaven)
         # Leg2: Port_Departure (Bremerhaven), Transit, Mooring (STN_002), Transit, Port_Arrival (Reykjavik)
-        assert len(timeline) == 10, (
-            "Expected 10 activities for two-leg cruise (ports + operations + transits)"
-        )
+        assert (
+            len(timeline) == 10
+        ), "Expected 10 activities for two-leg cruise (ports + operations + transits)"
 
         # Check activity types and sequence
         activities = [
@@ -282,9 +282,9 @@ class TestTC2TwoLegsIntegration:
         transit_activities = [act for act in timeline if act.get("dist_nm", 0) > 0]
 
         # Should have 4 transit activities (Port_Departure and Port_Arrival for each leg)
-        assert len(transit_activities) >= 4, (
-            "Expected at least 4 activities with transit distances"
-        )
+        assert (
+            len(transit_activities) >= 4
+        ), "Expected at least 4 activities with transit distances"
 
         # Test specific expected distances (within 1% tolerance)
         # Look for transit activities by their labels
@@ -299,9 +299,7 @@ class TestTC2TwoLegsIntegration:
         actual_distance_1 = halifax_to_stn001_activity.get("dist_nm", 0)
         assert (
             abs(actual_distance_1 - expected_distance_1) / expected_distance_1 < 0.01
-        ), (
-            f"Halifax to STN_001 distance should be ~{expected_distance_1} nm, got {actual_distance_1} nm"
-        )
+        ), f"Halifax to STN_001 distance should be ~{expected_distance_1} nm, got {actual_distance_1} nm"
 
         # STN_001 to Bremerhaven: 2124.8 nm
         stn001_to_bremerhaven_activity = next(
@@ -315,9 +313,7 @@ class TestTC2TwoLegsIntegration:
         actual_distance_2 = stn001_to_bremerhaven_activity.get("dist_nm", 0)
         assert (
             abs(actual_distance_2 - expected_distance_2) / expected_distance_2 < 0.01
-        ), (
-            f"STN_001 to Bremerhaven distance should be ~{expected_distance_2} nm, got {actual_distance_2} nm"
-        )
+        ), f"STN_001 to Bremerhaven distance should be ~{expected_distance_2} nm, got {actual_distance_2} nm"
 
         # Verify other transit distances are reasonable
         bremerhaven_to_stn002_activity = next(
@@ -335,12 +331,12 @@ class TestTC2TwoLegsIntegration:
         )
 
         # These should be > 0 and reasonable (rough bounds check)
-        assert bremerhaven_to_stn002_activity.get("dist_nm", 0) > 1000, (
-            "Bremerhaven to STN_002 should be substantial distance"
-        )
-        assert stn002_to_reykjavik_activity.get("dist_nm", 0) > 200, (
-            "STN_002 to Reykjavik should be reasonable distance"
-        )
+        assert (
+            bremerhaven_to_stn002_activity.get("dist_nm", 0) > 1000
+        ), "Bremerhaven to STN_002 should be substantial distance"
+        assert (
+            stn002_to_reykjavik_activity.get("dist_nm", 0) > 200
+        ), "STN_002 to Reykjavik should be reasonable distance"
 
     def test_html_output_leg_durations(self, base_config_path, temp_dir):
         """Test that HTML output shows expected leg durations: 11.5 days for Leg_Atlantic, 48.5 days for Leg_North."""
@@ -358,30 +354,30 @@ class TestTC2TwoLegsIntegration:
 
         # Check for expected leg durations
         # Based on the actual calculation: 11.5 days for Leg_Atlantic, 48.5 days for Leg_North
-        assert "11.5 days" in html_content, (
-            "Leg_Atlantic should show 11.5 days total duration."
-        )
-        assert "48.5 days" in html_content, (
-            "Leg_North should show 48.5 days total duration"
-        )
+        assert (
+            "11.5 days" in html_content
+        ), "Leg_Atlantic should show 11.5 days total duration."
+        assert (
+            "48.5 days" in html_content
+        ), "Leg_North should show 48.5 days total duration"
 
         # Verify leg section headers
         assert "Leg_Atlantic" in html_content, "Should contain Leg_Atlantic section"
         assert "Leg_North" in html_content, "Should contain Leg_North section"
 
         # Verify port names appear correctly (using display names not port IDs)
-        assert "Halifax" in html_content, (
-            "Should show Halifax port with proper display name"
-        )
-        assert "Transit to Bremerhaven" in html_content, (
-            "Should show transit to Bremerhaven with proper display name"
-        )
-        assert "Bremerhaven" in html_content, (
-            "Should show Bremerhaven port with proper display name"
-        )
-        assert "Transit to Reykjavik" in html_content, (
-            "Should show transit to Reykjavik with proper display name"
-        )
+        assert (
+            "Halifax" in html_content
+        ), "Should show Halifax port with proper display name"
+        assert (
+            "Transit to Bremerhaven" in html_content
+        ), "Should show transit to Bremerhaven with proper display name"
+        assert (
+            "Bremerhaven" in html_content
+        ), "Should show Bremerhaven port with proper display name"
+        assert (
+            "Transit to Reykjavik" in html_content
+        ), "Should show transit to Reykjavik with proper display name"
 
     def test_netcdf_output_mooring_duration(self, base_config_path, temp_dir):
         """Test that NetCDF output contains the expected mooring duration value."""
@@ -423,9 +419,9 @@ class TestTC2TwoLegsIntegration:
             if "mooring" in op_type.lower()
         ]
 
-        assert len(mooring_indices) > 0, (
-            "Should have at least one mooring operation in NetCDF"
-        )
+        assert (
+            len(mooring_indices) > 0
+        ), "Should have at least one mooring operation in NetCDF"
 
         # Check that mooring duration matches DEFAULT_MOORING_DURATION_MIN (converted to hours)
         expected_duration_hours = (
@@ -448,9 +444,9 @@ class TestTC2TwoLegsIntegration:
                 # Regular float/int value
                 mooring_duration_hours = float(mooring_duration)
 
-            assert abs(mooring_duration_hours - expected_duration_hours) < 0.1, (
-                f"Mooring duration in NetCDF should be {expected_duration_hours} hours, got {mooring_duration_hours}"
-            )
+            assert (
+                abs(mooring_duration_hours - expected_duration_hours) < 0.1
+            ), f"Mooring duration in NetCDF should be {expected_duration_hours} hours, got {mooring_duration_hours}"
 
         # Cleanup
         ds.close()
@@ -467,9 +463,9 @@ class TestTC2TwoLegsIntegration:
         timeline = generate_timeline(cruise)
 
         # Validate timeline has correct structure
-        assert len(timeline) == 10, (
-            "Two-leg cruise should have 10 activities (ports + operations + transits)"
-        )
+        assert (
+            len(timeline) == 10
+        ), "Two-leg cruise should have 10 activities (ports + operations + transits)"
 
         # 3. Test all output formats can be generated
         from cruiseplan.output.csv_generator import generate_csv_schedule
@@ -520,9 +516,9 @@ class TestTC2TwoLegsIntegration:
         # Validate all outputs exist and are non-empty
         for format_name, file_path in outputs.items():
             assert file_path.exists(), f"{format_name} output should exist"
-            assert file_path.stat().st_size > 0, (
-                f"{format_name} output should not be empty"
-            )
+            assert (
+                file_path.stat().st_size > 0
+            ), f"{format_name} output should not be empty"
 
         # 4. Validate key metrics
         total_duration = sum(act.get("duration_minutes", 0) for act in timeline)
@@ -532,12 +528,12 @@ class TestTC2TwoLegsIntegration:
         assert total_distance > 0, "Total cruise distance should be positive"
 
         # Specific validation for two-leg cruise
-        assert total_duration > 1400 * 60, (
-            "Two-leg cruise should take more than 1400 hours total"
-        )  # minutes
-        assert total_distance > 4000, (
-            "Two-leg cruise should cover more than 4000 nm total"
-        )
+        assert (
+            total_duration > 1400 * 60
+        ), "Two-leg cruise should take more than 1400 hours total"  # minutes
+        assert (
+            total_distance > 4000
+        ), "Two-leg cruise should cover more than 4000 nm total"
 
         # Validate mooring duration is substantial part of total
         mooring_duration = sum(
@@ -545,9 +541,9 @@ class TestTC2TwoLegsIntegration:
             for act in timeline
             if act.get("activity") == "Mooring"
         )
-        assert mooring_duration >= DEFAULT_MOORING_DURATION_MIN, (
-            "Should include full mooring duration"
-        )
+        assert (
+            mooring_duration >= DEFAULT_MOORING_DURATION_MIN
+        ), "Should include full mooring duration"
 
         # Final check: ensure leg separation is maintained
         leg_atlantic_activities = [
@@ -557,9 +553,9 @@ class TestTC2TwoLegsIntegration:
             act for act in timeline if act.get("leg_name") == "Leg_North"
         ]
 
-        assert len(leg_atlantic_activities) == 5, (
-            f"Leg_Atlantic should have exactly 5 activities. Got: {len(leg_atlantic_activities)}"
-        )
-        assert len(leg_north_activities) == 5, (
-            f"Leg_North should have exactly 5 activities. Got: {len(leg_north_activities)}"
-        )
+        assert (
+            len(leg_atlantic_activities) == 5
+        ), f"Leg_Atlantic should have exactly 5 activities. Got: {len(leg_atlantic_activities)}"
+        assert (
+            len(leg_north_activities) == 5
+        ), f"Leg_North should have exactly 5 activities. Got: {len(leg_north_activities)}"

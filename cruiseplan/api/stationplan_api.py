@@ -443,9 +443,9 @@ def stationplan_forecast_tex(
                 "vessel_speed_kt": 10.0,
                 "leg_name": "forecast",
                 "op_type": activity_type,
-                "operation_class": "LineOperation"
-                if operation_distance > 0.1
-                else "PointOperation",
+                "operation_class": (
+                    "LineOperation" if operation_distance > 0.1 else "PointOperation"
+                ),
                 "action": action if action else None,
                 "comment": comment,
             }

@@ -42,12 +42,23 @@ def check_matplotlib_available() -> None:
 # ============================================================================
 
 
-def create_bathymetry_colormap() -> mcolors.LinearSegmentedColormap:
+def create_bathymetry_colormap(
+    max_depth: Optional[int] = None,
+) -> mcolors.LinearSegmentedColormap:
     """
     Create the Flemish Cap bathymetry colormap matching the CPT specification.
 
     This creates a colormap with constant colors within each depth range,
     exactly matching the CPT specification.
+
+    Parameters
+    ----------
+    max_depth : int, optional
+        Maximum water depth in metres (positive integer). When provided, the
+        colour scale spans from ``-max_depth`` to +200 m instead of -8000 to
+        +200 m, spreading full colour contrast across shallower water. For
+        example, ``max_depth=1000`` makes the range -1000 to +200 m. Default
+        is None (full -8000 to +200 m range).
 
     Returns
     -------
@@ -55,15 +66,16 @@ def create_bathymetry_colormap() -> mcolors.LinearSegmentedColormap:
         Bathymetry colormap with proper depth-color mapping
     """
     # Overall depth range for normalization
-    depth_min, depth_max = -8000, 200
+    depth_max = 200
+    depth_min = -max_depth if max_depth is not None else -8000
 
     # Create color dictionary for LinearSegmentedColormap
     # Each segment needs: (position, start_color, end_color)
     # For constant colors within ranges, start_color == end_color
     cdict = {"red": [], "green": [], "blue": [], "alpha": []}
 
-    # Define segments with constant colors within each range
-    segments = [
+    # Water and land colour segments for the full -8000 to +200 range
+    water_segments = [
         # (depth_start, depth_end, hex_color)
         (-8000, -7000, "#032d44"),  # Abyssal depths (darkest blue)
         (-7000, -6000, "#2A5780"),  # Very deep (darker blue)
@@ -75,8 +87,23 @@ def create_bathymetry_colormap() -> mcolors.LinearSegmentedColormap:
         (-1000, -500, "#77C1D4"),  # Shallow continental shelf (light blue)
         (-500, -200, "#94CBD1"),  # Shallow continental shelf (light blue)
         (-200, 0, "#addbd1"),  # Very shallow water (very light blue/cyan)
-        (0, 200, "#F7CE55"),  # Land/shallow areas (yellow/tan)
     ]
+    land_segment = (0, 200, "#F7CE55")
+
+    if max_depth is not None:
+        # Remap the full water colour palette to span [-max_depth, 0] so that
+        # all colour gradations are visible regardless of how shallow the area is.
+        # Each segment's boundaries are scaled proportionally from [-8000, 0] to
+        # [-max_depth, 0].
+        full_water_range = 8000.0
+        segments = []
+        for d_start, d_end, color in water_segments:
+            new_start = -max_depth + (d_start - (-8000)) / full_water_range * max_depth
+            new_end = -max_depth + (d_end - (-8000)) / full_water_range * max_depth
+            segments.append((new_start, new_end, color))
+        segments.append(land_segment)
+    else:
+        segments = water_segments + [land_segment]
 
     for depth_start, depth_end, hex_color in segments:
         # Convert hex to RGB
@@ -101,7 +128,7 @@ def create_bathymetry_colormap() -> mcolors.LinearSegmentedColormap:
     cmap = mcolors.LinearSegmentedColormap("bathymetry_custom", cdict, 256)
 
     # Set under and over colors
-    # Under: for depths deeper than -8000m (darker than colormap range)
+    # Under: for depths deeper than depth_min (darker than colormap range)
     cmap.set_under("#032d44")  # Dark blue for abyssal depths
     # Over: for elevations higher than 200m (shallower than colormap range)
     cmap.set_over("#F7CE55")  # Yellow for land areas

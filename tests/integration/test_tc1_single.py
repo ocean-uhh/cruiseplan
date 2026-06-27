@@ -86,9 +86,9 @@ class TestTC1SingleIntegration:
         assert leg.name == "Leg_Single"
 
         # Check that ports are resolved to PointDefinition objects in legs
-        assert hasattr(leg.departure_port, "latitude"), (
-            "Departure port should be resolved"
-        )
+        assert hasattr(
+            leg.departure_port, "latitude"
+        ), "Departure port should be resolved"
         assert hasattr(leg.arrival_port, "latitude"), "Arrival port should be resolved"
 
         # Validate resolved ports
@@ -141,9 +141,9 @@ class TestTC1SingleIntegration:
 
         # Check depth value (already present in fixture, so no enrichment needed)
         assert hasattr(enriched_station, "water_depth"), "Water depth should be present"
-        assert enriched_station.water_depth == 2850.0, (
-            f"Expected mocked depth 2850.0, got {enriched_station.water_depth}"
-        )
+        assert (
+            enriched_station.water_depth == 2850.0
+        ), f"Expected mocked depth 2850.0, got {enriched_station.water_depth}"
 
     def test_enrichment_with_coords(self, yaml_path, temp_dir):
         """Test coordinate enrichment with DMM format."""
@@ -163,13 +163,13 @@ class TestTC1SingleIntegration:
         enriched_station = enriched_cruise.point_registry["STN_001"]
 
         # Check coordinate enrichment with precise DMM format
-        assert hasattr(enriched_station, "get_ddm_comment"), (
-            "Coordinates should be enriched"
-        )
+        assert hasattr(
+            enriched_station, "get_ddm_comment"
+        ), "Coordinates should be enriched"
         ddm_result = enriched_station.get_ddm_comment()
-        assert ddm_result == "45 00.00'N, 045 00.00'W", (
-            f"Expected DMM '45 00.00'N, 045 00.00'W', got {ddm_result}"
-        )
+        assert (
+            ddm_result == "45 00.00'N, 045 00.00'W"
+        ), f"Expected DMM '45 00.00'N, 045 00.00'W', got {ddm_result}"
 
     def test_enrichment_gebco2025_depth(self, yaml_path, temp_dir):
         """Test depth enrichment with GEBCO2025 bathymetry source."""
@@ -191,9 +191,9 @@ class TestTC1SingleIntegration:
 
         # Check depth value (already present in fixture, so no enrichment needed)
         assert hasattr(enriched_station, "water_depth"), "Water depth should be present"
-        assert enriched_station.water_depth == 2850.0, (
-            f"Expected mocked depth 2850.0, got {enriched_station.water_depth}"
-        )
+        assert (
+            enriched_station.water_depth == 2850.0
+        ), f"Expected mocked depth 2850.0, got {enriched_station.water_depth}"
 
     def test_enrichment_complete_workflow(self, yaml_path, temp_dir):
         """Test complete enrichment workflow with all options enabled."""
@@ -227,9 +227,9 @@ class TestTC1SingleIntegration:
         assert config.start_date == DEFAULT_START_DATE
 
         # Check coordinate enrichment
-        assert hasattr(enriched_station, "get_ddm_comment"), (
-            "Coordinates should be enriched"
-        )
+        assert hasattr(
+            enriched_station, "get_ddm_comment"
+        ), "Coordinates should be enriched"
         assert enriched_station.get_ddm_comment() == "45 00.00'N, 045 00.00'W"
 
         # Check depth value (already present in fixture, so no enrichment needed)
@@ -256,24 +256,24 @@ class TestTC1SingleIntegration:
         )
 
         # Should have added station defaults
-        assert enrichment_summary["station_defaults_added"] == 1, (
-            "Should add mooring duration default"
-        )
+        assert (
+            enrichment_summary["station_defaults_added"] == 1
+        ), "Should add mooring duration default"
 
         # Load enriched config and check the duration was added
         enriched_cruise = CruiseInstance(output_path)
         mooring_station = enriched_cruise.point_registry["MOORING_001"]
 
         # Check that duration was added with correct value
-        assert hasattr(mooring_station, "duration"), (
-            "Mooring should have duration field"
-        )
-        assert mooring_station.duration == DEFAULT_MOORING_DURATION_MIN, (
-            f"Expected {DEFAULT_MOORING_DURATION_MIN} minutes, got {mooring_station.duration}"
-        )
-        assert mooring_station.duration == 59940.0, (
-            "Duration should be 59940 minutes (999 hours)"
-        )
+        assert hasattr(
+            mooring_station, "duration"
+        ), "Mooring should have duration field"
+        assert (
+            mooring_station.duration == DEFAULT_MOORING_DURATION_MIN
+        ), f"Expected {DEFAULT_MOORING_DURATION_MIN} minutes, got {mooring_station.duration}"
+        assert (
+            mooring_station.duration == 59940.0
+        ), "Duration should be 59940 minutes (999 hours)"
 
     def test_csv_output_generation(self, yaml_path, temp_dir):
         """Test CSV schedule generation with proper transit data."""
@@ -397,9 +397,9 @@ class TestTC1SingleIntegration:
         # 3. Generate timeline
         timeline = generate_timeline(cruise)
         # Timeline includes: mob/demob in ports (2) + user operations (1) + transits (2) = 5 activities
-        assert len(timeline) == 5, (
-            "Timeline should have 5 activities (mob/demob + user ops)"
-        )
+        assert (
+            len(timeline) == 5
+        ), "Timeline should have 5 activities (mob/demob + user ops)"
 
         # 4. Generate all output formats
         outputs = {}
@@ -422,9 +422,9 @@ class TestTC1SingleIntegration:
         # Validate all outputs exist and are non-empty
         for format_name, file_path in outputs.items():
             assert file_path.exists(), f"{format_name} output should exist"
-            assert file_path.stat().st_size > 0, (
-                f"{format_name} output should not be empty"
-            )
+            assert (
+                file_path.stat().st_size > 0
+            ), f"{format_name} output should not be empty"
 
         # Final validation: timeline covers expected time and distance
         total_duration = sum(act.get("duration_minutes", 0) for act in timeline)
@@ -434,7 +434,7 @@ class TestTC1SingleIntegration:
         assert total_distance > 0, "Total cruise distance should be positive"
 
         # Reasonable ranges for Halifax → 45°N 45°W → Cadiz
-        assert total_duration > 100 * 60, (
-            "Should take more than 100 hours total"
-        )  # minutes
+        assert (
+            total_duration > 100 * 60
+        ), "Should take more than 100 hours total"  # minutes
         assert total_distance > 2000, "Should be more than 2000 nm total distance"

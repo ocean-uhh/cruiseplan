@@ -40,9 +40,9 @@ class TestStationplanTransitDistances:
             )
 
             # Verify schedule generation succeeded
-            assert bool(schedule_result), (
-                f"Schedule generation failed: {schedule_result.errors}"
-            )
+            assert bool(
+                schedule_result
+            ), f"Schedule generation failed: {schedule_result.errors}"
             assert schedule_result.timeline is not None
             assert len(schedule_result.timeline) > 0
 
@@ -50,9 +50,9 @@ class TestStationplanTransitDistances:
             netcdf_files = [
                 f for f in schedule_result.files_created if f.suffix == ".nc"
             ]
-            assert len(netcdf_files) == 1, (
-                f"Expected 1 NetCDF file, got {len(netcdf_files)}"
-            )
+            assert (
+                len(netcdf_files) == 1
+            ), f"Expected 1 NetCDF file, got {len(netcdf_files)}"
             schedule_file = netcdf_files[0]
 
             # Step 2: Generate stationplan TeX output
@@ -107,9 +107,9 @@ class TestStationplanTransitDistances:
 
         schedule_result = schedule_with_config(config_file=fixture_path, config=None)
 
-        assert bool(schedule_result), (
-            f"Schedule generation failed: {schedule_result.errors}"
-        )
+        assert bool(
+            schedule_result
+        ), f"Schedule generation failed: {schedule_result.errors}"
         timeline = schedule_result.timeline
 
         # Debug: Print timeline contents
@@ -123,9 +123,9 @@ class TestStationplanTransitDistances:
         transit_activities = [
             activity for activity in timeline if activity.get("activity") == "Transit"
         ]
-        assert len(transit_activities) > 0, (
-            f"Expected at least one Transit activity in timeline. Activities found: {[activity.get('activity') for activity in timeline]}"
-        )
+        assert (
+            len(transit_activities) > 0
+        ), f"Expected at least one Transit activity in timeline. Activities found: {[activity.get('activity') for activity in timeline]}"
 
         # Check that Transit activities have distance
         transit_with_distance = [
@@ -133,15 +133,15 @@ class TestStationplanTransitDistances:
             for activity in transit_activities
             if activity.get("dist_nm", 0) > 0
         ]
-        assert len(transit_with_distance) > 0, (
-            "Expected Transit activities to have distance > 0"
-        )
+        assert (
+            len(transit_with_distance) > 0
+        ), "Expected Transit activities to have distance > 0"
 
         # Verify we have approximately 60 nm distance
         distances = [activity.get("dist_nm", 0) for activity in transit_with_distance]
         print(f"Transit distances found: {distances}")
 
         # Should be close to 60 nm (1 degree latitude)
-        assert any(55 <= dist <= 65 for dist in distances), (
-            f"Expected distance ~60nm, got {distances}"
-        )
+        assert any(
+            55 <= dist <= 65 for dist in distances
+        ), f"Expected distance ~60nm, got {distances}"
