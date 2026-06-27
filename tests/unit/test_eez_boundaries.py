@@ -18,7 +18,7 @@ class TestEEZBoundaries:
     @pytest.fixture
     def mock_eez_gdf(self):
         """Create a mock GeoDataFrame for testing."""
-        mock_gdf = Mock()
+        mock_gdf = MagicMock()
         mock_gdf.empty = False
         mock_gdf.__len__ = Mock(return_value=3)
         mock_gdf.columns = ["SOVEREIGN1", "GEONAME", "AREA_KM2", "geometry"]
@@ -51,85 +51,76 @@ class TestEEZBoundaries:
         except ImportError as e:
             pytest.skip(f"EEZ dependencies not available: {e}")
 
-    @patch("cruiseplan.data.eez_boundaries.urlretrieve")
-    @patch("cruiseplan.data.eez_boundaries.zipfile.ZipFile")
-    @patch("cruiseplan.data.eez_boundaries.Path.exists")
-    def test_ensure_eez_data_download(
-        self, mock_exists, mock_zipfile, mock_urlretrieve
-    ):
+    def test_ensure_eez_data_download(self):
         """Test EEZ data download and extraction."""
         try:
-            from cruiseplan.data.eez_boundaries import (
-                EEZ_CACHE_DIR,
-                EEZ_FILENAME,
-                ensure_eez_data,
-            )
+            from cruiseplan.data.eez_boundaries import ensure_eez_data
         except ImportError:
             pytest.skip("EEZ dependencies not available")
-
-        # Mock file doesn't exist initially
-        mock_exists.side_effect = lambda: False
 
         # Mock zip file contents
         mock_zip = MagicMock()
         mock_zip.namelist.return_value = ["eez_data.gpkg", "metadata.txt"]
-        mock_zipfile.return_value.__enter__.return_value = mock_zip
 
-        # Mock path operations
-        with patch("cruiseplan.data.eez_boundaries.EEZ_CACHE_DIR") as mock_cache_dir:
+        with (
+            patch("cruiseplan.data.eez_boundaries.urlretrieve") as mock_urlretrieve,
+            patch("cruiseplan.data.eez_boundaries.zipfile.ZipFile") as mock_zipfile,
+            patch("cruiseplan.data.eez_boundaries.EEZ_CACHE_DIR") as mock_cache_dir,
+        ):
+            mock_zipfile.return_value.__enter__.return_value = mock_zip
             mock_cache_dir.mkdir = Mock()
-            mock_eez_path = Mock()
-            mock_eez_path.exists.return_value = True
+            mock_eez_path = MagicMock()
+            mock_eez_path.exists.return_value = False
+            mock_cache_dir.__truediv__ = Mock(return_value=mock_eez_path)
 
-            with patch("cruiseplan.data.eez_boundaries.Path") as mock_path:
-                mock_path.return_value = mock_eez_path
+            ensure_eez_data()
 
-                # Test the function
-                result = ensure_eez_data()
+            # Verify download and extraction were attempted
+            mock_urlretrieve.assert_called_once()
+            mock_zipfile.assert_called_once()
 
-                # Verify download was attempted
-                mock_urlretrieve.assert_called_once()
-                mock_zipfile.assert_called_once()
-
-    @patch("cruiseplan.data.eez_boundaries.gpd.read_file")
-    def test_load_eez_data_with_bbox(self, mock_read_file, mock_eez_gdf):
+    def test_load_eez_data_with_bbox(self, mock_eez_gdf):
         """Test loading EEZ data with spatial filtering."""
         try:
             from cruiseplan.data.eez_boundaries import load_eez_data
         except ImportError:
             pytest.skip("EEZ dependencies not available")
 
-        # Mock geopandas reading
-        mock_read_file.return_value = mock_eez_gdf
+        with (
+            patch("cruiseplan.data.eez_boundaries.ensure_eez_data") as mock_ensure_eez,
+            patch("cruiseplan.data.eez_boundaries.gpd.read_file") as mock_read_file,
+        ):
+            mock_ensure_eez.return_value = Path("/fake/eez.gpkg")
+            mock_read_file.return_value = mock_eez_gdf
 
-        # Test with bounding box
-        bbox = (-70, 40, -30, 70)
-        result = load_eez_data(bbox=bbox)
+            # Test with bounding box
+            bbox = (-70, 40, -30, 70)
+            load_eez_data(bbox=bbox)
 
-        # Verify function was called
-        mock_read_file.assert_called_once()
+            # Verify function was called
+            mock_read_file.assert_called_once()
 
-    @patch("cruiseplan.data.eez_boundaries.load_eez_data")
-    def test_get_eez_for_point(self, mock_load_eez_data, mock_eez_gdf):
+    def test_get_eez_for_point(self, mock_eez_gdf):
         """Test point-in-EEZ lookup."""
         try:
             from cruiseplan.data.eez_boundaries import get_eez_for_point
         except ImportError:
             pytest.skip("EEZ dependencies not available")
 
-        # Mock that point is contained in EEZ
-        mock_eez_gdf.__getitem__ = Mock(return_value=mock_eez_gdf)  # For filtering
-        mock_load_eez_data.return_value = mock_eez_gdf
+        with patch("cruiseplan.data.eez_boundaries.load_eez_data") as mock_load_eez_data:
+            # Mock that point is contained in EEZ
+            mock_eez_gdf.__getitem__ = Mock(return_value=mock_eez_gdf)  # For filtering
+            mock_load_eez_data.return_value = mock_eez_gdf
 
-        # Test point lookup
-        result = get_eez_for_point(lat=40.0, lon=-70.0)
+            # Test point lookup
+            result = get_eez_for_point(lat=40.0, lon=-70.0)
 
-        # Verify result structure
-        if result:  # May return None in mock scenario
-            assert isinstance(result, dict)
-            expected_keys = ["country", "eez_name", "area_km2", "iso_code"]
-            for key in expected_keys:
-                assert key in result
+            # Verify result structure
+            if result:  # May return None in mock scenario
+                assert isinstance(result, dict)
+                expected_keys = ["country", "eez_name", "area_km2", "iso_code"]
+                for key in expected_keys:
+                    assert key in result
 
     def test_cruise_area_bbox_calculation(self):
         """Test bounding box calculation from cruise data."""
@@ -142,7 +133,7 @@ class TestEEZBoundaries:
         mock_cruise = Mock()
 
         with patch(
-            "cruiseplan.data.eez_boundaries.extract_points_from_cruise"
+            "cruiseplan.output.map_generator.extract_points_from_cruise"
         ) as mock_extract:
             mock_extract.return_value = [
                 {"lat": 40.0, "lon": -70.0},
