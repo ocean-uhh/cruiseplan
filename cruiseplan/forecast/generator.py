@@ -101,9 +101,14 @@ def list_activities(
             if not np.isnan(op_depth_val) and op_depth_val != -9999.0:
                 operation_depth = op_depth_val
 
-        # Get distance for current activity (if available)
+        # Get distance to next activity/station (if available), falling back to
+        # the current activity distance for compatibility with older datasets.
         distance = None  # Use None instead of 0 to distinguish between 0 and missing
-        if "dist_nm" in schedule.variables:
+        if "distance_to_next" in schedule.variables:
+            dist_val = float(schedule.distance_to_next[i].values)
+            if not np.isnan(dist_val) and dist_val != -9999.0:
+                distance = dist_val
+        if distance is None and "dist_nm" in schedule.variables:
             dist_val = float(schedule.dist_nm[i].values)
             if not np.isnan(dist_val) and dist_val != -9999.0:
                 distance = dist_val
