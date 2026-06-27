@@ -30,10 +30,9 @@ EEZ_DOWNLOAD_URLS = [
 ]
 
 # Expected fields in EEZ GeoPackage for validation
-EXPECTED_EEZ_FIELDS = ["SOVEREIGN1", "GEONAME", "AREA_KM2", "ISO_SOV1", "geometry"]
+EXPECTED_EEZ_FIELDS = ["SOVEREIGN1", "GEONAME", "AREA_KM2", "geometry"]
 EEZ_CACHE_DIR = Path.home() / ".cruiseplan" / "eez_data"
 EEZ_FILENAME = "eez_boundaries.gpkg"
-EXPECTED_EEZ_FIELDS = ["SOVEREIGN1", "GEONAME", "AREA_KM2", "geometry"]
 
 
 def ensure_eez_data() -> Path:
@@ -101,22 +100,14 @@ def ensure_eez_data() -> Path:
 def _extract_and_validate_eez_data(zip_path: Path, eez_file_path: Path) -> bool:
     """
     Extract GeoPackage from zip and validate it contains expected EEZ schema.
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> origin/main
     Parameters
     ----------
     zip_path : Path
         Path to the downloaded zip file
     eez_file_path : Path
         Target path for the validated EEZ GeoPackage
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> origin/main
     Returns
     -------
     bool
@@ -134,12 +125,8 @@ def _extract_and_validate_eez_data(zip_path: Path, eez_file_path: Path) -> bool:
             for gpkg_name in gpkg_files:
                 try:
                     # Extract to temporary location for validation
-<<<<<<< HEAD
                     gpkg_basename = Path(gpkg_name).name
                     temp_path = eez_file_path.parent / f"temp_{gpkg_basename}"
-=======
-                    temp_path = eez_file_path.parent / f"temp_{gpkg_name}"
->>>>>>> origin/main
                     zip_ref.extract(gpkg_name, eez_file_path.parent)
                     extracted_path = eez_file_path.parent / gpkg_name
                     extracted_path.rename(temp_path)
@@ -152,13 +139,9 @@ def _extract_and_validate_eez_data(zip_path: Path, eez_file_path: Path) -> bool:
                         return True
                     else:
                         # Invalid schema - clean up and try next file
-<<<<<<< HEAD
                         logger.warning(
                             f"GeoPackage {gpkg_name} does not contain valid EEZ schema"
                         )
-=======
-                        logger.warning(f"GeoPackage {gpkg_name} does not contain valid EEZ schema")
->>>>>>> origin/main
                         temp_path.unlink(missing_ok=True)
 
                 except Exception as e:
@@ -176,20 +159,12 @@ def _extract_and_validate_eez_data(zip_path: Path, eez_file_path: Path) -> bool:
 def _validate_eez_schema(gpkg_path: Path) -> bool:
     """
     Validate that a GeoPackage contains expected EEZ fields and data.
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> origin/main
     Parameters
     ----------
     gpkg_path : Path
         Path to the GeoPackage file to validate
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> origin/main
     Returns
     -------
     bool
@@ -202,13 +177,9 @@ def _validate_eez_schema(gpkg_path: Path) -> bool:
         gdf = gpd.read_file(gpkg_path)
 
         # Check if it has the expected EEZ fields
-<<<<<<< HEAD
         missing_fields = [
             field for field in EXPECTED_EEZ_FIELDS if field not in gdf.columns
         ]
-=======
-        missing_fields = [field for field in EXPECTED_EEZ_FIELDS if field not in gdf.columns]
->>>>>>> origin/main
         if missing_fields:
             logger.warning(f"GeoPackage missing expected EEZ fields: {missing_fields}")
             return False
@@ -220,7 +191,6 @@ def _validate_eez_schema(gpkg_path: Path) -> bool:
 
         # Basic sanity check - should have reasonable number of EEZ zones
         if len(gdf) < 100:  # Real EEZ data should have 200+ zones globally
-<<<<<<< HEAD
             logger.warning(
                 f"GeoPackage contains suspiciously few EEZ zones: {len(gdf)}"
             )
@@ -229,12 +199,6 @@ def _validate_eez_schema(gpkg_path: Path) -> bool:
         logger.debug(
             f"EEZ validation successful: {len(gdf)} zones, expected fields present"
         )
-=======
-            logger.warning(f"GeoPackage contains suspiciously few EEZ zones: {len(gdf)}")
-            return False
-
-        logger.debug(f"EEZ validation successful: {len(gdf)} zones, expected fields present")
->>>>>>> origin/main
         return True
 
     except Exception as e:
@@ -252,11 +216,7 @@ def load_eez_data(
     ----------
     bbox : tuple of float, optional
         Bounding box to filter EEZ data (min_lon, min_lat, max_lon, max_lat).
-<<<<<<< HEAD
         If None, loads global EEZ dataset. Spatial filtering is applied at
-=======
-        If None, loads global EEZ dataset. Spatial filtering is applied at 
->>>>>>> origin/main
         read-time for optimal performance.
 
     Returns

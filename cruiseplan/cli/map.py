@@ -36,6 +36,7 @@ def main(args: argparse.Namespace) -> None:
             figsize=getattr(args, "figsize", None),
             show_plot=getattr(args, "show_plot", False),
             no_ports=getattr(args, "no_ports", False),
+            include_eez=not getattr(args, "no_eez", False),
             verbose=getattr(args, "verbose", False),
             max_depth=getattr(args, "max_depth", None),
         )

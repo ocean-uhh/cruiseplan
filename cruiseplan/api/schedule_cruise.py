@@ -91,6 +91,7 @@ def schedule(  # noqa: C901, PLR0915
     lon_bounds: Optional[list] = None,
     figsize: Optional[list] = None,
     no_ports: bool = False,
+    include_eez: bool = True,
     verbose: bool = False,
     max_depth: Optional[int] = None,
 ) -> ScheduleResult:
@@ -122,6 +123,9 @@ def schedule(  # noqa: C901, PLR0915
         Figure size for PNG maps [width, height] (default: [12, 8])
     no_ports : bool
         Exclude ports from PNG schedule maps (default: False)
+    include_eez : bool
+        Include EEZ boundaries on interactive maps (default: True).
+        Note: Boundaries are for visualization only and may not reflect official agreements.
     max_depth : int, optional
         Maximum water depth (m) for the bathymetry colour scale on PNG maps. When
         provided, clips the deep end so shallow-water structure uses the full colour
