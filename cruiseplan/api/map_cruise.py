@@ -69,7 +69,6 @@ def map_with_config(
         figsize=config.visualization.figsize,
         show_plot=config.visualization.show_plot,
         no_ports=not config.visualization.include_ports,
-        include_eez=config.visualization.include_eez,
         verbose=config.output.verbose,
     )
 
@@ -88,7 +87,6 @@ def map(
     figsize: Optional[list] = None,
     show_plot: bool = False,
     no_ports: bool = False,
-    include_eez: bool = True,
     verbose: bool = False,
     max_depth: Optional[int] = None,
 ) -> MapResult:
@@ -117,9 +115,6 @@ def map(
         Display plot interactively (default: False)
     no_ports : bool
         Suppress plotting of departure and arrival ports (default: False)
-    include_eez : bool
-        Include EEZ (Exclusive Economic Zone) boundaries on interactive maps (default: True).
-        Note: Boundaries are for visualization only and may not reflect official agreements.
     verbose : bool
         Enable verbose logging (default: False)
 

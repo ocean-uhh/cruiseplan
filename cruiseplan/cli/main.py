@@ -276,11 +276,6 @@ Examples:
         action="store_true",
         help="Exclude ports from PNG schedule maps",
     )
-    schedule_parser.add_argument(
-        "--no-eez",
-        action="store_true",
-        help="Exclude EEZ boundaries from interactive maps (visualization only - not legal boundaries)",
-    )
 
     # --- 3. Stations Subcommand ---
     stations_parser = subparsers.add_parser(
@@ -512,11 +507,6 @@ Examples:
         "--no-ports",
         action="store_true",
         help="Suppress plotting of departure and arrival ports in both PNG and KML outputs",
-    )
-    map_parser.add_argument(
-        "--no-eez",
-        action="store_true",
-        help="Exclude EEZ boundaries from interactive maps (visualization only - not legal boundaries)",
     )
 
     # Output control
@@ -769,7 +759,6 @@ Examples:
         metavar="METRES",
         help="Maximum water depth (m) for the bathymetry colour scale. Clips the deep end so shallow-water structure uses the full colour range. Example: --max-depth 1000",
     )
-
     # Map bounds
     process_parser.add_argument(
         "--lat",
