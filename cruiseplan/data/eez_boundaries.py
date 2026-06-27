@@ -134,7 +134,8 @@ def _extract_and_validate_eez_data(zip_path: Path, eez_file_path: Path) -> bool:
             for gpkg_name in gpkg_files:
                 try:
                     # Extract to temporary location for validation
-                    temp_path = eez_file_path.parent / f"temp_{gpkg_name}"
+                    gpkg_basename = Path(gpkg_name).name
+                    temp_path = eez_file_path.parent / f"temp_{gpkg_basename}"
                     zip_ref.extract(gpkg_name, eez_file_path.parent)
                     extracted_path = eez_file_path.parent / gpkg_name
                     extracted_path.rename(temp_path)

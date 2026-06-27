@@ -65,7 +65,8 @@ def create_bathymetry_colormap(
     matplotlib.colors.LinearSegmentedColormap
         Bathymetry colormap with proper depth-color mapping
     """
-    # Overall depth range for normalization
+    if max_depth is not None and max_depth <= 0:
+        raise ValueError(f"max_depth must be a positive integer, got {max_depth}")
     depth_max = 200
     depth_min = -max_depth if max_depth is not None else -8000
 

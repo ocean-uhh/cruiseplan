@@ -642,6 +642,10 @@ def plot_bathymetry(
 
         # Filled contour levels
         if max_depth is not None:
+            if max_depth <= 0:
+                raise ValueError(
+                    f"max_depth must be a positive integer, got {max_depth}"
+                )
             # Generate ~5 evenly spaced levels rounded to a "nice" step size
             raw_step = max_depth / 5.0
             magnitude = 10 ** math.floor(math.log10(raw_step))

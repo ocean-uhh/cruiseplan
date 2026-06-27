@@ -59,6 +59,91 @@ class TestBathymetryColormaps:
             assert np.all(colors >= 0) and np.all(colors <= 1)
 
 
+class TestBathymetryColormapMaxDepth:
+    """Tests for create_bathymetry_colormap with max_depth parameter."""
+
+    @pytest.mark.parametrize("max_depth", [50, 100, 500, 1000, 8000])
+    def test_create_bathymetry_colormap_with_max_depth(self, max_depth):
+        """Colormap with max_depth is a valid LinearSegmentedColormap."""
+        cmap = create_bathymetry_colormap(max_depth=max_depth)
+        assert isinstance(cmap, mcolors.LinearSegmentedColormap)
+        assert cmap.N == 256
+
+    @pytest.mark.parametrize("max_depth", [50, 200, 1000])
+    def test_colormap_endpoints_with_max_depth(self, max_depth):
+        """Deepest and shallowest positions map to distinct colors."""
+        cmap = create_bathymetry_colormap(max_depth=max_depth)
+        deep = cmap(0.0)  # -max_depth
+        land = cmap(1.0)  # +200 m
+        # Land should be yellowish (high R, high G, low B)
+        assert land[0] > 0.8 and land[1] > 0.7
+        # Deep should be dark blue (low R, G; meaningful B)
+        assert deep[2] > 0.2
+
+    @pytest.mark.parametrize("bad_value", [0, -1, -100])
+    def test_create_bathymetry_colormap_rejects_nonpositive(self, bad_value):
+        """max_depth <= 0 raises ValueError."""
+        with pytest.raises(ValueError, match="max_depth must be a positive integer"):
+            create_bathymetry_colormap(max_depth=bad_value)
+
+    def test_max_depth_colormap_differs_from_default(self):
+        """A clipped colormap samples different colors than the full-range default."""
+        cmap_default = create_bathymetry_colormap()
+        cmap_clipped = create_bathymetry_colormap(max_depth=200)
+        # At normalized position 0.5, the two colormaps should differ
+        assert cmap_default(0.5) != cmap_clipped(0.5)
+
+
+class TestMaxDepthLevelGeneration:
+    """Unit tests for the 'nice step' algorithm used with max_depth."""
+
+    @staticmethod
+    def _nice_levels(max_depth: int) -> list:
+        """Mirror of the level-generation logic in map_generator.plot_bathymetry."""
+        import math
+
+        raw_step = max_depth / 5.0
+        magnitude = 10 ** math.floor(math.log10(raw_step))
+        for factor in (1, 2, 5, 10):
+            if raw_step <= factor * magnitude:
+                step = factor * magnitude
+                break
+        else:
+            step = magnitude * 10
+        return [-max_depth + i * step for i in range(int(max_depth / step))] + [0, 200]
+
+    @pytest.mark.parametrize(
+        "max_depth, expected_step",
+        [
+            (100, 20),
+            (500, 100),
+            (1000, 200),
+            (60, 20),
+            (200, 50),
+        ],
+    )
+    def test_nice_step_values(self, max_depth, expected_step):
+        levels = self._nice_levels(max_depth)
+        # Step between first two water levels equals expected_step
+        assert levels[1] - levels[0] == expected_step
+
+    @pytest.mark.parametrize("max_depth", [50, 100, 500, 1000])
+    def test_levels_start_at_negative_max_depth(self, max_depth):
+        levels = self._nice_levels(max_depth)
+        assert levels[0] == -max_depth
+
+    @pytest.mark.parametrize("max_depth", [50, 100, 500, 1000])
+    def test_levels_end_with_zero_and_land(self, max_depth):
+        levels = self._nice_levels(max_depth)
+        assert levels[-2] == 0
+        assert levels[-1] == 200
+
+    @pytest.mark.parametrize("max_depth", [50, 100, 500, 1000])
+    def test_levels_are_monotonically_increasing(self, max_depth):
+        levels = self._nice_levels(max_depth)
+        assert all(levels[i] < levels[i + 1] for i in range(len(levels) - 1))
+
+
 class TestLegendConfig:
     """Test suite for legend configuration."""
 
