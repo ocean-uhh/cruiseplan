@@ -10,7 +10,7 @@ requests>=2.32.5
 pangaeapy>=1.0.22
 
 # Configuration and validation
-pydantic>=2.13.3
+pydantic>=2.13.4
 ruamel.yaml>=0.19.1,<0.20.0
 
 # Visualization
@@ -19,7 +19,7 @@ folium
 branca  # Folium dependency, good to be explicit
 
 # Geospatial analysis
-geopandas>=0.14.0
+geopandas>=1.0.1
 
 # User interface
 tqdm>=4.67.3
