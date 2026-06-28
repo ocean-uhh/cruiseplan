@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>General Utilities &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev40</title>
+  <title>General Utilities &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev41</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=7c57320f"></script>
+      <script src="../_static/documentation_options.js?v=d82fb616"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -663,16 +663,23 @@ Forces reconfiguration with force=True to override any existing config.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.utils.plot_config.create_bathymetry_colormap">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.plot_config.</span></span><span class="sig-name descname"><span class="pre">create_bathymetry_colormap</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">LinearSegmentedColormap</span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/plot_config.html#create_bathymetry_colormap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.plot_config.create_bathymetry_colormap" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.plot_config.</span></span><span class="sig-name descname"><span class="pre">create_bathymetry_colormap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">LinearSegmentedColormap</span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/plot_config.html#create_bathymetry_colormap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.plot_config.create_bathymetry_colormap" title="Link to this definition"></a></dt>
 <dd><p>Create the Flemish Cap bathymetry colormap matching the CPT specification.</p>
 <p>This creates a colormap with constant colors within each depth range,
 exactly matching the CPT specification.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Bathymetry colormap with proper depth-color mapping</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>max_depth</strong> (<em>int</em><em>, </em><em>optional</em>) – Maximum water depth in metres (positive integer). When provided, the
+colour scale spans from <code class="docutils literal notranslate"><span class="pre">-max_depth</span></code> to +200 m instead of -8000 to
++200 m, spreading full colour contrast across shallower water. For
+example, <code class="docutils literal notranslate"><span class="pre">max_depth=1000</span></code> makes the range -1000 to +200 m. Default
+is None (full -8000 to +200 m range).</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>matplotlib.colors.LinearSegmentedColormap</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Bathymetry colormap with proper depth-color mapping</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>matplotlib.colors.LinearSegmentedColormap</p>
 </dd>
 </dl>
 </dd></dl>

@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.utils.plot_config &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev40</title>
+  <title>cruiseplan.utils.plot_config &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev41</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=7c57320f"></script>
+      <script src="../../../_static/documentation_options.js?v=d82fb616"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -138,28 +138,41 @@
 
 <div class="viewcode-block" id="create_bathymetry_colormap">
 <a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.plot_config.create_bathymetry_colormap">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">create_bathymetry_colormap</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">LinearSegmentedColormap</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_bathymetry_colormap</span><span class="p">(</span>
+    <span class="n">max_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">LinearSegmentedColormap</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create the Flemish Cap bathymetry colormap matching the CPT specification.</span>
 
 <span class="sd">    This creates a colormap with constant colors within each depth range,</span>
 <span class="sd">    exactly matching the CPT specification.</span>
 
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    max_depth : int, optional</span>
+<span class="sd">        Maximum water depth in metres (positive integer). When provided, the</span>
+<span class="sd">        colour scale spans from ``-max_depth`` to +200 m instead of -8000 to</span>
+<span class="sd">        +200 m, spreading full colour contrast across shallower water. For</span>
+<span class="sd">        example, ``max_depth=1000`` makes the range -1000 to +200 m. Default</span>
+<span class="sd">        is None (full -8000 to +200 m range).</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    matplotlib.colors.LinearSegmentedColormap</span>
 <span class="sd">        Bathymetry colormap with proper depth-color mapping</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Overall depth range for normalization</span>
-    <span class="n">depth_min</span><span class="p">,</span> <span class="n">depth_max</span> <span class="o">=</span> <span class="o">-</span><span class="mi">8000</span><span class="p">,</span> <span class="mi">200</span>
+    <span class="k">if</span> <span class="n">max_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">max_depth</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;max_depth must be a positive integer, got </span><span class="si">{</span><span class="n">max_depth</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">depth_max</span> <span class="o">=</span> <span class="mi">200</span>
+    <span class="n">depth_min</span> <span class="o">=</span> <span class="o">-</span><span class="n">max_depth</span> <span class="k">if</span> <span class="n">max_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="o">-</span><span class="mi">8000</span>
 
     <span class="c1"># Create color dictionary for LinearSegmentedColormap</span>
     <span class="c1"># Each segment needs: (position, start_color, end_color)</span>
     <span class="c1"># For constant colors within ranges, start_color == end_color</span>
     <span class="n">cdict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;red&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;green&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;blue&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="p">[]}</span>
 
-    <span class="c1"># Define segments with constant colors within each range</span>
-    <span class="n">segments</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># Water and land colour segments for the full -8000 to +200 range</span>
+    <span class="n">water_segments</span> <span class="o">=</span> <span class="p">[</span>
         <span class="c1"># (depth_start, depth_end, hex_color)</span>
         <span class="p">(</span><span class="o">-</span><span class="mi">8000</span><span class="p">,</span> <span class="o">-</span><span class="mi">7000</span><span class="p">,</span> <span class="s2">&quot;#032d44&quot;</span><span class="p">),</span>  <span class="c1"># Abyssal depths (darkest blue)</span>
         <span class="p">(</span><span class="o">-</span><span class="mi">7000</span><span class="p">,</span> <span class="o">-</span><span class="mi">6000</span><span class="p">,</span> <span class="s2">&quot;#2A5780&quot;</span><span class="p">),</span>  <span class="c1"># Very deep (darker blue)</span>
@@ -171,8 +184,23 @@
         <span class="p">(</span><span class="o">-</span><span class="mi">1000</span><span class="p">,</span> <span class="o">-</span><span class="mi">500</span><span class="p">,</span> <span class="s2">&quot;#77C1D4&quot;</span><span class="p">),</span>  <span class="c1"># Shallow continental shelf (light blue)</span>
         <span class="p">(</span><span class="o">-</span><span class="mi">500</span><span class="p">,</span> <span class="o">-</span><span class="mi">200</span><span class="p">,</span> <span class="s2">&quot;#94CBD1&quot;</span><span class="p">),</span>  <span class="c1"># Shallow continental shelf (light blue)</span>
         <span class="p">(</span><span class="o">-</span><span class="mi">200</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;#addbd1&quot;</span><span class="p">),</span>  <span class="c1"># Very shallow water (very light blue/cyan)</span>
-        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="s2">&quot;#F7CE55&quot;</span><span class="p">),</span>  <span class="c1"># Land/shallow areas (yellow/tan)</span>
     <span class="p">]</span>
+    <span class="n">land_segment</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="s2">&quot;#F7CE55&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">max_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Remap the full water colour palette to span [-max_depth, 0] so that</span>
+        <span class="c1"># all colour gradations are visible regardless of how shallow the area is.</span>
+        <span class="c1"># Each segment&#39;s boundaries are scaled proportionally from [-8000, 0] to</span>
+        <span class="c1"># [-max_depth, 0].</span>
+        <span class="n">full_water_range</span> <span class="o">=</span> <span class="mf">8000.0</span>
+        <span class="n">segments</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">d_start</span><span class="p">,</span> <span class="n">d_end</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="n">water_segments</span><span class="p">:</span>
+            <span class="n">new_start</span> <span class="o">=</span> <span class="o">-</span><span class="n">max_depth</span> <span class="o">+</span> <span class="p">(</span><span class="n">d_start</span> <span class="o">-</span> <span class="p">(</span><span class="o">-</span><span class="mi">8000</span><span class="p">))</span> <span class="o">/</span> <span class="n">full_water_range</span> <span class="o">*</span> <span class="n">max_depth</span>
+            <span class="n">new_end</span> <span class="o">=</span> <span class="o">-</span><span class="n">max_depth</span> <span class="o">+</span> <span class="p">(</span><span class="n">d_end</span> <span class="o">-</span> <span class="p">(</span><span class="o">-</span><span class="mi">8000</span><span class="p">))</span> <span class="o">/</span> <span class="n">full_water_range</span> <span class="o">*</span> <span class="n">max_depth</span>
+            <span class="n">segments</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">new_start</span><span class="p">,</span> <span class="n">new_end</span><span class="p">,</span> <span class="n">color</span><span class="p">))</span>
+        <span class="n">segments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">land_segment</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">segments</span> <span class="o">=</span> <span class="n">water_segments</span> <span class="o">+</span> <span class="p">[</span><span class="n">land_segment</span><span class="p">]</span>
 
     <span class="k">for</span> <span class="n">depth_start</span><span class="p">,</span> <span class="n">depth_end</span><span class="p">,</span> <span class="n">hex_color</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">:</span>
         <span class="c1"># Convert hex to RGB</span>
@@ -197,7 +225,7 @@
     <span class="n">cmap</span> <span class="o">=</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">LinearSegmentedColormap</span><span class="p">(</span><span class="s2">&quot;bathymetry_custom&quot;</span><span class="p">,</span> <span class="n">cdict</span><span class="p">,</span> <span class="mi">256</span><span class="p">)</span>
 
     <span class="c1"># Set under and over colors</span>
-    <span class="c1"># Under: for depths deeper than -8000m (darker than colormap range)</span>
+    <span class="c1"># Under: for depths deeper than depth_min (darker than colormap range)</span>
     <span class="n">cmap</span><span class="o">.</span><span class="n">set_under</span><span class="p">(</span><span class="s2">&quot;#032d44&quot;</span><span class="p">)</span>  <span class="c1"># Dark blue for abyssal depths</span>
     <span class="c1"># Over: for elevations higher than 200m (shallower than colormap range)</span>
     <span class="n">cmap</span><span class="o">.</span><span class="n">set_over</span><span class="p">(</span><span class="s2">&quot;#F7CE55&quot;</span><span class="p">)</span>  <span class="c1"># Yellow for land areas</span>
