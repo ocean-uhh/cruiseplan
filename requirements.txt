@@ -1,5 +1,5 @@
 # Scientific computing
-numpy>=2.0.2
+numpy>=2.2.6
 pandas>=2.3.3
 xarray>=2024.7.0
 netCDF4>=1.7.2
