@@ -17,7 +17,7 @@ mock
 pyyaml>=6.0.3
 
 # Code quality
-black>=25.11.0
+black>=26.5.1
 ruff>=0.15.16
 pre-commit>=3.5
 codespell
