@@ -19,7 +19,7 @@ folium
 branca  # Folium dependency, good to be explicit
 
 # Geospatial analysis
-geopandas>=1.0.1
+geopandas>=1.1.4
 
 # User interface
 tqdm>=4.67.3
