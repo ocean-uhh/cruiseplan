@@ -131,6 +131,10 @@ class StationPicker:
         self.output_file = output_file
         self.overwrite = overwrite
         self.bathymetry_stride = bathymetry_stride
+        if max_depth is not None:
+            if max_depth == 0:
+                raise ValueError("max_depth must be a positive number of metres; got 0")
+            max_depth = abs(max_depth)
         self.max_depth = max_depth
         self.custom_contours = custom_contours
         if max_depth is not None:
@@ -353,7 +357,7 @@ class StationPicker:
         )
 
         # 1. Filled Contours (The "Map" feel)
-        if self.max_depth is not None:
+        if self.max_depth is not None and self.max_depth > 0:
             import math
 
             raw_step = self.max_depth / 5.0

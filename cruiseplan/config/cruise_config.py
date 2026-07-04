@@ -186,6 +186,7 @@ class LegDefinition(BaseModel):
     )
     delay_start: Optional[float] = Field(
         None,
+        ge=0,
         description="Delay before the leg departs (minutes), e.g. for port clearance",
     )
 

@@ -229,7 +229,7 @@ Examples:
         "--bathy-stride",
         type=int,
         default=10,
-        help="Bathymetry contour stride for PNG maps (default: 10)",
+        help="Bathymetry grid downsampling factor: 1 = full resolution, higher = faster but less detail (default: 10)",
     )
     schedule_parser.add_argument(
         "--bathy-contours",
@@ -370,7 +370,7 @@ Examples:
         "--bathy-stride",
         type=int,
         default=10,
-        help="Bathymetry downsampling factor (default: 10, lower = finer detail but slower; use 1 for full resolution)",
+        help="Bathymetry grid downsampling factor: 1 = full resolution, higher = faster but less detail (default: 10)",
     )
     stations_parser.add_argument(
         "--max-depth",
@@ -591,7 +591,7 @@ Examples:
         "--bathy-stride",
         type=int,
         default=5,
-        help="Bathymetry downsampling factor (default: 5, higher=faster/less detailed)",
+        help="Bathymetry grid downsampling factor: 1 = full resolution, higher = faster but less detail (default: 5)",
     )
 
     # Display options
@@ -781,7 +781,7 @@ Examples:
         "--bathy-stride",
         type=int,
         default=10,
-        help="Bathymetry contour stride (default: 10)",
+        help="Bathymetry grid downsampling factor: 1 = full resolution, higher = faster but less detail (default: 10)",
     )
     process_parser.add_argument(
         "--bathy-contours",
@@ -1046,7 +1046,7 @@ Examples:
         "--bathy-stride",
         type=int,
         default=10,
-        help="Bathymetry contour stride for PNG maps (default: 10)",
+        help="Bathymetry grid downsampling factor: 1 = full resolution, higher = faster but less detail (default: 10)",
     )
     stationplan_parser.add_argument(
         "--figsize",

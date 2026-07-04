@@ -289,7 +289,7 @@ def _determine_output_path(
 
 
 def _log_configuration_info(
-    output_path: Path, bathy_source: str, high_resolution: bool
+    output_path: Path, bathy_source: str, bathy_stride: int
 ) -> None:
     """Log configuration information for the station picker."""
     logger.info("=" * 50)
@@ -298,10 +298,7 @@ def _log_configuration_info(
 
     logger.info(f"Output file: {output_path}")
     logger.info(f"Bathymetry source: {bathy_source}")
-    if high_resolution:
-        logger.info("Bathymetry resolution: high resolution (stride=1)")
-    else:
-        logger.info("Bathymetry resolution: standard (stride=10)")
+    logger.info(f"Bathymetry stride: {bathy_stride}")
 
     # Performance warning for GEBCO + high-resolution combination
     if bathy_source == "gebco2025" and high_resolution:
@@ -490,7 +487,7 @@ def stations(
     output_path = output_dir_path / output_filename
 
     # Log configuration and display instructions
-    _log_configuration_info(output_path, bathy_source, bathy_stride == 1)
+    _log_configuration_info(output_path, bathy_source, bathy_stride)
     _display_usage_instructions()
 
     # Import and initialize the interactive picker

@@ -124,22 +124,19 @@ class TestEEZBoundaries:
         except ImportError:
             pytest.skip("EEZ dependencies not available")
 
-        with patch(
-            "cruiseplan.data.eez_boundaries.load_eez_data"
-        ) as mock_load_eez_data:
-            # Mock that point is contained in EEZ
-            mock_eez_gdf.__getitem__ = Mock(return_value=mock_eez_gdf)  # For filtering
-            mock_load_eez_data.return_value = mock_eez_gdf
+        # Mock that point is contained in EEZ
+        mock_eez_gdf.__getitem__ = Mock(return_value=mock_eez_gdf)  # For filtering
+        mock_load_eez_data.return_value = mock_eez_gdf
 
-            # Test point lookup
-            result = get_eez_for_point(lat=40.0, lon=-70.0)
+        # Test point lookup
+        result = get_eez_for_point(lat=40.0, lon=-70.0)
 
-            # Verify result structure
-            if result:  # May return None in mock scenario
-                assert isinstance(result, dict)
-                expected_keys = ["country", "eez_name", "area_km2", "iso_code"]
-                for key in expected_keys:
-                    assert key in result
+        # Verify result structure
+        if result:  # May return None in mock scenario
+            assert isinstance(result, dict)
+            expected_keys = ["country", "eez_name", "area_km2", "iso_code"]
+            for key in expected_keys:
+                assert key in result
 
     def test_cruise_area_bbox_calculation(self):
         """Test bounding box calculation from cruise data."""

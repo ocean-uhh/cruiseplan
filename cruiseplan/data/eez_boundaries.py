@@ -33,7 +33,6 @@ EEZ_DOWNLOAD_URLS = [
 EXPECTED_EEZ_FIELDS = ["SOVEREIGN1", "GEONAME", "AREA_KM2", "geometry"]
 EEZ_CACHE_DIR = Path.home() / ".cruiseplan" / "eez_data"
 EEZ_FILENAME = "eez_boundaries.gpkg"
-EXPECTED_EEZ_FIELDS = ["SOVEREIGN1", "GEONAME", "AREA_KM2", "geometry"]
 
 
 def ensure_eez_data() -> Path:

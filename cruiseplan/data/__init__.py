@@ -12,4 +12,4 @@ These modules handle external data sources, caching strategies, and data process
 required for cruise planning, including bathymetric information and scientific datasets.
 """
 
-from cruiseplan.data import eez_boundaries
+# Note: submodules are intentionally not imported here to keep optional dependencies lazy.
