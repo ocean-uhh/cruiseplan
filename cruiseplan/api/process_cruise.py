@@ -1175,6 +1175,12 @@ def process(
         Figure size for maps [width, height] (default: auto)
     no_port_map : bool
         Skip port overview map generation (default: False)
+    no_title : bool
+        Omit the map title from PNG output (default: False)
+    no_labels : bool
+        Omit station name annotations from PNG output (default: False)
+    no_legend : bool
+        Omit the legend from PNG output (default: False)
     verbose : bool
         Enable verbose logging (default: False)
 

@@ -53,9 +53,7 @@ class TestEEZBoundaries:
 
     @patch("cruiseplan.data.eez_boundaries._extract_and_validate_eez_data")
     @patch("cruiseplan.data.eez_boundaries.urlretrieve")
-    def test_ensure_eez_data_download(
-        self, mock_urlretrieve, mock_extract_validate
-    ):
+    def test_ensure_eez_data_download(self, mock_urlretrieve, mock_extract_validate):
         """Test EEZ data download and validation."""
         try:
             from cruiseplan.data.eez_boundaries import (
@@ -87,7 +85,9 @@ class TestEEZBoundaries:
 
     @patch("cruiseplan.data.eez_boundaries.ensure_eez_data")
     @patch("cruiseplan.data.eez_boundaries.gpd.read_file")
-    def test_load_eez_data_with_bbox(self, mock_read_file, mock_ensure_eez, mock_eez_gdf):
+    def test_load_eez_data_with_bbox(
+        self, mock_read_file, mock_ensure_eez, mock_eez_gdf
+    ):
         """Test loading EEZ data with spatial filtering at read-time."""
         try:
             from cruiseplan.data.eez_boundaries import load_eez_data

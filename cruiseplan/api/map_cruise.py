@@ -120,6 +120,15 @@ def map(
         Display plot interactively (default: False)
     no_ports : bool
         Suppress plotting of departure and arrival ports (default: False)
+    include_eez : bool
+        Include EEZ boundaries on interactive maps (default: True).
+        Boundaries are for visualization only and may not reflect official agreements.
+    no_title : bool
+        Omit the map title from PNG output (default: False)
+    no_labels : bool
+        Omit station name annotations from PNG output (default: False)
+    no_legend : bool
+        Omit the legend from PNG output (default: False)
     verbose : bool
         Enable verbose logging (default: False)
 

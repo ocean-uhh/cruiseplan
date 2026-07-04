@@ -387,6 +387,60 @@ class TestPlotCruiseElements:
         mock_ax.scatter.assert_called()
 
 
+class TestPlotCruiseElementsFlags:
+    """Test that no_title, no_labels, no_legend suppress the corresponding map elements."""
+
+    @pytest.fixture
+    def mock_ax(self):
+        return MagicMock()
+
+    @pytest.fixture
+    def one_station(self):
+        return {
+            "points": [
+                {
+                    "name": "STN_001",
+                    "lat": 60.0,
+                    "lon": -20.0,
+                    "entity_type": "station",
+                    "operation_type": "CTD",
+                }
+            ],
+            "lines": [],
+            "areas": [],
+            "title": "Test Cruise",
+            "bounds": (-25, -15, 55, 65),
+        }
+
+    @pytest.fixture
+    def bounds(self):
+        return (-25.0, -15.0, 55.0, 65.0)
+
+    def test_title_shown_by_default(self, mock_ax, one_station, bounds):
+        plot_cruise_elements(mock_ax, one_station, bounds)
+        mock_ax.set_title.assert_called_once()
+
+    def test_no_title_suppresses_title(self, mock_ax, one_station, bounds):
+        plot_cruise_elements(mock_ax, one_station, bounds, no_title=True)
+        mock_ax.set_title.assert_not_called()
+
+    def test_labels_shown_by_default(self, mock_ax, one_station, bounds):
+        plot_cruise_elements(mock_ax, one_station, bounds)
+        mock_ax.annotate.assert_called()
+
+    def test_no_labels_suppresses_annotations(self, mock_ax, one_station, bounds):
+        plot_cruise_elements(mock_ax, one_station, bounds, no_labels=True)
+        mock_ax.annotate.assert_not_called()
+
+    def test_legend_shown_by_default(self, mock_ax, one_station, bounds):
+        plot_cruise_elements(mock_ax, one_station, bounds)
+        mock_ax.legend.assert_called_once()
+
+    def test_no_legend_suppresses_legend(self, mock_ax, one_station, bounds):
+        plot_cruise_elements(mock_ax, one_station, bounds, no_legend=True)
+        mock_ax.legend.assert_not_called()
+
+
 class TestGenerateMap:
     """Test the unified generate_map function."""
 
