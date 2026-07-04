@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.timeline.scheduler &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev41</title>
+  <title>cruiseplan.timeline.scheduler &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev42</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=d82fb616"></script>
+      <script src="../../../_static/documentation_options.js?v=efd73c7c"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -790,6 +790,7 @@
                 <span class="n">runtime_leg</span><span class="o">.</span><span class="n">distance_between_stations</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
                     <span class="n">leg_def</span><span class="p">,</span> <span class="s2">&quot;distance_between_stations&quot;</span><span class="p">,</span> <span class="kc">None</span>
                 <span class="p">)</span>
+                <span class="n">runtime_leg</span><span class="o">.</span><span class="n">delay_start</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">leg_def</span><span class="p">,</span> <span class="s2">&quot;delay_start&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
                 <span class="n">runtime_legs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">runtime_leg</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -804,6 +805,11 @@
         <span class="c1"># Initialize current_time if not set</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">current_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_start_datetime</span><span class="p">()</span>
+
+        <span class="c1"># Apply leg-level delay (e.g. port clearance wait before departure)</span>
+        <span class="n">leg_delay</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">leg</span><span class="p">,</span> <span class="s2">&quot;delay_start&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="mf">0.0</span>
+        <span class="k">if</span> <span class="n">leg_delay</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_time</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">leg_delay</span><span class="p">)</span>
 
         <span class="n">activities</span> <span class="o">=</span> <span class="p">[]</span>
 

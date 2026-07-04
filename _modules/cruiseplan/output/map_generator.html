@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.output.map_generator &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev41</title>
+  <title>cruiseplan.output.map_generator &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev42</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=d82fb616"></script>
+      <script src="../../../_static/documentation_options.js?v=efd73c7c"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -186,47 +186,44 @@
 
     <span class="c1"># Extract ports (optional)</span>
     <span class="k">if</span> <span class="n">include_ports</span><span class="p">:</span>
-        <span class="c1"># Extract departure port</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;departure_port&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="p">:</span>
-            <span class="n">port</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">):</span>
-                <span class="c1"># Use display_name if available, otherwise fall back to name</span>
-                <span class="c1"># Truncate at comma for cleaner labeling (e.g., &quot;Halifax&quot; instead of &quot;Halifax, Nova Scotia&quot;)</span>
-                <span class="n">port_label</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="nb">getattr</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="s2">&quot;display_name&quot;</span><span class="p">,</span> <span class="n">port</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="ow">or</span> <span class="n">port</span><span class="o">.</span><span class="n">name</span>
-                <span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="p">{</span>
-                        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">port_label</span><span class="p">,</span>
-                        <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">port</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
-                        <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">port</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
-                        <span class="s2">&quot;entity_type&quot;</span><span class="p">:</span> <span class="s2">&quot;departure_port&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;port&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                        <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                    <span class="p">}</span>
-                <span class="p">)</span>
 
-        <span class="c1"># Extract arrival port</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;arrival_port&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span><span class="p">:</span>
-            <span class="n">port</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">):</span>
-                <span class="c1"># Use display_name if available, otherwise fall back to name</span>
-                <span class="c1"># Truncate at comma for cleaner labeling (e.g., &quot;Halifax&quot; instead of &quot;Halifax, Nova Scotia&quot;)</span>
-                <span class="n">port_label</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="nb">getattr</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="s2">&quot;display_name&quot;</span><span class="p">,</span> <span class="n">port</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="ow">or</span> <span class="n">port</span><span class="o">.</span><span class="n">name</span>
-                <span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="p">{</span>
-                        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">port_label</span><span class="p">,</span>
-                        <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">port</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
-                        <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">port</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
-                        <span class="s2">&quot;entity_type&quot;</span><span class="p">:</span> <span class="s2">&quot;arrival_port&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;port&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                        <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                    <span class="p">}</span>
-                <span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_extract_port</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">entity_type</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">port</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">port</span><span class="o">.</span><span class="n">latitude</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="n">port_label</span> <span class="o">=</span> <span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="s2">&quot;display_name&quot;</span><span class="p">,</span> <span class="n">port</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="ow">or</span> <span class="n">port</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
+                <span class="s2">&quot;,&quot;</span>
+            <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">port_label</span><span class="p">,</span>
+                <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">port</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">port</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                <span class="s2">&quot;entity_type&quot;</span><span class="p">:</span> <span class="n">entity_type</span><span class="p">,</span>
+                <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;port&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">}</span>
+
+        <span class="c1"># Collect candidate port objects from top-level config and all legs,</span>
+        <span class="c1"># deduplicating by (lat, lon) so the same port doesn&#39;t appear twice.</span>
+        <span class="n">seen_coords</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_add_port</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">entity_type</span><span class="p">):</span>
+            <span class="n">entry</span> <span class="o">=</span> <span class="n">_extract_port</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">entity_type</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">entry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">],</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen_coords</span><span class="p">:</span>
+                <span class="n">seen_coords</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+
+        <span class="c1"># Top-level cruise config ports (single-leg / legacy)</span>
+        <span class="n">_add_port</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;departure_port&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s2">&quot;departure_port&quot;</span><span class="p">)</span>
+        <span class="n">_add_port</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;arrival_port&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s2">&quot;arrival_port&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Leg-level ports (the common case)</span>
+        <span class="k">for</span> <span class="n">leg</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;legs&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]:</span>
+            <span class="n">_add_port</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">leg</span><span class="p">,</span> <span class="s2">&quot;departure_port&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s2">&quot;departure_port&quot;</span><span class="p">)</span>
+            <span class="n">_add_port</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">leg</span><span class="p">,</span> <span class="s2">&quot;arrival_port&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s2">&quot;arrival_port&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">points</span></div>
 
@@ -853,7 +850,12 @@
 <div class="viewcode-block" id="plot_cruise_elements">
 <a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.map_generator.plot_cruise_elements">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_cruise_elements</span><span class="p">(</span>
-    <span class="n">ax</span><span class="p">,</span> <span class="n">map_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">display_bounds</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+    <span class="n">ax</span><span class="p">,</span>
+    <span class="n">map_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">display_bounds</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+    <span class="n">no_title</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">no_labels</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">no_legend</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot stations, ports, transit lines, and areas on a matplotlib axis using structured map data.</span>
@@ -995,16 +997,17 @@
         <span class="p">)</span>
 
         <span class="c1"># Add point name annotation for all scientific operations</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
-            <span class="n">point</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
-            <span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">),</span>
-            <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
-            <span class="n">textcoords</span><span class="o">=</span><span class="s2">&quot;offset points&quot;</span><span class="p">,</span>
-            <span class="n">fontsize</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
-            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
-            <span class="n">weight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">,</span>
-            <span class="n">zorder</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">no_labels</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
+                <span class="n">point</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+                <span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">),</span>
+                <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+                <span class="n">textcoords</span><span class="o">=</span><span class="s2">&quot;offset points&quot;</span><span class="p">,</span>
+                <span class="n">fontsize</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+                <span class="n">weight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">,</span>
+                <span class="n">zorder</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+            <span class="p">)</span>
 
         <span class="c1"># Add to legend if not already added</span>
         <span class="n">label</span> <span class="o">=</span> <span class="n">style</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="n">point</span><span class="p">[</span><span class="s2">&quot;entity_type&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">title</span><span class="p">())</span>
@@ -1025,13 +1028,14 @@
     <span class="c1"># Set labels and title</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Longitude (°)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Latitude (°)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span>
-        <span class="n">map_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="s2">&quot;Cruise Plan Map&quot;</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span>
-    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">no_title</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span>
+            <span class="n">map_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="s2">&quot;Cruise Plan Map&quot;</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span>
+        <span class="p">)</span>
 
     <span class="c1"># Add grid and legend</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">legend_labels_added</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">legend_labels_added</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">no_legend</span><span class="p">:</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
             <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper right&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">frameon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fancybox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">shadow</span><span class="o">=</span><span class="kc">True</span>
         <span class="p">)</span>
@@ -1057,6 +1061,9 @@
     <span class="n">show_plot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">figsize</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mf">8.1</span><span class="p">),</span>
     <span class="n">include_ports</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">no_title</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">no_labels</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">no_legend</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">max_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1223,7 +1230,14 @@
     <span class="p">)</span>
 
     <span class="c1"># Plot cruise elements using new structured data (this applies the final aspect ratio)</span>
-    <span class="n">plot_cruise_elements</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">map_data</span><span class="p">,</span> <span class="n">display_bounds</span><span class="p">)</span>
+    <span class="n">plot_cruise_elements</span><span class="p">(</span>
+        <span class="n">ax</span><span class="p">,</span>
+        <span class="n">map_data</span><span class="p">,</span>
+        <span class="n">display_bounds</span><span class="p">,</span>
+        <span class="n">no_title</span><span class="o">=</span><span class="n">no_title</span><span class="p">,</span>
+        <span class="n">no_labels</span><span class="o">=</span><span class="n">no_labels</span><span class="p">,</span>
+        <span class="n">no_legend</span><span class="o">=</span><span class="n">no_legend</span><span class="p">,</span>
+    <span class="p">)</span>
 
     <span class="c1"># Apply tight layout BEFORE colorbar to finalize axes positioning</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
@@ -1282,6 +1296,9 @@
     <span class="n">show_plot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">figsize</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
     <span class="n">include_ports</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">no_title</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">no_labels</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">no_legend</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate a static PNG map directly from a Cruise configuration object.</span>
@@ -1323,6 +1340,9 @@
         <span class="n">show_plot</span><span class="o">=</span><span class="n">show_plot</span><span class="p">,</span>
         <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span>
         <span class="n">include_ports</span><span class="o">=</span><span class="n">include_ports</span><span class="p">,</span>
+        <span class="n">no_title</span><span class="o">=</span><span class="n">no_title</span><span class="p">,</span>
+        <span class="n">no_labels</span><span class="o">=</span><span class="n">no_labels</span><span class="p">,</span>
+        <span class="n">no_legend</span><span class="o">=</span><span class="n">no_legend</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
@@ -1340,6 +1360,9 @@
     <span class="n">lon_bounds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">figsize</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
     <span class="n">no_ports</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">no_title</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">no_labels</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">no_legend</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">max_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
@@ -1391,6 +1414,9 @@
         <span class="n">show_plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span>
         <span class="n">include_ports</span><span class="o">=</span><span class="ow">not</span> <span class="n">no_ports</span><span class="p">,</span>
+        <span class="n">no_title</span><span class="o">=</span><span class="n">no_title</span><span class="p">,</span>
+        <span class="n">no_labels</span><span class="o">=</span><span class="n">no_labels</span><span class="p">,</span>
+        <span class="n">no_legend</span><span class="o">=</span><span class="n">no_legend</span><span class="p">,</span>
         <span class="n">max_depth</span><span class="o">=</span><span class="n">max_depth</span><span class="p">,</span>
     <span class="p">)</span></div>
 

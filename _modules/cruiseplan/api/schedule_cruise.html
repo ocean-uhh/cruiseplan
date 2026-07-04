@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.api.schedule_cruise &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev41</title>
+  <title>cruiseplan.api.schedule_cruise &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev42</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=d82fb616"></script>
+      <script src="../../../_static/documentation_options.js?v=efd73c7c"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -188,6 +188,9 @@
     <span class="n">figsize</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">no_ports</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">include_eez</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">no_title</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">no_labels</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">no_legend</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">max_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScheduleResult</span><span class="p">:</span>
@@ -221,7 +224,13 @@
 <span class="sd">        Exclude ports from PNG schedule maps (default: False)</span>
 <span class="sd">    include_eez : bool</span>
 <span class="sd">        Include EEZ boundaries on interactive maps (default: True).</span>
-<span class="sd">        Note: Boundaries are for visualization only and may not reflect official agreements.</span>
+<span class="sd">        Boundaries are for visualization only and may not reflect official agreements.</span>
+<span class="sd">    no_title : bool</span>
+<span class="sd">        Omit the map title from PNG output (default: False)</span>
+<span class="sd">    no_labels : bool</span>
+<span class="sd">        Omit station name annotations from PNG output (default: False)</span>
+<span class="sd">    no_legend : bool</span>
+<span class="sd">        Omit the legend from PNG output (default: False)</span>
 <span class="sd">    max_depth : int, optional</span>
 <span class="sd">        Maximum water depth (m) for the bathymetry colour scale on PNG maps. When</span>
 <span class="sd">        provided, clips the deep end so shallow-water structure uses the full colour</span>
@@ -394,6 +403,9 @@
                     <span class="n">lat_bounds</span><span class="o">=</span><span class="n">lat_bounds</span><span class="p">,</span>
                     <span class="n">lon_bounds</span><span class="o">=</span><span class="n">lon_bounds</span><span class="p">,</span>
                     <span class="n">no_ports</span><span class="o">=</span><span class="n">no_ports</span><span class="p">,</span>
+                    <span class="n">no_title</span><span class="o">=</span><span class="n">no_title</span><span class="p">,</span>
+                    <span class="n">no_labels</span><span class="o">=</span><span class="n">no_labels</span><span class="p">,</span>
+                    <span class="n">no_legend</span><span class="o">=</span><span class="n">no_legend</span><span class="p">,</span>
                     <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;schedule&quot;</span><span class="p">,</span>
                     <span class="n">max_depth</span><span class="o">=</span><span class="n">max_depth</span><span class="p">,</span>
                 <span class="p">)</span>

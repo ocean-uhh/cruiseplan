@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.api.stations_api &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev41</title>
+  <title>cruiseplan.api.stations_api &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev42</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=d82fb616"></script>
+      <script src="../../../_static/documentation_options.js?v=efd73c7c"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -398,7 +398,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_log_configuration_info</span><span class="p">(</span>
-    <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">bathy_source</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">high_resolution</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">bathy_source</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">bathy_stride</span><span class="p">:</span> <span class="nb">int</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Log configuration information for the station picker.&quot;&quot;&quot;</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
@@ -407,23 +407,15 @@
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Output file: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bathymetry source: </span><span class="si">{</span><span class="n">bathy_source</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">resolution_msg</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="s2">&quot;high resolution (no downsampling)&quot;</span>
-        <span class="k">if</span> <span class="n">high_resolution</span>
-        <span class="k">else</span> <span class="s2">&quot;standard resolution (10x downsampled)&quot;</span>
-    <span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bathymetry resolution: </span><span class="si">{</span><span class="n">resolution_msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bathymetry stride: </span><span class="si">{</span><span class="n">bathy_stride</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="c1"># Performance warning for GEBCO + high-resolution combination</span>
     <span class="k">if</span> <span class="n">bathy_source</span> <span class="o">==</span> <span class="s2">&quot;gebco2025&quot;</span> <span class="ow">and</span> <span class="n">high_resolution</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;⚠️  PERFORMANCE WARNING:&quot;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot;   GEBCO 2025 with high resolution can be very slow for interactive use!&quot;</span>
+            <span class="s2">&quot;   GEBCO 2025 with stride=1 can be very slow for interactive use!&quot;</span>
         <span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;   Consider using etopo2022 for faster interaction.&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot;   Reserve GEBCO high-resolution for final detailed planning only.&quot;</span>
-        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;   Consider using etopo2022 or a higher stride value.&quot;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
 
@@ -495,7 +487,8 @@
         <span class="n">pangaea_file</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">pangaea_file</span><span class="p">,</span>
         <span class="n">bathy_source</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">bathy_source</span><span class="p">,</span>
         <span class="n">bathy_dir</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">bathy_dir</span><span class="p">,</span>
-        <span class="n">high_resolution</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">high_resolution</span><span class="p">,</span>
+        <span class="n">bathy_stride</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;bathy_stride&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+        <span class="n">max_depth</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;max_depth&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
         <span class="n">overwrite</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">overwrite</span><span class="p">,</span>
         <span class="n">verbose</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">verbose</span><span class="p">,</span>
     <span class="p">)</span></div>
@@ -514,7 +507,8 @@
     <span class="n">bathy_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
     <span class="n">bathy_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
     <span class="n">bathy_contours</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">high_resolution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">bathy_stride</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">max_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StationPickerResult</span><span class="p">:</span>
@@ -542,8 +536,11 @@
 <span class="sd">        Bathymetry source (&quot;etopo2022&quot; or &quot;gebco2025&quot;)</span>
 <span class="sd">    bathy_dir : str</span>
 <span class="sd">        Bathymetry data directory</span>
-<span class="sd">    high_resolution : bool</span>
-<span class="sd">        Use high resolution bathymetry (slower)</span>
+<span class="sd">    bathy_stride : int</span>
+<span class="sd">        Bathymetry downsampling factor (default: 10, lower = finer detail but slower)</span>
+<span class="sd">    max_depth : int, optional</span>
+<span class="sd">        Maximum water depth (m) for the colour scale. If set, the colour range</span>
+<span class="sd">        spans -max_depth to +200 m instead of the default -8000 to +200 m.</span>
 <span class="sd">    overwrite : bool</span>
 <span class="sd">        Overwrite existing output file</span>
 <span class="sd">    verbose : bool</span>
@@ -604,25 +601,23 @@
     <span class="n">output_path</span> <span class="o">=</span> <span class="n">output_dir_path</span> <span class="o">/</span> <span class="n">output_filename</span>
 
     <span class="c1"># Log configuration and display instructions</span>
-    <span class="n">_log_configuration_info</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">bathy_source</span><span class="p">,</span> <span class="n">high_resolution</span><span class="p">)</span>
+    <span class="n">_log_configuration_info</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">bathy_source</span><span class="p">,</span> <span class="n">bathy_stride</span><span class="p">)</span>
     <span class="n">_display_usage_instructions</span><span class="p">()</span>
 
-    <span class="c1"># Import and initialize the interactive picker (unchanged from cli/stations.py)</span>
+    <span class="c1"># Import and initialize the interactive picker</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.interactive.station_picker</span><span class="w"> </span><span class="kn">import</span> <span class="n">StationPicker</span>
-
-        <span class="c1"># Initialize the picker with exact same parameters as CLI version</span>
-        <span class="n">bathymetry_stride</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">high_resolution</span> <span class="k">else</span> <span class="mi">10</span>
 
         <span class="n">picker</span> <span class="o">=</span> <span class="n">StationPicker</span><span class="p">(</span>
             <span class="n">campaign_data</span><span class="o">=</span><span class="n">campaign_data</span><span class="p">,</span>
             <span class="n">existing_stations</span><span class="o">=</span><span class="n">config_stations_data</span><span class="p">,</span>
             <span class="n">output_file</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">output_path</span><span class="p">),</span>
-            <span class="n">bathymetry_stride</span><span class="o">=</span><span class="n">bathymetry_stride</span><span class="p">,</span>
+            <span class="n">bathymetry_stride</span><span class="o">=</span><span class="n">bathy_stride</span><span class="p">,</span>
             <span class="n">bathymetry_source</span><span class="o">=</span><span class="n">bathy_source</span><span class="p">,</span>
             <span class="n">bathymetry_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">bathy_dir</span><span class="p">),</span>
             <span class="n">custom_contours</span><span class="o">=</span><span class="n">bathy_contours</span><span class="p">,</span>
             <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">,</span>
+            <span class="n">max_depth</span><span class="o">=</span><span class="n">max_depth</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="c1"># Set coordinate bounds (unchanged from cli/stations.py)</span>
@@ -642,7 +637,8 @@
             <span class="s2">&quot;lat_bounds&quot;</span><span class="p">:</span> <span class="n">final_lat_bounds</span><span class="p">,</span>
             <span class="s2">&quot;lon_bounds&quot;</span><span class="p">:</span> <span class="n">final_lon_bounds</span><span class="p">,</span>
             <span class="s2">&quot;bathy_source&quot;</span><span class="p">:</span> <span class="n">bathy_source</span><span class="p">,</span>
-            <span class="s2">&quot;high_resolution&quot;</span><span class="p">:</span> <span class="n">high_resolution</span><span class="p">,</span>
+            <span class="s2">&quot;bathy_stride&quot;</span><span class="p">:</span> <span class="n">bathy_stride</span><span class="p">,</span>
+            <span class="s2">&quot;max_depth&quot;</span><span class="p">:</span> <span class="n">max_depth</span><span class="p">,</span>
             <span class="s2">&quot;pangaea_campaigns&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">campaign_data</span><span class="p">)</span> <span class="k">if</span> <span class="n">campaign_data</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
         <span class="p">}</span>
 

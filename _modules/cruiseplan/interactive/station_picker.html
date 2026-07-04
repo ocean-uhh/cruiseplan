@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.interactive.station_picker &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev41</title>
+  <title>cruiseplan.interactive.station_picker &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev42</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=d82fb616"></script>
+      <script src="../../../_static/documentation_options.js?v=efd73c7c"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -196,6 +196,7 @@
         <span class="n">bathymetry_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
         <span class="n">custom_contours</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">max_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the station picker interface.</span>
@@ -225,8 +226,18 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">output_file</span> <span class="o">=</span> <span class="n">output_file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">overwrite</span> <span class="o">=</span> <span class="n">overwrite</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bathymetry_stride</span> <span class="o">=</span> <span class="n">bathymetry_stride</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bathymetry_colormap</span> <span class="o">=</span> <span class="n">get_colormap</span><span class="p">(</span><span class="s2">&quot;bathymetry&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">max_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">max_depth</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;max_depth must be a positive number of metres; got 0&quot;</span><span class="p">)</span>
+            <span class="n">max_depth</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">max_depth</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_depth</span> <span class="o">=</span> <span class="n">max_depth</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">custom_contours</span> <span class="o">=</span> <span class="n">custom_contours</span>
+        <span class="k">if</span> <span class="n">max_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.plot_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_bathymetry_colormap</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">bathymetry_colormap</span> <span class="o">=</span> <span class="n">create_bathymetry_colormap</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="n">max_depth</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bathymetry_colormap</span> <span class="o">=</span> <span class="n">get_colormap</span><span class="p">(</span><span class="s2">&quot;bathymetry&quot;</span><span class="p">)</span>
 
         <span class="c1"># Initialize bathymetry manager with specified source and directory</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bathymetry</span> <span class="o">=</span> <span class="n">BathymetryManager</span><span class="p">(</span>
@@ -442,12 +453,22 @@
         <span class="p">)</span>
 
         <span class="c1"># 1. Filled Contours (The &quot;Map&quot; feel)</span>
-        <span class="c1"># Use levels that match the colormap segments for proper color assignment</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bathymetry_filled_contours</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_map</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span>
-            <span class="n">xx</span><span class="p">,</span>
-            <span class="n">yy</span><span class="p">,</span>
-            <span class="n">zz</span><span class="p">,</span>
-            <span class="n">levels</span><span class="o">=</span><span class="p">[</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_depth</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+            <span class="n">raw_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_depth</span> <span class="o">/</span> <span class="mf">5.0</span>
+            <span class="n">magnitude</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">raw_step</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">factor</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">raw_step</span> <span class="o">&lt;=</span> <span class="n">factor</span> <span class="o">*</span> <span class="n">magnitude</span><span class="p">:</span>
+                    <span class="n">step</span> <span class="o">=</span> <span class="n">factor</span> <span class="o">*</span> <span class="n">magnitude</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">step</span> <span class="o">=</span> <span class="n">magnitude</span> <span class="o">*</span> <span class="mi">10</span>
+            <span class="n">filled_levels</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">max_depth</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">step</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_depth</span> <span class="o">/</span> <span class="n">step</span><span class="p">))</span>
+            <span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">200</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">filled_levels</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="o">-</span><span class="mi">8000</span><span class="p">,</span>
                 <span class="o">-</span><span class="mi">7000</span><span class="p">,</span>
                 <span class="o">-</span><span class="mi">6000</span><span class="p">,</span>
@@ -460,10 +481,15 @@
                 <span class="o">-</span><span class="mi">200</span><span class="p">,</span>
                 <span class="mi">0</span><span class="p">,</span>
                 <span class="mi">200</span><span class="p">,</span>
-            <span class="p">],</span>
+            <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bathymetry_filled_contours</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_map</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span>
+            <span class="n">xx</span><span class="p">,</span>
+            <span class="n">yy</span><span class="p">,</span>
+            <span class="n">zz</span><span class="p">,</span>
+            <span class="n">levels</span><span class="o">=</span><span class="n">filled_levels</span><span class="p">,</span>
             <span class="n">cmap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bathymetry_colormap</span><span class="p">,</span>
             <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
-            <span class="n">extend</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span>  <span class="c1"># Show under/over colors</span>
+            <span class="n">extend</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="c1"># 2. Line Contours (The &quot;Scientific&quot; context)</span>
