@@ -14,7 +14,7 @@ The CoordConverter class provides static methods for coordinate conversions.
 """
 
 import math
-from typing import Any, Optional
+from typing import Any
 
 
 class CoordConverter:
@@ -248,7 +248,7 @@ def format_position_latex(lat: float, lon: float) -> str:
     return f"{lat_str}, {lon_str}"
 
 
-def _extract_port_info(port: Any) -> Optional[tuple[float, float, str]]:
+def _extract_port_info(port: Any) -> tuple[float, float, str] | None:
     """
     Extract port information from a port object.
 
@@ -279,8 +279,8 @@ def extract_coordinates_from_cruise(
     list[float],
     list[float],
     list[str],
-    Optional[tuple[float, ...]],
-    Optional[tuple[float, ...]],
+    tuple[float, ...] | None,
+    tuple[float, ...] | None,
 ]:
     """
     Extract coordinates from cruise configuration.
@@ -351,7 +351,7 @@ def calculate_map_bounds(
     all_lats: list[float],
     all_lons: list[float],
     padding_percent: float = 0.05,
-    padding_degrees: Optional[float] = None,
+    padding_degrees: float | None = None,
     apply_aspect_ratio: bool = True,
     round_to_degrees: bool = True,
 ) -> tuple[float, float, float, float]:

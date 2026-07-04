@@ -13,7 +13,7 @@ CruisePlan is a oceanographic cruise planning system.  This guide provides devel
 
 ### Technology Stack
 
-- **Core**: Python 3.9+ with Pydantic for data validation
+- **Core**: Python 3.10+ with Pydantic for data validation
 - **Geospatial**: Built-in coordinate utilities, ETOPO/GEBCO bathymetry integration
 - **Scientific**: NumPy, xarray for data processing
 - **Visualization**: Matplotlib>=3.7 for static maps, Folium for interactive web maps

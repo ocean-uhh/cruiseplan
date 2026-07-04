@@ -6,7 +6,7 @@ timeline validation to reduce code duplication across test files.
 """
 
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 from unittest.mock import MagicMock
 
 
@@ -30,7 +30,7 @@ def get_fixture_path(test_file_path: Path, filename: str) -> Path:
 
 
 def create_mock_port(
-    name: str, latitude: float, longitude: float, display_name: Optional[str] = None
+    name: str, latitude: float, longitude: float, display_name: str | None = None
 ) -> MagicMock:
     """
     Create a standardized mock port object for testing.

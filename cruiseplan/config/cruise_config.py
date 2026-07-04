@@ -7,7 +7,7 @@ configuration file. This is the top-level YAML structure that contains
 all cruise metadata, global catalog definitions, and schedule organization.
 """
 
-from typing import Any, Optional, Union
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -48,7 +48,7 @@ class ClusterDefinition(BaseModel):
     """
 
     name: str
-    description: Optional[str] = Field(
+    description: str | None = Field(
         None, description="Human-readable description of the cluster purpose"
     )
     strategy: StrategyEnum = Field(
@@ -61,7 +61,7 @@ class ClusterDefinition(BaseModel):
     )
 
     # New activities-based architecture
-    activities: list[Union[str, dict[str, Any]]] = Field(
+    activities: list[str | dict[str, Any]] = Field(
         default_factory=list,
         description="Unified list of all activities in this cluster (can be string references or dict objects)",
     )
@@ -149,53 +149,53 @@ class LegDefinition(BaseModel):
     """
 
     name: str
-    description: Optional[str] = None
+    description: str | None = None
 
     # Required maritime port-to-port structure
-    departure_port: Union[str, PointDefinition]
-    arrival_port: Union[str, PointDefinition]
+    departure_port: str | PointDefinition
+    arrival_port: str | PointDefinition
 
     # Inheritable cruise parameters
-    vessel_speed: Optional[float] = Field(
+    vessel_speed: float | None = Field(
         None, description="Vessel speed for this leg in knots"
     )
-    distance_between_stations: Optional[float] = Field(
+    distance_between_stations: float | None = Field(
         None, description="Default station spacing for this leg in kilometers"
     )
-    turnaround_time: Optional[float] = Field(
+    turnaround_time: float | None = Field(
         None, description="Turnaround time between operations in minutes"
     )
 
     # Navigation activities (not executed, routing only)
-    first_activity: Optional[str] = Field(
+    first_activity: str | None = Field(
         None, description="First navigation activity for this leg (routing only)"
     )
-    last_activity: Optional[str] = Field(
+    last_activity: str | None = Field(
         None, description="Last navigation activity for this leg (routing only)"
     )
 
     # Scheduling parameters
-    strategy: Optional[StrategyEnum] = Field(
+    strategy: StrategyEnum | None = Field(
         None, description="Default scheduling strategy for this leg"
     )
-    ordered: Optional[bool] = Field(
+    ordered: bool | None = Field(
         None, description="Whether leg operations should maintain order"
     )
-    buffer_time: Optional[float] = Field(
+    buffer_time: float | None = Field(
         None, description="Contingency time for weather delays (minutes)"
     )
-    delay_start: Optional[float] = Field(
+    delay_start: float | None = Field(
         None,
         ge=0,
         description="Delay before the leg departs (minutes), e.g. for port clearance",
     )
 
     # Activity organization
-    activities: Optional[list[Union[str, dict[str, Any]]]] = Field(
+    activities: list[str | dict[str, Any]] | None = Field(
         default_factory=list,
         description="Unified list of all activities in this leg (can be string references or dict objects)",
     )
-    clusters: Optional[list[ClusterDefinition]] = Field(
+    clusters: list[ClusterDefinition] | None = Field(
         default_factory=list, description="List of operation clusters"
     )
 
@@ -304,7 +304,7 @@ class CruiseConfig(BaseModel):
     """
 
     cruise_name: str  # TODO: Decide if needed as default - could use "Untitled Cruise"
-    description: Optional[str] = None
+    description: str | None = None
 
     # --- LOGIC CONSTRAINTS ---
     default_vessel_speed: float = (
@@ -320,34 +320,34 @@ class CruiseConfig(BaseModel):
     day_end_hour: int = DEFAULT_DAY_END_HR  # Default 20:00
 
     start_date: str = DEFAULT_START_DATE
-    start_time: Optional[str] = "08:00"
+    start_time: str | None = "08:00"
 
     # Port definitions for single-leg cruises
-    departure_port: Optional[Union[str, PointDefinition]] = Field(
+    departure_port: str | PointDefinition | None = Field(
         None,
         description="Port where the cruise begins (can be global port reference). Required for single-leg cruises, forbidden for multi-leg cruises.",
     )
-    arrival_port: Optional[Union[str, PointDefinition]] = Field(
+    arrival_port: str | PointDefinition | None = Field(
         None,
         description="Port where the cruise ends (can be global port reference). Required for single-leg cruises, forbidden for multi-leg cruises.",
     )
 
     # Global catalog definitions
-    points: Optional[list[PointDefinition]] = Field(
+    points: list[PointDefinition] | None = Field(
         default_factory=list, description="Global catalog of point definitions"
     )
-    lines: Optional[list[LineDefinition]] = Field(
+    lines: list[LineDefinition] | None = Field(
         default_factory=list, description="Global catalog of line definitions"
     )
-    areas: Optional[list[AreaDefinition]] = Field(
+    areas: list[AreaDefinition] | None = Field(
         default_factory=list, description="Global catalog of area definitions"
     )
-    ports: Optional[list[PointDefinition]] = Field(
+    ports: list[PointDefinition] | None = Field(
         default_factory=list, description="Global catalog of port definitions"
     )
 
     # Schedule organization
-    legs: Optional[list[LegDefinition]] = Field(
+    legs: list[LegDefinition] | None = Field(
         default_factory=list,
         description="List of cruise legs for schedule organization",
     )

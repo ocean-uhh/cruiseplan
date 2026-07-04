@@ -22,7 +22,7 @@ dictionary and YAML formats with proper field ordering and comment preservation.
 import logging
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import TYPE_CHECKING, Any
 
 from cruiseplan.config.activities import (
     AreaDefinition,
@@ -56,7 +56,7 @@ logger = logging.getLogger(__name__)
 
 def deserialize_inline_definition(
     definition_dict: dict,
-) -> Union[PointDefinition, LineDefinition, AreaDefinition]:
+) -> PointDefinition | LineDefinition | AreaDefinition:
     """
     Convert an inline dictionary definition to the appropriate definition object.
 
@@ -99,14 +99,8 @@ def deserialize_inline_definition(
 
 
 def serialize_definition(
-    obj: Union[
-        PointDefinition,
-        LineDefinition,
-        AreaDefinition,
-        ClusterDefinition,
-        LegDefinition,
-    ],
-    allowed_fields: Union[list[str], set[str]],
+    obj: PointDefinition | LineDefinition | AreaDefinition | ClusterDefinition | LegDefinition,
+    allowed_fields: list[str] | set[str],
 ) -> dict[str, Any]:
     """
     Convert a Pydantic definition object to a dictionary with field filtering.
@@ -420,10 +414,10 @@ def to_commented_dict(cruise_instance: "CruiseInstance") -> dict[str, Any]:
 
 def to_yaml(
     cruise_instance: "CruiseInstance",
-    output_file: Optional[Union[str, Path]] = None,
+    output_file: str | Path | None = None,
     backup: bool = True,
     add_comments: bool = True,
-) -> Optional[str]:
+) -> str | None:
     """
     Export CruiseInstance configuration to YAML format with comment preservation.
 

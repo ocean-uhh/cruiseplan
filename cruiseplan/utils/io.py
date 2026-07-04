@@ -20,12 +20,11 @@ used by API functions to ensure consistent error handling across the package.
 
 import logging
 from pathlib import Path
-from typing import Optional, Union
 
 logger = logging.getLogger(__name__)
 
 
-def validate_input_file(file_path: Union[str, Path], must_exist: bool = True) -> Path:
+def validate_input_file(file_path: str | Path, must_exist: bool = True) -> Path:
     """
     Validate and resolve an input file path for API operations.
 
@@ -67,7 +66,7 @@ def validate_input_file(file_path: Union[str, Path], must_exist: bool = True) ->
 
 
 def validate_output_directory(
-    directory_path: Union[str, Path], create_if_missing: bool = True
+    directory_path: str | Path, create_if_missing: bool = True
 ) -> Path:
     """
     Validate and optionally create an output directory.
@@ -116,7 +115,7 @@ def validate_output_directory(
 
 
 def generate_output_filename(
-    input_path: Union[str, Path], suffix: str, extension: Optional[str] = None
+    input_path: str | Path, suffix: str, extension: str | None = None
 ) -> str:
     """
     Generate output filename by adding suffix to input filename.
@@ -158,9 +157,9 @@ def generate_output_filename(
 
 
 def setup_output_paths(
-    config_file: Union[str, Path],
+    config_file: str | Path,
     output_dir: str = "data",
-    output: Optional[str] = None,
+    output: str | None = None,
 ) -> tuple[Path, str]:
     """
     Helper function to set up output directory and base filename from config file and parameters.

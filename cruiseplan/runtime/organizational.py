@@ -7,7 +7,7 @@ Cluster, Leg) that form the structural framework for cruise execution and schedu
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, Optional, Union
+from typing import Any
 
 from cruiseplan.config.activities import PointDefinition
 from cruiseplan.config.cruise_config import ClusterDefinition, LegDefinition
@@ -60,12 +60,12 @@ class BaseOrganizationUnit(ABC):
         pass
 
     @abstractmethod
-    def get_entry_point(self) -> Optional[tuple[float, float]]:
+    def get_entry_point(self) -> tuple[float, float] | None:
         """Get geographic entry point for this unit."""
         pass
 
     @abstractmethod
-    def get_exit_point(self) -> Optional[tuple[float, float]]:
+    def get_exit_point(self) -> tuple[float, float] | None:
         """Get geographic exit point for this unit."""
         pass
 
@@ -116,7 +116,7 @@ class Cluster(BaseOrganizationUnit):
     def __init__(
         self,
         name: str,
-        description: Optional[str] = None,
+        description: str | None = None,
         strategy: StrategyEnum = StrategyEnum.SEQUENTIAL,
         ordered: bool = True,
     ):
@@ -191,7 +191,7 @@ class Cluster(BaseOrganizationUnit):
                 return True
         return False
 
-    def get_operation(self, operation_name: str) -> Optional[BaseOperation]:
+    def get_operation(self, operation_name: str) -> BaseOperation | None:
         """
         Get an operation from this cluster by name.
 
@@ -288,7 +288,7 @@ class Cluster(BaseOrganizationUnit):
         """
         return [op.name for op in self.operations]
 
-    def get_entry_point(self) -> Optional[tuple[float, float]]:
+    def get_entry_point(self) -> tuple[float, float] | None:
         """
         Get geographic entry point for this cluster.
 
@@ -305,7 +305,7 @@ class Cluster(BaseOrganizationUnit):
                 return (first_op.latitude, first_op.longitude)
         return None
 
-    def get_exit_point(self) -> Optional[tuple[float, float]]:
+    def get_exit_point(self) -> tuple[float, float] | None:
         """
         Get geographic exit point for this cluster.
 
@@ -424,13 +424,13 @@ class Leg(BaseOrganizationUnit):
     def __init__(
         self,
         name: str,
-        departure_port: Union[str, PointDefinition, dict],
-        arrival_port: Union[str, PointDefinition, dict],
-        description: Optional[str] = None,
+        departure_port: str | PointDefinition | dict,
+        arrival_port: str | PointDefinition | dict,
+        description: str | None = None,
         strategy: StrategyEnum = StrategyEnum.SEQUENTIAL,
         ordered: bool = True,
-        first_activity: Optional[str] = None,
-        last_activity: Optional[str] = None,
+        first_activity: str | None = None,
+        last_activity: str | None = None,
     ):
         """
         Initialize a maritime Leg with port-to-port structure.
@@ -473,10 +473,10 @@ class Leg(BaseOrganizationUnit):
 
         # Parameter inheritance attributes (to be set by parent Cruise)
         # These allow a Leg to override global cruise settings for this maritime segment.
-        self.vessel_speed: Optional[float] = None
-        self.turnaround_time: Optional[float] = None
-        self.distance_between_stations: Optional[float] = None
-        self.delay_start: Optional[float] = None
+        self.vessel_speed: float | None = None
+        self.turnaround_time: float | None = None
+        self.distance_between_stations: float | None = None
+        self.delay_start: float | None = None
 
     def add_operation(self, operation: BaseOperation) -> None:
         """
@@ -674,7 +674,7 @@ class Leg(BaseOrganizationUnit):
         # Check if any clusters allow reordering
         return any(cluster.allows_reordering() for cluster in self.clusters)
 
-    def get_boundary_waypoints(self) -> tuple[Optional[str], Optional[str]]:
+    def get_boundary_waypoints(self) -> tuple[str | None, str | None]:
         """
         Get the first and last waypoint boundaries for this leg.
 
@@ -713,7 +713,7 @@ class Leg(BaseOrganizationUnit):
 
     def get_operational_entry_point(
         self, resolver=None
-    ) -> Optional[tuple[float, float]]:
+    ) -> tuple[float, float] | None:
         """
         Get the geographic entry point for operations within this leg.
 
@@ -739,7 +739,7 @@ class Leg(BaseOrganizationUnit):
 
     def get_operational_exit_point(
         self, resolver=None
-    ) -> Optional[tuple[float, float]]:
+    ) -> tuple[float, float] | None:
         """
         Get the geographic exit point for operations within this leg.
 

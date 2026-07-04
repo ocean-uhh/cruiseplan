@@ -12,7 +12,7 @@ with a focus on:
 import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Any, Optional
+from typing import Any
 
 from cruiseplan.config.activities import GeoPoint
 from cruiseplan.config.cruise_config import CruiseConfig
@@ -69,14 +69,14 @@ class ActivityRecord:
     leg_name: str
     op_type: str  # Main operation type: "station", "port", "transit", "area", etc.
     operation_class: str  # Implementation class: PointOperation, LineOperation, AreaOperation, NavigationalTransit
-    action: Optional[str] = None
-    transit_dist_nm: Optional[float] = (
+    action: str | None = None
+    transit_dist_nm: float | None = (
         None  # Distance to next operation (for stationplan display)
     )
-    operation_depth: Optional[float] = None  # Depth for operation (e.g. CTD max depth)
-    water_depth: Optional[float] = None  # Water depth at location
-    delay_start: Optional[float] = None  # Delay before operation starts in minutes
-    comment: Optional[str] = None  # User comment or description
+    operation_depth: float | None = None  # Depth for operation (e.g. CTD max depth)
+    water_depth: float | None = None  # Water depth at location
+    delay_start: float | None = None  # Delay before operation starts in minutes
+    comment: str | None = None  # User comment or description
 
     def __init__(self, data: dict[str, Any]):
         """Initialize from dictionary for compatibility with old system."""
@@ -123,7 +123,7 @@ class NavigationalTransit(BaseOperation):
         to_op: BaseOperation,
         config: CruiseConfig,
         leg_name: str,
-        vessel_speed: Optional[float] = None,
+        vessel_speed: float | None = None,
     ):
         name = f"Transit to {to_op.get_label()}"
         super().__init__(name)
@@ -614,7 +614,7 @@ class TimelineGenerator:
         self.factory = OperationFactory(config)
         self.current_time = self._parse_start_datetime()
 
-    def generate_timeline(self, legs: Optional[list[Any]] = None) -> CruiseSchedule:
+    def generate_timeline(self, legs: list[Any] | None = None) -> CruiseSchedule:
         """Generate complete cruise timeline."""
         if legs is None:
             legs = self._create_runtime_legs()
@@ -771,7 +771,7 @@ class TimelineGenerator:
         to_op: BaseOperation,
         leg_name: str = "unknown",
         leg: Any = None,
-    ) -> Optional[ActivityRecord]:
+    ) -> ActivityRecord | None:
         """Create navigational transit between operations."""
         # Get leg-specific vessel speed if available
         leg_vessel_speed = None
@@ -950,7 +950,7 @@ class TimelineGenerator:
 # =============================================================================
 
 
-def generate_timeline(cruise, legs: Optional[list[Any]] = None) -> CruiseSchedule:
+def generate_timeline(cruise, legs: list[Any] | None = None) -> CruiseSchedule:
     """
     Generate cruise timeline directly from CruiseInstance object.
 
@@ -982,15 +982,15 @@ def generate_timeline(cruise, legs: Optional[list[Any]] = None) -> CruiseSchedul
 def generate_cruise_schedule(
     config_path: str,
     output_dir: str = "data",
-    formats: Optional[list[str]] = None,
+    formats: list[str] | None = None,
     validate_depths: bool = False,
-    selected_leg: Optional[str] = None,
+    selected_leg: str | None = None,
     derive_netcdf: bool = False,
     bathy_source: str = "etopo2022",
     bathy_dir: str = "data",
     bathy_stride: int = 10,
-    figsize: Optional[list[float]] = None,
-    output_basename: Optional[str] = None,
+    figsize: list[float] | None = None,
+    output_basename: str | None = None,
 ) -> dict[str, Any]:
     """
     Generate cruise schedule (backward compatibility function).

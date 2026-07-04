@@ -7,7 +7,6 @@ plan outlined in docs/legacy/CLAUDE-v0.3.3-refactor-complex.md.
 """
 
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass
@@ -31,7 +30,7 @@ class OutputConfig:
     directory: str = "data"
     """Output directory for generated files"""
 
-    filename: Optional[str] = None
+    filename: str | None = None
     """Specific output filename (if None, auto-generated)"""
 
     format: str = "all"
@@ -59,7 +58,7 @@ class ValidationConfig:
 class VisualizationConfig:
     """Configuration for map and visualization parameters."""
 
-    figsize: Optional[list] = None
+    figsize: list | None = None
     """Figure size [width, height] in inches"""
 
     show_plot: bool = False
@@ -118,7 +117,7 @@ class ProcessConfig:
 class ScheduleConfig:
     """Configuration for schedule generation."""
 
-    leg: Optional[str] = None
+    leg: str | None = None
     """Specific leg to generate schedule for (if None, all legs)"""
 
     derive_netcdf: bool = False
@@ -173,10 +172,10 @@ class PangaeaConfig:
     """Configuration for PANGAEA database searching."""
 
     # Search parameters
-    lat_bounds: Optional[list[float]] = None
+    lat_bounds: list[float] | None = None
     """Latitude bounds [min, max] for spatial filtering"""
 
-    lon_bounds: Optional[list[float]] = None
+    lon_bounds: list[float] | None = None
     """Longitude bounds [min, max] for spatial filtering"""
 
     limit: int = 10
@@ -205,7 +204,7 @@ class BathymetryDownloadConfig:
     source: str = "etopo2022"
     """Bathymetry dataset to download ('etopo2022' or 'gebco2025')"""
 
-    output_dir: Optional[str] = None
+    output_dir: str | None = None
     """Output directory for bathymetry files (default: 'data/bathymetry')"""
 
     citation: bool = False
@@ -275,13 +274,13 @@ class StationsConfig:
     """Configuration for interactive station picker."""
 
     # Coordinate bounds
-    lat_bounds: Optional[tuple[float, float]] = None
+    lat_bounds: tuple[float, float] | None = None
     """Latitude bounds (min, max) for station placement"""
 
-    lon_bounds: Optional[tuple[float, float]] = None
+    lon_bounds: tuple[float, float] | None = None
     """Longitude bounds (min, max) for station placement"""
 
-    pangaea_file: Optional[str] = None
+    pangaea_file: str | None = None
     """Path to PANGAEA data file for context"""
 
     bathy_source: str = "etopo2022"

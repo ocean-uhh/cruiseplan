@@ -10,7 +10,7 @@ all organizational units in the cruise planning hierarchy.
 
 import logging
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any
 
 from cruiseplan.config.activities import (
     AreaDefinition,
@@ -61,7 +61,7 @@ class CruiseInstance:
         List of runtime Leg objects converted from LegDefinition objects.
     """
 
-    def __init__(self, config_path: Union[str, Path]):
+    def __init__(self, config_path: str | Path):
         """
         Initialize a CruiseInstance object from a YAML configuration file.
 
@@ -170,7 +170,7 @@ class CruiseInstance:
 
     # TODO update docstring, I don't think we have "Station" and "Transit" are these supposed to be human readable for "operation_type"?
     def _resolve_list(
-        self, items: list[Union[str, Any]], registry: dict[str, Any], type_label: str
+        self, items: list[str | Any], registry: dict[str, Any], type_label: str
     ) -> list[Any]:
         """
         Resolve a list containing items of a specific type.
@@ -212,7 +212,7 @@ class CruiseInstance:
                 resolved_items.append(item)
         return resolved_items
 
-    def _resolve_mixed_list(self, items: list[Union[str, Any]]) -> list[Any]:
+    def _resolve_mixed_list(self, items: list[str | Any]) -> list[Any]:
         """
         Resolve a mixed sequence list containing points, lines, or areas.
 
@@ -643,7 +643,7 @@ class CruiseInstance:
         return serialization.to_commented_dict(self)
 
     def to_yaml(
-        self, output_path: Union[str, Path], enrichment_command: Optional[str] = None
+        self, output_path: str | Path, enrichment_command: str | None = None
     ) -> None:
         """
         Export CruiseInstance configuration to YAML file with canonical ordering.

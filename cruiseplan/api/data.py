@@ -8,7 +8,6 @@ PANGAEA oceanographic databases.
 import logging
 import re
 from pathlib import Path
-from typing import Optional
 
 from cruiseplan.api.config import BathymetryDownloadConfig, PangaeaConfig
 from cruiseplan.api.types import BathymetryResult, PangaeaResult
@@ -67,7 +66,7 @@ def bathymetry_with_config(
 
 def bathymetry(
     bathy_source: str = "etopo2022",
-    output_dir: Optional[str] = None,
+    output_dir: str | None = None,
     citation: bool = False,
 ) -> BathymetryResult:
     """
@@ -132,9 +131,9 @@ def bathymetry(
 def _prepare_pangaea_config(
     query_terms: str,
     output_dir: str,
-    output: Optional[str],
-    lat_bounds: Optional[list[float]],
-    lon_bounds: Optional[list[float]],
+    output: str | None,
+    lat_bounds: list[float] | None,
+    lon_bounds: list[float] | None,
 ) -> dict:
     """
     Validate inputs and prepare file paths configuration.
@@ -233,8 +232,8 @@ def _process_single_doi(
 def _process_search_query(
     query_terms: str,
     bbox,
-    lat_bounds: Optional[list[float]],
-    lon_bounds: Optional[list[float]],
+    lat_bounds: list[float] | None,
+    lon_bounds: list[float] | None,
     limit: int,
     dois_file: Path,
     manager,
@@ -299,8 +298,8 @@ def _resolve_doi_list(
     config: dict,
     limit: int,
     manager,
-    lat_bounds: Optional[list[float]],
-    lon_bounds: Optional[list[float]],
+    lat_bounds: list[float] | None,
+    lon_bounds: list[float] | None,
 ) -> tuple[list[str], list[Path]]:
     """
     Determine input type and get clean DOI list.
@@ -406,8 +405,8 @@ def _build_pangaea_result(
     query_terms: str,
     detailed_datasets: list,
     generated_files: list,
-    lat_bounds: Optional[list[float]],
-    lon_bounds: Optional[list[float]],
+    lat_bounds: list[float] | None,
+    lon_bounds: list[float] | None,
     limit: int,
     stations_file: Path,
 ) -> PangaeaResult:
@@ -454,9 +453,9 @@ def _build_pangaea_result(
 def pangaea(
     query_terms: str,
     output_dir: str = "data",
-    output: Optional[str] = None,
-    lat_bounds: Optional[list[float]] = None,
-    lon_bounds: Optional[list[float]] = None,
+    output: str | None = None,
+    lat_bounds: list[float] | None = None,
+    lon_bounds: list[float] | None = None,
     limit: int = 10,
     rate_limit: float = 1.0,
     merge_campaigns: bool = True,

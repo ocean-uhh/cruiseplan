@@ -15,7 +15,7 @@ for stations, moorings, areas, and transects.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import Any
 
 from cruiseplan.config.activities import (
     AreaDefinition,
@@ -49,8 +49,8 @@ class BaseOperation(ABC):
     def __init__(
         self,
         name: str,
-        comment: Optional[str] = None,
-        display_name: Optional[str] = None,
+        comment: str | None = None,
+        display_name: str | None = None,
     ):
         """
         Initialize a base operation.
@@ -187,14 +187,14 @@ class PointOperation(BaseOperation):
         self,
         name: str,
         position: GeoPoint,
-        operation_depth: Optional[float] = None,
+        operation_depth: float | None = None,
         water_depth: float = 0.0,
         duration: float = 0.0,
-        comment: Optional[str] = None,
+        comment: str | None = None,
         op_type: str = "station",
-        action: Optional[str] = None,
-        display_name: Optional[str] = None,
-        delay_start: Optional[float] = None,
+        action: str | None = None,
+        display_name: str | None = None,
+        delay_start: float | None = None,
     ):
         """
         Initialize a point operation.
@@ -462,10 +462,10 @@ class LineOperation(BaseOperation):
         name: str,
         route: list[GeoPoint],
         speed: float = 10.0,
-        comment: Optional[str] = None,
-        display_name: Optional[str] = None,
+        comment: str | None = None,
+        display_name: str | None = None,
         op_type: str = "line",
-        action: Optional[str] = None,
+        action: str | None = None,
     ):
         """
         Initialize a line operation.
@@ -646,14 +646,14 @@ class AreaOperation(BaseOperation):
         name: str,
         boundary_polygon: list[GeoPoint],
         area_km2: float,
-        duration: Optional[float] = None,
-        start_point: Optional[tuple[float, float]] = None,
-        end_point: Optional[tuple[float, float]] = None,
+        duration: float | None = None,
+        start_point: tuple[float, float] | None = None,
+        end_point: tuple[float, float] | None = None,
         sampling_density: float = 1.0,
-        comment: Optional[str] = None,
-        display_name: Optional[str] = None,
+        comment: str | None = None,
+        display_name: str | None = None,
         op_type: str = "area",
-        action: Optional[str] = None,
+        action: str | None = None,
     ):
         """
         Initialize an area operation.

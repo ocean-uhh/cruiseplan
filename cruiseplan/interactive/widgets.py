@@ -2,7 +2,7 @@
 Custom matplotlib widgets for oceanographic cruise planning interface.
 """
 
-from typing import Callable, Optional
+from collections.abc import Callable
 
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Widget
@@ -60,7 +60,7 @@ class ModeIndicator(Widget):
             "area": "#9932CC",  # Dark orchid
         }
 
-        self.text_obj: Optional[plt.Text] = None
+        self.text_obj: plt.Text | None = None
         self._setup_display()
 
     def _setup_display(self):
@@ -200,7 +200,7 @@ class StatusDisplay(Widget):
             ),
         ]
 
-    def update_coordinates(self, lat: Optional[float], lon: Optional[float]) -> None:
+    def update_coordinates(self, lat: float | None, lon: float | None) -> None:
         """
         Update coordinate display, using Degrees Decimal Minutes format.
 
@@ -230,7 +230,7 @@ class StatusDisplay(Widget):
         else:
             self.status_lines[0].set_text("Coordinates: --")
 
-    def update_depth(self, depth: Optional[float]) -> None:
+    def update_depth(self, depth: float | None) -> None:
         """
         Update depth display, handling positive elevation and negative depth.
 

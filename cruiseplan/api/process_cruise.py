@@ -9,7 +9,7 @@ import logging
 import warnings as python_warnings
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any
 
 from pydantic import ValidationError
 
@@ -128,7 +128,7 @@ def _minimal_preprocess_config(config_dict: dict[str, Any]) -> dict[str, Any]:
 
 def _save_config(
     config_dict: dict[str, Any],
-    output_path: Optional[Path],
+    output_path: Path | None,
 ) -> None:
     """
     Save configuration to file with section comments.
@@ -194,7 +194,7 @@ def _enrich_configuration(
     bathymetry_source: str = "etopo2022",
     bathymetry_dir: str = "data",
     coord_format: str = "ddm",
-    output_path: Optional[Path] = None,
+    output_path: Path | None = None,
 ) -> dict[str, Any]:
     """
     Add missing data to cruise configuration.
@@ -290,7 +290,7 @@ def _enrich_configuration(
 
 
 def enrich_with_config(
-    config_file: Union[str, Path],
+    config_file: str | Path,
     config: EnrichConfig = None,
 ) -> EnrichResult:
     """
@@ -348,9 +348,9 @@ def enrich_with_config(
 
 
 def enrich(  # noqa: C901
-    config_file: Union[str, Path],
+    config_file: str | Path,
     output_dir: str = "data",
-    output: Optional[str] = None,
+    output: str | None = None,
     add_depths: bool = True,
     add_coords: bool = True,
     bathy_source: str = "etopo2022",
@@ -868,7 +868,7 @@ def _format_error_location(location_path: tuple, raw_config: dict) -> str:
 
 
 def validate_with_config(
-    config_file: Union[str, Path],
+    config_file: str | Path,
     config: ValidateConfig = None,
 ) -> ValidationResult:
     """
@@ -923,7 +923,7 @@ def validate_with_config(
 
 
 def validate(
-    config_file: Union[str, Path],
+    config_file: str | Path,
     bathy_source: str = "etopo2022",
     bathy_dir: str = "data/bathymetry",
     check_depths: bool = True,
@@ -1047,7 +1047,7 @@ def validate(
 
 
 def process_with_config(
-    config_file: Union[str, Path],
+    config_file: str | Path,
     config: ProcessConfig = None,
 ) -> ProcessResult:
     """
@@ -1111,9 +1111,9 @@ def process_with_config(
 
 
 def process(
-    config_file: Union[str, Path],
+    config_file: str | Path,
     output_dir: str = "data",
-    output: Optional[str] = None,
+    output: str | None = None,
     bathy_source: str = "etopo2022",
     bathy_dir: str = "data/bathymetry",
     add_depths: bool = True,
@@ -1125,16 +1125,16 @@ def process(
     tolerance: float = 10.0,
     format: str = "all",
     bathy_stride: int = 10,
-    bathy_contours: Optional[list] = None,
-    lat_bounds: Optional[list] = None,
-    lon_bounds: Optional[list] = None,
-    figsize: Optional[list] = None,
+    bathy_contours: list | None = None,
+    lat_bounds: list | None = None,
+    lon_bounds: list | None = None,
+    figsize: list | None = None,
     no_port_map: bool = False,
     no_title: bool = False,
     no_labels: bool = False,
     no_legend: bool = False,
     verbose: bool = False,
-    max_depth: Optional[int] = None,
+    max_depth: int | None = None,
 ) -> ProcessResult:
     """
     Process cruise configuration with unified workflow (mirrors: cruiseplan process).

@@ -14,7 +14,7 @@ Example flow: YAML → PointDefinition (this module) → PointOperation (core)
 Also includes base geographic models used throughout the validation system.
 """
 
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
@@ -81,10 +81,10 @@ class FlexibleLocationModel(BaseModel):
         Longitude in degrees decimal minutes format (e.g., "031 19.062 W").
     """
 
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
-    latitude_decmin: Optional[str] = None
-    longitude_decmin: Optional[str] = None
+    latitude: float | None = None
+    longitude: float | None = None
+    latitude_decmin: str | None = None
+    longitude_decmin: str | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -203,26 +203,26 @@ class PointDefinition(FlexibleLocationModel):
     """
 
     name: str
-    operation_type: Optional[OperationTypeEnum] = None
-    action: Optional[ActionEnum] = None
-    operation_depth: Optional[float] = Field(
+    operation_type: OperationTypeEnum | None = None
+    action: ActionEnum | None = None
+    operation_depth: float | None = Field(
         None, description="Target operation depth (e.g., CTD cast depth)"
     )
-    water_depth: Optional[float] = Field(
+    water_depth: float | None = Field(
         None, description="Water depth at location (seafloor depth)"
     )
-    duration: Optional[float] = None
-    delay_start: Optional[float] = (
+    duration: float | None = None
+    delay_start: float | None = (
         None  # Time to wait before operation begins (minutes)
     )
-    delay_end: Optional[float] = None  # Time to wait after operation ends (minutes)
-    comment: Optional[str] = None
-    equipment: Optional[str] = None
-    position_string: Optional[str] = None
+    delay_end: float | None = None  # Time to wait after operation ends (minutes)
+    comment: str | None = None
+    equipment: str | None = None
+    position_string: str | None = None
 
     # Port-specific fields
-    display_name: Optional[str] = None
-    timezone: Optional[str] = None
+    display_name: str | None = None
+    timezone: str | None = None
 
     @field_validator("operation_depth")
     @classmethod
@@ -301,13 +301,13 @@ class LineDefinition(BaseModel):
 
     name: str
     route: list[GeoPoint]
-    comment: Optional[str] = None
-    vessel_speed: Optional[float] = None
+    comment: str | None = None
+    vessel_speed: float | None = None
     # Optional fields for scientific transects
-    operation_type: Optional[LineOperationTypeEnum] = None
-    action: Optional[ActionEnum] = None
-    distance_between_stations: Optional[float] = None
-    max_depth: Optional[float] = None  # Override default depth for CTD sections
+    operation_type: LineOperationTypeEnum | None = None
+    action: ActionEnum | None = None
+    distance_between_stations: float | None = None
+    max_depth: float | None = None  # Override default depth for CTD sections
 
     @field_validator("route", mode="before")
     def parse_route_strings(cls, v):
@@ -373,10 +373,10 @@ class AreaDefinition(BaseModel):
 
     name: str
     corners: list[GeoPoint]
-    comment: Optional[str] = None
-    operation_type: Optional[AreaOperationTypeEnum] = AreaOperationTypeEnum.SURVEY
-    action: Optional[ActionEnum] = None
-    duration: Optional[float] = None  # Duration in minutes
+    comment: str | None = None
+    operation_type: AreaOperationTypeEnum | None = AreaOperationTypeEnum.SURVEY
+    action: ActionEnum | None = None
+    duration: float | None = None  # Duration in minutes
 
     @field_validator("duration")
     @classmethod

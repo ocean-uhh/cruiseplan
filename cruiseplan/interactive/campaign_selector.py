@@ -4,7 +4,7 @@ PANGAEA campaign selection and management interface.
 
 import logging
 import pickle
-from typing import Any, Optional
+from typing import Any
 
 import matplotlib.pyplot as plt
 from matplotlib.widgets import CheckButtons
@@ -36,7 +36,7 @@ class CampaignSelector:
         Reference to the main map axes for updating campaign display.
     """
 
-    def __init__(self, campaign_data: Optional[list[dict[str, Any]]] = None):
+    def __init__(self, campaign_data: list[dict[str, Any]] | None = None):
         """
         Initialize the campaign selector.
 
@@ -52,9 +52,9 @@ class CampaignSelector:
         self.campaign_artists: dict[str, Any] = {}
 
         # UI components
-        self.ax_campaign: Optional[plt.Axes] = None
-        self.check_buttons: Optional[CheckButtons] = None
-        self.map_ax: Optional[plt.Axes] = None  # Reference to the map axis
+        self.ax_campaign: plt.Axes | None = None
+        self.check_buttons: CheckButtons | None = None
+        self.map_ax: plt.Axes | None = None  # Reference to the map axis
 
         # Initialize selection state (all are visible by default)
         for campaign in self.campaign_data:

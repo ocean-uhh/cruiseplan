@@ -48,7 +48,7 @@ Functions should not exceed 75 statements. If a function is too complex:
 ## Type Annotations
 
 - Always use type hints for function parameters and return values
-- Prefer modern Python 3.9+ syntax (`list[str]` over `List[str]`)
+- Prefer modern Python 3.10+ syntax (`list[str]` over `List[str]`)
 - Use `Optional[T]` explicitly instead of `T = None`
 - Add type stubs for external libraries when available
 

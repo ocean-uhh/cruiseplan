@@ -7,7 +7,6 @@ and various output formats (HTML, CSV, NetCDF, PNG, LaTeX).
 
 import logging
 from pathlib import Path
-from typing import Optional, Union
 
 from cruiseplan.api.config import ScheduleConfig
 from cruiseplan.api.types import ScheduleResult
@@ -17,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 def schedule_with_config(
-    config_file: Union[str, Path],
+    config_file: str | Path,
     config: ScheduleConfig = None,
 ) -> ScheduleResult:
     """
@@ -77,26 +76,26 @@ def schedule_with_config(
 
 
 def schedule(  # noqa: C901, PLR0915
-    config_file: Union[str, Path],
+    config_file: str | Path,
     output_dir: str = "data",
-    output: Optional[str] = None,
-    format: Optional[str] = "all",
-    leg: Optional[str] = None,
+    output: str | None = None,
+    format: str | None = "all",
+    leg: str | None = None,
     derive_netcdf: bool = False,
     bathy_source: str = "etopo2022",
     bathy_dir: str = "data/bathymetry",
     bathy_stride: int = 10,
-    bathy_contours: Optional[list] = None,
-    lat_bounds: Optional[list] = None,
-    lon_bounds: Optional[list] = None,
-    figsize: Optional[list] = None,
+    bathy_contours: list | None = None,
+    lat_bounds: list | None = None,
+    lon_bounds: list | None = None,
+    figsize: list | None = None,
     no_ports: bool = False,
     include_eez: bool = True,
     no_title: bool = False,
     no_labels: bool = False,
     no_legend: bool = False,
     verbose: bool = False,
-    max_depth: Optional[int] = None,
+    max_depth: int | None = None,
 ) -> ScheduleResult:
     """
     Generate cruise schedule (mirrors: cruiseplan schedule).

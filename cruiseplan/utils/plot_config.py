@@ -7,7 +7,7 @@ This module provides:
 3. Symbol definitions for consistent plotting across PNG, KML, and interactive maps
 """
 
-from typing import Any, Optional
+from typing import Any
 
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
@@ -43,7 +43,7 @@ def check_matplotlib_available() -> None:
 
 
 def create_bathymetry_colormap(
-    max_depth: Optional[int] = None,
+    max_depth: int | None = None,
 ) -> mcolors.LinearSegmentedColormap:
     """
     Create the Flemish Cap bathymetry colormap matching the CPT specification.
@@ -276,7 +276,7 @@ PLOT_STYLES = {
 
 
 def get_plot_style(
-    entity_type: str, operation_type: Optional[str] = None, action: Optional[str] = None
+    entity_type: str, operation_type: str | None = None, action: str | None = None
 ) -> dict[str, Any]:
     """
     Get plot styling for a specific entity type.

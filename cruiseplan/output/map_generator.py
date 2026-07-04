@@ -15,7 +15,7 @@ when viewing the generated HTML files.
 import logging
 import math
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any
 
 import folium
 import matplotlib.pyplot as plt
@@ -577,8 +577,8 @@ def plot_bathymetry(
     bathy_source: str = "gebco2025",
     bathy_stride: int = 5,
     bathy_dir: str = "data",
-    custom_contours: Optional[list] = None,
-    max_depth: Optional[int] = None,
+    custom_contours: list | None = None,
+    max_depth: int | None = None,
 ) -> bool:
     """
     Plot bathymetry contours on a matplotlib axis.
@@ -928,21 +928,21 @@ def plot_cruise_elements(
 def generate_map(
     data_source,
     source_type: str = "cruise",
-    output_file: Union[str, Path] = "cruise_map.png",
+    output_file: str | Path = "cruise_map.png",
     bathy_source: str = "gebco2025",
     bathy_stride: int = 5,
     bathy_dir: str = "data",
-    bathy_contours: Optional[list] = None,
-    lat_bounds: Optional[list] = None,
-    lon_bounds: Optional[list] = None,
+    bathy_contours: list | None = None,
+    lat_bounds: list | None = None,
+    lon_bounds: list | None = None,
     show_plot: bool = False,
     figsize: tuple[float, float] = (10, 8.1),
     include_ports: bool = True,
     no_title: bool = False,
     no_labels: bool = False,
     no_legend: bool = False,
-    max_depth: Optional[int] = None,
-) -> Optional[Path]:
+    max_depth: int | None = None,
+) -> Path | None:
     """
     Generate a static PNG map from either cruise config or timeline data.
 
@@ -1160,20 +1160,20 @@ def generate_map(
 
 def generate_map_from_yaml(
     cruise,
-    output_file: Union[str, Path] = "cruise_map.png",
+    output_file: str | Path = "cruise_map.png",
     bathy_source: str = "gebco2025",
     bathy_stride: int = 5,
     bathy_dir: str = "data",
-    bathy_contours: Optional[list] = None,
-    lat_bounds: Optional[list] = None,
-    lon_bounds: Optional[list] = None,
+    bathy_contours: list | None = None,
+    lat_bounds: list | None = None,
+    lon_bounds: list | None = None,
     show_plot: bool = False,
     figsize: tuple[float, float] = (10, 8),
     include_ports: bool = True,
     no_title: bool = False,
     no_labels: bool = False,
     no_legend: bool = False,
-) -> Optional[Path]:
+) -> Path | None:
     """
     Generate a static PNG map directly from a Cruise configuration object.
 
@@ -1222,21 +1222,21 @@ def generate_map_from_yaml(
 
 def generate_map_from_timeline(
     timeline,
-    output_file: Union[str, Path] = "timeline_map.png",
+    output_file: str | Path = "timeline_map.png",
     bathy_source: str = "gebco2025",
     bathy_dir: str = "data",
     bathy_stride: int = 5,
-    bathy_contours: Optional[list] = None,
-    lat_bounds: Optional[list] = None,
-    lon_bounds: Optional[list] = None,
+    bathy_contours: list | None = None,
+    lat_bounds: list | None = None,
+    lon_bounds: list | None = None,
     figsize: tuple[float, float] = (10, 8),
     no_ports: bool = False,
     no_title: bool = False,
     no_labels: bool = False,
     no_legend: bool = False,
     config=None,
-    max_depth: Optional[int] = None,
-) -> Optional[Path]:
+    max_depth: int | None = None,
+) -> Path | None:
     """
     Generate a static PNG map from timeline data showing scheduled sequence.
 
@@ -1294,9 +1294,9 @@ def generate_map_from_timeline(
 
 def generate_folium_map(
     tracks: list[dict[str, Any]],
-    output_file: Union[str, Path] = "cruise_map.html",
+    output_file: str | Path = "cruise_map.html",
     include_eez: bool = True,
-) -> Optional[Path]:
+) -> Path | None:
     """
     Generates an interactive Leaflet map from merged cruise tracks.
 

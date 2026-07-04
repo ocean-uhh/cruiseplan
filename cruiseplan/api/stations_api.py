@@ -8,7 +8,7 @@ with no changes to core functionality.
 
 import logging
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from cruiseplan.api.config import StationsConfig
 from cruiseplan.api.types import BaseResult
@@ -33,7 +33,7 @@ class StationPickerResult(BaseResult):
         self,
         output_file: Path,
         summary: dict[str, Any],
-        pangaea_data: Optional[list[dict]] = None,
+        pangaea_data: list[dict] | None = None,
     ):
         """Initialize station picker result."""
         super().__init__(
@@ -49,11 +49,11 @@ class StationPickerResult(BaseResult):
 
 
 def determine_coordinate_bounds(
-    lat_bounds: Optional[tuple[float, float]] = None,
-    lon_bounds: Optional[tuple[float, float]] = None,
-    campaign_data: Optional[list[dict]] = None,
-    config_lat_bounds: Optional[tuple[float, float]] = None,
-    config_lon_bounds: Optional[tuple[float, float]] = None,
+    lat_bounds: tuple[float, float] | None = None,
+    lon_bounds: tuple[float, float] | None = None,
+    campaign_data: list[dict] | None = None,
+    config_lat_bounds: tuple[float, float] | None = None,
+    config_lon_bounds: tuple[float, float] | None = None,
 ) -> tuple[tuple[float, float], tuple[float, float]]:
     """
     Determine coordinate bounds from parameters, config file, or PANGAEA data.
@@ -265,9 +265,9 @@ def load_config_stations_data(
 
 def _determine_output_path(
     output_dir: str,
-    output: Optional[str],
-    config_file: Optional[str],
-    pangaea_file: Optional[str],
+    output: str | None,
+    config_file: str | None,
+    pangaea_file: str | None,
 ) -> tuple[Path, str]:
     """Determine output directory and filename for station picker."""
     output_dir_path = validate_output_directory(output_dir)
@@ -384,17 +384,17 @@ def stations_with_config(
 
 
 def stations(
-    lat_bounds: Optional[tuple[float, float]] = None,
-    lon_bounds: Optional[tuple[float, float]] = None,
+    lat_bounds: tuple[float, float] | None = None,
+    lon_bounds: tuple[float, float] | None = None,
     output_dir: str = "data",
-    output: Optional[str] = None,
-    config_file: Optional[str] = None,
-    pangaea_file: Optional[str] = None,
+    output: str | None = None,
+    config_file: str | None = None,
+    pangaea_file: str | None = None,
     bathy_source: str = "etopo2022",
     bathy_dir: str = "data",
-    bathy_contours: Optional[list] = None,
+    bathy_contours: list | None = None,
     bathy_stride: int = 10,
-    max_depth: Optional[int] = None,
+    max_depth: int | None = None,
     overwrite: bool = False,
     verbose: bool = False,
 ) -> StationPickerResult:

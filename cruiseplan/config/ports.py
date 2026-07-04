@@ -25,12 +25,12 @@ Usage:
 """
 
 import warnings
-from typing import Any, Optional, Union
+from typing import Any
 
 from pydantic import ValidationError
 
 # Global port registry with common maritime research destinations
-GLOBAL_PORTS: dict[str, dict[str, Union[str, float]]] = {
+GLOBAL_PORTS: dict[str, dict[str, str | float]] = {
     # North Atlantic Research Ports
     "port_reykjavik": {
         "name": "Reykjavik",
@@ -430,8 +430,8 @@ GLOBAL_PORTS: dict[str, dict[str, Union[str, float]]] = {
 
 
 def resolve_port_reference(
-    port_ref: Union[str, dict[str, Any], object],
-    port_catalog: Optional[dict[str, Any]] = None,
+    port_ref: str | dict[str, Any] | object,
+    port_catalog: dict[str, Any] | None = None,
 ) -> object:
     """
     Resolve a port reference to a complete PointDefinition object.

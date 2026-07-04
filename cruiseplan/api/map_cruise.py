@@ -7,7 +7,6 @@ in various formats (PNG, KML).
 
 import logging
 from pathlib import Path
-from typing import Optional, Union
 
 from cruiseplan.api.config import MapConfig
 from cruiseplan.api.types import MapResult
@@ -16,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 def map_with_config(
-    config_file: Union[str, Path],
+    config_file: str | Path,
     config: MapConfig = None,
 ) -> MapResult:
     """
@@ -75,17 +74,17 @@ def map_with_config(
 
 
 def map(
-    config_file: Union[str, Path],
+    config_file: str | Path,
     output_dir: str = "data",
-    output: Optional[str] = None,
+    output: str | None = None,
     format: str = "all",
     bathy_source: str = "etopo2022",
     bathy_dir: str = "data",
     bathy_stride: int = 5,
-    bathy_contours: Optional[list] = None,
-    lat_bounds: Optional[list] = None,
-    lon_bounds: Optional[list] = None,
-    figsize: Optional[list] = None,
+    bathy_contours: list | None = None,
+    lat_bounds: list | None = None,
+    lon_bounds: list | None = None,
+    figsize: list | None = None,
     show_plot: bool = False,
     no_ports: bool = False,
     include_eez: bool = True,
@@ -93,7 +92,7 @@ def map(
     no_labels: bool = False,
     no_legend: bool = False,
     verbose: bool = False,
-    max_depth: Optional[int] = None,
+    max_depth: int | None = None,
 ) -> MapResult:
     """
     Generate cruise track map (mirrors: cruiseplan map).

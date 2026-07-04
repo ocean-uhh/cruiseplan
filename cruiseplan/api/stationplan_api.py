@@ -8,7 +8,6 @@ and generating station plan outputs for real-time cruise operations.
 import logging
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Union
 
 import numpy as np
 
@@ -44,7 +43,7 @@ class StationplanResult:
     output: str = ""
 
 
-def stationplan_list(schedule_file: Union[str, Path]) -> StationplanResult:
+def stationplan_list(schedule_file: str | Path) -> StationplanResult:
     """
     List all activities in a cruise schedule with indices.
 
@@ -115,7 +114,7 @@ def stationplan_list(schedule_file: Union[str, Path]) -> StationplanResult:
 
 
 def stationplan_forecast(
-    schedule_file: Union[str, Path],
+    schedule_file: str | Path,
     start_index: int,
     start_time: str,
     duration_hours: float = 24.0,
@@ -209,9 +208,9 @@ def stationplan_forecast(
 
 
 def stationplan_tex(
-    schedule_file: Union[str, Path],
-    output_path: Union[str, Path] = None,
-    logo_path: Union[str, Path] = None,
+    schedule_file: str | Path,
+    output_path: str | Path = None,
+    logo_path: str | Path = None,
     workplan_number: str = None,
     cruise_title: str = None,
 ) -> StationplanResult:
@@ -282,12 +281,12 @@ def stationplan_tex(
 
 
 def stationplan_forecast_tex(
-    schedule_file: Union[str, Path],
+    schedule_file: str | Path,
     start_index: int,
     start_time: str,
     duration_hours: float = 24.0,
-    output_path: Union[str, Path] = None,
-    logo_path: Union[str, Path] = None,
+    output_path: str | Path = None,
+    logo_path: str | Path = None,
     workplan_number: str = None,
     cruise_title: str = None,
 ) -> StationplanResult:
@@ -494,12 +493,12 @@ def stationplan_forecast_tex(
 
 
 def stationplan_waypoints(
-    schedule_file: Union[str, Path],
+    schedule_file: str | Path,
     start_index: int,
     start_time: str = None,
     duration_hours: float = 48.0,
     current_position: tuple[float, float] = None,
-    output_path: Union[str, Path] = None,
+    output_path: str | Path = None,
 ) -> StationplanResult:
     """
     Generate bridge waypoints file in Stationsplan.txt format.
@@ -813,11 +812,11 @@ def _map_activity_to_work_code(
 
 
 def stationplan_forecast_kml(
-    schedule_file: Union[str, Path],
+    schedule_file: str | Path,
     start_index: int,
     start_time: str,
     duration_hours: float,
-    output_path: Union[str, Path, None] = None,
+    output_path: str | Path | None = None,
 ) -> StationplanResult:
     """
     Generate KML forecast from a cruise schedule for a specific time window.
@@ -965,11 +964,11 @@ def stationplan_forecast_kml(
 
 
 def stationplan_forecast_png(
-    schedule_file: Union[str, Path],
+    schedule_file: str | Path,
     start_index: int,
     start_time: str,
     duration_hours: float,
-    output_path: Union[str, Path, None] = None,
+    output_path: str | Path | None = None,
     bathy_source: str = "etopo2022",
     bathy_dir: str = "data",
     bathy_stride: int = 10,

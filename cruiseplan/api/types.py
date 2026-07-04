@@ -5,7 +5,7 @@ Provides structured return types for all main API operations.
 """
 
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 # Import the CruiseSchedule type from timeline
 from cruiseplan.timeline import CruiseSchedule
@@ -23,9 +23,9 @@ class BaseResult:
         self,
         summary: dict[str, Any],
         success_indicator: Any = None,
-        files_created: Optional[list[Path]] = None,
-        errors: Optional[list[str]] = None,
-        warnings: Optional[list[str]] = None,
+        files_created: list[Path] | None = None,
+        errors: list[str] | None = None,
+        warnings: list[str] | None = None,
     ):
         self.summary = summary
         self.files_created = (
@@ -124,7 +124,7 @@ class ScheduleResult(BaseResult):
 
     def __init__(
         self,
-        timeline: Optional[CruiseSchedule],
+        timeline: CruiseSchedule | None,
         files_created: list[Path],
         summary: dict[str, Any],
     ):
@@ -147,7 +147,7 @@ class PangaeaResult(BaseResult):
 
     def __init__(
         self,
-        stations_data: Optional[Any],
+        stations_data: Any | None,
         files_created: list[Path],
         summary: dict[str, Any],
     ):
@@ -173,11 +173,11 @@ class ProcessResult(BaseResult):
 
     def __init__(
         self,
-        config: Optional[Any],
+        config: Any | None,
         files_created: list[Path],
         summary: dict[str, Any],
-        errors: Optional[list[str]] = None,
-        warnings: Optional[list[str]] = None,
+        errors: list[str] | None = None,
+        warnings: list[str] | None = None,
     ):
         super().__init__(
             summary=summary,
@@ -213,7 +213,7 @@ class MapResult(BaseResult):
 class BathymetryResult(BaseResult):
     """Structured result from bathymetry operation."""
 
-    def __init__(self, data_file: Optional[Path], source: str, summary: dict[str, Any]):
+    def __init__(self, data_file: Path | None, source: str, summary: dict[str, Any]):
         # Convert single file to list for consistency
         files_created = [data_file] if data_file else []
         super().__init__(

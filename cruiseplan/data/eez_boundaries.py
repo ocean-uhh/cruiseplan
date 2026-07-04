@@ -14,7 +14,6 @@ downloads.
 import logging
 import zipfile
 from pathlib import Path
-from typing import Optional, Tuple
 from urllib.request import urlretrieve
 
 import geopandas as gpd
@@ -207,7 +206,7 @@ def _validate_eez_schema(gpkg_path: Path) -> bool:
 
 
 def load_eez_data(
-    bbox: Optional[Tuple[float, float, float, float]] = None,
+    bbox: tuple[float, float, float, float] | None = None,
 ) -> gpd.GeoDataFrame:
     """
     Load EEZ boundary data as a GeoDataFrame with optional spatial filtering.
@@ -250,7 +249,7 @@ def load_eez_data(
     return eez_gdf
 
 
-def get_eez_for_point(lat: float, lon: float) -> Optional[dict]:
+def get_eez_for_point(lat: float, lon: float) -> dict | None:
     """
     Determine which EEZ contains a given point.
 
@@ -300,7 +299,7 @@ def get_eez_for_point(lat: float, lon: float) -> Optional[dict]:
     }
 
 
-def get_cruise_area_bbox(cruise) -> Tuple[float, float, float, float]:
+def get_cruise_area_bbox(cruise) -> tuple[float, float, float, float]:
     """
     Calculate bounding box for cruise area based on all station positions.
 

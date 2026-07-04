@@ -24,7 +24,7 @@ error/warning information suitable for display to users.
 """
 
 import logging
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 from cruiseplan.config.activities import AreaDefinition, LineDefinition, PointDefinition
 from cruiseplan.config.fields import (
@@ -668,7 +668,7 @@ def _format_entity_warnings(
 
 
 def warning_relates_to_entity(
-    warning_msg: str, entity: Union[PointDefinition, LineDefinition, AreaDefinition]
+    warning_msg: str, entity: PointDefinition | LineDefinition | AreaDefinition
 ) -> bool:
     """
     Check if a Pydantic warning message relates to a specific entity.

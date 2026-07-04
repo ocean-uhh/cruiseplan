@@ -8,7 +8,6 @@ MATLAB cruise planning tools and cruise operations documentation.
 
 import logging
 from datetime import datetime
-from typing import List, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +82,7 @@ def map_work_codes(category: str, activity_type: str, action: str) -> int:
     return 6
 
 
-def format_coordinates(latitude: float, longitude: float) -> Tuple[str, str]:
+def format_coordinates(latitude: float, longitude: float) -> tuple[str, str]:
     """
     Convert decimal degrees to degrees/minutes format.
 
@@ -125,8 +124,8 @@ def format_coordinates(latitude: float, longitude: float) -> Tuple[str, str]:
 
 
 def format_letsgo_output(
-    forecast_activities: List[
-        Tuple[int, datetime, str, str, str, float, float, float, str]
+    forecast_activities: list[
+        tuple[int, datetime, str, str, str, float, float, float, str]
     ],
     start_time: str,
     transit_speed: float = 10.0,

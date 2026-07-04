@@ -21,7 +21,7 @@ enrichment operations.
 
 import logging
 from pathlib import Path
-from typing import Any, TextIO, Union
+from typing import Any, TextIO
 
 from ruamel.yaml import YAML
 from ruamel.yaml.error import YAMLError
@@ -60,7 +60,7 @@ def _get_yaml_processor(preserve_quotes: bool = True, width: int = 4096) -> YAML
     return yaml
 
 
-def load_yaml(file_path: Union[str, Path], encoding: str = "utf-8") -> dict[str, Any]:
+def load_yaml(file_path: str | Path, encoding: str = "utf-8") -> dict[str, Any]:
     """
     Load YAML configuration file with comment preservation.
 
@@ -129,7 +129,7 @@ def dump_yaml_simple(data: dict[str, Any], file_handle: TextIO) -> None:
 
 def save_yaml(
     config: dict[str, Any],
-    file_path: Union[str, Path],
+    file_path: str | Path,
     backup: bool = False,
     encoding: str = "utf-8",
 ) -> None:
@@ -190,7 +190,7 @@ def _get_incremental_backup_path(file_path: Path) -> Path:
         counter += 1
 
 
-def load_yaml_safe(file_path: Union[str, Path]) -> dict[str, Any]:
+def load_yaml_safe(file_path: str | Path) -> dict[str, Any]:
     """
     Load YAML file using ruamel.yaml safe loading (returns plain dict).
 

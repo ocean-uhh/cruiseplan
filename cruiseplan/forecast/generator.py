@@ -7,7 +7,6 @@ from cruise schedule data.
 
 import logging
 from datetime import datetime
-from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
@@ -18,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 def list_activities(
     schedule: xr.Dataset,
-) -> List[Tuple[int, str, str, str, float, str, float, float, float]]:
+) -> list[tuple[int, str, str, str, float, str, float, float, float]]:
     """
     List all activities with indices for user selection.
 
@@ -135,7 +134,7 @@ def list_activities(
 
 
 def format_activities_table(
-    activities: List[Tuple[int, str, str, str, float, str, float, float, float]],
+    activities: list[tuple[int, str, str, str, float, str, float, float, float]],
 ) -> str:
     """
     Format activities list as a readable table.
@@ -199,7 +198,7 @@ def generate_forecast(
     start_index: int,
     start_time: str,
     duration_hours: float = 24.0,
-) -> List[Tuple[int, datetime, str, str, str, float, float, float, str]]:
+) -> list[tuple[int, datetime, str, str, str, float, float, float, str]]:
     """
     Generate time-shifted forecast starting from specified activity.
 

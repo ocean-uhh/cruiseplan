@@ -8,8 +8,9 @@ oceanographic datasets from the PANGAEA data repository.
 import logging
 import pickle
 import re
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, Optional, Union
+from typing import Any
 
 import pandas as pd
 
@@ -52,7 +53,7 @@ class PangaeaManager:
         self.cache = CacheManager(cache_dir)
 
     def search(
-        self, query: str, bbox: Optional[tuple] = None, limit: int = 10
+        self, query: str, bbox: tuple | None = None, limit: int = 10
     ) -> list[dict[str, Any]]:
         """
         Search PANGAEA using the native PanQuery bbox support.
@@ -103,9 +104,9 @@ class PangaeaManager:
     def fetch_datasets(
         self,
         doi_list: list[str],
-        rate_limit: Optional[float] = None,
+        rate_limit: float | None = None,
         merge_campaigns: bool = False,
-        progress_callback: Optional[Callable[[int, int, str], None]] = None,
+        progress_callback: Callable[[int, int, str], None] | None = None,
     ) -> list[dict[str, Any]]:
         """
         Process a list of DOIs and return standardized metadata objects.
@@ -271,7 +272,7 @@ class PangaeaManager:
 
         return doi
 
-    def _fetch_from_api(self, doi: str) -> Optional[dict[str, Any]]:
+    def _fetch_from_api(self, doi: str) -> dict[str, Any] | None:
         """
         Fetch dataset metadata from PANGAEA API.
 
@@ -307,7 +308,7 @@ class PangaeaManager:
             logger.exception(f"Failed to fetch {doi}")
             return None
 
-    def _parse_events(self, events_data: Any, doi: str) -> Optional[dict[str, Any]]:
+    def _parse_events(self, events_data: Any, doi: str) -> dict[str, Any] | None:
         """
         Extracts lat/lon/label/campaign from the .events attribute.
 
@@ -376,7 +377,7 @@ class PangaeaManager:
             "doi": doi,
         }
 
-    def _parse_data_table(self, ds: PanDataSet, doi: str) -> Optional[dict[str, Any]]:
+    def _parse_data_table(self, ds: PanDataSet, doi: str) -> dict[str, Any] | None:
         """
         Fallback: Scrape the main data table for coordinates.
 
@@ -557,9 +558,9 @@ def merge_campaign_tracks(datasets: list[dict]) -> list[dict]:
 
 def save_campaign_data(
     datasets: list[dict],
-    file_path: Union[str, Path],
-    progress_callback: Optional[Callable[[str], None]] = None,
-    original_dataset_count: Optional[int] = None,
+    file_path: str | Path,
+    progress_callback: Callable[[str], None] | None = None,
+    original_dataset_count: int | None = None,
 ) -> None:
     """
     Save PANGAEA datasets to pickle file.
@@ -619,7 +620,7 @@ def save_campaign_data(
 
 
 def load_campaign_data(
-    file_path: Union[str, Path], merge_tracks: bool = True
+    file_path: str | Path, merge_tracks: bool = True
 ) -> list[dict]:
     """
     Load pre-processed PANGAEA campaign data from pickle file.
@@ -682,7 +683,7 @@ def load_campaign_data(
         raise ValueError(f"Error loading campaign data from {file_path}: {e}")
 
 
-def read_doi_list(file_path: Union[str, Path]) -> list[str]:
+def read_doi_list(file_path: str | Path) -> list[str]:
     """
     Read DOI list from text file, filtering out comments and empty lines.
 

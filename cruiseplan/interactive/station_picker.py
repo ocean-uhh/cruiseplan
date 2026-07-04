@@ -8,7 +8,7 @@ matplotlib-based interface for planning cruise stations, transects, and survey a
 import logging
 import sys
 from pathlib import Path
-from typing import ClassVar, Optional
+from typing import ClassVar
 
 import matplotlib.pyplot as plt
 
@@ -93,15 +93,15 @@ class StationPicker:
 
     def __init__(
         self,
-        campaign_data: Optional[list[dict]] = None,
-        existing_stations: Optional[list[dict]] = None,
+        campaign_data: list[dict] | None = None,
+        existing_stations: list[dict] | None = None,
         output_file: str = "stations.yaml",
         bathymetry_stride: int = 10,
         bathymetry_source: str = "etopo2022",
         bathymetry_dir: str = "data",
-        custom_contours: Optional[list] = None,
+        custom_contours: list | None = None,
         overwrite: bool = False,
-        max_depth: Optional[int] = None,
+        max_depth: int | None = None,
     ):
         """
         Initialize the station picker interface.
@@ -161,13 +161,13 @@ class StationPicker:
         self.bathymetry_custom_contours = None
 
         # Line Drawing State
-        self.line_start: Optional[tuple[float, float]] = None
-        self.temp_line_artist: Optional[any] = None
-        self.rubber_band_artist: Optional[any] = None
+        self.line_start: tuple[float, float] | None = None
+        self.temp_line_artist: any | None = None
+        self.rubber_band_artist: any | None = None
 
         # Area Drawing State
         self.current_area_points: list[tuple[float, float]] = []
-        self.temp_area_artist: Optional[any] = None
+        self.temp_area_artist: any | None = None
         self.area_point_artists: list[any] = []
 
         # Data layers
@@ -175,9 +175,9 @@ class StationPicker:
         self.campaign_artists = {}
 
         # --- Widget Instances ---
-        self.mode_indicator: Optional[ModeIndicator] = None
-        self.status_display: Optional[StatusDisplay] = None
-        self.campaign_selector: Optional[CampaignSelector] = None
+        self.mode_indicator: ModeIndicator | None = None
+        self.status_display: StatusDisplay | None = None
+        self.campaign_selector: CampaignSelector | None = None
 
         # UI Components
         self.fig = None

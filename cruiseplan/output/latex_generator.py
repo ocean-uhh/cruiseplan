@@ -14,7 +14,7 @@ paginated to fit within LaTeX float environments.
 
 import logging
 from pathlib import Path
-from typing import Any, Union
+from typing import Any
 
 import numpy as np
 from jinja2 import Environment, FileSystemLoader
@@ -549,7 +549,7 @@ class LaTeXGenerator:
         records: list[ActivityRecord],
         cruise_name: str = "Cruise",
         config: Any = None,
-        logo_path: Union[str, Path] = None,
+        logo_path: str | Path = None,
         workplan_number: str = None,
         cruise_title: str = None,
     ) -> str:
@@ -1038,7 +1038,7 @@ Time & Position & Depth & Distance & Station & Comment \\\\
 def generate_letsgo_table_from_netcdf(
     netcdf_path: Path,
     output_path: Path = None,
-    logo_path: Union[str, Path] = None,
+    logo_path: str | Path = None,
     workplan_number: str = None,
     cruise_title: str = None,
 ) -> Path:

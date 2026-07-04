@@ -20,7 +20,7 @@ We welcome several types of contributions:
 ## Getting Started
 
 ### Prerequisites
-- **Python 3.9 or later** (3.11+ recommended for development)
+- **Python 3.10 or later** (3.11+ recommended for development)
 - **Git** (for version control)
 - **Basic knowledge** of oceanography (helpful for domain-specific contributions)
 - **Familiarity** with cruise planning workflows (for feature development)

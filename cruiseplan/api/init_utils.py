@@ -2,7 +2,7 @@
 
 import logging
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -30,8 +30,8 @@ def _handle_error_with_logging(
 
 
 def _validate_lat_lon_bounds(
-    lat_bounds: Optional[list[float]], lon_bounds: Optional[list[float]]
-) -> Optional[tuple[float, float, float, float]]:
+    lat_bounds: list[float] | None, lon_bounds: list[float] | None
+) -> tuple[float, float, float, float] | None:
     """
     Validate and convert lat/lon bounds to bbox format.
 
@@ -70,7 +70,7 @@ def _validate_lat_lon_bounds(
 
 
 def _parse_schedule_formats(
-    format_str: Optional[str], derive_netcdf: bool = False
+    format_str: str | None, derive_netcdf: bool = False
 ) -> list[str]:
     """
     Parse format string for schedule generation.
@@ -100,7 +100,7 @@ def _parse_schedule_formats(
     return formats
 
 
-def _parse_map_formats(format_str: Optional[str]) -> list[str]:
+def _parse_map_formats(format_str: str | None) -> list[str]:
     """
     Parse format string for map/process functions.
 
@@ -132,7 +132,7 @@ def _parse_map_formats(format_str: Optional[str]) -> list[str]:
 
 def generate_html_format(
     cruise_config: Any, timeline: list[Any], output_dir_path: Path, base_name: str
-) -> Optional[Path]:
+) -> Path | None:
     """Generate HTML schedule output."""
     from cruiseplan.output.html_generator import generate_html_schedule
 
@@ -144,7 +144,7 @@ def generate_html_format(
 
 def generate_latex_format(
     cruise_config: Any, timeline: list[Any], output_dir_path: Path, base_name: str
-) -> Optional[Path]:
+) -> Path | None:
     """Generate LaTeX schedule output."""
     from cruiseplan.output.latex_generator import generate_latex_tables
 
@@ -160,7 +160,7 @@ def generate_latex_format(
 
 def generate_csv_format(
     cruise_config: Any, timeline: list[Any], output_dir_path: Path, base_name: str
-) -> Optional[Path]:
+) -> Path | None:
     """Generate CSV schedule output."""
     from cruiseplan.output.csv_generator import generate_csv_schedule
 
@@ -172,7 +172,7 @@ def generate_csv_format(
 
 def generate_netcdf_format(
     cruise_config: Any, timeline: list[Any], output_dir_path: Path, base_name: str
-) -> Optional[Path]:
+) -> Path | None:
     """Generate NetCDF schedule output."""
     from cruiseplan.output.netcdf_generator import NetCDFGenerator
 
@@ -211,16 +211,16 @@ def generate_png_format(
     bathy_dir: str,
     bathy_stride: int,
     figsize: tuple,
-    bathy_contours: Optional[list] = None,
-    lat_bounds: Optional[list] = None,
-    lon_bounds: Optional[list] = None,
+    bathy_contours: list | None = None,
+    lat_bounds: list | None = None,
+    lon_bounds: list | None = None,
     no_ports: bool = False,
     no_title: bool = False,
     no_labels: bool = False,
     no_legend: bool = False,
     suffix: str = "map",
-    max_depth: Optional[int] = None,
-) -> Optional[Path]:
+    max_depth: int | None = None,
+) -> Path | None:
     """Generate PNG map output."""
     from cruiseplan.output.map_generator import generate_map_from_timeline
 

@@ -8,7 +8,7 @@ Implements discrete sampling geometries as specified in netcdf_outputs.md.
 import logging
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 import xarray as xr
@@ -767,7 +767,7 @@ class NetCDFGenerator:
         ds.to_netcdf(output_path, format="NETCDF4")
 
     def _create_empty_derived_dataset(
-        self, operation_type: str, config: CruiseConfig, comment: Optional[str] = None
+        self, operation_type: str, config: CruiseConfig, comment: str | None = None
     ) -> xr.Dataset:
         """Create an empty dataset with proper global attributes for derived files."""
         # Determine featureType based on operation type
