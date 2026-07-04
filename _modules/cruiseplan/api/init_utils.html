@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.api.init_utils &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev45</title>
+  <title>cruiseplan.api.init_utils &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev46</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=245eacb1"></script>
+      <script src="../../../_static/documentation_options.js?v=13a626db"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -93,7 +93,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -121,8 +121,8 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_validate_lat_lon_bounds</span><span class="p">(</span>
-    <span class="n">lat_bounds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">lon_bounds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+    <span class="n">lat_bounds</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">lon_bounds</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Validate and convert lat/lon bounds to bbox format.</span>
 
@@ -161,7 +161,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_parse_schedule_formats</span><span class="p">(</span>
-    <span class="n">format_str</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">derive_netcdf</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">format_str</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">derive_netcdf</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parse format string for schedule generation.</span>
@@ -191,7 +191,7 @@
     <span class="k">return</span> <span class="n">formats</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_parse_map_formats</span><span class="p">(</span><span class="n">format_str</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_map_formats</span><span class="p">(</span><span class="n">format_str</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parse format string for map/process functions.</span>
 
@@ -225,7 +225,7 @@
 <a class="viewcode-back" href="../../../api/cruiseplan.api.html#cruiseplan.api.init_utils.generate_html_format">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">generate_html_format</span><span class="p">(</span>
     <span class="n">cruise_config</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="n">output_dir_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">base_name</span><span class="p">:</span> <span class="nb">str</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate HTML schedule output.&quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.html_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_html_schedule</span>
 
@@ -240,7 +240,7 @@
 <a class="viewcode-back" href="../../../api/cruiseplan.api.html#cruiseplan.api.init_utils.generate_latex_format">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">generate_latex_format</span><span class="p">(</span>
     <span class="n">cruise_config</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="n">output_dir_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">base_name</span><span class="p">:</span> <span class="nb">str</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate LaTeX schedule output.&quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.latex_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_latex_tables</span>
 
@@ -259,7 +259,7 @@
 <a class="viewcode-back" href="../../../api/cruiseplan.api.html#cruiseplan.api.init_utils.generate_csv_format">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">generate_csv_format</span><span class="p">(</span>
     <span class="n">cruise_config</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="n">output_dir_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">base_name</span><span class="p">:</span> <span class="nb">str</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate CSV schedule output.&quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.csv_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_csv_schedule</span>
 
@@ -274,7 +274,7 @@
 <a class="viewcode-back" href="../../../api/cruiseplan.api.html#cruiseplan.api.init_utils.generate_netcdf_format">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">generate_netcdf_format</span><span class="p">(</span>
     <span class="n">cruise_config</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="n">output_dir_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">base_name</span><span class="p">:</span> <span class="nb">str</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate NetCDF schedule output.&quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.netcdf_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">NetCDFGenerator</span>
 
@@ -319,16 +319,16 @@
     <span class="n">bathy_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">bathy_stride</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">figsize</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span>
-    <span class="n">bathy_contours</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">lat_bounds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">lon_bounds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">bathy_contours</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">lat_bounds</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">lon_bounds</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">no_ports</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">no_title</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">no_labels</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">no_legend</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">suffix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;map&quot;</span><span class="p">,</span>
-    <span class="n">max_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+    <span class="n">max_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate PNG map output.&quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.map_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_map_from_timeline</span>
 

@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.timeline.scheduler &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev45</title>
+  <title>cruiseplan.timeline.scheduler &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev46</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=245eacb1"></script>
+      <script src="../../../_static/documentation_options.js?v=13a626db"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -103,7 +103,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.config.activities</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeoPoint</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.config.cruise_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseConfig</span>
@@ -168,14 +168,14 @@
     <span class="n">leg_name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">op_type</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># Main operation type: &quot;station&quot;, &quot;port&quot;, &quot;transit&quot;, &quot;area&quot;, etc.</span>
     <span class="n">operation_class</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># Implementation class: PointOperation, LineOperation, AreaOperation, NavigationalTransit</span>
-    <span class="n">action</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">transit_dist_nm</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">action</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">transit_dist_nm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="p">(</span>
         <span class="kc">None</span>  <span class="c1"># Distance to next operation (for stationplan display)</span>
     <span class="p">)</span>
-    <span class="n">operation_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Depth for operation (e.g. CTD max depth)</span>
-    <span class="n">water_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Water depth at location</span>
-    <span class="n">delay_start</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Delay before operation starts in minutes</span>
-    <span class="n">comment</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># User comment or description</span>
+    <span class="n">operation_depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Depth for operation (e.g. CTD max depth)</span>
+    <span class="n">water_depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Water depth at location</span>
+    <span class="n">delay_start</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Delay before operation starts in minutes</span>
+    <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># User comment or description</span>
 
 <div class="viewcode-block" id="ActivityRecord.__init__">
 <a class="viewcode-back" href="../../../api/cruiseplan.timeline.html#cruiseplan.timeline.ActivityRecord.__init__">[docs]</a>
@@ -231,7 +231,7 @@
         <span class="n">to_op</span><span class="p">:</span> <span class="n">BaseOperation</span><span class="p">,</span>
         <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span>
         <span class="n">leg_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">vessel_speed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">vessel_speed</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Transit to </span><span class="si">{</span><span class="n">to_op</span><span class="o">.</span><span class="n">get_label</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
@@ -754,7 +754,7 @@
 
 <div class="viewcode-block" id="TimelineGenerator.generate_timeline">
 <a class="viewcode-back" href="../../../api/cruiseplan.timeline.html#cruiseplan.timeline.TimelineGenerator.generate_timeline">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">generate_timeline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">legs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CruiseSchedule</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_timeline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">legs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CruiseSchedule</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate complete cruise timeline.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">legs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">legs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_runtime_legs</span><span class="p">()</span>
@@ -912,7 +912,7 @@
         <span class="n">to_op</span><span class="p">:</span> <span class="n">BaseOperation</span><span class="p">,</span>
         <span class="n">leg_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;unknown&quot;</span><span class="p">,</span>
         <span class="n">leg</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActivityRecord</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create navigational transit between operations.&quot;&quot;&quot;</span>
         <span class="c1"># Get leg-specific vessel speed if available</span>
         <span class="n">leg_vessel_speed</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1094,7 +1094,7 @@
 
 <div class="viewcode-block" id="generate_timeline">
 <a class="viewcode-back" href="../../../api/cruiseplan.timeline.html#cruiseplan.timeline.generate_timeline">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">generate_timeline</span><span class="p">(</span><span class="n">cruise</span><span class="p">,</span> <span class="n">legs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CruiseSchedule</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_timeline</span><span class="p">(</span><span class="n">cruise</span><span class="p">,</span> <span class="n">legs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CruiseSchedule</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate cruise timeline directly from CruiseInstance object.</span>
 
@@ -1129,15 +1129,15 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">generate_cruise_schedule</span><span class="p">(</span>
     <span class="n">config_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
-    <span class="n">formats</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">formats</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">validate_depths</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">selected_leg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">selected_leg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">derive_netcdf</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">bathy_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
     <span class="n">bathy_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
     <span class="n">bathy_stride</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
-    <span class="n">figsize</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">output_basename</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">output_basename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate cruise schedule (backward compatibility function).</span>
