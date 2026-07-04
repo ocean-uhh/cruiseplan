@@ -101,6 +101,7 @@ class StationPicker:
         bathymetry_dir: str = "data",
         custom_contours: Optional[list] = None,
         overwrite: bool = False,
+        max_depth: Optional[int] = None,
     ):
         """
         Initialize the station picker interface.
@@ -130,8 +131,14 @@ class StationPicker:
         self.output_file = output_file
         self.overwrite = overwrite
         self.bathymetry_stride = bathymetry_stride
-        self.bathymetry_colormap = get_colormap("bathymetry")
+        self.max_depth = max_depth
         self.custom_contours = custom_contours
+        if max_depth is not None:
+            from cruiseplan.utils.plot_config import create_bathymetry_colormap
+
+            self.bathymetry_colormap = create_bathymetry_colormap(max_depth=max_depth)
+        else:
+            self.bathymetry_colormap = get_colormap("bathymetry")
 
         # Initialize bathymetry manager with specified source and directory
         self.bathymetry = BathymetryManager(
@@ -346,12 +353,22 @@ class StationPicker:
         )
 
         # 1. Filled Contours (The "Map" feel)
-        # Use levels that match the colormap segments for proper color assignment
-        self.bathymetry_filled_contours = self.ax_map.contourf(
-            xx,
-            yy,
-            zz,
-            levels=[
+        if self.max_depth is not None:
+            import math
+
+            raw_step = self.max_depth / 5.0
+            magnitude = 10 ** math.floor(math.log10(raw_step))
+            for factor in (1, 2, 5, 10):
+                if raw_step <= factor * magnitude:
+                    step = factor * magnitude
+                    break
+            else:
+                step = magnitude * 10
+            filled_levels = [
+                -self.max_depth + i * step for i in range(int(self.max_depth / step))
+            ] + [0, 200]
+        else:
+            filled_levels = [
                 -8000,
                 -7000,
                 -6000,
@@ -364,10 +381,15 @@ class StationPicker:
                 -200,
                 0,
                 200,
-            ],
+            ]
+        self.bathymetry_filled_contours = self.ax_map.contourf(
+            xx,
+            yy,
+            zz,
+            levels=filled_levels,
             cmap=self.bathymetry_colormap,
             alpha=0.4,
-            extend="both",  # Show under/over colors
+            extend="both",
         )
 
         # 2. Line Contours (The "Scientific" context)

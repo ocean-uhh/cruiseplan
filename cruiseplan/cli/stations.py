@@ -47,7 +47,8 @@ def main(args: argparse.Namespace) -> None:
             bathy_source=getattr(args, "bathy_source", "etopo2022"),
             bathy_dir=str(getattr(args, "bathy_dir", "data")),
             bathy_contours=getattr(args, "bathy_contours", None),
-            high_resolution=getattr(args, "high_resolution", False),
+            bathy_stride=getattr(args, "bathy_stride", 10),
+            max_depth=getattr(args, "max_depth", None),
             overwrite=getattr(args, "overwrite", False),
             verbose=getattr(args, "verbose", False),
         )

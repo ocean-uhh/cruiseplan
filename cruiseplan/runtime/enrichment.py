@@ -169,6 +169,15 @@ def expand_sections(
     sections_expanded = 0
     total_stations_created = 0
 
+    # Cruise-level default spacing, falling back to module-level constant
+    from cruiseplan.config.values import DEFAULT_STATION_SPACING_KM
+
+    cruise_default_spacing = getattr(
+        cruise_instance.config,
+        "default_distance_between_stations",
+        DEFAULT_STATION_SPACING_KM,
+    )
+
     # Find CTD sections in lines catalog
     ctd_sections = []
     for line_name, line_def in cruise_instance.line_registry.items():
@@ -183,7 +192,8 @@ def expand_sections(
                     "name": line_name,
                     "route": line_def.route,
                     "distance_between_stations": (
-                        getattr(line_def, "distance_between_stations", None) or 20.0
+                        getattr(line_def, "distance_between_stations", None)
+                        or cruise_default_spacing
                     ),
                     "max_depth": getattr(line_def, "max_depth", None),
                     "planned_duration_hours": getattr(

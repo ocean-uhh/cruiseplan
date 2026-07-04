@@ -476,6 +476,7 @@ class Leg(BaseOrganizationUnit):
         self.vessel_speed: Optional[float] = None
         self.turnaround_time: Optional[float] = None
         self.distance_between_stations: Optional[float] = None
+        self.delay_start: Optional[float] = None
 
     def add_operation(self, operation: BaseOperation) -> None:
         """
@@ -872,6 +873,7 @@ class Leg(BaseOrganizationUnit):
         leg.vessel_speed = leg_def.vessel_speed
         leg.turnaround_time = leg_def.turnaround_time
         leg.distance_between_stations = leg_def.distance_between_stations
+        leg.delay_start = leg_def.delay_start
 
         # Create default cluster for activities if no clusters are defined
         if leg_def.activities and not leg_def.clusters:

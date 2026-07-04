@@ -36,6 +36,9 @@ def main(args: argparse.Namespace) -> None:
             figsize=getattr(args, "figsize", None),
             show_plot=getattr(args, "show_plot", False),
             no_ports=getattr(args, "no_ports", False),
+            no_title=getattr(args, "no_title", False),
+            no_labels=getattr(args, "no_labels", False),
+            no_legend=getattr(args, "no_legend", False),
             verbose=getattr(args, "verbose", False),
             max_depth=getattr(args, "max_depth", None),
         )
@@ -163,6 +166,11 @@ if __name__ == "__main__":
     parser.add_argument(
         "--no-ports", action="store_true", help="Exclude ports from map"
     )
+    parser.add_argument("--no-title", action="store_true", help="Omit map title")
+    parser.add_argument(
+        "--no-labels", action="store_true", help="Omit station name labels"
+    )
+    parser.add_argument("--no-legend", action="store_true", help="Omit map legend")
     parser.add_argument("--verbose", action="store_true", help="Verbose output")
 
     args = parser.parse_args()

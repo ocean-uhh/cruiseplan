@@ -31,6 +31,9 @@ class TestMapThinCLI:
             figsize=None,
             show_plot=False,
             no_ports=False,
+            no_title=False,
+            no_labels=False,
+            no_legend=False,
             verbose=False,
         )
 
@@ -64,6 +67,9 @@ class TestMapThinCLI:
                 figsize=None,
                 show_plot=False,
                 no_ports=False,
+                no_title=False,
+                no_labels=False,
+                no_legend=False,
                 verbose=False,
                 max_depth=None,
             )
@@ -81,6 +87,9 @@ class TestMapThinCLI:
             figsize=[12.0, 8.0],
             show_plot=True,
             no_ports=True,
+            no_title=False,
+            no_labels=False,
+            no_legend=False,
             verbose=True,
         )
 
@@ -112,6 +121,9 @@ class TestMapThinCLI:
                 figsize=[12.0, 8.0],
                 show_plot=True,
                 no_ports=True,
+                no_title=False,
+                no_labels=False,
+                no_legend=False,
                 verbose=True,
                 max_depth=None,
             )
@@ -282,6 +294,9 @@ class TestMapThinCLI:
                 figsize=None,  # default
                 show_plot=False,  # default
                 no_ports=False,  # default
+                no_title=False,  # default
+                no_labels=False,  # default
+                no_legend=False,  # default
                 verbose=False,  # default
                 max_depth=None,  # default
             )

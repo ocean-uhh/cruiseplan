@@ -649,6 +649,7 @@ class TimelineGenerator:
                 runtime_leg.distance_between_stations = getattr(
                     leg_def, "distance_between_stations", None
                 )
+                runtime_leg.delay_start = getattr(leg_def, "delay_start", None)
 
                 runtime_legs.append(runtime_leg)
             except Exception as e:
@@ -663,6 +664,11 @@ class TimelineGenerator:
         # Initialize current_time if not set
         if self.current_time is None:
             self.current_time = self._parse_start_datetime()
+
+        # Apply leg-level delay (e.g. port clearance wait before departure)
+        leg_delay = getattr(leg, "delay_start", None) or 0.0
+        if leg_delay:
+            self.current_time = self.current_time + timedelta(minutes=leg_delay)
 
         activities = []
 

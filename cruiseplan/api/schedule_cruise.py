@@ -90,6 +90,9 @@ def schedule(  # noqa: C901, PLR0915
     lon_bounds: Optional[list] = None,
     figsize: Optional[list] = None,
     no_ports: bool = False,
+    no_title: bool = False,
+    no_labels: bool = False,
+    no_legend: bool = False,
     verbose: bool = False,
     max_depth: Optional[int] = None,
 ) -> ScheduleResult:
@@ -293,6 +296,9 @@ def schedule(  # noqa: C901, PLR0915
                     lat_bounds=lat_bounds,
                     lon_bounds=lon_bounds,
                     no_ports=no_ports,
+                    no_title=no_title,
+                    no_labels=no_labels,
+                    no_legend=no_legend,
                     suffix="schedule",
                     max_depth=max_depth,
                 )

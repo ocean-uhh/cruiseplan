@@ -93,47 +93,44 @@ def extract_points_from_cruise(cruise, include_ports=True) -> list[dict[str, Any
 
     # Extract ports (optional)
     if include_ports:
-        # Extract departure port
-        if hasattr(cruise.config, "departure_port") and cruise.config.departure_port:
-            port = cruise.config.departure_port
-            if hasattr(port, "latitude"):
-                # Use display_name if available, otherwise fall back to name
-                # Truncate at comma for cleaner labeling (e.g., "Halifax" instead of "Halifax, Nova Scotia")
-                port_label = (
-                    getattr(port, "display_name", port.name) or port.name
-                ).split(",")[0]
-                points.append(
-                    {
-                        "name": port_label,
-                        "lat": port.latitude,
-                        "lon": port.longitude,
-                        "entity_type": "departure_port",
-                        "operation_type": "port",
-                        "action": None,
-                        "depth": None,
-                    }
-                )
 
-        # Extract arrival port
-        if hasattr(cruise.config, "arrival_port") and cruise.config.arrival_port:
-            port = cruise.config.arrival_port
-            if hasattr(port, "latitude"):
-                # Use display_name if available, otherwise fall back to name
-                # Truncate at comma for cleaner labeling (e.g., "Halifax" instead of "Halifax, Nova Scotia")
-                port_label = (
-                    getattr(port, "display_name", port.name) or port.name
-                ).split(",")[0]
-                points.append(
-                    {
-                        "name": port_label,
-                        "lat": port.latitude,
-                        "lon": port.longitude,
-                        "entity_type": "arrival_port",
-                        "operation_type": "port",
-                        "action": None,
-                        "depth": None,
-                    }
-                )
+        def _extract_port(port, entity_type):
+            if not port or not hasattr(port, "latitude") or port.latitude is None:
+                return None
+            port_label = (getattr(port, "display_name", port.name) or port.name).split(
+                ","
+            )[0]
+            return {
+                "name": port_label,
+                "lat": port.latitude,
+                "lon": port.longitude,
+                "entity_type": entity_type,
+                "operation_type": "port",
+                "action": None,
+                "depth": None,
+            }
+
+        # Collect candidate port objects from top-level config and all legs,
+        # deduplicating by (lat, lon) so the same port doesn't appear twice.
+        seen_coords: set[tuple[float, float]] = set()
+
+        def _add_port(port, entity_type):
+            entry = _extract_port(port, entity_type)
+            if entry is None:
+                return
+            key = (entry["lat"], entry["lon"])
+            if key not in seen_coords:
+                seen_coords.add(key)
+                points.append(entry)
+
+        # Top-level cruise config ports (single-leg / legacy)
+        _add_port(getattr(cruise.config, "departure_port", None), "departure_port")
+        _add_port(getattr(cruise.config, "arrival_port", None), "arrival_port")
+
+        # Leg-level ports (the common case)
+        for leg in getattr(cruise.config, "legs", None) or []:
+            _add_port(getattr(leg, "departure_port", None), "departure_port")
+            _add_port(getattr(leg, "arrival_port", None), "arrival_port")
 
     return points
 
@@ -733,7 +730,12 @@ def plot_bathymetry(
 
 
 def plot_cruise_elements(
-    ax, map_data: dict[str, Any], display_bounds: tuple[float, float, float, float]
+    ax,
+    map_data: dict[str, Any],
+    display_bounds: tuple[float, float, float, float],
+    no_title: bool = False,
+    no_labels: bool = False,
+    no_legend: bool = False,
 ) -> None:
     """
     Plot stations, ports, transit lines, and areas on a matplotlib axis using structured map data.
@@ -875,16 +877,17 @@ def plot_cruise_elements(
         )
 
         # Add point name annotation for all scientific operations
-        ax.annotate(
-            point["name"],
-            (lon, lat),
-            xytext=(3, 3),
-            textcoords="offset points",
-            fontsize=6,
-            color="black",
-            weight="bold",
-            zorder=20,
-        )
+        if not no_labels:
+            ax.annotate(
+                point["name"],
+                (lon, lat),
+                xytext=(3, 3),
+                textcoords="offset points",
+                fontsize=6,
+                color="black",
+                weight="bold",
+                zorder=20,
+            )
 
         # Add to legend if not already added
         label = style.get("label", point["entity_type"].title())
@@ -905,13 +908,14 @@ def plot_cruise_elements(
     # Set labels and title
     ax.set_xlabel("Longitude (°)", fontsize=12)
     ax.set_ylabel("Latitude (°)", fontsize=12)
-    ax.set_title(
-        map_data.get("title", "Cruise Plan Map"), fontsize=14, fontweight="bold"
-    )
+    if not no_title:
+        ax.set_title(
+            map_data.get("title", "Cruise Plan Map"), fontsize=14, fontweight="bold"
+        )
 
     # Add grid and legend
     ax.grid(True, alpha=0.3, zorder=0)
-    if legend_labels_added:
+    if legend_labels_added and not no_legend:
         ax.legend(
             loc="upper right", fontsize=8, frameon=True, fancybox=True, shadow=True
         )
@@ -934,6 +938,9 @@ def generate_map(
     show_plot: bool = False,
     figsize: tuple[float, float] = (10, 8.1),
     include_ports: bool = True,
+    no_title: bool = False,
+    no_labels: bool = False,
+    no_legend: bool = False,
     max_depth: Optional[int] = None,
 ) -> Optional[Path]:
     """
@@ -1100,7 +1107,14 @@ def generate_map(
     )
 
     # Plot cruise elements using new structured data (this applies the final aspect ratio)
-    plot_cruise_elements(ax, map_data, display_bounds)
+    plot_cruise_elements(
+        ax,
+        map_data,
+        display_bounds,
+        no_title=no_title,
+        no_labels=no_labels,
+        no_legend=no_legend,
+    )
 
     # Apply tight layout BEFORE colorbar to finalize axes positioning
     plt.tight_layout()
@@ -1156,6 +1170,9 @@ def generate_map_from_yaml(
     show_plot: bool = False,
     figsize: tuple[float, float] = (10, 8),
     include_ports: bool = True,
+    no_title: bool = False,
+    no_labels: bool = False,
+    no_legend: bool = False,
 ) -> Optional[Path]:
     """
     Generate a static PNG map directly from a Cruise configuration object.
@@ -1197,6 +1214,9 @@ def generate_map_from_yaml(
         show_plot=show_plot,
         figsize=figsize,
         include_ports=include_ports,
+        no_title=no_title,
+        no_labels=no_labels,
+        no_legend=no_legend,
     )
 
 
@@ -1211,6 +1231,9 @@ def generate_map_from_timeline(
     lon_bounds: Optional[list] = None,
     figsize: tuple[float, float] = (10, 8),
     no_ports: bool = False,
+    no_title: bool = False,
+    no_labels: bool = False,
+    no_legend: bool = False,
     config=None,
     max_depth: Optional[int] = None,
 ) -> Optional[Path]:
@@ -1262,6 +1285,9 @@ def generate_map_from_timeline(
         show_plot=False,
         figsize=figsize,
         include_ports=not no_ports,
+        no_title=no_title,
+        no_labels=no_labels,
+        no_legend=no_legend,
         max_depth=max_depth,
     )
 

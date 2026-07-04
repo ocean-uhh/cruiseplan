@@ -5,20 +5,22 @@ on:
     branches: [ "main" ]
     paths:
       - '**.py'
-      - 'cruiseplan/**'
-      - 'tests/**'
-      - 'pyproject.toml'
+      - '**.ipynb'
+      - '**.rst'
+      - '**.md'
       - 'requirements*.txt'
-      - '.pre-commit-config.yaml'
+      - 'pyproject.toml'
+      - 'setup.cfg'
   pull_request:
     branches: [ "main" ]
     paths:
       - '**.py'
-      - 'cruiseplan/**'
-      - 'tests/**'
-      - 'pyproject.toml'
+      - '**.ipynb'
+      - '**.rst'
+      - '**.md'
       - 'requirements*.txt'
-      - '.pre-commit-config.yaml'
+      - 'pyproject.toml'
+      - 'setup.cfg'
 
 jobs:
   test:

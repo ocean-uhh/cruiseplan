@@ -42,6 +42,9 @@ def main(args: argparse.Namespace) -> None:
             lon_bounds=getattr(args, "lon", None),
             figsize=getattr(args, "figsize", None),
             no_port_map=getattr(args, "no_port_map", False),
+            no_title=getattr(args, "no_title", False),
+            no_labels=getattr(args, "no_labels", False),
+            no_legend=getattr(args, "no_legend", False),
             verbose=getattr(args, "verbose", False),
             max_depth=getattr(args, "max_depth", None),
         )

@@ -38,7 +38,8 @@ def mock_args(tmp_path):
         output_dir=tmp_path / "results",
         bathy_source_legacy="etopo2022",  # Legacy param that gets migrated
         bathy_dir_legacy=tmp_path / "bathymetry",  # Legacy param that gets migrated
-        high_resolution=False,
+        bathy_stride=10,
+        max_depth=None,
         verbose=False,
         quiet=False,
     )
@@ -68,7 +69,8 @@ def test_main_success_with_pangaea(mock_args, mock_external_deps):
         bathy_source="etopo2022",
         bathy_dir="data",  # Default value used by API
         bathy_contours=None,
-        high_resolution=False,
+        bathy_stride=10,
+        max_depth=None,
         overwrite=False,
         verbose=False,
     )

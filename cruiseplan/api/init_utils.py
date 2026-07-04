@@ -215,6 +215,9 @@ def generate_png_format(
     lat_bounds: Optional[list] = None,
     lon_bounds: Optional[list] = None,
     no_ports: bool = False,
+    no_title: bool = False,
+    no_labels: bool = False,
+    no_legend: bool = False,
     suffix: str = "map",
     max_depth: Optional[int] = None,
 ) -> Optional[Path]:
@@ -235,6 +238,9 @@ def generate_png_format(
         lon_bounds=lon_bounds,
         figsize=figsize,
         no_ports=no_ports,
+        no_title=no_title,
+        no_labels=no_labels,
+        no_legend=no_legend,
         config=cruise,
         max_depth=max_depth,
     )

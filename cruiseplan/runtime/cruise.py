@@ -490,6 +490,7 @@ class CruiseInstance:
             runtime_leg.turnaround_time = leg_def.turnaround_time or getattr(
                 self.config, "turnaround_time", None
             )
+            runtime_leg.delay_start = leg_def.delay_start
 
             # Create clusters within the leg
             if leg_def.clusters:

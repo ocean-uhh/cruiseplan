@@ -276,6 +276,21 @@ Examples:
         action="store_true",
         help="Exclude ports from PNG schedule maps",
     )
+    schedule_parser.add_argument(
+        "--no-title",
+        action="store_true",
+        help="Omit title from PNG schedule maps",
+    )
+    schedule_parser.add_argument(
+        "--no-labels",
+        action="store_true",
+        help="Omit station name labels from PNG schedule maps",
+    )
+    schedule_parser.add_argument(
+        "--no-legend",
+        action="store_true",
+        help="Omit legend from PNG schedule maps",
+    )
 
     # --- 3. Stations Subcommand ---
     stations_parser = subparsers.add_parser(
@@ -352,9 +367,17 @@ Examples:
 
     # Display options
     stations_parser.add_argument(
-        "--high-resolution",
-        action="store_true",
-        help="Use full resolution bathymetry (slower but more detailed)",
+        "--bathy-stride",
+        type=int,
+        default=10,
+        help="Bathymetry downsampling factor (default: 10, lower = finer detail but slower; use 1 for full resolution)",
+    )
+    stations_parser.add_argument(
+        "--max-depth",
+        type=int,
+        default=None,
+        metavar="DEPTH",
+        help="Maximum water depth (m) for the colour scale (e.g. 500 to focus on shelf seas)",
     )
 
     # --- 4. Enrich Subcommand ---
@@ -507,6 +530,21 @@ Examples:
         "--no-ports",
         action="store_true",
         help="Suppress plotting of departure and arrival ports in both PNG and KML outputs",
+    )
+    map_parser.add_argument(
+        "--no-title",
+        action="store_true",
+        help="Omit title from PNG map",
+    )
+    map_parser.add_argument(
+        "--no-labels",
+        action="store_true",
+        help="Omit station name labels from PNG map",
+    )
+    map_parser.add_argument(
+        "--no-legend",
+        action="store_true",
+        help="Omit legend from PNG map",
     )
 
     # Output control
@@ -788,6 +826,21 @@ Examples:
         "--no-port-map",
         action="store_true",
         help="Skip plotting ports on generated maps (default: ports plotted)",
+    )
+    process_parser.add_argument(
+        "--no-title",
+        action="store_true",
+        help="Omit title from generated PNG maps",
+    )
+    process_parser.add_argument(
+        "--no-labels",
+        action="store_true",
+        help="Omit station name labels from generated PNG maps",
+    )
+    process_parser.add_argument(
+        "--no-legend",
+        action="store_true",
+        help="Omit legend from generated PNG maps",
     )
 
     # General options

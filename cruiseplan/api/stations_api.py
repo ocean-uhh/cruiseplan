@@ -310,23 +310,18 @@ def _log_configuration_info(
 
     logger.info(f"Output file: {output_path}")
     logger.info(f"Bathymetry source: {bathy_source}")
-    resolution_msg = (
-        "high resolution (no downsampling)"
-        if high_resolution
-        else "standard resolution (10x downsampled)"
-    )
-    logger.info(f"Bathymetry resolution: {resolution_msg}")
+    if high_resolution:
+        logger.info("Bathymetry resolution: high resolution (stride=1)")
+    else:
+        logger.info("Bathymetry resolution: standard (stride=10)")
 
     # Performance warning for GEBCO + high-resolution combination
     if bathy_source == "gebco2025" and high_resolution:
         logger.warning("⚠️  PERFORMANCE WARNING:")
         logger.warning(
-            "   GEBCO 2025 with high resolution can be very slow for interactive use!"
+            "   GEBCO 2025 with stride=1 can be very slow for interactive use!"
         )
-        logger.warning("   Consider using etopo2022 for faster interaction.")
-        logger.warning(
-            "   Reserve GEBCO high-resolution for final detailed planning only."
-        )
+        logger.warning("   Consider using etopo2022 or a higher stride value.")
         logger.warning("")
     logger.info("")
 
@@ -396,7 +391,8 @@ def stations_with_config(
         pangaea_file=config.pangaea_file,
         bathy_source=config.bathy_source,
         bathy_dir=config.bathy_dir,
-        high_resolution=config.high_resolution,
+        bathy_stride=getattr(config, "bathy_stride", 10),
+        max_depth=getattr(config, "max_depth", None),
         overwrite=config.overwrite,
         verbose=config.output.verbose,
     )
@@ -412,7 +408,8 @@ def stations(
     bathy_source: str = "etopo2022",
     bathy_dir: str = "data",
     bathy_contours: Optional[list] = None,
-    high_resolution: bool = False,
+    bathy_stride: int = 10,
+    max_depth: Optional[int] = None,
     overwrite: bool = False,
     verbose: bool = False,
 ) -> StationPickerResult:
@@ -440,8 +437,11 @@ def stations(
         Bathymetry source ("etopo2022" or "gebco2025")
     bathy_dir : str
         Bathymetry data directory
-    high_resolution : bool
-        Use high resolution bathymetry (slower)
+    bathy_stride : int
+        Bathymetry downsampling factor (default: 10, lower = finer detail but slower)
+    max_depth : int, optional
+        Maximum water depth (m) for the colour scale. If set, the colour range
+        spans -max_depth to +200 m instead of the default -8000 to +200 m.
     overwrite : bool
         Overwrite existing output file
     verbose : bool
@@ -502,25 +502,23 @@ def stations(
     output_path = output_dir_path / output_filename
 
     # Log configuration and display instructions
-    _log_configuration_info(output_path, bathy_source, high_resolution)
+    _log_configuration_info(output_path, bathy_source, bathy_stride == 1)
     _display_usage_instructions()
 
-    # Import and initialize the interactive picker (unchanged from cli/stations.py)
+    # Import and initialize the interactive picker
     try:
         from cruiseplan.interactive.station_picker import StationPicker
-
-        # Initialize the picker with exact same parameters as CLI version
-        bathymetry_stride = 1 if high_resolution else 10
 
         picker = StationPicker(
             campaign_data=campaign_data,
             existing_stations=config_stations_data,
             output_file=str(output_path),
-            bathymetry_stride=bathymetry_stride,
+            bathymetry_stride=bathy_stride,
             bathymetry_source=bathy_source,
             bathymetry_dir=str(bathy_dir),
             custom_contours=bathy_contours,
             overwrite=overwrite,
+            max_depth=max_depth,
         )
 
         # Set coordinate bounds (unchanged from cli/stations.py)
@@ -540,7 +538,8 @@ def stations(
             "lat_bounds": final_lat_bounds,
             "lon_bounds": final_lon_bounds,
             "bathy_source": bathy_source,
-            "high_resolution": high_resolution,
+            "bathy_stride": bathy_stride,
+            "max_depth": max_depth,
             "pangaea_campaigns": len(campaign_data) if campaign_data else 0,
         }
 

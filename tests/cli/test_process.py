@@ -38,6 +38,9 @@ class TestProcessThinCLI:
             bathy_stride=10,
             figsize=None,
             no_port_map=False,
+            no_title=False,
+            no_labels=False,
+            no_legend=False,
             verbose=False,
         )
 
@@ -85,6 +88,9 @@ class TestProcessThinCLI:
                 lon_bounds=None,
                 figsize=None,
                 no_port_map=False,
+                no_title=False,
+                no_labels=False,
+                no_legend=False,
                 verbose=False,
                 max_depth=None,
             )
@@ -108,6 +114,9 @@ class TestProcessThinCLI:
             bathy_stride=20,
             figsize=[12, 8],
             no_port_map=True,
+            no_title=False,
+            no_labels=False,
+            no_legend=False,
             verbose=True,
         )
 
@@ -146,6 +155,9 @@ class TestProcessThinCLI:
                 lon_bounds=None,
                 figsize=[12, 8],
                 no_port_map=True,
+                no_title=False,
+                no_labels=False,
+                no_legend=False,
                 verbose=True,
                 max_depth=None,
             )
@@ -305,6 +317,9 @@ class TestProcessThinCLI:
                 lon_bounds=None,  # default
                 figsize=None,  # default
                 no_port_map=False,  # default
+                no_title=False,  # default
+                no_labels=False,  # default
+                no_legend=False,  # default
                 verbose=False,  # default
                 max_depth=None,  # default
             )

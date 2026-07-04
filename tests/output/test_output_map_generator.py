@@ -549,6 +549,9 @@ class TestGenerateMapFromYaml:
             show_plot=True,
             figsize=(14, 12),
             include_ports=True,  # Default value
+            no_title=False,
+            no_labels=False,
+            no_legend=False,
         )
 
 

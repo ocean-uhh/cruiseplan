@@ -184,6 +184,7 @@ LEG_ALLOWED_FIELDS = {
     "activities",
     "clusters",
     "buffer_time",
+    "delay_start",
     "distance_between_stations",
     "turnaround_time",
     "history",
