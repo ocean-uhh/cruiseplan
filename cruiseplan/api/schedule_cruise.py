@@ -71,6 +71,7 @@ def schedule_with_config(
         bathy_dir=config.bathymetry.directory,
         bathy_stride=config.bathymetry.stride,
         figsize=config.visualization.figsize,
+        include_eez=config.visualization.include_eez,
         verbose=config.output.verbose,
     )
 
@@ -90,6 +91,7 @@ def schedule(  # noqa: C901, PLR0915
     lon_bounds: Optional[list] = None,
     figsize: Optional[list] = None,
     no_ports: bool = False,
+    include_eez: bool = True,
     no_title: bool = False,
     no_labels: bool = False,
     no_legend: bool = False,
@@ -124,6 +126,9 @@ def schedule(  # noqa: C901, PLR0915
         Figure size for PNG maps [width, height] (default: [12, 8])
     no_ports : bool
         Exclude ports from PNG schedule maps (default: False)
+    include_eez : bool
+        Include EEZ boundaries on interactive maps (default: True).
+        Note: Boundaries are for visualization only and may not reflect official agreements.
     max_depth : int, optional
         Maximum water depth (m) for the bathymetry colour scale on PNG maps. When
         provided, clips the deep end so shallow-water structure uses the full colour

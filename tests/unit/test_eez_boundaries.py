@@ -51,56 +51,73 @@ class TestEEZBoundaries:
         except ImportError as e:
             pytest.skip(f"EEZ dependencies not available: {e}")
 
-    def test_ensure_eez_data_download(self):
-        """Test EEZ data download and extraction."""
+    @patch("cruiseplan.data.eez_boundaries._extract_and_validate_eez_data")
+    @patch("cruiseplan.data.eez_boundaries.urlretrieve")
+    def test_ensure_eez_data_download(
+        self, mock_urlretrieve, mock_extract_validate
+    ):
+        """Test EEZ data download and validation."""
         try:
-            from cruiseplan.data.eez_boundaries import ensure_eez_data
+            from cruiseplan.data.eez_boundaries import (
+                ensure_eez_data,
+            )
         except ImportError:
             pytest.skip("EEZ dependencies not available")
 
-        # Mock zip file contents
-        mock_zip = MagicMock()
-        mock_zip.namelist.return_value = ["eez_data.gpkg", "metadata.txt"]
+        # Mock validation succeeding
+        mock_extract_validate.return_value = True
 
-        with (
-            patch("cruiseplan.data.eez_boundaries.urlretrieve") as mock_urlretrieve,
-            patch("cruiseplan.data.eez_boundaries.zipfile.ZipFile") as mock_zipfile,
-            patch("cruiseplan.data.eez_boundaries.EEZ_CACHE_DIR") as mock_cache_dir,
-        ):
-            mock_zipfile.return_value.__enter__.return_value = mock_zip
-            mock_cache_dir.mkdir = Mock()
-            mock_eez_path = MagicMock()
-            mock_eez_path.exists.return_value = False
-            mock_cache_dir.__truediv__ = Mock(return_value=mock_eez_path)
+        # Mock the file path operations to simulate file not existing initially
+        with tempfile.TemporaryDirectory() as temp_dir:
+            cache_dir = Path(temp_dir) / "test_cache"
 
-            ensure_eez_data()
+            with patch("cruiseplan.data.eez_boundaries.EEZ_CACHE_DIR", cache_dir):
+                with patch.object(Path, "exists") as mock_exists:
+                    with patch.object(Path, "unlink") as mock_unlink:
+                        # File doesn't exist initially
+                        mock_exists.return_value = False
 
-            # Verify download and extraction were attempted
-            mock_urlretrieve.assert_called_once()
-            mock_zipfile.assert_called_once()
+                        # Test the function
+                        ensure_eez_data()
 
-    def test_load_eez_data_with_bbox(self, mock_eez_gdf):
-        """Test loading EEZ data with spatial filtering."""
+                        # Verify download was attempted
+                        mock_urlretrieve.assert_called_once()
+                        # Verify validation was attempted
+                        mock_extract_validate.assert_called_once()
+
+    @patch("cruiseplan.data.eez_boundaries.ensure_eez_data")
+    @patch("cruiseplan.data.eez_boundaries.gpd.read_file")
+    def test_load_eez_data_with_bbox(self, mock_read_file, mock_ensure_eez, mock_eez_gdf):
+        """Test loading EEZ data with spatial filtering at read-time."""
         try:
             from cruiseplan.data.eez_boundaries import load_eez_data
         except ImportError:
             pytest.skip("EEZ dependencies not available")
 
-        with (
-            patch("cruiseplan.data.eez_boundaries.ensure_eez_data") as mock_ensure_eez,
-            patch("cruiseplan.data.eez_boundaries.gpd.read_file") as mock_read_file,
-        ):
-            mock_ensure_eez.return_value = Path("/fake/eez.gpkg")
-            mock_read_file.return_value = mock_eez_gdf
+        # Mock the ensure_eez_data function to return a valid path
+        mock_ensure_eez.return_value = Path("/fake/path/eez.gpkg")
 
-            # Test with bounding box
-            bbox = (-70, 40, -30, 70)
-            load_eez_data(bbox=bbox)
+        # Mock geopandas DataFrame (no post-read filtering needed)
+        filtered_gdf = Mock()
+        filtered_gdf.empty = False
+        filtered_gdf.__len__ = Mock(return_value=2)  # Support len() function
 
-            # Verify function was called
-            mock_read_file.assert_called_once()
+        # Mock geopandas reading
+        mock_read_file.return_value = filtered_gdf
 
-    def test_get_eez_for_point(self, mock_eez_gdf):
+        # Test with bounding box
+        bbox = (-70, 40, -30, 70)
+        load_eez_data(bbox=bbox)
+
+        # Verify functions were called
+        mock_ensure_eez.assert_called_once()
+        mock_read_file.assert_called_once()
+
+        # Verify spatial filtering was applied at read-time (bbox parameter passed)
+        mock_read_file.assert_called_with(Path("/fake/path/eez.gpkg"), bbox=bbox)
+
+    @patch("cruiseplan.data.eez_boundaries.load_eez_data")
+    def test_get_eez_for_point(self, mock_load_eez_data, mock_eez_gdf):
         """Test point-in-EEZ lookup."""
         try:
             from cruiseplan.data.eez_boundaries import get_eez_for_point

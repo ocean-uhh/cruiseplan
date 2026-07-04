@@ -1,8 +1,8 @@
 # Jupyter and notebooks
-jupyterlab>=4.5.7
+jupyterlab>=4.5.8
 nbconvert>=7.8
 myst-nb>=1.3.0
-nbsphinx>=0.9  # optional, confirm usage
+nbsphinx>=0.9.8  # optional, confirm usage
 
 # Documentation
 sphinx>=7.4.7
@@ -12,16 +12,16 @@ myst-parser>=3.0.1
 
 # Testing
 pytest>=8.4.2
-pytest-cov>=4.1  # optional
+pytest-cov>=7.1.0  # optional
 mock
-pyyaml>=6.0
+pyyaml>=6.0.3
 
 # Code quality
 black>=25.11.0
-ruff>=0.15.13
+ruff>=0.15.16
 pre-commit>=3.5
 codespell
-mypy>=1.0
+mypy>=1.19.1
 types-requests
 types-tqdm
 pandas-stubs

@@ -231,26 +231,14 @@ def load_config_stations_data(
                 all_lats.append(point.latitude)
                 all_lons.append(point.longitude)
 
-        # Extract line data separately for proper line plotting
-        lines_data = []
+        # Include line coordinates in bounds calculation
         if config.lines:
             for line in config.lines:
                 if hasattr(line, "route") and line.route:
-                    # Extract full route for line plotting
-                    route_points = []
+                    # Add line route points to bounds calculation
                     for point in line.route:
-                        route_points.append(
-                            {"lat": point.latitude, "lon": point.longitude}
-                        )
                         all_lats.append(point.latitude)
                         all_lons.append(point.longitude)
-
-                    line_data = {
-                        "name": line.name,
-                        "route": route_points,
-                        "operation_type": "transect",
-                    }
-                    lines_data.append(line_data)
 
         if not stations_data:
             raise ValueError(f"No stations found in configuration file {config_file}")

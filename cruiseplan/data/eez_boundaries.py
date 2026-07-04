@@ -18,16 +18,19 @@ from typing import Optional, Tuple
 from urllib.request import urlretrieve
 
 import geopandas as gpd
-from shapely.geometry import Point, Polygon
+from shapely.geometry import Point
 
 logger = logging.getLogger(__name__)
 
 # Marine Regions EEZ v12 (2023) - Global EEZ boundaries
-# Alternative URLs for EEZ data (in case main site is down)
+# URLs prioritized by data quality and expected schema
 EEZ_DOWNLOAD_URLS = [
-    "https://github.com/nvkelso/natural-earth-vector/raw/master/packages/natural_earth_vector.gpkg.zip",  # Natural Earth backup
-    "https://www.marineregions.org/download_file.php?name=World_EEZ_v12_20231025_gpkg.zip",  # Original URL
+    "https://www.marineregions.org/download_file.php?name=World_EEZ_v12_20231025_gpkg.zip",  # Authoritative source (try first)
+    "https://github.com/nvkelso/natural-earth-vector/raw/master/packages/natural_earth_vector.gpkg.zip",  # Fallback (may have different schema)
 ]
+
+# Expected fields in EEZ GeoPackage for validation
+EXPECTED_EEZ_FIELDS = ["SOVEREIGN1", "GEONAME", "AREA_KM2", "geometry"]
 EEZ_CACHE_DIR = Path.home() / ".cruiseplan" / "eez_data"
 EEZ_FILENAME = "eez_boundaries.gpkg"
 EXPECTED_EEZ_FIELDS = ["SOVEREIGN1", "GEONAME", "AREA_KM2", "geometry"]
@@ -75,22 +78,11 @@ def ensure_eez_data() -> Path:
             raise FileNotFoundError("All EEZ download URLs failed")
         logger.info(f"Downloaded EEZ data to: {zip_path}")
 
-        # Extract the GeoPackage file
-        with zipfile.ZipFile(zip_path, "r") as zip_ref:
-            # Look for .gpkg file in the zip
-            gpkg_files = [name for name in zip_ref.namelist() if name.endswith(".gpkg")]
-            if not gpkg_files:
-                raise FileNotFoundError(
-                    "No GeoPackage (.gpkg) file found in downloaded EEZ data"
-                )
-
-            # Extract the first .gpkg file found
-            gpkg_name = gpkg_files[0]
-            zip_ref.extract(gpkg_name, EEZ_CACHE_DIR)
-
-            # Rename to our standard filename
-            extracted_path = EEZ_CACHE_DIR / gpkg_name
-            extracted_path.rename(eez_file_path)
+        # Extract and validate the GeoPackage file
+        if not _extract_and_validate_eez_data(zip_path, eez_file_path):
+            raise FileNotFoundError(
+                "Downloaded EEZ data does not contain valid EEZ boundaries with expected schema"
+            )
 
         # Clean up zip file
         zip_path.unlink()
@@ -219,7 +211,7 @@ def load_eez_data(
     bbox: Optional[Tuple[float, float, float, float]] = None,
 ) -> gpd.GeoDataFrame:
     """
-    Load EEZ boundary data as a GeoDataFrame.
+    Load EEZ boundary data as a GeoDataFrame with optional spatial filtering.
 
     Parameters
     ----------
@@ -235,32 +227,26 @@ def load_eez_data(
 
     Notes
     -----
-    For large study areas, the full global dataset is used. For smaller regions,
-    provide a bounding box to improve performance.
+    Uses GeoPandas spatial windowing (bbox parameter to read_file) for efficient
+    filtering at read-time, avoiding memory overhead of loading the full global
+    dataset when only a small cruise area is needed.
     """
     eez_file = ensure_eez_data()
 
     logger.debug(f"Loading EEZ data from: {eez_file}")
 
-    # Load the full dataset first
-    eez_gdf = gpd.read_file(eez_file)
-
-    # Filter by bounding box if provided
+    # Use GeoPandas spatial windowing for efficient bbox filtering at read-time
     if bbox is not None:
         min_lon, min_lat, max_lon, max_lat = bbox
-        bbox_polygon = Polygon(
-            [
-                (min_lon, min_lat),
-                (max_lon, min_lat),
-                (max_lon, max_lat),
-                (min_lon, max_lat),
-                (min_lon, min_lat),
-            ]
-        )
-
-        # Filter EEZ boundaries that intersect with the bounding box
-        eez_gdf = eez_gdf[eez_gdf.geometry.intersects(bbox_polygon)]
-        logger.debug(f"Filtered to {len(eez_gdf)} EEZ zones in bounding box")
+        # GeoPandas expects bbox as (minx, miny, maxx, maxy) - same as our format
+        logger.debug(f"Loading EEZ data with spatial filter: {bbox}")
+        eez_gdf = gpd.read_file(eez_file, bbox=bbox)
+        logger.debug(f"Spatially filtered to {len(eez_gdf)} EEZ zones in bounding box")
+    else:
+        # Load full global dataset when no bbox specified
+        logger.debug("Loading full global EEZ dataset")
+        eez_gdf = gpd.read_file(eez_file)
+        logger.debug(f"Loaded {len(eez_gdf)} EEZ zones globally")
 
     return eez_gdf
 

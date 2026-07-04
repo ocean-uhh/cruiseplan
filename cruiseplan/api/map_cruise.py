@@ -69,6 +69,7 @@ def map_with_config(
         figsize=config.visualization.figsize,
         show_plot=config.visualization.show_plot,
         no_ports=not config.visualization.include_ports,
+        include_eez=config.visualization.include_eez,
         verbose=config.output.verbose,
     )
 
@@ -87,6 +88,7 @@ def map(
     figsize: Optional[list] = None,
     show_plot: bool = False,
     no_ports: bool = False,
+    include_eez: bool = True,
     no_title: bool = False,
     no_labels: bool = False,
     no_legend: bool = False,
