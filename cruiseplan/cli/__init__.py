@@ -58,5 +58,6 @@ def handle_cli_errors(command_name: str, verbose: bool = False):
         print(f"❌ Unexpected error: {e}", file=sys.stderr)
         if verbose:
             import traceback
+
             traceback.print_exc()
         sys.exit(1)
