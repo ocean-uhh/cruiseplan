@@ -216,7 +216,9 @@ class TestEnrichThinCLI:
             patch("cruiseplan.enrich") as mock_enrich,
             patch("traceback.print_exc") as mock_traceback,
         ):
-            mock_enrich.side_effect = RuntimeError("Unexpected error")
+            # ValueError is not a specifically-handled type, so it reaches
+            # the generic 'except Exception' branch that prints the traceback.
+            mock_enrich.side_effect = ValueError("Unexpected error")
 
             with pytest.raises(SystemExit) as exc_info:
                 main(args)

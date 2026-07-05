@@ -168,14 +168,12 @@ def schedule(  # noqa: C901, PLR0915
     >>> import xarray as xr
     >>> ds = xr.open_dataset(netcdf_file)
     """
-    from cruiseplan.api.init_utils import (
-        _parse_schedule_formats,
-        _setup_verbose_logging,
-    )
+    from cruiseplan.api.init_utils import _parse_schedule_formats
     from cruiseplan.runtime.cruise import CruiseInstance
     from cruiseplan.timeline.scheduler import generate_timeline
+    from cruiseplan.utils.logging import configure_logging
 
-    _setup_verbose_logging(verbose)
+    configure_logging(verbose)
 
     if figsize is None:
         figsize = [12, 8]

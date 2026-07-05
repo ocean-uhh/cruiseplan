@@ -112,7 +112,7 @@ def map(
     bathy_stride : int
         Bathymetry contour stride for map background (default: 5)
     figsize : list
-        Figure size for PNG maps [width, height] (default: [12, 8])
+        Figure size for PNG maps [width, height] (default: [10, 8.1])
     show_plot : bool
         Display plot interactively (default: False)
     no_ports : bool
@@ -139,15 +139,16 @@ def map(
     >>> # Generate KML map with custom size
     >>> cruiseplan.map(config_file="cruise.yaml", format="kml", figsize=[16, 10])
     """
-    from cruiseplan.api.init_utils import _parse_map_formats, _setup_verbose_logging
+    from cruiseplan.api.init_utils import _parse_map_formats
     from cruiseplan.output.kml_generator import generate_kml_catalog
     from cruiseplan.output.map_generator import generate_map
     from cruiseplan.runtime.cruise import CruiseInstance
+    from cruiseplan.utils.logging import configure_logging
 
-    _setup_verbose_logging(verbose)
+    configure_logging(verbose)
 
     if figsize is None:
-        figsize = [12, 8]
+        figsize = [10, 8.1]
 
     try:
         # Load cruise configuration - direct core call

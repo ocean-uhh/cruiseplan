@@ -263,8 +263,8 @@ Examples:
         nargs=2,
         type=float,
         metavar=("WIDTH", "HEIGHT"),
-        default=[12.0, 8.0],
-        help="Figure size for PNG maps in inches (default: 12 8)",
+        default=[10, 8.1],
+        help="Figure size for PNG maps in inches (default: 10 8.1)",
     )
     schedule_parser.add_argument(
         "--no-ports",
@@ -555,7 +555,7 @@ Examples:
     map_parser.add_argument(
         "--bathy-source",
         choices=BATHY_SOURCES,
-        default="gebco2025",
+        default=DEFAULT_BATHY_SOURCE,
         help="Bathymetry dataset (default: gebco2025)",
     )
     map_parser.add_argument(
@@ -577,8 +577,8 @@ Examples:
         nargs=2,
         type=float,
         metavar=("WIDTH", "HEIGHT"),
-        default=[12, 10],
-        help="Figure size in inches (default: 12 10)",
+        default=[10, 8.1],
+        help="Figure size in inches (default: 10 8.1)",
     )
     map_parser.add_argument(
         "--show-plot",
@@ -768,8 +768,8 @@ Examples:
         nargs=2,
         type=float,
         metavar=("WIDTH", "HEIGHT"),
-        default=[12, 8],
-        help="Figure size for PNG maps (width height, default: 12 8)",
+        default=[10, 8.1],
+        help="Figure size for PNG maps (width height, default: 10 8.1)",
     )
     process_parser.add_argument(
         "--no-ports",
@@ -995,8 +995,8 @@ Examples:
         nargs=2,
         type=float,
         metavar=("WIDTH", "HEIGHT"),
-        default=[12.0, 8.0],
-        help="Figure size for PNG maps in inches (default: 12 8)",
+        default=[10, 8.1],
+        help="Figure size for PNG maps in inches (default: 10 8.1)",
     )
     stationplan_parser.add_argument(
         "--lat",

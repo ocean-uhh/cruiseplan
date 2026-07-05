@@ -1,31 +1,13 @@
 """Unit tests for init_utils module."""
 
-import logging
 from unittest.mock import patch
 
 from cruiseplan.api.init_utils import (
     _handle_error_with_logging,
     _parse_map_formats,
     _parse_schedule_formats,
-    _setup_verbose_logging,
     _validate_lat_lon_bounds,
 )
-
-
-class TestSetupVerboseLogging:
-    """Test the _setup_verbose_logging function."""
-
-    @patch("logging.basicConfig")
-    def test_verbose_true(self, mock_config):
-        """Test that verbose=True sets DEBUG level."""
-        _setup_verbose_logging(True)
-        mock_config.assert_called_once_with(level=logging.DEBUG)
-
-    @patch("logging.basicConfig")
-    def test_verbose_false(self, mock_config):
-        """Test that verbose=False doesn't configure logging."""
-        _setup_verbose_logging(False)
-        mock_config.assert_not_called()
 
 
 class TestHandleErrorWithLogging:

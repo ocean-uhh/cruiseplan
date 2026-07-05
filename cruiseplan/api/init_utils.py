@@ -12,12 +12,6 @@ logger = logging.getLogger(__name__)
 # ============================================================================
 
 
-def _setup_verbose_logging(verbose: bool) -> None:
-    """Setup logging configuration based on verbose flag."""
-    if verbose:
-        logging.basicConfig(level=logging.DEBUG)
-
-
 def _handle_error_with_logging(
     error: Exception, message: str, verbose: bool = False
 ) -> None:

@@ -505,15 +505,11 @@ def pangaea(
     >>> for campaign in result.stations_data:
     ...     print(f"Campaign: {campaign['Campaign']}, Stations: {len(campaign['Stations'])}")
     """
-    from cruiseplan.api.init_utils import (
-        _handle_error_with_logging,
-        _setup_verbose_logging,
-    )
-    from cruiseplan.data.pangaea import (
-        PangaeaManager,
-    )
+    from cruiseplan.api.init_utils import _handle_error_with_logging
+    from cruiseplan.data.pangaea import PangaeaManager
+    from cruiseplan.utils.logging import configure_logging
 
-    _setup_verbose_logging(verbose)
+    configure_logging(verbose)
 
     try:
         # Validate inputs and prepare paths

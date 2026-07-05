@@ -8,10 +8,10 @@ Thin CLI layer that delegates all business logic to the API layer.
 """
 
 import argparse
-import sys
 from pathlib import Path
 
 import cruiseplan
+from cruiseplan.cli import handle_cli_errors
 
 
 def main(args: argparse.Namespace) -> None:
@@ -20,7 +20,8 @@ def main(args: argparse.Namespace) -> None:
 
     Delegates all business logic to the cruiseplan.enrich() API function.
     """
-    try:
+    verbose = getattr(args, "verbose", False)
+    with handle_cli_errors("enrich", verbose):
         # Call the API function with CLI arguments
         result = cruiseplan.enrich(
             config_file=args.config_file,
@@ -39,30 +40,10 @@ def main(args: argparse.Namespace) -> None:
                 if hasattr(args, "bathy_dir") and args.bathy_dir
                 else "data/bathymetry"
             ),
-            verbose=getattr(args, "verbose", False),
+            verbose=verbose,
         )
 
         print(f"✅ Configuration enriched successfully: {result}")
-
-    except cruiseplan.ValidationError as e:
-        print(f"❌ Configuration validation error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except cruiseplan.FileError as e:
-        print(f"❌ File operation error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except FileNotFoundError as e:
-        print(f"❌ File not found: {e}", file=sys.stderr)
-        sys.exit(1)
-    except KeyboardInterrupt:
-        print("\n⚠️ Operation cancelled by user.", file=sys.stderr)
-        sys.exit(1)
-    except Exception as e:
-        print(f"❌ Unexpected error: {e}", file=sys.stderr)
-        if getattr(args, "verbose", False):
-            import traceback
-
-            traceback.print_exc()
-        sys.exit(1)
 
 
 if __name__ == "__main__":

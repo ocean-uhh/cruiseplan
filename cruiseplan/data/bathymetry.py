@@ -76,7 +76,7 @@ class BathymetryManager:
         Parameters
         ----------
         source : str, optional
-            Bathymetry data source (default: "etopo2022").
+            Bathymetry data source (default: "gebco2025").
         data_dir : str, optional
             Data directory. Can be absolute path or relative to current working directory (default: "data/bathymetry").
         """
@@ -577,7 +577,7 @@ class BathymetryManager:
 
 def download_bathymetry(
     target_dir: str = "data/bathymetry", source: str = "gebco2025"
-) -> bool:
+) -> str | bool | None:
     """
     Download bathymetry dataset with progress bar.
 
@@ -590,7 +590,7 @@ def download_bathymetry(
         Target directory for bathymetry files (default: "data/bathymetry").
         Files will be saved directly in this directory.
     source : str, optional
-        Bathymetry source to download (default: "etopo2022").
+        Bathymetry source to download (default: "gebco2025").
         Options: "etopo2022", "gebco2025", "msm142", "msm142_jj", "msm142_dt".
 
     Returns

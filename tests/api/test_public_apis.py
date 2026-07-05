@@ -12,7 +12,7 @@ class TestBathymetryAPI:
     @patch("cruiseplan.data.bathymetry.download_bathymetry")
     def test_bathymetry_default_parameters(self, mock_download):
         """Test bathymetry function with default parameters."""
-        mock_download.return_value = Path("/data/etopo2022/bathymetry/etopo2022.nc")
+        mock_download.return_value = Path("/data/gebco2025/bathymetry/gebco2025.nc")
 
         result = cruiseplan.bathymetry()
 
@@ -21,7 +21,7 @@ class TestBathymetryAPI:
         call_args = mock_download.call_args[1]  # keyword arguments
         assert call_args["source"] == "gebco2025"
         assert isinstance(result, cruiseplan.BathymetryResult)
-        assert result.data_file == Path("/data/etopo2022/bathymetry/etopo2022.nc")
+        assert result.data_file == Path("/data/gebco2025/bathymetry/gebco2025.nc")
 
     @patch("cruiseplan.data.bathymetry.download_bathymetry")
     @patch("pathlib.Path.mkdir")

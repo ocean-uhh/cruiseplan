@@ -119,7 +119,7 @@ class StationPicker:
         bathymetry_source : str
             Bathymetry data source: "etopo2022" or "gebco2025" (default: gebco2025)
         bathymetry_dir : str
-            Directory containing bathymetry data files (default: "data")
+            Directory containing bathymetry data files (default: "data/bathymetry")
         overwrite : bool
             Whether to overwrite existing files without prompting (default: False)
         """

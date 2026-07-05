@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 
 import cruiseplan
+from cruiseplan.cli import handle_cli_errors
 
 
 def main(args: argparse.Namespace) -> None:
@@ -20,8 +21,8 @@ def main(args: argparse.Namespace) -> None:
 
     Delegates all business logic to the cruiseplan.map() API function.
     """
-    try:
-        # Call the API function with CLI arguments
+    verbose = getattr(args, "verbose", False)
+    with handle_cli_errors("map", verbose):
         result = cruiseplan.map(
             config_file=args.config_file,
             output_dir=str(getattr(args, "output_dir", "data")),
@@ -39,7 +40,7 @@ def main(args: argparse.Namespace) -> None:
             no_title=getattr(args, "no_title", False),
             no_labels=getattr(args, "no_labels", False),
             no_legend=getattr(args, "no_legend", False),
-            verbose=getattr(args, "verbose", False),
+            verbose=verbose,
             max_depth=getattr(args, "max_depth", None),
         )
 
@@ -55,7 +56,6 @@ def main(args: argparse.Namespace) -> None:
             for file_path in result.map_files:
                 print(f"  • {file_path}")
 
-            # Show map generation summary
             print("📊 Generation summary:")
             print(f"  • Config file: {result.summary.get('config_file', 'N/A')}")
             print(f"  • Output format: {result.format}")
@@ -66,32 +66,6 @@ def main(args: argparse.Namespace) -> None:
             if "error" in result.summary:
                 print(f"Error: {result.summary['error']}")
             sys.exit(1)
-
-    except cruiseplan.ValidationError as e:
-        print(f"❌ Configuration validation error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except cruiseplan.FileError as e:
-        print(f"❌ File operation error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except cruiseplan.BathymetryError as e:
-        print(f"❌ Bathymetry error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except FileNotFoundError as e:
-        print(f"❌ File not found: {e}", file=sys.stderr)
-        sys.exit(1)
-    except RuntimeError as e:
-        print(f"❌ Map generation error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except KeyboardInterrupt:
-        print("\n⚠️ Operation cancelled by user.", file=sys.stderr)
-        sys.exit(1)
-    except Exception as e:
-        print(f"❌ Unexpected error: {e}", file=sys.stderr)
-        if getattr(args, "verbose", False):
-            import traceback
-
-            traceback.print_exc()
-        sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -720,7 +720,7 @@ class CruiseInstance:
         bathymetry_source : str, optional
             Bathymetry dataset to use. Default is "gebco2025".
         bathymetry_dir : str, optional
-            Directory containing bathymetry data. Default is "data".
+            Directory containing bathymetry data. Default is "data/bathymetry".
 
         Returns
         -------

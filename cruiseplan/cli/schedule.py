@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 
 import cruiseplan
+from cruiseplan.cli import handle_cli_errors
 
 
 def main(args: argparse.Namespace) -> None:
@@ -20,7 +21,8 @@ def main(args: argparse.Namespace) -> None:
 
     Delegates all business logic to the cruiseplan.schedule() API function.
     """
-    try:
+    verbose = getattr(args, "verbose", False)
+    with handle_cli_errors("schedule", verbose):
         # Check --derive-netcdf flag compatibility (CLI-specific logic)
         derive_netcdf = getattr(args, "derive_netcdf", False)
         format_str = getattr(args, "format", "all")
@@ -35,7 +37,6 @@ def main(args: argparse.Namespace) -> None:
             print("   Ignoring --derive-netcdf flag.", file=sys.stderr)
             derive_netcdf = False
 
-        # Call the API function with CLI arguments
         result = cruiseplan.schedule(
             config_file=args.config_file,
             output_dir=str(getattr(args, "output_dir", "data")),
@@ -54,7 +55,7 @@ def main(args: argparse.Namespace) -> None:
             no_title=getattr(args, "no_title", False),
             no_labels=getattr(args, "no_labels", False),
             no_legend=getattr(args, "no_legend", False),
-            verbose=getattr(args, "verbose", False),
+            verbose=verbose,
             max_depth=getattr(args, "max_depth", None),
         )
 
@@ -70,46 +71,15 @@ def main(args: argparse.Namespace) -> None:
             for file_path in result.files_created:
                 print(f"  • {file_path}")
 
-            # Show timeline summary
-            if result.timeline:
-                total_duration_hours = (
-                    sum(
-                        activity.get("duration_minutes", 0)
-                        for activity in result.timeline
-                    )
-                    / 60.0
-                )
-                print(f"⏱️  Total timeline duration: {total_duration_hours:.1f} hours")
-                print(f"📊 Timeline activities: {len(result.timeline)}")
+            total_duration_hours = (
+                sum(activity.get("duration_minutes", 0) for activity in result.timeline)
+                / 60.0
+            )
+            print(f"⏱️  Total timeline duration: {total_duration_hours:.1f} hours")
+            print(f"📊 Timeline activities: {len(result.timeline)}")
         else:
             print("❌ Schedule generation failed")
             sys.exit(1)
-
-    except cruiseplan.ValidationError as e:
-        print(f"❌ Configuration validation error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except cruiseplan.FileError as e:
-        print(f"❌ File operation error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except cruiseplan.BathymetryError as e:
-        print(f"❌ Bathymetry error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except FileNotFoundError as e:
-        print(f"❌ File not found: {e}", file=sys.stderr)
-        sys.exit(1)
-    except RuntimeError as e:
-        print(f"❌ Schedule generation error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except KeyboardInterrupt:
-        print("\n⚠️ Operation cancelled by user.", file=sys.stderr)
-        sys.exit(1)
-    except Exception as e:
-        print(f"❌ Unexpected error: {e}", file=sys.stderr)
-        if getattr(args, "verbose", False):
-            import traceback
-
-            traceback.print_exc()
-        sys.exit(1)
 
 
 if __name__ == "__main__":

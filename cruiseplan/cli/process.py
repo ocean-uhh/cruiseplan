@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 
 import cruiseplan
+from cruiseplan.cli import handle_cli_errors
 
 
 def main(args: argparse.Namespace) -> None:
@@ -20,7 +21,8 @@ def main(args: argparse.Namespace) -> None:
 
     Delegates all business logic to the cruiseplan.process() API function.
     """
-    try:
+    verbose = getattr(args, "verbose", False)
+    with handle_cli_errors("process", verbose):
         # Call the API function with CLI arguments
         result = cruiseplan.process(
             config_file=args.config_file,
@@ -81,32 +83,6 @@ def main(args: argparse.Namespace) -> None:
         else:
             print("❌ Processing failed")
             sys.exit(1)
-
-    except cruiseplan.ValidationError as e:
-        print(f"❌ Configuration validation error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except cruiseplan.FileError as e:
-        print(f"❌ File operation error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except cruiseplan.BathymetryError as e:
-        print(f"❌ Bathymetry error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except FileNotFoundError as e:
-        print(f"❌ File not found: {e}", file=sys.stderr)
-        sys.exit(1)
-    except RuntimeError as e:
-        print(f"❌ Processing error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except KeyboardInterrupt:
-        print("\n⚠️ Operation cancelled by user.", file=sys.stderr)
-        sys.exit(1)
-    except Exception as e:
-        print(f"❌ Unexpected error: {e}", file=sys.stderr)
-        if getattr(args, "verbose", False):
-            import traceback
-
-            traceback.print_exc()
-        sys.exit(1)
 
 
 if __name__ == "__main__":

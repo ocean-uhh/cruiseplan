@@ -124,7 +124,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--tolerance", type=float, default=10.0, help="Depth tolerance percentage"
     )
-    parser.add_argument("--bathymetry-source", default="gebco2025")
+    parser.add_argument("--bathy-source", "--bathymetry-source", dest="bathy_source", default="gebco2025")
 
     args = parser.parse_args()
     main(args)
