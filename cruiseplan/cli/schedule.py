@@ -43,7 +43,7 @@ def main(args: argparse.Namespace) -> None:
             format=getattr(args, "format", "all"),
             leg=getattr(args, "leg", None),
             derive_netcdf=derive_netcdf,
-            bathy_source=getattr(args, "bathy_source", "etopo2022"),
+            bathy_source=getattr(args, "bathy_source", "gebco2025"),
             bathy_dir=getattr(args, "bathy_dir", "data/bathymetry"),
             bathy_stride=getattr(args, "bathy_stride", 10),
             bathy_contours=getattr(args, "bathy_contours", None),

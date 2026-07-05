@@ -27,8 +27,8 @@ def main(args: argparse.Namespace) -> None:
             output_dir=str(getattr(args, "output_dir", "data")),
             output=getattr(args, "output", None),
             format=getattr(args, "format", "all"),
-            bathy_source=getattr(args, "bathy_source", "etopo2022"),
-            bathy_dir=getattr(args, "bathy_dir", "data"),
+            bathy_source=getattr(args, "bathy_source", "gebco2025"),
+            bathy_dir=getattr(args, "bathy_dir", "data/bathymetry"),
             bathy_stride=getattr(args, "bathy_stride", 5),
             bathy_contours=getattr(args, "bathy_contours", None),
             lat_bounds=getattr(args, "lat", None),
@@ -122,10 +122,10 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--bathy-source",
-        default="etopo2022",
-        help="Bathymetry data source (default: etopo2022)",
+        default="gebco2025",
+        help="Bathymetry data source (default: gebco2025)",
     )
-    parser.add_argument("--bathy-dir", default="data", help="Bathymetry data directory")
+    parser.add_argument("--bathy-dir", default="data/bathymetry", help="Bathymetry data directory")
     parser.add_argument(
         "--bathy-stride",
         type=int,

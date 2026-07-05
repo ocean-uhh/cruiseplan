@@ -44,8 +44,8 @@ def main(args: argparse.Namespace) -> None:
                 else None
             ),
             pangaea_file=str(args.pangaea_file) if args.pangaea_file else None,
-            bathy_source=getattr(args, "bathy_source", "etopo2022"),
-            bathy_dir=str(getattr(args, "bathy_dir", "data")),
+            bathy_source=getattr(args, "bathy_source", "gebco2025"),
+            bathy_dir=str(getattr(args, "bathy_dir", "data/bathymetry")),
             bathy_contours=getattr(args, "bathy_contours", None),
             bathy_stride=getattr(args, "bathy_stride", 10),
             max_depth=getattr(args, "max_depth", None),
@@ -90,10 +90,10 @@ if __name__ == "__main__":
         "-o", "--output-dir", type=Path, default=Path("."), help="Output directory"
     )
     parser.add_argument(
-        "--bathy-source", choices=["etopo2022", "gebco2025"], default="etopo2022"
+        "--bathy-source", choices=["etopo2022", "gebco2025"], default="gebco2025"
     )
     parser.add_argument(
-        "--bathy-dir", type=Path, default=Path("data"), help="Bathymetry directory"
+        "--bathy-dir", type=Path, default=Path("data/bathymetry"), help="Bathymetry directory"
     )
 
     args = parser.parse_args()

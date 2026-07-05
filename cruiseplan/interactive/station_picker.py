@@ -97,8 +97,8 @@ class StationPicker:
         existing_stations: list[dict] | None = None,
         output_file: str = "stations.yaml",
         bathymetry_stride: int = 10,
-        bathymetry_source: str = "etopo2022",
-        bathymetry_dir: str = "data",
+        bathymetry_source: str = "gebco2025",
+        bathymetry_dir: str = "data/bathymetry",
         custom_contours: list | None = None,
         overwrite: bool = False,
         max_depth: int | None = None,
@@ -117,7 +117,7 @@ class StationPicker:
         bathymetry_stride : int
             Downsampling factor for bathymetry data (default: 10, higher = faster but less detailed)
         bathymetry_source : str
-            Bathymetry data source: "etopo2022" or "gebco2025" (default: etopo2022)
+            Bathymetry data source: "etopo2022" or "gebco2025" (default: gebco2025)
         bathymetry_dir : str
             Directory containing bathymetry data files (default: "data")
         overwrite : bool

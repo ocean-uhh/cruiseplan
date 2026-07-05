@@ -66,8 +66,8 @@ def test_main_success_with_pangaea(mock_args, mock_external_deps):
         output=None,
         config_file=None,
         pangaea_file=str(mock_args.pangaea_file),
-        bathy_source="etopo2022",
-        bathy_dir="data",  # Default value used by API
+        bathy_source="gebco2025",
+        bathy_dir="data/bathymetry",  # Default value used by API
         bathy_contours=None,
         bathy_stride=10,
         max_depth=None,

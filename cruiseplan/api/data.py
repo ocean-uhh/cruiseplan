@@ -65,7 +65,7 @@ def bathymetry_with_config(
 
 
 def bathymetry(
-    bathy_source: str = "etopo2022",
+    bathy_source: str = "gebco2025",
     output_dir: str | None = None,
     citation: bool = False,
 ) -> BathymetryResult:

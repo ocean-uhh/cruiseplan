@@ -87,7 +87,7 @@ def main(args: argparse.Namespace) -> None:
         # Call the API function with CLI arguments
         result = cruiseplan.validate(
             config_file=args.config_file,
-            bathy_source=getattr(args, "bathy_source", "etopo2022"),
+            bathy_source=getattr(args, "bathy_source", "gebco2025"),
             bathy_dir=getattr(args, "bathy_dir", "data/bathymetry"),
             check_depths=getattr(args, "check_depths", True),
             tolerance=getattr(args, "tolerance", 10.0),
@@ -124,7 +124,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--tolerance", type=float, default=10.0, help="Depth tolerance percentage"
     )
-    parser.add_argument("--bathymetry-source", default="etopo2022")
+    parser.add_argument("--bathymetry-source", default="gebco2025")
 
     args = parser.parse_args()
     main(args)

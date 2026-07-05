@@ -13,7 +13,7 @@ from dataclasses import dataclass
 class BathymetryConfig:
     """Configuration for bathymetry-related parameters."""
 
-    source: str = "etopo2022"
+    source: str = "gebco2025"
     """Bathymetry data source"""
 
     directory: str = "data/bathymetry"
@@ -198,7 +198,7 @@ class PangaeaConfig:
 class BathymetryDownloadConfig:
     """Configuration for bathymetry data download."""
 
-    source: str = "etopo2022"
+    source: str = "gebco2025"
     """Bathymetry dataset to download ('etopo2022' or 'gebco2025')"""
 
     output_dir: str | None = None
@@ -280,7 +280,7 @@ class StationsConfig:
     pangaea_file: str | None = None
     """Path to PANGAEA data file for context"""
 
-    bathy_source: str = "etopo2022"
+    bathy_source: str = "gebco2025"
     """Bathymetry dataset for depth information"""
 
     bathy_dir: str = "data/bathymetry"

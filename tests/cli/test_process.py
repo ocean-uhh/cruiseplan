@@ -303,7 +303,7 @@ class TestProcessThinCLI:
                 config_file=Path("test.yaml"),
                 output_dir="data",  # default
                 output=None,  # default
-                bathy_source="etopo2022",  # default
+                bathy_source="gebco2025",  # default
                 bathy_dir="data/bathymetry",  # default
                 add_depths=True,  # default
                 add_coords=True,  # default

@@ -119,7 +119,7 @@ class TestNestedConfigInitialization:
         assert config.visualization is not None
 
         # Check default values in nested configs
-        assert config.bathymetry.source == "etopo2022"
+        assert config.bathymetry.source == "gebco2025"
         assert config.output.directory == "data"
         assert config.validation.run_validation == True
         assert config.visualization.include_ports == True

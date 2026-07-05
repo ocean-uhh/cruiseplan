@@ -596,7 +596,7 @@ class TestGenerateMapFromYaml:
             output_file=output_file,
             bathy_source="etopo2022",
             bathy_stride=10,
-            bathy_dir="data",
+            bathy_dir="data/bathymetry",
             bathy_contours=None,
             lat_bounds=None,
             lon_bounds=None,

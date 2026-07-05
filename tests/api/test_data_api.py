@@ -27,20 +27,20 @@ class TestBathymetryAPI:
         # Mock file existence and size
         mock_exists.return_value = True
         mock_stat.return_value.st_size = 1024 * 1024 * 100  # 100 MB
-        mock_download.return_value = "/test/data/etopo2022.nc"
+        mock_download.return_value = "/test/data/gebco2025.nc"
 
         result = bathymetry()
 
         # Verify function calls
         mock_download.assert_called_once()
         call_args = mock_download.call_args[1]
-        assert call_args["source"] == "etopo2022"
+        assert call_args["source"] == "gebco2025"
         mock_mkdir.assert_called_once()
 
         # Verify result structure
         assert isinstance(result, cruiseplan.BathymetryResult)
-        assert result.data_file == Path("/test/data/etopo2022.nc")
-        assert result.source == "etopo2022"
+        assert result.data_file == Path("/test/data/gebco2025.nc")
+        assert result.source == "gebco2025"
         assert result.summary["file_size_mb"] == 100.0
 
     @patch("cruiseplan.data.bathymetry.download_bathymetry")

@@ -58,7 +58,7 @@ class TestScheduleThinCLI:
                 format="all",
                 leg=None,
                 derive_netcdf=False,
-                bathy_source="etopo2022",
+                bathy_source="gebco2025",
                 bathy_dir="data/bathymetry",
                 bathy_stride=10,
                 bathy_contours=None,
@@ -281,7 +281,7 @@ class TestScheduleThinCLI:
                 format="csv",
                 leg=None,  # default
                 derive_netcdf=False,  # default
-                bathy_source="etopo2022",  # default
+                bathy_source="gebco2025",  # default
                 bathy_dir="data/bathymetry",  # default
                 bathy_stride=10,  # default
                 bathy_contours=None,  # default

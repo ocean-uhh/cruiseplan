@@ -250,7 +250,7 @@ class TestEnrichThinCLI:
                 add_depths=False,  # default
                 add_coords=False,  # default
                 expand_sections=False,  # default
-                bathy_source="etopo2022",  # default
+                bathy_source="gebco2025",  # default
                 bathy_dir="data/bathymetry",  # default
                 verbose=False,  # default
             )

@@ -77,8 +77,8 @@ def map(
     output_dir: str = "data",
     output: str | None = None,
     format: str = "all",
-    bathy_source: str = "etopo2022",
-    bathy_dir: str = "data",
+    bathy_source: str = "gebco2025",
+    bathy_dir: str = "data/bathymetry",
     bathy_stride: int = 5,
     bathy_contours: list | None = None,
     lat_bounds: list | None = None,
@@ -106,9 +106,9 @@ def map(
     format : str
         Map output format: "png", "kml", or "all" (default: "all")
     bathy_source : str
-        Bathymetry dataset (default: "etopo2022")
+        Bathymetry dataset (default: "gebco2025")
     bathy_dir : str
-        Directory containing bathymetry data (default: "data")
+        Directory containing bathymetry data (default: "data/bathymetry")
     bathy_stride : int
         Bathymetry contour stride for map background (default: 5)
     figsize : list

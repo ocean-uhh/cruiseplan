@@ -33,7 +33,7 @@ def main(args: argparse.Namespace) -> None:
             add_depths=getattr(args, "add_depths", False),
             add_coords=getattr(args, "add_coords", False),
             expand_sections=getattr(args, "expand_sections", False),
-            bathy_source=getattr(args, "bathy_source", "etopo2022"),
+            bathy_source=getattr(args, "bathy_source", "gebco2025"),
             bathy_dir=(
                 str(args.bathy_dir)
                 if hasattr(args, "bathy_dir") and args.bathy_dir
@@ -87,8 +87,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--output", type=str, help="Base filename for output (without extension)"
     )
-    parser.add_argument("--bathy-source", default="etopo2022")
-    parser.add_argument("--bathy-dir", type=Path, default=Path("data"))
+    parser.add_argument("--bathy-source", default="gebco2025")
+    parser.add_argument("--bathy-dir", type=Path, default=Path("data/bathymetry"))
     # Keep deprecated parameters for backward compatibility
     parser.add_argument(
         "--bathymetry-source", dest="bathymetry_source", help=argparse.SUPPRESS

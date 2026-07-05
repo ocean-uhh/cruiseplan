@@ -230,7 +230,7 @@ class TestBathymetryThinCLI:
 
             # Should use defaults for missing arguments
             mock_bathymetry.assert_called_once_with(
-                bathy_source="etopo2022",  # default
+                bathy_source="gebco2025",  # default
                 output_dir=None,  # default
                 citation=False,  # default
             )

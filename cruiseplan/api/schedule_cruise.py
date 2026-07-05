@@ -81,7 +81,7 @@ def schedule(  # noqa: C901, PLR0915
     format: str | None = "all",
     leg: str | None = None,
     derive_netcdf: bool = False,
-    bathy_source: str = "etopo2022",
+    bathy_source: str = "gebco2025",
     bathy_dir: str = "data/bathymetry",
     bathy_stride: int = 10,
     bathy_contours: list | None = None,

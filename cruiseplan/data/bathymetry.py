@@ -69,7 +69,7 @@ class BathymetryManager:
         Longitude coordinate array.
     """
 
-    def __init__(self, source: str = "etopo2022", data_dir: str = "data/bathymetry"):
+    def __init__(self, source: str = "gebco2025", data_dir: str = "data/bathymetry"):
         """
         Initialize the bathymetry manager.
 
@@ -576,7 +576,7 @@ class BathymetryManager:
 
 
 def download_bathymetry(
-    target_dir: str = "data/bathymetry", source: str = "etopo2022"
+    target_dir: str = "data/bathymetry", source: str = "gebco2025"
 ) -> bool:
     """
     Download bathymetry dataset with progress bar.

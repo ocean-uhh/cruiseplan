@@ -71,13 +71,13 @@ def real_mode_manager(mock_netcdf_data):
     with patch.object(Path, "exists", return_value=True):
         # 2. Mock file size check to return a valid size
         mock_stat = MagicMock()
-        mock_stat.st_size = 500 * 1024 * 1024  # 500 MB (valid ETOPO size)
+        mock_stat.st_size = 500 * 1024 * 1024  # 500 MB (> 450 MB ETOPO threshold)
         with patch.object(Path, "stat", return_value=mock_stat):
             # 3. Patch nc.Dataset to return our mock data
             with patch(
                 "cruiseplan.data.bathymetry.nc.Dataset", return_value=mock_netcdf_data
             ):
-                manager = bathy_module.BathymetryManager()
+                manager = bathy_module.BathymetryManager(source="etopo2022")
                 # 4. Manually set the internal state to the mock's arrays (since __init__ does this)
                 manager._lats = mock_netcdf_data.variables["lat"]
                 manager._lons = mock_netcdf_data.variables["lon"]
@@ -232,7 +232,7 @@ def test_download_bathymetry_success_path(
     mock_path_instance = MagicMock()
     mock_open.return_value.__enter__.return_value = mock_path_instance
 
-    bathy_module.download_bathymetry(target_dir=str(temp_output_dir))
+    bathy_module.download_bathymetry(target_dir=str(temp_output_dir), source="etopo2022")
 
     # Assert successful calls
     mock_requests_get.assert_called_once()
@@ -261,7 +261,7 @@ def test_download_bathymetry_failure_cleanup_and_fallback(
 
     # We must patch Path.exists inside the function call logic.
     with patch("builtins.print") as mock_print:
-        bathy_module.download_bathymetry(target_dir=str(temp_output_dir))
+        bathy_module.download_bathymetry(target_dir=str(temp_output_dir), source="etopo2022")
 
     # Assert requests were made to both URLs
     assert mock_requests_get.call_count == 2

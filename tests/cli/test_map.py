@@ -285,8 +285,8 @@ class TestMapThinCLI:
                 output_dir="data",  # default
                 output=None,  # default
                 format="all",  # default
-                bathy_source="etopo2022",  # default
-                bathy_dir="data",  # default
+                bathy_source="gebco2025",  # default
+                bathy_dir="data/bathymetry",  # default
                 bathy_stride=5,  # default
                 bathy_contours=None,  # default
                 lat_bounds=None,  # default

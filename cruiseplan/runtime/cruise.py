@@ -704,7 +704,9 @@ class CruiseInstance:
         return enrichment.expand_sections(self, default_depth)
 
     def enrich_depths(
-        self, bathymetry_source: str = "etopo2022", bathymetry_dir: str = "data"
+        self,
+        bathymetry_source: str = "gebco2025",
+        bathymetry_dir: str = "data/bathymetry",
     ) -> set[str]:
         """
         Add bathymetry depths to stations that are missing water_depth values.
@@ -716,7 +718,7 @@ class CruiseInstance:
         Parameters
         ----------
         bathymetry_source : str, optional
-            Bathymetry dataset to use. Default is "etopo2022".
+            Bathymetry dataset to use. Default is "gebco2025".
         bathymetry_dir : str, optional
             Directory containing bathymetry data. Default is "data".
 

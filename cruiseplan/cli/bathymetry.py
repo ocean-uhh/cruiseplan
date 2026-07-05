@@ -23,7 +23,7 @@ def main(args: argparse.Namespace) -> None:
     try:
         # Call the API function with CLI arguments
         result = cruiseplan.bathymetry(
-            bathy_source=getattr(args, "bathy_source", "etopo2022"),
+            bathy_source=getattr(args, "bathy_source", "gebco2025"),
             output_dir=(
                 str(getattr(args, "output_dir", None))
                 if getattr(args, "output_dir", None)
@@ -105,8 +105,8 @@ if __name__ == "__main__":
         "--source",
         dest="bathy_source",
         choices=["etopo2022", "gebco2025"],
-        default="etopo2022",
-        help="Bathymetry data source (default: etopo2022)",
+        default="gebco2025",
+        help="Bathymetry data source (default: gebco2025)",
     )
     parser.add_argument(
         "-o",

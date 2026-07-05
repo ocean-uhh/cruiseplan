@@ -55,6 +55,28 @@ DEFAULT_CRUISE_NAME = "UPDATE-cruise-name"
 # Default strategy
 DEFAULT_STRATEGY = "sequential"
 
+# =============================================================================
+# Bathymetry Defaults
+# =============================================================================
+
+# Default bathymetry dataset — gebco2025 is the highest-resolution global dataset
+# currently supported. etopo2022 is also available but lower resolution.
+DEFAULT_BATHY_SOURCE = "gebco2025"
+
+# Default local directory for bathymetry data files
+DEFAULT_BATHY_DIR = "data/bathymetry"
+
+# All supported bathymetry dataset identifiers (authoritative list — used for
+# argparse choices and API validation)
+BATHY_SOURCES = [
+    "etopo2022",
+    "gebco2023",
+    "gebco2025",
+    "msm142",
+    "msm142_jj",
+    "msm142_dt",
+]
+
 # Sentinel value indicating that depth data is missing, the station is outside
 # the bathymetry grid boundaries, or a calculation failed.
 # This value is defined in the specs as the default depth if ETOPO data is not found.
@@ -194,9 +216,12 @@ class AreaOperationTypeEnum(str, Enum):
 # =============================================================================
 
 __all__ = [
+    "BATHY_SOURCES",
     "DEFAULT_AREA_ACTION",
     "DEFAULT_AREA_OPTYPE",
     "DEFAULT_ARRIVAL_PORT",
+    "DEFAULT_BATHY_DIR",
+    "DEFAULT_BATHY_SOURCE",
     "DEFAULT_CRUISE_NAME",
     "DEFAULT_CTD_RATE_M_S",
     "DEFAULT_DAY_END_HR",

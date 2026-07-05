@@ -19,7 +19,7 @@ class TestBathymetryAPI:
         # Check that download_bathymetry was called with correct parameters
         mock_download.assert_called_once()
         call_args = mock_download.call_args[1]  # keyword arguments
-        assert call_args["source"] == "etopo2022"
+        assert call_args["source"] == "gebco2025"
         assert isinstance(result, cruiseplan.BathymetryResult)
         assert result.data_file == Path("/data/etopo2022/bathymetry/etopo2022.nc")
 

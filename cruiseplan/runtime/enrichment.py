@@ -357,8 +357,8 @@ def add_station_defaults(cruise_instance: "CruiseInstance") -> int:
 
 def enrich_depths(
     cruise_instance: "CruiseInstance",
-    bathymetry_source: str = "etopo2022",
-    bathymetry_dir: str = "data",
+    bathymetry_source: str = "gebco2025",
+    bathymetry_dir: str = "data/bathymetry",
     overwrite_existing: bool = False,
 ) -> set[str]:
     """
@@ -373,9 +373,9 @@ def enrich_depths(
     cruise_instance : CruiseInstance
         The cruise instance to modify
     bathymetry_source : str, optional
-        Bathymetry dataset to use (default: "etopo2022")
+        Bathymetry dataset to use (default: "gebco2025")
     bathymetry_dir : str, optional
-        Directory containing bathymetry data (default: "data")
+        Directory containing bathymetry data (default: "data/bathymetry")
     overwrite_existing : bool, optional
         Whether to overwrite existing water_depth values (default: False)
 

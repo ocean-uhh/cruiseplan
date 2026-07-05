@@ -13,7 +13,7 @@ that mirror the CLI commands:
     import cruiseplan
 
     # Download bathymetry data (mirrors: cruiseplan bathymetry)
-    bathy_file = cruiseplan.bathymetry(bathy_source="etopo2022", output_dir="data/bathymetry")
+    bathy_file = cruiseplan.bathymetry(bathy_source="gebco2025", output_dir="data/bathymetry")
 
     # Search PANGAEA database (mirrors: cruiseplan pangaea)
     stations, files = cruiseplan.pangaea("CTD", lat_bounds=[70, 80], lon_bounds=[-10, 10])

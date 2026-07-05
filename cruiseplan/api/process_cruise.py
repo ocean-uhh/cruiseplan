@@ -191,8 +191,8 @@ def _enrich_configuration(
     add_depths: bool = False,
     add_coords: bool = False,
     expand_sections: bool = False,
-    bathymetry_source: str = "etopo2022",
-    bathymetry_dir: str = "data",
+    bathymetry_source: str = "gebco2025",
+    bathymetry_dir: str = "data/bathymetry",
     coord_format: str = "ddm",
     output_path: Path | None = None,
 ) -> dict[str, Any]:
@@ -214,7 +214,7 @@ def _enrich_configuration(
     expand_sections : bool, optional
         Whether to expand CTD sections into individual stations (default: False).
     bathymetry_source : str, optional
-        Bathymetry dataset to use (default: "etopo2022").
+        Bathymetry dataset to use (default: "gebco2025").
     coord_format : str, optional
         Coordinate format ("ddm" or "dms", default: "ddm").
     output_path : Optional[Path], optional
@@ -353,7 +353,7 @@ def enrich(  # noqa: C901
     output: str | None = None,
     add_depths: bool = True,
     add_coords: bool = True,
-    bathy_source: str = "etopo2022",
+    bathy_source: str = "gebco2025",
     bathy_dir: str = "data/bathymetry",
     coord_format: str = "ddm",
     expand_sections: bool = True,
@@ -380,7 +380,7 @@ def enrich(  # noqa: C901
     expand_sections : bool
         Expand CTD sections into individual station definitions (default: True)
     bathy_source : str
-        Bathymetry dataset (default: "etopo2022")
+        Bathymetry dataset (default: "gebco2025")
     bathy_dir : str
         Directory containing bathymetry data (default: "data")
     coord_format : str
@@ -547,8 +547,8 @@ def _validate_configuration(
     config_path: Path,
     check_depths: bool = False,
     tolerance: float = 10.0,
-    bathymetry_source: str = "etopo2022",
-    bathymetry_dir: str = "data",
+    bathymetry_source: str = "gebco2025",
+    bathymetry_dir: str = "data/bathymetry",
 ) -> tuple[bool, list[str], list[str]]:
     """
     Comprehensive validation of YAML configuration file.
@@ -565,7 +565,7 @@ def _validate_configuration(
     tolerance : float, optional
         Depth difference tolerance percentage (default: 10.0).
     bathymetry_source : str, optional
-        Bathymetry dataset to use (default: "etopo2022").
+        Bathymetry dataset to use (default: "gebco2025").
 
     Returns
     -------
@@ -924,7 +924,7 @@ def validate_with_config(
 
 def validate(
     config_file: str | Path,
-    bathy_source: str = "etopo2022",
+    bathy_source: str = "gebco2025",
     bathy_dir: str = "data/bathymetry",
     check_depths: bool = True,
     tolerance: float = 10.0,
@@ -939,7 +939,7 @@ def validate(
     config_file : str or Path
         Input YAML configuration file
     bathy_source : str
-        Bathymetry dataset (default: "etopo2022")
+        Bathymetry dataset (default: "gebco2025")
     bathy_dir : str
         Directory containing bathymetry data (default: "data")
     check_depths : bool
@@ -1114,7 +1114,7 @@ def process(
     config_file: str | Path,
     output_dir: str = "data",
     output: str | None = None,
-    bathy_source: str = "etopo2022",
+    bathy_source: str = "gebco2025",
     bathy_dir: str = "data/bathymetry",
     add_depths: bool = True,
     add_coords: bool = True,
@@ -1150,7 +1150,7 @@ def process(
     output : str, optional
         Base filename for outputs (default: use cruise name from config)
     bathy_source : str
-        Bathymetry dataset (default: "etopo2022")
+        Bathymetry dataset (default: "gebco2025")
     bathy_dir : str
         Directory containing bathymetry data (default: "data/bathymetry")
     add_depths : bool

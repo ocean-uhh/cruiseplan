@@ -286,7 +286,7 @@ class TestValidateThinCLI:
             # Should use defaults for missing arguments
             mock_validate.assert_called_once_with(
                 config_file=Path("test.yaml"),
-                bathy_source="etopo2022",  # default
+                bathy_source="gebco2025",  # default
                 bathy_dir="data/bathymetry",  # default
                 check_depths=True,  # default
                 tolerance=10.0,  # default
