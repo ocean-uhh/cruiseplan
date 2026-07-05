@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.runtime.enrichment &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev48</title>
+  <title>cruiseplan.runtime.enrichment &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev49</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=5fc40100"></script>
+      <script src="../../../_static/documentation_options.js?v=fbbc8519"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -456,8 +456,8 @@
 <a class="viewcode-back" href="../../../api/cruiseplan.runtime.html#cruiseplan.runtime.enrichment.enrich_depths">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">enrich_depths</span><span class="p">(</span>
     <span class="n">cruise_instance</span><span class="p">:</span> <span class="s2">&quot;CruiseInstance&quot;</span><span class="p">,</span>
-    <span class="n">bathymetry_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
-    <span class="n">bathymetry_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
+    <span class="n">bathymetry_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span>
+    <span class="n">bathymetry_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data/bathymetry&quot;</span><span class="p">,</span>
     <span class="n">overwrite_existing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -472,9 +472,9 @@
 <span class="sd">    cruise_instance : CruiseInstance</span>
 <span class="sd">        The cruise instance to modify</span>
 <span class="sd">    bathymetry_source : str, optional</span>
-<span class="sd">        Bathymetry dataset to use (default: &quot;etopo2022&quot;)</span>
+<span class="sd">        Bathymetry dataset to use (default: &quot;gebco2025&quot;)</span>
 <span class="sd">    bathymetry_dir : str, optional</span>
-<span class="sd">        Directory containing bathymetry data (default: &quot;data&quot;)</span>
+<span class="sd">        Directory containing bathymetry data (default: &quot;data/bathymetry&quot;)</span>
 <span class="sd">    overwrite_existing : bool, optional</span>
 <span class="sd">        Whether to overwrite existing water_depth values (default: False)</span>
 

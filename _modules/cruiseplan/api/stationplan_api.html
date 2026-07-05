@@ -1,0 +1,1282 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cruiseplan.api.stationplan_api &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev49</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=fbbc8519"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            CruisePlan v0.3.5
+              <img src="../../../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/yaml-basics.html">YAML Basics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/cli-commands.html">CLI Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/yaml-full.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/output-formats.html">Output Formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/api-examples.html">API Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../demo-output.html">CruisePlan Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/developer_guide.html">CruisePlan Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/manual_testing.html">Manual Testing and Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/manual_testing.html#development-workflow-integration">Development Workflow Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">CruisePlan v0.3.5</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cruiseplan.api.stationplan_api</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cruiseplan.api.stationplan_api</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Station plan API for generating cruise activity lists and forecasts.</span>
+
+<span class="sd">This module provides the main API functions for reading cruise schedules</span>
+<span class="sd">and generating station plan outputs for real-time cruise operations.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.forecast.formatter</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_letsgo_output</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.forecast.generator</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">format_activities_table</span><span class="p">,</span>
+    <span class="n">generate_forecast</span><span class="p">,</span>
+    <span class="n">list_activities</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.forecast.reader</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_schedule</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.kml_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">KMLGenerator</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="StationplanResult">
+<a class="viewcode-back" href="../../../api/cruiseplan.api.html#cruiseplan.api.StationplanResult">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StationplanResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Result object for stationplan operations.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    success : bool</span>
+<span class="sd">        Whether the operation completed successfully</span>
+<span class="sd">    message : str</span>
+<span class="sd">        Status message or error description</span>
+<span class="sd">    output : str, optional</span>
+<span class="sd">        Generated output text (for list mode)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">success</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">message</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="stationplan_list">
+<a class="viewcode-back" href="../../../api/cruiseplan.api.html#cruiseplan.api.stationplan_list">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">stationplan_list</span><span class="p">(</span><span class="n">schedule_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StationplanResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List all activities in a cruise schedule with indices.</span>
+
+<span class="sd">    This function reads a NetCDF schedule file and returns a formatted table</span>
+<span class="sd">    of all activities with their indices, time offsets, categories, durations,</span>
+<span class="sd">    and names. This is used for the --list mode of the stationplan command.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    schedule_file : str or Path</span>
+<span class="sd">        Path to NetCDF schedule file (e.g., &#39;MSM142_leg_2_schedule.nc&#39;)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    StationplanResult</span>
+<span class="sd">        Result object containing:</span>
+<span class="sd">        - success: True if successful, False if error</span>
+<span class="sd">        - message: Status message</span>
+<span class="sd">        - output: Formatted activities table (if successful)</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; result = stationplan_list(&quot;data/cruise_schedule.nc&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; if result.success:</span>
+<span class="sd">    ...     print(result.output)</span>
+<span class="sd">    ... else:</span>
+<span class="sd">    ...     print(f&quot;Error: {result.message}&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading schedule for activity listing: </span><span class="si">{</span><span class="n">schedule_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Read the schedule file</span>
+        <span class="n">schedule</span> <span class="o">=</span> <span class="n">read_schedule</span><span class="p">(</span><span class="n">schedule_file</span><span class="p">)</span>
+
+        <span class="c1"># Get activity list</span>
+        <span class="n">activities</span> <span class="o">=</span> <span class="n">list_activities</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">activities</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span>
+                <span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No activities found in schedule file&quot;</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Format as table</span>
+        <span class="n">output_table</span> <span class="o">=</span> <span class="n">format_activities_table</span><span class="p">(</span><span class="n">activities</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Successfully listed </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">activities</span><span class="p">)</span><span class="si">}</span><span class="s2"> activities&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span>
+            <span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Listed </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">activities</span><span class="p">)</span><span class="si">}</span><span class="s2"> activities from </span><span class="si">{</span><span class="n">schedule_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">output</span><span class="o">=</span><span class="n">output_table</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Schedule file not found: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">error_msg</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Invalid schedule file: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">error_msg</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Unexpected error processing schedule: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">error_msg</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="stationplan_forecast">
+<a class="viewcode-back" href="../../../api/cruiseplan.api.html#cruiseplan.api.stationplan_forecast">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">stationplan_forecast</span><span class="p">(</span>
+    <span class="n">schedule_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">start_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">start_time</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">duration_hours</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">24.0</span><span class="p">,</span>
+    <span class="n">transit_speed</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StationplanResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate station plan forecast starting from specified activity.</span>
+
+<span class="sd">    This function reads a NetCDF schedule file, generates a time-shifted forecast</span>
+<span class="sd">    starting from the specified activity index with a new start time, and formats</span>
+<span class="sd">    the output as letsgo.m compatible text.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    schedule_file : str or Path</span>
+<span class="sd">        Path to NetCDF schedule file (e.g., &#39;MSM142_leg_2_schedule.nc&#39;)</span>
+<span class="sd">    start_index : int</span>
+<span class="sd">        Index of first activity in forecast (0-based)</span>
+<span class="sd">    start_time : str</span>
+<span class="sd">        New absolute start time for the selected activity (ISO format: &quot;2026-08-30T14:00:00&quot;)</span>
+<span class="sd">    duration_hours : float, optional</span>
+<span class="sd">        Forecast duration in hours (default: 24.0)</span>
+<span class="sd">    transit_speed : float, optional</span>
+<span class="sd">        Ship transit speed in knots for header metadata (default: 10.0)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    StationplanResult</span>
+<span class="sd">        Result object containing:</span>
+<span class="sd">        - success: True if successful, False if error</span>
+<span class="sd">        - message: Status message</span>
+<span class="sd">        - output: Formatted letsgo.m forecast text (if successful)</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; result = stationplan_forecast(&quot;data/cruise_schedule.nc&quot;, 18, &quot;2026-08-30T14:00:00&quot;, 36.0)</span>
+<span class="sd">    &gt;&gt;&gt; if result.success:</span>
+<span class="sd">    ...     print(result.output)</span>
+<span class="sd">    ... else:</span>
+<span class="sd">    ...     print(f&quot;Error: {result.message}&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Generating forecast from </span><span class="si">{</span><span class="n">schedule_file</span><span class="si">}</span><span class="s2"> starting at index </span><span class="si">{</span><span class="n">start_index</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Read the schedule file</span>
+        <span class="n">schedule</span> <span class="o">=</span> <span class="n">read_schedule</span><span class="p">(</span><span class="n">schedule_file</span><span class="p">)</span>
+
+        <span class="c1"># Generate forecast</span>
+        <span class="n">forecast_activities</span> <span class="o">=</span> <span class="n">generate_forecast</span><span class="p">(</span>
+            <span class="n">schedule</span><span class="p">,</span> <span class="n">start_index</span><span class="p">,</span> <span class="n">start_time</span><span class="p">,</span> <span class="n">duration_hours</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">forecast_activities</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span>
+                <span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;No activities found in forecast window (</span><span class="si">{</span><span class="n">duration_hours</span><span class="si">}</span><span class="s2">h from </span><span class="si">{</span><span class="n">start_time</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+                <span class="n">output</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Format as letsgo.m output</span>
+        <span class="n">output_text</span> <span class="o">=</span> <span class="n">format_letsgo_output</span><span class="p">(</span>
+            <span class="n">forecast_activities</span><span class="p">,</span> <span class="n">start_time</span><span class="p">,</span> <span class="n">transit_speed</span>
+        <span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Successfully generated forecast with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">forecast_activities</span><span class="p">)</span><span class="si">}</span><span class="s2"> activities&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span>
+            <span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Generated </span><span class="si">{</span><span class="n">duration_hours</span><span class="si">}</span><span class="s2">h forecast with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">forecast_activities</span><span class="p">)</span><span class="si">}</span><span class="s2"> activities&quot;</span><span class="p">,</span>
+            <span class="n">output</span><span class="o">=</span><span class="n">output_text</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Schedule file not found: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">error_msg</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Invalid forecast parameters: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">error_msg</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Unexpected error generating forecast: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">error_msg</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="stationplan_tex">
+<a class="viewcode-back" href="../../../api/cruiseplan.api.html#cruiseplan.api.stationplan_tex">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">stationplan_tex</span><span class="p">(</span>
+    <span class="n">schedule_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">logo_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">workplan_number</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">cruise_title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StationplanResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate TeX station table in letsgo.m format from NetCDF schedule file.</span>
+
+<span class="sd">    This function reads a NetCDF schedule file and generates a TeX table</span>
+<span class="sd">    in the letsgo.m format using rich NetCDF data with proper coordinates,</span>
+<span class="sd">    depths, and distance calculations.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    schedule_file : str or Path</span>
+<span class="sd">        Path to NetCDF schedule file (e.g., &#39;MSM142_leg_2_schedule.nc&#39;)</span>
+<span class="sd">    output_path : str or Path, optional</span>
+<span class="sd">        Output path for .tex file. If None, uses schedule_file name with .tex extension</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    StationplanResult</span>
+<span class="sd">        Result object containing:</span>
+<span class="sd">        - success: True if successful, False if error</span>
+<span class="sd">        - message: Status message</span>
+<span class="sd">        - output: Path to generated .tex file (if successful)</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; result = stationplan_tex(&quot;data/cruise_schedule.nc&quot;, &quot;station_plan.tex&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; if result.success:</span>
+<span class="sd">    ...     print(f&quot;TeX table generated: {result.output}&quot;)</span>
+<span class="sd">    ... else:</span>
+<span class="sd">    ...     print(f&quot;Error: {result.message}&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.latex_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_letsgo_table_from_netcdf</span>
+
+        <span class="n">schedule_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">schedule_file</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating TeX table from schedule: </span><span class="si">{</span><span class="n">schedule_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Determine output path</span>
+        <span class="k">if</span> <span class="n">output_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">output_file</span> <span class="o">=</span> <span class="n">schedule_path</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;.tex&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+
+        <span class="c1"># Generate TeX table using our letsgo-style generator</span>
+        <span class="n">generated_file</span> <span class="o">=</span> <span class="n">generate_letsgo_table_from_netcdf</span><span class="p">(</span>
+            <span class="n">schedule_path</span><span class="p">,</span> <span class="n">output_file</span><span class="p">,</span> <span class="n">logo_path</span><span class="p">,</span> <span class="n">workplan_number</span><span class="p">,</span> <span class="n">cruise_title</span>
+        <span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Successfully generated TeX table: </span><span class="si">{</span><span class="n">generated_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span>
+            <span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Generated TeX station table: </span><span class="si">{</span><span class="n">generated_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">output</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">generated_file</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Schedule file not found: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">error_msg</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Error generating TeX table: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">error_msg</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="stationplan_forecast_tex">
+<a class="viewcode-back" href="../../../api/cruiseplan.api.html#cruiseplan.api.stationplan_forecast_tex">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">stationplan_forecast_tex</span><span class="p">(</span>
+    <span class="n">schedule_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">start_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">start_time</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">duration_hours</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">24.0</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">logo_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">workplan_number</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">cruise_title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StationplanResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate TeX station forecast starting from specified activity.</span>
+
+<span class="sd">    Combines forecast generation with TeX formatting - generates a time-shifted</span>
+<span class="sd">    forecast and outputs it as a complete LaTeX document.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    schedule_file : str or Path</span>
+<span class="sd">        Path to NetCDF schedule file</span>
+<span class="sd">    start_index : int</span>
+<span class="sd">        Index of first activity in forecast (0-based)</span>
+<span class="sd">    start_time : str</span>
+<span class="sd">        New absolute start time (ISO format: &quot;2026-08-30T14:00:00&quot;)</span>
+<span class="sd">    duration_hours : float</span>
+<span class="sd">        Forecast duration in hours (default: 24.0)</span>
+<span class="sd">    output_path : str or Path, optional</span>
+<span class="sd">        Output path for .tex file</span>
+<span class="sd">    logo_path : str or Path, optional</span>
+<span class="sd">        Path to logo image file (PNG, JPG, or PDF). If None, checks for default logos in images/ folder</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    StationplanResult</span>
+<span class="sd">        Result object with success status and generated file path</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.forecast.generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_forecast</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.forecast.reader</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_schedule</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.latex_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">LaTeXGenerator</span>
+
+        <span class="n">schedule_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">schedule_file</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Generating TeX forecast from </span><span class="si">{</span><span class="n">schedule_path</span><span class="si">}</span><span class="s2"> starting at index </span><span class="si">{</span><span class="n">start_index</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Read schedule and generate forecast with time shifting</span>
+        <span class="n">schedule</span> <span class="o">=</span> <span class="n">read_schedule</span><span class="p">(</span><span class="n">schedule_path</span><span class="p">)</span>
+        <span class="n">forecast_activities</span> <span class="o">=</span> <span class="n">generate_forecast</span><span class="p">(</span>
+            <span class="n">schedule</span><span class="p">,</span> <span class="n">start_index</span><span class="p">,</span> <span class="n">start_time</span><span class="p">,</span> <span class="n">duration_hours</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">forecast_activities</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span>
+                <span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;No activities found in forecast window (</span><span class="si">{</span><span class="n">duration_hours</span><span class="si">}</span><span class="s2">h from </span><span class="si">{</span><span class="n">start_time</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+                <span class="n">output</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Convert forecast activities to ActivityRecord objects for TeX generation</span>
+        <span class="c1"># generate_forecast returns tuples: (index, time, category, type, action, duration, lat, lon, name)</span>
+
+        <span class="c1"># No longer need to manually compute transit distances - they&#39;re now in distance_to_next field</span>
+
+        <span class="n">activity_records</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">activity_tuple</span> <span class="ow">in</span> <span class="n">forecast_activities</span><span class="p">:</span>
+            <span class="p">(</span>
+                <span class="n">index</span><span class="p">,</span>
+                <span class="n">time</span><span class="p">,</span>
+                <span class="n">category</span><span class="p">,</span>
+                <span class="n">activity_type</span><span class="p">,</span>
+                <span class="n">action</span><span class="p">,</span>
+                <span class="n">duration</span><span class="p">,</span>
+                <span class="n">latitude</span><span class="p">,</span>
+                <span class="n">longitude</span><span class="p">,</span>
+                <span class="n">name</span><span class="p">,</span>
+            <span class="p">)</span> <span class="o">=</span> <span class="n">activity_tuple</span>
+
+            <span class="c1"># Look up additional data from original schedule using the index</span>
+            <span class="n">water_depth</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">operation_depth</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">comment</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+            <span class="k">if</span> <span class="s2">&quot;water_depth&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">depth_val</span> <span class="o">=</span> <span class="n">schedule</span><span class="o">.</span><span class="n">water_depth</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+                    <span class="k">if</span> <span class="n">depth_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">depth_val</span><span class="p">)):</span>
+                        <span class="n">water_depth</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">depth_val</span><span class="p">)</span>
+                <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+                    <span class="k">pass</span>  <span class="c1"># Keep water_depth as None</span>
+
+            <span class="k">if</span> <span class="s2">&quot;operation_depth&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">op_depth_val</span> <span class="o">=</span> <span class="n">schedule</span><span class="o">.</span><span class="n">operation_depth</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+                    <span class="k">if</span> <span class="n">op_depth_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">op_depth_val</span><span class="p">)):</span>
+                        <span class="n">operation_depth</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">op_depth_val</span><span class="p">)</span>
+                <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+                    <span class="k">pass</span>  <span class="c1"># Keep operation_depth as None</span>
+
+            <span class="k">if</span> <span class="s2">&quot;comment&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+                <span class="n">comment_val</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">schedule</span><span class="o">.</span><span class="n">comment</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">comment_val</span> <span class="ow">and</span> <span class="n">comment_val</span> <span class="o">!=</span> <span class="s2">&quot;nan&quot;</span> <span class="ow">and</span> <span class="n">comment_val</span> <span class="o">!=</span> <span class="s2">&quot;_&quot;</span><span class="p">:</span>
+                    <span class="n">comment</span> <span class="o">=</span> <span class="n">comment_val</span>
+
+            <span class="c1"># Look up exit coordinates if available</span>
+            <span class="n">exit_lat</span><span class="p">,</span> <span class="n">exit_lon</span> <span class="o">=</span> <span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span>  <span class="c1"># Default to same position</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="s2">&quot;exit_latitude&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span>
+                    <span class="ow">and</span> <span class="s2">&quot;exit_longitude&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span>
+                <span class="p">):</span>
+                    <span class="n">exit_lat_val</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">schedule</span><span class="o">.</span><span class="n">exit_latitude</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+                    <span class="n">exit_lon_val</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">schedule</span><span class="o">.</span><span class="n">exit_longitude</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">exit_lat_val</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">exit_lon_val</span><span class="p">)):</span>
+                        <span class="n">exit_lat</span><span class="p">,</span> <span class="n">exit_lon</span> <span class="o">=</span> <span class="n">exit_lat_val</span><span class="p">,</span> <span class="n">exit_lon_val</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>  <span class="c1"># Use entry coordinates as fallback</span>
+
+            <span class="c1"># Skip transit activities for TeX output (like waypoints)</span>
+            <span class="k">if</span> <span class="n">category</span> <span class="o">==</span> <span class="s2">&quot;transit&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Create single record for all operations (including line operations)</span>
+            <span class="c1"># Calculate end time</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
+
+            <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="n">duration</span><span class="p">)</span>
+
+            <span class="c1"># Get operation distance from NetCDF (for line operations)</span>
+            <span class="n">operation_distance</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="nb">float</span><span class="p">(</span><span class="n">schedule</span><span class="o">.</span><span class="n">dist_nm</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s2">&quot;dist_nm&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span>
+                <span class="k">else</span> <span class="mf">0.0</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Get transit distance to next operation from NetCDF distance_to_next field</span>
+            <span class="n">next_transit_distance</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="nb">float</span><span class="p">(</span><span class="n">schedule</span><span class="o">.</span><span class="n">distance_to_next</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s2">&quot;distance_to_next&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span>
+                <span class="k">else</span> <span class="mf">0.0</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Single record for operation</span>
+            <span class="n">record_data</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="n">category</span><span class="p">,</span>
+                <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>  <span class="c1"># Use original name without &quot;Start&quot;/&quot;End&quot;</span>
+                <span class="s2">&quot;entry_lat&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">latitude</span><span class="p">),</span>
+                <span class="s2">&quot;entry_lon&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">longitude</span><span class="p">),</span>
+                <span class="s2">&quot;exit_lat&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">exit_lat</span><span class="p">),</span>
+                <span class="s2">&quot;exit_lon&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">exit_lon</span><span class="p">),</span>
+                <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="n">time</span><span class="p">,</span>
+                <span class="s2">&quot;end_time&quot;</span><span class="p">:</span> <span class="n">end_time</span><span class="p">,</span>
+                <span class="s2">&quot;duration_minutes&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span> <span class="o">*</span> <span class="mf">60.0</span><span class="p">,</span>
+                <span class="s2">&quot;water_depth&quot;</span><span class="p">:</span> <span class="n">water_depth</span><span class="p">,</span>
+                <span class="s2">&quot;operation_depth&quot;</span><span class="p">:</span> <span class="n">operation_depth</span><span class="p">,</span>
+                <span class="s2">&quot;dist_nm&quot;</span><span class="p">:</span> <span class="n">operation_distance</span><span class="p">,</span>  <span class="c1"># Distance of the operation itself</span>
+                <span class="s2">&quot;transit_dist_nm&quot;</span><span class="p">:</span> <span class="n">next_transit_distance</span><span class="p">,</span>  <span class="c1"># Distance to next operation</span>
+                <span class="s2">&quot;vessel_speed_kt&quot;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>
+                <span class="s2">&quot;leg_name&quot;</span><span class="p">:</span> <span class="s2">&quot;forecast&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;op_type&quot;</span><span class="p">:</span> <span class="n">activity_type</span><span class="p">,</span>
+                <span class="s2">&quot;operation_class&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="s2">&quot;LineOperation&quot;</span> <span class="k">if</span> <span class="n">operation_distance</span> <span class="o">&gt;</span> <span class="mf">0.1</span> <span class="k">else</span> <span class="s2">&quot;PointOperation&quot;</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="n">action</span> <span class="k">if</span> <span class="n">action</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="n">comment</span><span class="p">,</span>
+            <span class="p">}</span>
+
+            <span class="c1"># Create ActivityRecord-like objects</span>
+            <span class="k">class</span><span class="w"> </span><span class="nc">ForecastRecord</span><span class="p">:</span>
+                <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+            <span class="n">activity_records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ForecastRecord</span><span class="p">(</span><span class="n">record_data</span><span class="p">))</span>
+
+        <span class="c1"># Determine output path</span>
+        <span class="k">if</span> <span class="n">output_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">output_file</span> <span class="o">=</span> <span class="n">schedule_path</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">schedule_path</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_forecast.tex&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+
+        <span class="c1"># Generate TeX using our LaTeX generator</span>
+        <span class="n">generator</span> <span class="o">=</span> <span class="n">LaTeXGenerator</span><span class="p">()</span>
+        <span class="n">cruise_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">schedule_path</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2"> forecast&quot;</span>
+        <span class="n">tex_content</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">generate_letsgo_table</span><span class="p">(</span>
+            <span class="n">activity_records</span><span class="p">,</span>
+            <span class="n">cruise_name</span><span class="p">,</span>
+            <span class="n">logo_path</span><span class="o">=</span><span class="n">logo_path</span><span class="p">,</span>
+            <span class="n">workplan_number</span><span class="o">=</span><span class="n">workplan_number</span><span class="p">,</span>
+            <span class="n">cruise_title</span><span class="o">=</span><span class="n">cruise_title</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Write to file</span>
+        <span class="n">output_file</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">output_file</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">tex_content</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Successfully generated TeX forecast: </span><span class="si">{</span><span class="n">output_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span>
+            <span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Generated TeX forecast with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">activity_records</span><span class="p">)</span><span class="si">}</span><span class="s2"> activities: </span><span class="si">{</span><span class="n">output_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">output</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">output_file</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Error generating TeX forecast: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">error_msg</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="stationplan_waypoints">
+<a class="viewcode-back" href="../../../api/cruiseplan.api.html#cruiseplan.api.stationplan_waypoints">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">stationplan_waypoints</span><span class="p">(</span>
+    <span class="n">schedule_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">start_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">start_time</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">duration_hours</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">48.0</span><span class="p">,</span>
+    <span class="n">current_position</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StationplanResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate bridge waypoints file in Stationsplan.txt format.</span>
+
+<span class="sd">    Creates a simple waypoint list suitable for bridge navigation systems</span>
+<span class="sd">    with DDM coordinate format and work type codes.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    schedule_file : str or Path</span>
+<span class="sd">        Path to NetCDF schedule file</span>
+<span class="sd">    start_index : int, optional</span>
+<span class="sd">        Starting activity index for forecast mode (if None, uses full schedule)</span>
+<span class="sd">    start_time : str, optional</span>
+<span class="sd">        New start time for forecast mode (ISO format)</span>
+<span class="sd">    duration_hours : float, optional</span>
+<span class="sd">        Forecast duration in hours (if None, uses remaining schedule)</span>
+<span class="sd">    current_position : tuple[float, float], optional</span>
+<span class="sd">        Current ship position as (lat, lon) in decimal degrees</span>
+<span class="sd">    output_path : str or Path, optional</span>
+<span class="sd">        Output file path. If None, returns content as string</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    StationplanResult</span>
+<span class="sd">        Result object containing success status and waypoint content</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.forecast.generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_forecast</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.forecast.reader</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_schedule</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating bridge waypoints from </span><span class="si">{</span><span class="n">schedule_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Read the schedule file</span>
+        <span class="n">schedule</span> <span class="o">=</span> <span class="n">read_schedule</span><span class="p">(</span><span class="n">schedule_file</span><span class="p">)</span>
+
+        <span class="c1"># Default start_index to 0 if not provided (full cruise from beginning)</span>
+        <span class="k">if</span> <span class="n">start_index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">start_index</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># Default start_time to now, rounded to 10 minutes</span>
+        <span class="k">if</span> <span class="n">start_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
+            <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="c1"># Round to nearest 10 minutes (like letsgo.m)</span>
+            <span class="n">total_minutes</span> <span class="o">=</span> <span class="n">now</span><span class="o">.</span><span class="n">hour</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">+</span> <span class="n">now</span><span class="o">.</span><span class="n">minute</span>
+            <span class="n">rounded_minutes</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">total_minutes</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)</span> <span class="o">*</span> <span class="mi">10</span>
+            <span class="n">hours</span> <span class="o">=</span> <span class="n">rounded_minutes</span> <span class="o">//</span> <span class="mi">60</span>
+            <span class="n">minutes</span> <span class="o">=</span> <span class="n">rounded_minutes</span> <span class="o">%</span> <span class="mi">60</span>
+            <span class="n">start_time</span> <span class="o">=</span> <span class="n">now</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                <span class="n">hour</span><span class="o">=</span><span class="n">hours</span> <span class="o">%</span> <span class="mi">24</span><span class="p">,</span> <span class="n">minute</span><span class="o">=</span><span class="n">minutes</span><span class="p">,</span> <span class="n">second</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">microsecond</span><span class="o">=</span><span class="mi">0</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+
+        <span class="c1"># Always use forecast mode for waypoints (from start_index forward)</span>
+        <span class="n">activities</span> <span class="o">=</span> <span class="n">generate_forecast</span><span class="p">(</span>
+            <span class="n">schedule</span><span class="p">,</span> <span class="n">start_index</span><span class="p">,</span> <span class="n">start_time</span><span class="p">,</span> <span class="n">duration_hours</span> <span class="ow">or</span> <span class="mi">1000</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">activities</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span>
+                <span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No activities found in schedule&quot;</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Generate waypoint content in both coordinate formats</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">generate_waypoint_content</span><span class="p">(</span><span class="n">use_decimal_degrees</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="n">waypoint_lines</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="c1"># Add header with proper spacing</span>
+            <span class="n">waypoint_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;%&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Add start date if available (at top)</span>
+            <span class="k">if</span> <span class="n">start_time</span><span class="p">:</span>
+                <span class="n">waypoint_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;% start_date = </span><span class="si">{</span><span class="n">start_time</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="n">waypoint_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;%&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Add coordinate format indicator</span>
+            <span class="n">format_type</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;Decimal Degrees&quot;</span>
+                <span class="k">if</span> <span class="n">use_decimal_degrees</span>
+                <span class="k">else</span> <span class="s2">&quot;Degrees Decimal Minutes (DDM)&quot;</span>
+            <span class="p">)</span>
+            <span class="n">waypoint_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;% Coordinate format: </span><span class="si">{</span><span class="n">format_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Add legend header</span>
+            <span class="n">waypoint_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot;% (1: Transit, 2: CTD, 3: Mooring, 4: PIES, 5: Float/Drifter, 6: Survey)&quot;</span>
+            <span class="p">)</span>
+            <span class="n">waypoint_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;%&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Add current position if provided</span>
+            <span class="k">if</span> <span class="n">current_position</span><span class="p">:</span>
+                <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span> <span class="o">=</span> <span class="n">current_position</span>
+                <span class="k">if</span> <span class="n">use_decimal_degrees</span><span class="p">:</span>
+                    <span class="n">lat_formatted</span> <span class="o">=</span> <span class="n">_format_decimal_degrees</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="s2">&quot;lat&quot;</span><span class="p">)</span>
+                    <span class="n">lon_formatted</span> <span class="o">=</span> <span class="n">_format_decimal_degrees</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">lat_formatted</span> <span class="o">=</span> <span class="n">_format_ddm_coordinate</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="s2">&quot;lat&quot;</span><span class="p">)</span>
+                    <span class="n">lon_formatted</span> <span class="o">=</span> <span class="n">_format_ddm_coordinate</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">)</span>
+                <span class="n">waypoint_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;1</span><span class="se">\t</span><span class="si">{</span><span class="n">lat_formatted</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">lon_formatted</span><span class="si">}</span><span class="se">\t</span><span class="s2">Merian&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Process activities and convert to waypoints</span>
+            <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">activities</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">9</span><span class="p">:</span>
+                    <span class="p">(</span>
+                        <span class="n">index</span><span class="p">,</span>
+                        <span class="n">time</span><span class="p">,</span>
+                        <span class="n">category</span><span class="p">,</span>
+                        <span class="n">activity_type</span><span class="p">,</span>
+                        <span class="n">action</span><span class="p">,</span>
+                        <span class="n">duration</span><span class="p">,</span>
+                        <span class="n">latitude</span><span class="p">,</span>
+                        <span class="n">longitude</span><span class="p">,</span>
+                        <span class="n">name</span><span class="p">,</span>
+                    <span class="p">)</span> <span class="o">=</span> <span class="n">activity</span>
+
+                    <span class="c1"># Skip transit activities (we only want operational stations)</span>
+                    <span class="k">if</span> <span class="n">category</span> <span class="o">==</span> <span class="s2">&quot;transit&quot;</span><span class="p">:</span>
+                        <span class="k">continue</span>
+
+                    <span class="c1"># Map activity types to work codes</span>
+                    <span class="n">work_code</span> <span class="o">=</span> <span class="n">_map_activity_to_work_code</span><span class="p">(</span>
+                        <span class="n">category</span><span class="p">,</span> <span class="n">activity_type</span><span class="p">,</span> <span class="n">name</span>
+                    <span class="p">)</span>
+
+                    <span class="c1"># For stations, we need both entry and exit positions</span>
+                    <span class="c1"># Check if we have separate exit coordinates in the original schedule</span>
+                    <span class="n">exit_lat</span><span class="p">,</span> <span class="n">exit_lon</span> <span class="o">=</span> <span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span>  <span class="c1"># Default to same position</span>
+
+                    <span class="k">if</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">schedule</span><span class="o">.</span><span class="n">latitude</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="c1"># Look up exit coordinates from original schedule if available</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="p">(</span>
+                                <span class="s2">&quot;exit_latitude&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span>
+                                <span class="ow">and</span> <span class="s2">&quot;exit_longitude&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span>
+                            <span class="p">):</span>
+                                <span class="n">exit_lat_val</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+                                    <span class="n">schedule</span><span class="o">.</span><span class="n">exit_latitude</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+                                <span class="p">)</span>
+                                <span class="n">exit_lon_val</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+                                    <span class="n">schedule</span><span class="o">.</span><span class="n">exit_longitude</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+                                <span class="p">)</span>
+                                <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
+                                    <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">exit_lat_val</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">exit_lon_val</span><span class="p">)</span>
+                                <span class="p">):</span>
+                                    <span class="n">exit_lat</span><span class="p">,</span> <span class="n">exit_lon</span> <span class="o">=</span> <span class="n">exit_lat_val</span><span class="p">,</span> <span class="n">exit_lon_val</span>
+                            <span class="c1"># For line operations without explicit exit coordinates,</span>
+                            <span class="c1"># use the next waypoint as the exit position</span>
+                            <span class="k">elif</span> <span class="p">(</span>
+                                <span class="s2">&quot;Transit_&quot;</span> <span class="ow">in</span> <span class="n">name</span>
+                                <span class="ow">or</span> <span class="s2">&quot;Bathy_&quot;</span> <span class="ow">in</span> <span class="n">name</span>
+                                <span class="ow">or</span> <span class="n">activity_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;survey&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">,</span> <span class="s2">&quot;underway&quot;</span><span class="p">]</span>
+                            <span class="p">):</span>
+                                <span class="n">next_lat</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">schedule</span><span class="o">.</span><span class="n">latitude</span><span class="p">[</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+                                <span class="n">next_lon</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">schedule</span><span class="o">.</span><span class="n">longitude</span><span class="p">[</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+                                <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">next_lat</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">next_lon</span><span class="p">)):</span>
+                                    <span class="n">exit_lat</span><span class="p">,</span> <span class="n">exit_lon</span> <span class="o">=</span> <span class="n">next_lat</span><span class="p">,</span> <span class="n">next_lon</span>
+                        <span class="k">except</span><span class="p">:</span>
+                            <span class="k">pass</span>  <span class="c1"># Use entry coordinates as fallback</span>
+
+                    <span class="c1"># Convert coordinates to appropriate format</span>
+                    <span class="k">if</span> <span class="n">use_decimal_degrees</span><span class="p">:</span>
+                        <span class="n">entry_lat_formatted</span> <span class="o">=</span> <span class="n">_format_decimal_degrees</span><span class="p">(</span><span class="n">latitude</span><span class="p">,</span> <span class="s2">&quot;lat&quot;</span><span class="p">)</span>
+                        <span class="n">entry_lon_formatted</span> <span class="o">=</span> <span class="n">_format_decimal_degrees</span><span class="p">(</span><span class="n">longitude</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">)</span>
+                        <span class="n">exit_lat_formatted</span> <span class="o">=</span> <span class="n">_format_decimal_degrees</span><span class="p">(</span><span class="n">exit_lat</span><span class="p">,</span> <span class="s2">&quot;lat&quot;</span><span class="p">)</span>
+                        <span class="n">exit_lon_formatted</span> <span class="o">=</span> <span class="n">_format_decimal_degrees</span><span class="p">(</span><span class="n">exit_lon</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">entry_lat_formatted</span> <span class="o">=</span> <span class="n">_format_ddm_coordinate</span><span class="p">(</span><span class="n">latitude</span><span class="p">,</span> <span class="s2">&quot;lat&quot;</span><span class="p">)</span>
+                        <span class="n">entry_lon_formatted</span> <span class="o">=</span> <span class="n">_format_ddm_coordinate</span><span class="p">(</span><span class="n">longitude</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">)</span>
+                        <span class="n">exit_lat_formatted</span> <span class="o">=</span> <span class="n">_format_ddm_coordinate</span><span class="p">(</span><span class="n">exit_lat</span><span class="p">,</span> <span class="s2">&quot;lat&quot;</span><span class="p">)</span>
+                        <span class="n">exit_lon_formatted</span> <span class="o">=</span> <span class="n">_format_ddm_coordinate</span><span class="p">(</span><span class="n">exit_lon</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">)</span>
+
+                    <span class="c1"># Create waypoint lines</span>
+                    <span class="c1"># If start and end are the same, just show one waypoint</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="nb">abs</span><span class="p">(</span><span class="n">latitude</span> <span class="o">-</span> <span class="n">exit_lat</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.001</span>
+                        <span class="ow">or</span> <span class="nb">abs</span><span class="p">(</span><span class="n">longitude</span> <span class="o">-</span> <span class="n">exit_lon</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.001</span>
+                    <span class="p">):</span>
+                        <span class="c1"># Different start/end positions - show both</span>
+                        <span class="n">waypoint_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">work_code</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">entry_lat_formatted</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">entry_lon_formatted</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> Start&quot;</span>
+                        <span class="p">)</span>
+                        <span class="n">waypoint_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">work_code</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">exit_lat_formatted</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">exit_lon_formatted</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> End&quot;</span>
+                        <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># Same position - show single waypoint without suffix</span>
+                        <span class="n">waypoint_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">work_code</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">entry_lat_formatted</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">entry_lon_formatted</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+
+            <span class="c1"># Join all lines</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">waypoint_lines</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="c1"># Generate content for both formats</span>
+        <span class="n">waypoint_content_ddm</span> <span class="o">=</span> <span class="n">generate_waypoint_content</span><span class="p">(</span><span class="n">use_decimal_degrees</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">waypoint_content_decdeg</span> <span class="o">=</span> <span class="n">generate_waypoint_content</span><span class="p">(</span><span class="n">use_decimal_degrees</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Write to file(s) if path provided</span>
+        <span class="k">if</span> <span class="n">output_path</span><span class="p">:</span>
+            <span class="n">output_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+            <span class="n">output_file</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="c1"># Generate both filenames based on the provided path</span>
+            <span class="c1"># If output_path is &quot;route/Stationsplan28.txt&quot;, generate:</span>
+            <span class="c1"># - route/Stationsplan28_ddm.txt (degrees decimal minutes)</span>
+            <span class="c1"># - route/Stationsplan28_decdeg.txt (decimal degrees)</span>
+
+            <span class="n">base_path</span> <span class="o">=</span> <span class="n">output_file</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>  <span class="c1"># Remove .txt extension</span>
+            <span class="n">ddm_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">base_path</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_ddm.txt&quot;</span><span class="p">)</span>
+            <span class="n">decdeg_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">base_path</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_decdeg.txt&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Write both files</span>
+            <span class="n">ddm_file</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">waypoint_content_ddm</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+            <span class="n">decdeg_file</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">waypoint_content_decdeg</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generated bridge waypoints: </span><span class="si">{</span><span class="n">ddm_file</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">decdeg_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Count waypoints (exclude comment lines)</span>
+            <span class="n">waypoint_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">l</span>
+                    <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">waypoint_content_ddm</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">l</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">l</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;%&quot;</span><span class="p">)</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span>
+                <span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Generated </span><span class="si">{</span><span class="n">waypoint_count</span><span class="si">}</span><span class="s2"> waypoints in both coordinate formats&quot;</span><span class="p">,</span>
+                <span class="n">output</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ddm_file</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">decdeg_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Return DDM content directly (default format)</span>
+            <span class="n">waypoint_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">l</span>
+                    <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">waypoint_content_ddm</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">l</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">l</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;%&quot;</span><span class="p">)</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span>
+                <span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Generated </span><span class="si">{</span><span class="n">waypoint_count</span><span class="si">}</span><span class="s2"> waypoints (DDM format)&quot;</span><span class="p">,</span>
+                <span class="n">output</span><span class="o">=</span><span class="n">waypoint_content_ddm</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Error generating bridge waypoints: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">error_msg</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_format_ddm_coordinate</span><span class="p">(</span><span class="n">decimal_degrees</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">coord_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Format a coordinate in degrees decimal minutes for bridge waypoints.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.coordinates</span><span class="w"> </span><span class="kn">import</span> <span class="n">CoordConverter</span>
+
+    <span class="n">degrees</span><span class="p">,</span> <span class="n">minutes</span> <span class="o">=</span> <span class="n">CoordConverter</span><span class="o">.</span><span class="n">decimal_degrees_to_ddm</span><span class="p">(</span><span class="n">decimal_degrees</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">coord_type</span> <span class="o">==</span> <span class="s2">&quot;lat&quot;</span><span class="p">:</span>
+        <span class="c1"># Latitude: 2 digits for degrees, N/S direction with space</span>
+        <span class="n">direction</span> <span class="o">=</span> <span class="s2">&quot;N&quot;</span> <span class="k">if</span> <span class="n">decimal_degrees</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;S&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">degrees</span><span class="p">))</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">minutes</span><span class="si">:</span><span class="s2">05.2f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">direction</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># longitude</span>
+        <span class="c1"># Longitude: 3 digits for degrees, E/W direction with space</span>
+        <span class="n">direction</span> <span class="o">=</span> <span class="s2">&quot;E&quot;</span> <span class="k">if</span> <span class="n">decimal_degrees</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;W&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">degrees</span><span class="p">))</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">minutes</span><span class="si">:</span><span class="s2">05.2f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">direction</span><span class="si">}</span><span class="s2">&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_format_decimal_degrees</span><span class="p">(</span><span class="n">decimal_degrees</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">coord_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Format a coordinate in decimal degrees for bridge waypoints.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">coord_type</span> <span class="o">==</span> <span class="s2">&quot;lat&quot;</span><span class="p">:</span>
+        <span class="c1"># Latitude: format with 6 decimal places, signed (negative for South)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">decimal_degrees</span><span class="si">:</span><span class="s2">8.5f</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># longitude</span>
+        <span class="c1"># Longitude: format with 6 decimal places, signed (negative for West)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">decimal_degrees</span><span class="si">:</span><span class="s2">9.5f</span><span class="si">}</span><span class="s2">&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_map_activity_to_work_code</span><span class="p">(</span>
+    <span class="n">category</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">activity_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Map activity category/type to letsgo.m work code.</span>
+
+<span class="sd">    Work codes: 1=Transit, 2=CTD, 3=Mooring, 4=PIES, 5=Float/Drifter, 6=Survey</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Normalize inputs to lowercase for case-insensitive comparison</span>
+    <span class="n">activity_type_lower</span> <span class="o">=</span> <span class="n">activity_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">name_lower</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">activity_type_lower</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ctd&quot;</span><span class="p">,</span> <span class="s2">&quot;station&quot;</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="mi">2</span>  <span class="c1"># CTD</span>
+    <span class="k">elif</span> <span class="n">activity_type_lower</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mooring&quot;</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="mi">3</span>  <span class="c1"># Mooring</span>
+    <span class="k">elif</span> <span class="n">activity_type_lower</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;pies&quot;</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="mi">4</span>  <span class="c1"># PIES</span>
+    <span class="k">elif</span> <span class="n">activity_type_lower</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">,</span> <span class="s2">&quot;drifter&quot;</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="mi">5</span>  <span class="c1"># Float/Drifter</span>
+    <span class="k">elif</span> <span class="n">activity_type_lower</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;survey&quot;</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="mi">6</span>  <span class="c1"># Survey</span>
+    <span class="k">elif</span> <span class="n">activity_type_lower</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;navigation&quot;</span><span class="p">,</span> <span class="s2">&quot;transit&quot;</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="mi">1</span>  <span class="c1"># Transit</span>
+    <span class="k">elif</span> <span class="n">activity_type_lower</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;unknown&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="s2">&quot;transit_&quot;</span> <span class="ow">in</span> <span class="n">name_lower</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">6</span>  <span class="c1"># Survey lines (Transit_X_Y pattern)</span>
+    <span class="k">elif</span> <span class="n">activity_type_lower</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;underway&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="s2">&quot;bathy_&quot;</span> <span class="ow">in</span> <span class="n">name_lower</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">6</span>  <span class="c1"># Survey lines (underway operations or Bathy_X_Y pattern)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">2</span>  <span class="c1"># Default to CTD for unknown types</span>
+
+
+<div class="viewcode-block" id="stationplan_forecast_kml">
+<a class="viewcode-back" href="../../../api/cruiseplan.api.html#cruiseplan.api.stationplan_forecast_kml">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">stationplan_forecast_kml</span><span class="p">(</span>
+    <span class="n">schedule_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">start_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">start_time</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">duration_hours</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StationplanResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate KML forecast from a cruise schedule for a specific time window.</span>
+
+<span class="sd">    Creates a Google Earth compatible KML file showing scientific operations</span>
+<span class="sd">    within the specified forecast period.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    schedule_file : Union[str, Path]</span>
+<span class="sd">        Path to the NetCDF schedule file</span>
+<span class="sd">    start_index : int</span>
+<span class="sd">        Activity index to start forecast from</span>
+<span class="sd">    start_time : str</span>
+<span class="sd">        Forecast start time in ISO format (e.g., &#39;2026-05-05 08:00&#39;)</span>
+<span class="sd">    duration_hours : float</span>
+<span class="sd">        Forecast duration in hours</span>
+<span class="sd">    output_path : Union[str, Path, None], optional</span>
+<span class="sd">        Path to output KML file, by default None</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    StationplanResult</span>
+<span class="sd">        Result object with success status, message, and output path</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+        <span class="n">schedule_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">schedule_file</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">schedule_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span>
+                <span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Schedule file not found: </span><span class="si">{</span><span class="n">schedule_path</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.forecast.generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_forecast</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.forecast.reader</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_schedule</span>
+
+        <span class="c1"># Read schedule and generate forecast with proper time shifting</span>
+        <span class="n">schedule</span> <span class="o">=</span> <span class="n">read_schedule</span><span class="p">(</span><span class="n">schedule_file</span><span class="p">)</span>
+        <span class="n">forecast_activities_raw</span> <span class="o">=</span> <span class="n">generate_forecast</span><span class="p">(</span>
+            <span class="n">schedule</span><span class="p">,</span> <span class="n">start_index</span><span class="p">,</span> <span class="n">start_time</span><span class="p">,</span> <span class="n">duration_hours</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Convert forecast activities to the format expected by KML generation</span>
+        <span class="n">forecast_activities</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">forecast_activities_raw</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">9</span><span class="p">:</span>
+                <span class="p">(</span>
+                    <span class="n">index</span><span class="p">,</span>
+                    <span class="n">time</span><span class="p">,</span>
+                    <span class="n">category</span><span class="p">,</span>
+                    <span class="n">activity_type</span><span class="p">,</span>
+                    <span class="n">action</span><span class="p">,</span>
+                    <span class="n">duration</span><span class="p">,</span>
+                    <span class="n">latitude</span><span class="p">,</span>
+                    <span class="n">longitude</span><span class="p">,</span>
+                    <span class="n">name</span><span class="p">,</span>
+                <span class="p">)</span> <span class="o">=</span> <span class="n">activity</span>
+
+                <span class="c1"># Skip invalid coordinates</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">latitude</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">longitude</span><span class="p">):</span>
+                    <span class="k">continue</span>
+
+                <span class="c1"># Skip transit activities - only include scientific operations</span>
+                <span class="k">if</span> <span class="n">category</span> <span class="o">==</span> <span class="s2">&quot;transit&quot;</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="c1"># Create activity record compatible with KMLGenerator</span>
+                <span class="n">forecast_activities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+                        <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">latitude</span><span class="p">,</span>
+                        <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">longitude</span><span class="p">,</span>
+                        <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">time</span><span class="p">),</span>
+                        <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="n">category</span><span class="p">,</span>
+                        <span class="s2">&quot;activity_type&quot;</span><span class="p">:</span> <span class="n">activity_type</span><span class="p">,</span>
+                        <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="n">action</span><span class="p">,</span>
+                        <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="n">duration</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">forecast_activities</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span>
+                <span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;No scientific activities found in forecast window starting from index </span><span class="si">{</span><span class="n">start_index</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">duration_hours</span><span class="si">}</span><span class="s2"> hours&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Create a minimal cruise config for KML generation</span>
+        <span class="k">class</span><span class="w"> </span><span class="nc">MockCruiseConfig</span><span class="p">:</span>
+            <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cruise_name</span> <span class="o">=</span> <span class="n">schedule_path</span><span class="o">.</span><span class="n">stem</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Forecast starting from </span><span class="si">{</span><span class="n">start_time</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">duration_hours</span><span class="si">}</span><span class="s2">h&quot;</span>
+                <span class="p">)</span>
+
+        <span class="n">mock_config</span> <span class="o">=</span> <span class="n">MockCruiseConfig</span><span class="p">()</span>
+
+        <span class="c1"># Convert to ActivityRecord-like objects for KMLGenerator</span>
+        <span class="k">class</span><span class="w"> </span><span class="nc">MockActivityRecord</span><span class="p">:</span>
+            <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+                <span class="c1"># Convert to dict access for KML generator compatibility</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+
+            <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+            <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
+
+        <span class="n">activity_records</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">MockActivityRecord</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span> <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">forecast_activities</span>
+        <span class="p">]</span>
+
+        <span class="c1"># Determine output path</span>
+        <span class="k">if</span> <span class="n">output_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">output_file</span> <span class="o">=</span> <span class="n">schedule_path</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">schedule_path</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_forecast.kml&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+
+        <span class="c1"># Generate KML</span>
+        <span class="n">generator</span> <span class="o">=</span> <span class="n">KMLGenerator</span><span class="p">()</span>
+        <span class="n">output_file</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">generate_schedule_kml</span><span class="p">(</span>
+            <span class="n">mock_config</span><span class="p">,</span> <span class="n">activity_records</span><span class="p">,</span> <span class="n">output_file</span>
+        <span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Successfully generated KML forecast: </span><span class="si">{</span><span class="n">output_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Count activities</span>
+        <span class="n">activity_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">forecast_activities</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span>
+            <span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Generated </span><span class="si">{</span><span class="n">activity_count</span><span class="si">}</span><span class="s2"> activities in KML format&quot;</span><span class="p">,</span>
+            <span class="n">output</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">output_file</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Error generating KML forecast: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">error_msg</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="stationplan_forecast_png">
+<a class="viewcode-back" href="../../../api/cruiseplan.api.html#cruiseplan.api.stationplan_forecast_png">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">stationplan_forecast_png</span><span class="p">(</span>
+    <span class="n">schedule_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">start_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">start_time</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">duration_hours</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">bathy_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span>
+    <span class="n">bathy_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data/bathymetry&quot;</span><span class="p">,</span>
+    <span class="n">bathy_stride</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">12.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">),</span>
+    <span class="n">lat_bounds</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">lon_bounds</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StationplanResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate PNG map forecast from a cruise schedule for a specific time window.</span>
+
+<span class="sd">    Creates a static PNG map showing scientific operations within the specified</span>
+<span class="sd">    forecast period, using the same map generation system as &#39;cruiseplan schedule --format png&#39;</span>
+<span class="sd">    but filtered to show only work from the start-index for the specified duration.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    schedule_file : Union[str, Path]</span>
+<span class="sd">        Path to the NetCDF schedule file</span>
+<span class="sd">    start_index : int</span>
+<span class="sd">        Activity index to start forecast from</span>
+<span class="sd">    start_time : str</span>
+<span class="sd">        Forecast start time in ISO format (e.g., &#39;2026-05-05 08:00&#39;)</span>
+<span class="sd">    duration_hours : float</span>
+<span class="sd">        Forecast duration in hours</span>
+<span class="sd">    output_path : Union[str, Path, None], optional</span>
+<span class="sd">        Path to output PNG file, by default None</span>
+<span class="sd">    bathy_source : str, optional</span>
+<span class="sd">        Bathymetry dataset to use, by default &quot;etopo2022&quot;</span>
+<span class="sd">    bathy_dir : str, optional</span>
+<span class="sd">        Directory containing bathymetry data, by default &quot;data&quot;</span>
+<span class="sd">    bathy_stride : int, optional</span>
+<span class="sd">        Bathymetry contour stride, by default 10</span>
+<span class="sd">    figsize : tuple[float, float], optional</span>
+<span class="sd">        Figure size in inches, by default (12.0, 8.0)</span>
+<span class="sd">    lat_bounds : list[float], optional</span>
+<span class="sd">        Latitude bounds [min, max], by default None</span>
+<span class="sd">    lon_bounds : list[float], optional</span>
+<span class="sd">        Longitude bounds [min, max], by default None</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    StationplanResult</span>
+<span class="sd">        Result object with success status, message, and output path</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.forecast.generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_forecast</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.forecast.reader</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_schedule</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.map_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_map_from_timeline</span>
+
+        <span class="n">schedule_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">schedule_file</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">schedule_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span>
+                <span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Schedule file not found: </span><span class="si">{</span><span class="n">schedule_path</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Generating PNG forecast from </span><span class="si">{</span><span class="n">schedule_path</span><span class="si">}</span><span class="s2"> starting at index </span><span class="si">{</span><span class="n">start_index</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Read schedule and generate forecast with time shifting</span>
+        <span class="n">schedule</span> <span class="o">=</span> <span class="n">read_schedule</span><span class="p">(</span><span class="n">schedule_path</span><span class="p">)</span>
+        <span class="n">forecast_activities</span> <span class="o">=</span> <span class="n">generate_forecast</span><span class="p">(</span>
+            <span class="n">schedule</span><span class="p">,</span> <span class="n">start_index</span><span class="p">,</span> <span class="n">start_time</span><span class="p">,</span> <span class="n">duration_hours</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">forecast_activities</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span>
+                <span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;No activities found in forecast window (</span><span class="si">{</span><span class="n">duration_hours</span><span class="si">}</span><span class="s2">h from </span><span class="si">{</span><span class="n">start_time</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+                <span class="n">output</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Convert forecast activities to timeline format compatible with map generator</span>
+        <span class="c1"># The map generator expects timeline data similar to what comes from the scheduler</span>
+        <span class="n">timeline_for_map</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">activity_tuple</span> <span class="ow">in</span> <span class="n">forecast_activities</span><span class="p">:</span>
+            <span class="p">(</span>
+                <span class="n">index</span><span class="p">,</span>
+                <span class="n">time</span><span class="p">,</span>
+                <span class="n">category</span><span class="p">,</span>
+                <span class="n">activity_type</span><span class="p">,</span>
+                <span class="n">action</span><span class="p">,</span>
+                <span class="n">duration</span><span class="p">,</span>
+                <span class="n">latitude</span><span class="p">,</span>
+                <span class="n">longitude</span><span class="p">,</span>
+                <span class="n">name</span><span class="p">,</span>
+            <span class="p">)</span> <span class="o">=</span> <span class="n">activity_tuple</span>
+
+            <span class="c1"># Skip transit activities for map visualization (focus on science operations)</span>
+            <span class="k">if</span> <span class="n">category</span> <span class="o">==</span> <span class="s2">&quot;transit&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Create timeline record compatible with map generator</span>
+            <span class="c1"># The map generator extracts lat/lon and labels from these records</span>
+            <span class="n">timeline_record</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="n">category</span><span class="p">,</span>
+                <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+                <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">latitude</span><span class="p">),</span>  <span class="c1"># Map generator expects &quot;lat&quot;, not &quot;entry_lat&quot;</span>
+                <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">longitude</span><span class="p">),</span>  <span class="c1"># Map generator expects &quot;lon&quot;, not &quot;entry_lon&quot;</span>
+                <span class="s2">&quot;entry_lat&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">latitude</span><span class="p">),</span>
+                <span class="s2">&quot;entry_lon&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">longitude</span><span class="p">),</span>
+                <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="n">time</span><span class="p">,</span>
+                <span class="s2">&quot;duration_minutes&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span> <span class="o">*</span> <span class="mf">60.0</span><span class="p">,</span>
+                <span class="s2">&quot;operation_class&quot;</span><span class="p">:</span> <span class="s2">&quot;PointOperation&quot;</span><span class="p">,</span>  <span class="c1"># Simplified for forecast map</span>
+                <span class="s2">&quot;leg_name&quot;</span><span class="p">:</span> <span class="s2">&quot;forecast&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;op_type&quot;</span><span class="p">:</span> <span class="n">activity_type</span><span class="p">,</span>
+            <span class="p">}</span>
+
+            <span class="c1"># Add operation depth and water depth if available from schedule</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">&quot;water_depth&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+                    <span class="n">depth_val</span> <span class="o">=</span> <span class="n">schedule</span><span class="o">.</span><span class="n">water_depth</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">depth_val</span><span class="p">)):</span>
+                        <span class="n">timeline_record</span><span class="p">[</span><span class="s2">&quot;water_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">depth_val</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="s2">&quot;operation_depth&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+                    <span class="n">op_depth_val</span> <span class="o">=</span> <span class="n">schedule</span><span class="o">.</span><span class="n">operation_depth</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">op_depth_val</span><span class="p">)):</span>
+                        <span class="n">timeline_record</span><span class="p">[</span><span class="s2">&quot;operation_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">op_depth_val</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>  <span class="c1"># Skip if depth data unavailable</span>
+
+            <span class="n">timeline_for_map</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">timeline_record</span><span class="p">)</span>
+
+        <span class="c1"># Determine output path</span>
+        <span class="k">if</span> <span class="n">output_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">output_file</span> <span class="o">=</span> <span class="n">schedule_path</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">schedule_path</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_forecast.png&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">output_file</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;.tex&quot;</span><span class="p">,</span> <span class="s2">&quot;.kml&quot;</span><span class="p">]:</span>
+                <span class="n">output_file</span> <span class="o">=</span> <span class="n">output_file</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;.png&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Generate PNG map using the same function as cruiseplan schedule</span>
+        <span class="n">map_file</span> <span class="o">=</span> <span class="n">generate_map_from_timeline</span><span class="p">(</span>
+            <span class="n">timeline</span><span class="o">=</span><span class="n">timeline_for_map</span><span class="p">,</span>
+            <span class="n">output_file</span><span class="o">=</span><span class="n">output_file</span><span class="p">,</span>
+            <span class="n">bathy_source</span><span class="o">=</span><span class="n">bathy_source</span><span class="p">,</span>
+            <span class="n">bathy_dir</span><span class="o">=</span><span class="n">bathy_dir</span><span class="p">,</span>
+            <span class="n">bathy_stride</span><span class="o">=</span><span class="n">bathy_stride</span><span class="p">,</span>
+            <span class="n">lat_bounds</span><span class="o">=</span><span class="n">lat_bounds</span><span class="p">,</span>
+            <span class="n">lon_bounds</span><span class="o">=</span><span class="n">lon_bounds</span><span class="p">,</span>
+            <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span>
+            <span class="n">no_ports</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Focus on operations, not ports for forecast</span>
+            <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># No cruise config needed for forecast</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">map_file</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Successfully generated PNG forecast map: </span><span class="si">{</span><span class="n">map_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">activity_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">timeline_for_map</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span>
+                <span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Generated PNG forecast map with </span><span class="si">{</span><span class="n">activity_count</span><span class="si">}</span><span class="s2"> activities&quot;</span><span class="p">,</span>
+                <span class="n">output</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">map_file</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span>
+                <span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">message</span><span class="o">=</span><span class="s2">&quot;PNG map generation failed&quot;</span><span class="p">,</span>
+                <span class="n">output</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Error generating PNG forecast: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">error_msg</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

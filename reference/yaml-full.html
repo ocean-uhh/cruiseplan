@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>YAML Configuration Reference &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev48</title>
+  <title>YAML Configuration Reference &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev49</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=5fc40100"></script>
+      <script src="../_static/documentation_options.js?v=fbbc8519"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -80,6 +80,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#operation-types">Operation Types</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#overriding-calculated-duration">Overriding Calculated Duration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#repeat-stations">Repeat Stations</a></li>
 </ul>
 </li>
@@ -160,13 +161,14 @@
 </li>
 <li><p><a class="reference internal" href="#operation-types" id="id21">Operation Types</a></p>
 <ul>
-<li><p><a class="reference internal" href="#repeat-stations" id="id22">Repeat Stations</a></p></li>
+<li><p><a class="reference internal" href="#overriding-calculated-duration" id="id22">Overriding Calculated Duration</a></p></li>
+<li><p><a class="reference internal" href="#repeat-stations" id="id23">Repeat Stations</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#validation-rules" id="id23">Validation Rules</a></p></li>
-<li><p><a class="reference internal" href="#parameter-inheritance" id="id24">Parameter Inheritance</a></p></li>
-<li><p><a class="reference internal" href="#comments-and-documentation" id="id25">Comments and Documentation</a></p></li>
-<li><p><a class="reference internal" href="#file-processing" id="id26">File Processing</a></p></li>
+<li><p><a class="reference internal" href="#validation-rules" id="id24">Validation Rules</a></p></li>
+<li><p><a class="reference internal" href="#parameter-inheritance" id="id25">Parameter Inheritance</a></p></li>
+<li><p><a class="reference internal" href="#comments-and-documentation" id="id26">Comments and Documentation</a></p></li>
+<li><p><a class="reference internal" href="#file-processing" id="id27">File Processing</a></p></li>
 </ul>
 </nav>
 <section id="configuration-structure">
@@ -232,7 +234,7 @@
 <span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CTD</span><span class="w">          </span><span class="c1"># Operation category</span>
 <span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">profile</span><span class="w">              </span><span class="c1"># Specific action</span>
 <span class="w">    </span><span class="nt">water_depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3500</span><span class="w">            </span><span class="c1"># Water depth (auto-filled by &#39;process&#39;)</span>
-<span class="w">    </span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">45</span><span class="w">                 </span><span class="c1"># Time for operation in minutes</span>
+<span class="w">    </span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">45</span><span class="w">                 </span><span class="c1"># Override cast time in minutes (suppresses depth-based calculation)</span>
 <span class="w">    </span><span class="nt">comment</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Deep</span><span class="nv"> </span><span class="s">water</span><span class="nv"> </span><span class="s">station&quot;</span>
 </pre></div>
 </div>
@@ -405,8 +407,28 @@
 </tr>
 </tbody>
 </table>
+<section id="overriding-calculated-duration">
+<h3><a class="toc-backref" href="#id22" role="doc-backlink">Overriding Calculated Duration</a><a class="headerlink" href="#overriding-calculated-duration" title="Link to this heading"></a></h3>
+<p>Setting <code class="docutils literal notranslate"><span class="pre">duration:</span> <span class="pre">&lt;value&gt;</span></code> (in <strong>minutes</strong>) on any point operation overrides
+the depth-based cast time calculation entirely.  This is useful when a station
+requires a non-standard instrument configuration, a fixed time budget, or
+must match a pre-agreed slot in a joint cruise plan:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">points</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STN_001&quot;</span>
+<span class="w">    </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.0</span>
+<span class="w">    </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-30.0</span>
+<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CTD</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">profile</span>
+<span class="w">    </span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120</span><span class="w">     </span><span class="c1"># 2-hour cast regardless of water depth</span>
+</pre></div>
+</div>
+<p>When <code class="docutils literal notranslate"><span class="pre">duration</span></code> is set, the enrichment step will not overwrite it.  Omitting
+<code class="docutils literal notranslate"><span class="pre">duration</span></code> (or setting it to 0) restores depth-based calculation.</p>
+<p>All time fields in YAML are in <strong>minutes</strong>: <code class="docutils literal notranslate"><span class="pre">duration</span></code>, <code class="docutils literal notranslate"><span class="pre">turnaround_time</span></code>,
+<code class="docutils literal notranslate"><span class="pre">delay_start</span></code>, and <code class="docutils literal notranslate"><span class="pre">buffer_time</span></code>.</p>
+</section>
 <section id="repeat-stations">
-<h3><a class="toc-backref" href="#id22" role="doc-backlink">Repeat Stations</a><a class="headerlink" href="#repeat-stations" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id23" role="doc-backlink">Repeat Stations</a><a class="headerlink" href="#repeat-stations" title="Link to this heading"></a></h3>
 <p>The same activity name may appear more than once in an <code class="docutils literal notranslate"><span class="pre">activities</span></code> list.
 Each occurrence is scheduled as a separate, independent operation — the
 scheduler looks up the definition by name on every pass with no
@@ -442,7 +464,7 @@ each occupation a distinct name:</p>
 </section>
 </section>
 <section id="validation-rules">
-<h2><a class="toc-backref" href="#id23" role="doc-backlink">Validation Rules</a><a class="headerlink" href="#validation-rules" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id24" role="doc-backlink">Validation Rules</a><a class="headerlink" href="#validation-rules" title="Link to this heading"></a></h2>
 <p>CruisePlan validates configurations with these rules:</p>
 <ul class="simple">
 <li><p><strong>Unique names</strong>: All point, line, and area definitions must have unique
@@ -455,7 +477,7 @@ an <code class="docutils literal notranslate"><span class="pre">activities</span
 </ul>
 </section>
 <section id="parameter-inheritance">
-<h2><a class="toc-backref" href="#id24" role="doc-backlink">Parameter Inheritance</a><a class="headerlink" href="#parameter-inheritance" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id25" role="doc-backlink">Parameter Inheritance</a><a class="headerlink" href="#parameter-inheritance" title="Link to this heading"></a></h2>
 <p>Parameters cascade from cruise → leg → cluster → operation:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Cruise level (applied to all)</span>
 <span class="nt">vessel_speed_kt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.0</span>
@@ -473,7 +495,7 @@ an <code class="docutils literal notranslate"><span class="pre">activities</span
 </div>
 </section>
 <section id="comments-and-documentation">
-<h2><a class="toc-backref" href="#id25" role="doc-backlink">Comments and Documentation</a><a class="headerlink" href="#comments-and-documentation" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id26" role="doc-backlink">Comments and Documentation</a><a class="headerlink" href="#comments-and-documentation" title="Link to this heading"></a></h2>
 <p>Add comments to document your configuration:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">points</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD_001&quot;</span>
@@ -489,7 +511,7 @@ an <code class="docutils literal notranslate"><span class="pre">activities</span
 </div>
 </section>
 <section id="file-processing">
-<h2><a class="toc-backref" href="#id26" role="doc-backlink">File Processing</a><a class="headerlink" href="#file-processing" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id27" role="doc-backlink">File Processing</a><a class="headerlink" href="#file-processing" title="Link to this heading"></a></h2>
 <p>CruisePlan processes files in this sequence:</p>
 <ol class="arabic simple">
 <li><p><strong>Parse YAML</strong>: Load and validate syntax</p></li>

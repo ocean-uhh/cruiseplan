@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev48</title>
+  <title>Index &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev49</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=5fc40100"></script>
+      <script src="_static/documentation_options.js?v=fbbc8519"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1466,6 +1466,8 @@
 </li>
       <li><a href="api/cruiseplan.data.html#cruiseplan.data.pangaea.merge_campaign_tracks">merge_campaign_tracks() (in module cruiseplan.data.pangaea)</a>
 </li>
+      <li><a href="api/cruiseplan.api.html#cruiseplan.api.StationplanResult.message">message (cruiseplan.api.StationplanResult attribute)</a>
+</li>
       <li><a href="api/cruiseplan.config.html#cruiseplan.config.values.ActionEnum.MICROSTRUCTURE">MICROSTRUCTURE (cruiseplan.config.values.ActionEnum attribute)</a>
 </li>
       <li><a href="api/cruiseplan.utils.html#cruiseplan.utils.units.minutes_to_days">minutes_to_days() (in module cruiseplan.utils.units)</a>
@@ -1683,10 +1685,10 @@
         <li><a href="api/cruiseplan.config.html#cruiseplan.config.activities.PointDefinition.operation_type">(cruiseplan.config.activities.PointDefinition attribute)</a>, <a href="api/cruiseplan.config.html#id27">[1]</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cruiseplan.timeline.html#cruiseplan.timeline.scheduler.OperationCoordinates">OperationCoordinates (class in cruiseplan.timeline.scheduler)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cruiseplan.timeline.html#cruiseplan.timeline.scheduler.OperationFactory">OperationFactory (class in cruiseplan.timeline.scheduler)</a>
 </li>
       <li><a href="api/cruiseplan.runtime.html#cruiseplan.runtime.organizational.Cluster.operations">operations (cruiseplan.runtime.organizational.Cluster attribute)</a>
@@ -1709,6 +1711,8 @@
         <li><a href="api/cruiseplan.runtime.html#cruiseplan.runtime.organizational.Leg.ordered">(cruiseplan.runtime.organizational.Leg attribute)</a>
 </li>
       </ul></li>
+      <li><a href="api/cruiseplan.api.html#cruiseplan.api.StationplanResult.output">output (cruiseplan.api.StationplanResult attribute)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -1863,8 +1867,6 @@
 </li>
       <li><a href="api/cruiseplan.utils.html#cruiseplan.utils.cache.CacheManager.set">set() (cruiseplan.utils.cache.CacheManager method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cruiseplan.interactive.html#cruiseplan.interactive.widgets.ModeIndicator.set_mode">set_mode() (cruiseplan.interactive.widgets.ModeIndicator method)</a>
 </li>
       <li><a href="api/cruiseplan.utils.html#cruiseplan.utils.io.setup_output_paths">setup_output_paths() (in module cruiseplan.utils.io)</a>
@@ -1875,6 +1877,8 @@
 </li>
       <li><a href="api/cruiseplan.config.html#cruiseplan.config.values.StrategyEnum.SPATIAL_INTERLEAVED">SPATIAL_INTERLEAVED (cruiseplan.config.values.StrategyEnum attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cruiseplan.runtime.html#cruiseplan.runtime.operations.LineOperation.speed">speed (cruiseplan.runtime.operations.LineOperation attribute)</a>
 </li>
       <li><a href="api/cruiseplan.config.html#cruiseplan.config.cruise_config.CruiseConfig.start_date">start_date (cruiseplan.config.cruise_config.CruiseConfig attribute)</a>, <a href="api/cruiseplan.config.html#id51">[1]</a>
@@ -1893,6 +1897,22 @@
         <li><a href="api/cruiseplan.api.html#cruiseplan.api.types.StationPickerResult">(class in cruiseplan.api.types)</a>
 </li>
       </ul></li>
+      <li><a href="api/cruiseplan.api.html#cruiseplan.api.stationplan_forecast">stationplan_forecast() (in module cruiseplan.api)</a>
+</li>
+      <li><a href="api/cruiseplan.api.html#cruiseplan.api.stationplan_forecast_kml">stationplan_forecast_kml() (in module cruiseplan.api)</a>
+</li>
+      <li><a href="api/cruiseplan.api.html#cruiseplan.api.stationplan_forecast_png">stationplan_forecast_png() (in module cruiseplan.api)</a>
+</li>
+      <li><a href="api/cruiseplan.api.html#cruiseplan.api.stationplan_forecast_tex">stationplan_forecast_tex() (in module cruiseplan.api)</a>
+</li>
+      <li><a href="api/cruiseplan.api.html#cruiseplan.api.stationplan_list">stationplan_list() (in module cruiseplan.api)</a>
+</li>
+      <li><a href="api/cruiseplan.api.html#cruiseplan.api.stationplan_tex">stationplan_tex() (in module cruiseplan.api)</a>
+</li>
+      <li><a href="api/cruiseplan.api.html#cruiseplan.api.stationplan_waypoints">stationplan_waypoints() (in module cruiseplan.api)</a>
+</li>
+      <li><a href="api/cruiseplan.api.html#cruiseplan.api.StationplanResult">StationplanResult (class in cruiseplan.api)</a>
+</li>
       <li><a href="api/cruiseplan.api.html#cruiseplan.api.stations">stations() (in module cruiseplan.api)</a>
 
       <ul>
@@ -1922,6 +1942,8 @@
 </li>
       </ul></li>
       <li><a href="api/cruiseplan.config.html#cruiseplan.config.values.StrategyEnum">StrategyEnum (class in cruiseplan.config.values)</a>
+</li>
+      <li><a href="api/cruiseplan.api.html#cruiseplan.api.StationplanResult.success">success (cruiseplan.api.StationplanResult attribute)</a>
 </li>
       <li><a href="api/cruiseplan.config.html#cruiseplan.config.values.AreaOperationTypeEnum.SURVEY">SURVEY (cruiseplan.config.values.AreaOperationTypeEnum attribute)</a>
 </li>
