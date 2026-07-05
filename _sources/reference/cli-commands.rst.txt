@@ -199,7 +199,7 @@ Validate cruise configuration.
 
 .. code-block:: bash
 
-   cruiseplan validate [-h] -c CONFIG_FILE [--check-depths] [--tolerance TOLERANCE]
+   cruiseplan validate [-h] -c CONFIG_FILE [--no-depth-check] [--tolerance TOLERANCE]
 
 cruiseplan map
 --------------

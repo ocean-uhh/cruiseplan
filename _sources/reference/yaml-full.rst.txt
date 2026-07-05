@@ -248,12 +248,53 @@ Standard operation types with default durations:
      - 15 min
      - Expendable temperature probe
 
+Repeat Stations
+---------------
+
+The same activity name may appear more than once in an ``activities`` list.
+Each occurrence is scheduled as a separate, independent operation — the
+scheduler looks up the definition by name on every pass with no
+deduplication.  Back-to-back repeats require no extra configuration:
+
+.. code-block:: yaml
+
+   legs:
+     - name: "leg1"
+       activities: ["STN_001", "STN_001"]   # two consecutive casts at the same location
+
+For time-series stations where a gap between occupations is needed, define
+separate entries with the same coordinates and set ``delay_start`` on the
+later ones.  ``delay_start`` is part of the point definition and is shared
+by every reference to that name, so a gap can only be expressed by giving
+each occupation a distinct name:
+
+.. code-block:: yaml
+
+   points:
+     - name: "STN_001_t0"
+       latitude: 60.0
+       longitude: -20.0
+       operation_type: CTD
+       # no delay_start — departs immediately
+
+     - name: "STN_001_t6"
+       latitude: 60.0
+       longitude: -20.0
+       operation_type: CTD
+       delay_start: 360    # 6-hour hold before this occupation (minutes)
+
+   legs:
+     - name: "leg1"
+       activities: ["STN_001_t0", "STN_001_t6"]
+
 Validation Rules
 ================
 
 CruisePlan validates configurations with these rules:
 
-- **Unique names**: All operation names must be unique
+- **Unique names**: All point, line, and area definitions must have unique
+  names within their catalog.  The same name *may* appear multiple times in
+  an ``activities`` list (see Repeat Stations above).
 - **Valid coordinates**: Lat/lon within valid ranges
 - **Date format**: ISO format YYYY-MM-DD
 - **Positive durations**: Times must be > 0

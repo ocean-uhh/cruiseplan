@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.cli.main &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev47</title>
+  <title>cruiseplan.cli.main &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev48</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=b7dea2c2"></script>
+      <script src="../../../_static/documentation_options.js?v=5fc40100"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -200,7 +200,7 @@
 <span class="s2">  cruiseplan pangaea &quot;CTD temperature&quot; --lat 50 60 --lon -50 -30</span>
 <span class="s2">  cruiseplan stations --lat 50 65 --lon -60 -30</span>
 <span class="s2">  cruiseplan enrich -c cruise.yaml --add-depths --add-coords</span>
-<span class="s2">  cruiseplan validate -c cruise.yaml --check-depths</span>
+<span class="s2">  cruiseplan validate -c cruise.yaml</span>
 <span class="s2">  cruiseplan schedule -c cruise.yaml -o results/</span>
 <span class="s2">  cruiseplan map -c cruise.yaml --figsize 14 10</span>
 
@@ -568,9 +568,10 @@
 
     <span class="c1"># Primary operation flags</span>
     <span class="n">validate_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--check-depths&quot;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Compare existing depths with bathymetry data&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--no-depth-check&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_false&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;check_depths&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Skip comparison of existing depths with bathymetry data&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">validate_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--tolerance&quot;</span><span class="p">,</span>
@@ -766,17 +767,18 @@
 
 <span class="s2">Key Features:</span>
 <span class="s2">- Smart defaults: All enrichment options enabled by default</span>
-<span class="s2">- Flexible execution: Control which steps run with --only-* and --no-* flags</span>
+<span class="s2">- Flexible execution: Control which steps run with --no-* flags</span>
 <span class="s2">- Consistent output naming: Use --output for base filename across all files</span>
 <span class="s2">- Modern parameter names: Shorter --bathy-* parameters for reduced typing</span>
 
 <span class="s2">Examples:</span>
 <span class="s2">  cruiseplan process -c cruise.yaml                             # Full processing</span>
 <span class="s2">  cruiseplan process -c cruise.yaml --output expedition_2024   # Custom filename</span>
-<span class="s2">  cruiseplan process -c cruise.yaml --only-enrich --no-sections # Only enrichment</span>
-<span class="s2">  cruiseplan process -c cruise.yaml --only-validate --tolerance 5.0 # Validation</span>
-<span class="s2">  cruiseplan process -c cruise.yaml --only-map --format png    # Only map generation</span>
-<span class="s2">  cruiseplan process -c cruise.yaml --no-map                   # Skip maps only</span>
+<span class="s2">  cruiseplan process -c cruise.yaml --no-map                   # Skip map generation</span>
+<span class="s2">  cruiseplan process -c cruise.yaml --no-validate              # Skip validation</span>
+<span class="s2">  cruiseplan enrich   -c cruise.yaml                           # Enrichment only</span>
+<span class="s2">  cruiseplan validate -c cruise.yaml                           # Validation only</span>
+<span class="s2">  cruiseplan map      -c cruise.yaml --format png              # Map only</span>
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="c1"># Required arguments</span>
@@ -788,23 +790,7 @@
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Input YAML configuration file&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="c1"># Primary operation flags</span>
-    <span class="c1"># Processing mode flags (mutually exclusive --only-* modes)</span>
-    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--only-enrich&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Only run enrichment step&quot;</span>
-    <span class="p">)</span>
-    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--only-validate&quot;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Only run validation step (no enrichment or map)&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--only-map&quot;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Only run map generation (no enrichment or validation)&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-
-    <span class="c1"># Processing step control flags (for full processing mode)</span>
+    <span class="c1"># Processing step control flags</span>
     <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--no-enrich&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Skip enrichment step&quot;</span>
     <span class="p">)</span>
@@ -831,12 +817,6 @@
         <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Skip expanding CTD sections (default: sections expanded)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--no-ports&quot;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Skip expanding port references (default: ports expanded)&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-
     <span class="c1"># Validation options</span>
     <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--no-depth-check&quot;</span><span class="p">,</span>
