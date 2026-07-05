@@ -221,6 +221,13 @@ def expand_sections(
             logger.warning(f"No valid route for section {section_name}")
             continue
 
+        if distance_km <= 0:
+            logger.warning(
+                f"Invalid distance_between_stations ({distance_km} km) for section "
+                f"{section_name}; skipping expansion"
+            )
+            continue
+
         # Validate all waypoint coordinates
         waypoints = []
         coords_valid = True

@@ -1001,13 +1001,13 @@ def stationplan_forecast_png(
     output_path : Union[str, Path, None], optional
         Path to output PNG file, by default None
     bathy_source : str, optional
-        Bathymetry dataset to use, by default "etopo2022"
+        Bathymetry dataset to use, by default "gebco2025"
     bathy_dir : str, optional
-        Directory containing bathymetry data, by default "data"
+        Directory containing bathymetry data, by default "data/bathymetry"
     bathy_stride : int, optional
-        Bathymetry contour stride, by default 10
+        Bathymetry grid downsampling factor, by default 10
     figsize : tuple[float, float], optional
-        Figure size in inches, by default (12.0, 8.0)
+        Figure size in inches, by default (10.0, 8.1)
     lat_bounds : list[float], optional
         Latitude bounds [min, max], by default None
     lon_bounds : list[float], optional

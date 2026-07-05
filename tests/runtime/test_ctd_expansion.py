@@ -442,3 +442,59 @@ class TestCTDExpansionEdgeCases:
         # Should work with standard coordinate keys
         assert summary["sections_expanded"] == 1
         assert summary["stations_from_expansion"] >= 2
+
+    def test_expand_three_waypoint_section(self):
+        """Intermediate route waypoints must always become stations.
+
+        A section A→B→C must place a station exactly at B regardless of the
+        chosen spacing, so the track bend is marked on the map.
+        """
+        # Three waypoints with a clear bend at B(51, -31)
+        config = {
+            "cruise_name": "Test Cruise",
+            LINES_FIELD: [
+                {
+                    "name": "Bent Section",
+                    OP_TYPE_FIELD: "CTD",
+                    ACTION_FIELD: "section",
+                    LINE_VERTEX_FIELD: [
+                        {"latitude": 50.0, "longitude": -30.0},  # A
+                        {"latitude": 51.0, "longitude": -31.0},  # B — bend
+                        {"latitude": 52.0, "longitude": -32.0},  # C
+                    ],
+                    STATION_SPACING_FIELD: 80.0,
+                }
+            ],
+            LEGS_FIELD: [
+                {
+                    "name": "Test Leg",
+                    DEPARTURE_PORT_FIELD: "test_port",
+                    ARRIVAL_PORT_FIELD: "test_port",
+                    ACTIVITIES_FIELD: ["Bent Section"],
+                }
+            ],
+        }
+
+        cruise = CruiseInstance.from_dict(config)
+        summary = cruise.expand_sections()
+        result_config = cruise.to_commented_dict()
+
+        assert summary["sections_expanded"] == 1
+        assert summary["stations_from_expansion"] >= 3
+
+        stations = result_config[POINTS_FIELD]
+        lats = [s["latitude"] for s in stations]
+        lons = [s["longitude"] for s in stations]
+
+        # Waypoint B must be an exact station (local_f=0 at segment start)
+        b_present = any(
+            abs(lat - 51.0) < 1e-5 and abs(lon - (-31.0)) < 1e-5
+            for lat, lon in zip(lats, lons)
+        )
+        assert b_present, "Intermediate waypoint B(51, -31) must be a station"
+
+        # First station must be at A, last at C
+        assert abs(lats[0] - 50.0) < 1e-5
+        assert abs(lons[0] - (-30.0)) < 1e-5
+        assert abs(lats[-1] - 52.0) < 1e-5
+        assert abs(lons[-1] - (-32.0)) < 1e-5
