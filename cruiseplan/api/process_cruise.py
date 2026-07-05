@@ -1105,7 +1105,7 @@ def process_with_config(
         format=config.output.format,
         bathy_stride=config.bathymetry.stride,
         figsize=config.visualization.figsize,
-        no_port_map=not config.visualization.include_ports,
+        no_ports=not config.visualization.include_ports,
         verbose=config.output.verbose,
     )
 
@@ -1129,7 +1129,7 @@ def process(
     lat_bounds: list | None = None,
     lon_bounds: list | None = None,
     figsize: list | None = None,
-    no_port_map: bool = False,
+    no_ports: bool = False,
     no_title: bool = False,
     no_labels: bool = False,
     no_legend: bool = False,
@@ -1168,13 +1168,13 @@ def process(
     tolerance : float
         Depth difference tolerance in percent for validation (default: 10.0)
     format : str
-        Map output format(s): "png", "pdf", "all" (default: "all")
+        Map output format(s): "png", "kml", "all" (default: "all")
     bathy_stride : int
         Bathymetry contour stride for maps (default: 10)
     figsize : list, optional
         Figure size for maps [width, height] (default: auto)
-    no_port_map : bool
-        Skip port overview map generation (default: False)
+    no_ports : bool
+        Suppress plotting of departure and arrival ports on maps (default: False)
     no_title : bool
         Omit the map title from PNG output (default: False)
     no_labels : bool
@@ -1199,6 +1199,12 @@ def process(
     >>> result = cruiseplan.process("cruise.yaml", run_map_generation=False, depth_check=False)
     """
     configure_logging(verbose)
+
+    valid_formats = {"png", "kml", "all"}
+    if format is not None and format not in valid_formats:
+        raise ValueError(
+            f"Invalid format {format!r}. Must be one of: {sorted(valid_formats)}"
+        )
 
     logger.info(f"🚀 Processing cruise configuration: {config_file}")
 
@@ -1270,7 +1276,7 @@ def process(
                 lat_bounds=lat_bounds,
                 lon_bounds=lon_bounds,
                 figsize=figsize,
-                no_ports=no_port_map,
+                no_ports=no_ports,
                 no_title=no_title,
                 no_labels=no_labels,
                 no_legend=no_legend,

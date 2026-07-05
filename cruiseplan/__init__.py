@@ -49,6 +49,7 @@ For more advanced usage, import the underlying classes directly:
 import logging
 
 from cruiseplan.api import (
+    StationplanResult,
     bathymetry,
     bathymetry_with_config,
     enrich,
@@ -61,6 +62,13 @@ from cruiseplan.api import (
     process_with_config,
     schedule,
     schedule_with_config,
+    stationplan_forecast,
+    stationplan_forecast_kml,
+    stationplan_forecast_png,
+    stationplan_forecast_tex,
+    stationplan_list,
+    stationplan_tex,
+    stationplan_waypoints,
     stations,
     stations_with_config,
     validate,

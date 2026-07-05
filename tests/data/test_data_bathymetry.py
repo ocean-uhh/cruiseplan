@@ -232,7 +232,9 @@ def test_download_bathymetry_success_path(
     mock_path_instance = MagicMock()
     mock_open.return_value.__enter__.return_value = mock_path_instance
 
-    bathy_module.download_bathymetry(target_dir=str(temp_output_dir), source="etopo2022")
+    bathy_module.download_bathymetry(
+        target_dir=str(temp_output_dir), source="etopo2022"
+    )
 
     # Assert successful calls
     mock_requests_get.assert_called_once()
@@ -261,7 +263,9 @@ def test_download_bathymetry_failure_cleanup_and_fallback(
 
     # We must patch Path.exists inside the function call logic.
     with patch("builtins.print") as mock_print:
-        bathy_module.download_bathymetry(target_dir=str(temp_output_dir), source="etopo2022")
+        bathy_module.download_bathymetry(
+            target_dir=str(temp_output_dir), source="etopo2022"
+        )
 
     # Assert requests were made to both URLs
     assert mock_requests_get.call_count == 2

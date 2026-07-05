@@ -80,7 +80,7 @@ Optional Fields
        operation_type: CTD          # Operation category
        action: profile              # Specific action
        water_depth: 3500            # Water depth (auto-filled by 'process')
-       duration: 45                 # Time for operation in minutes
+       duration: 45                 # Override cast time in minutes (suppresses depth-based calculation)
        comment: "Deep water station"
 
 Line Operations
@@ -247,6 +247,30 @@ Standard operation types with default durations:
    * - ``xbt``
      - 15 min
      - Expendable temperature probe
+
+Overriding Calculated Duration
+------------------------------
+
+Setting ``duration: <value>`` (in **minutes**) on any point operation overrides
+the depth-based cast time calculation entirely.  This is useful when a station
+requires a non-standard instrument configuration, a fixed time budget, or
+must match a pre-agreed slot in a joint cruise plan:
+
+.. code-block:: yaml
+
+   points:
+     - name: "STN_001"
+       latitude: 60.0
+       longitude: -30.0
+       operation_type: CTD
+       action: profile
+       duration: 120     # 2-hour cast regardless of water depth
+
+When ``duration`` is set, the enrichment step will not overwrite it.  Omitting
+``duration`` (or setting it to 0) restores depth-based calculation.
+
+All time fields in YAML are in **minutes**: ``duration``, ``turnaround_time``,
+``delay_start``, and ``buffer_time``.
 
 Repeat Stations
 ---------------

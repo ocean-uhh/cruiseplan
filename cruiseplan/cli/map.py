@@ -125,7 +125,9 @@ if __name__ == "__main__":
         default="gebco2025",
         help="Bathymetry data source (default: gebco2025)",
     )
-    parser.add_argument("--bathy-dir", default="data/bathymetry", help="Bathymetry data directory")
+    parser.add_argument(
+        "--bathy-dir", default="data/bathymetry", help="Bathymetry data directory"
+    )
     parser.add_argument(
         "--bathy-stride",
         type=int,

@@ -250,8 +250,10 @@ class PointOperation(BaseOperation):
         """
         Calculate duration based on operation type and rules.
 
-        Uses manual duration if specified, otherwise calculates based on
-        operation type (CTD time for stations, default duration for moorings).
+        If ``manual_duration > 0`` (set via ``duration:`` in YAML, in minutes),
+        that value is returned immediately and all type-based calculations
+        (CTD cast time, mooring default, etc.) are skipped.  This is the
+        intended per-station override mechanism.
 
         Parameters
         ----------
@@ -263,7 +265,7 @@ class PointOperation(BaseOperation):
         float
             Duration in minutes.
         """
-        # Phase 2 Logic: Manual duration always wins
+        # Manual duration (from YAML `duration:` field, minutes) always wins.
         if self.manual_duration > 0:
             return self.manual_duration
 

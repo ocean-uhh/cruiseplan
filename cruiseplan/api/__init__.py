@@ -16,9 +16,20 @@ from .process_cruise import (
     validate_with_config,
 )
 from .schedule_cruise import schedule, schedule_with_config
+from .stationplan_api import (
+    StationplanResult,
+    stationplan_forecast,
+    stationplan_forecast_kml,
+    stationplan_forecast_png,
+    stationplan_forecast_tex,
+    stationplan_list,
+    stationplan_tex,
+    stationplan_waypoints,
+)
 from .stations_api import stations, stations_with_config
 
 __all__ = [
+    "StationplanResult",
     "bathymetry",
     "bathymetry_with_config",
     "enrich",
@@ -31,6 +42,13 @@ __all__ = [
     "process_with_config",
     "schedule",
     "schedule_with_config",
+    "stationplan_forecast",
+    "stationplan_forecast_kml",
+    "stationplan_forecast_png",
+    "stationplan_forecast_tex",
+    "stationplan_list",
+    "stationplan_tex",
+    "stationplan_waypoints",
     "stations",
     "stations_with_config",
     "validate",

@@ -93,7 +93,10 @@ if __name__ == "__main__":
         "--bathy-source", choices=["etopo2022", "gebco2025"], default="gebco2025"
     )
     parser.add_argument(
-        "--bathy-dir", type=Path, default=Path("data/bathymetry"), help="Bathymetry directory"
+        "--bathy-dir",
+        type=Path,
+        default=Path("data/bathymetry"),
+        help="Bathymetry directory",
     )
 
     args = parser.parse_args()

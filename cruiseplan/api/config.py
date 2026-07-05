@@ -286,6 +286,9 @@ class StationsConfig:
     bathy_dir: str = "data/bathymetry"
     """Directory containing bathymetry data"""
 
+    bathy_stride: int = 10
+    """Bathymetry grid downsampling factor (default: 10)"""
+
     overwrite: bool = False
     """Overwrite existing output files"""
 

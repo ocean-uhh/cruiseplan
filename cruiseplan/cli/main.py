@@ -162,6 +162,9 @@ Examples:
         default=DEFAULT_BATHY_SOURCE,
         help="Bathymetry dataset to download (default: gebco2025)",
     )
+    bathymetry_parser.add_argument(
+        "--verbose", "-v", action="store_true", help="Enable verbose logging"
+    )
 
     # --- 2. Schedule Subcommand ---
     schedule_parser = subparsers.add_parser(
@@ -283,6 +286,9 @@ Examples:
         action="store_true",
         help="Omit legend from PNG schedule maps",
     )
+    schedule_parser.add_argument(
+        "--verbose", "-v", action="store_true", help="Enable verbose logging"
+    )
 
     # --- 3. Stations Subcommand ---
     stations_parser = subparsers.add_parser(
@@ -361,8 +367,11 @@ Examples:
         "--max-depth",
         type=int,
         default=None,
-        metavar="DEPTH",
+        metavar="METRES",
         help="Maximum water depth (m) for the colour scale (e.g. 500 to focus on shelf seas)",
+    )
+    stations_parser.add_argument(
+        "--verbose", "-v", action="store_true", help="Enable verbose logging"
     )
 
     # --- 4. Enrich Subcommand ---
@@ -469,6 +478,9 @@ Examples:
         "--warnings-only",
         action="store_true",
         help="Show warnings without failing",
+    )
+    validate_parser.add_argument(
+        "--verbose", "-v", action="store_true", help="Enable verbose logging"
     )
 
     # --- 7. Map Subcommand ---
@@ -760,9 +772,9 @@ Examples:
         help="Figure size for PNG maps (width height, default: 12 8)",
     )
     process_parser.add_argument(
-        "--no-port-map",
+        "--no-ports",
         action="store_true",
-        help="Skip plotting ports on generated maps (default: ports plotted)",
+        help="Exclude ports from generated maps (default: ports plotted)",
     )
     process_parser.add_argument(
         "--no-title",
@@ -999,6 +1011,9 @@ Examples:
         type=float,
         metavar=("MIN", "MAX"),
         help="Longitude bounds for map extent (e.g., --lon -40 -20)",
+    )
+    stationplan_parser.add_argument(
+        "--verbose", "-v", action="store_true", help="Enable verbose logging"
     )
 
     # Parse args
