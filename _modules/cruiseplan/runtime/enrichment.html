@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.runtime.enrichment &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev50</title>
+  <title>cruiseplan.runtime.enrichment &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev51</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=1898e24b"></script>
+      <script src="../../../_static/documentation_options.js?v=bce06652"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -314,33 +314,55 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No valid route for section </span><span class="si">{</span><span class="n">section_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">continue</span>
 
-        <span class="n">start</span> <span class="o">=</span> <span class="n">route</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">end</span> <span class="o">=</span> <span class="n">route</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-
-        <span class="c1"># Extract coordinates from GeoPoint objects</span>
-        <span class="n">start_lat</span> <span class="o">=</span> <span class="n">start</span><span class="o">.</span><span class="n">latitude</span>
-        <span class="n">start_lon</span> <span class="o">=</span> <span class="n">start</span><span class="o">.</span><span class="n">longitude</span>
-        <span class="n">end_lat</span> <span class="o">=</span> <span class="n">end</span><span class="o">.</span><span class="n">latitude</span>
-        <span class="n">end_lon</span> <span class="o">=</span> <span class="n">end</span><span class="o">.</span><span class="n">longitude</span>
-
-        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">coord</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="p">[</span><span class="n">start_lat</span><span class="p">,</span> <span class="n">start_lon</span><span class="p">,</span> <span class="n">end_lat</span><span class="p">,</span> <span class="n">end_lon</span><span class="p">]):</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid coordinates for section </span><span class="si">{</span><span class="n">section_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">distance_km</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Invalid distance_between_stations (</span><span class="si">{</span><span class="n">distance_km</span><span class="si">}</span><span class="s2"> km) for section &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">section_name</span><span class="si">}</span><span class="s2">; skipping expansion&quot;</span>
+            <span class="p">)</span>
             <span class="k">continue</span>
 
-        <span class="n">total_distance_km</span> <span class="o">=</span> <span class="n">haversine_distance</span><span class="p">(</span>
-            <span class="p">(</span><span class="n">start_lat</span><span class="p">,</span> <span class="n">start_lon</span><span class="p">),</span> <span class="p">(</span><span class="n">end_lat</span><span class="p">,</span> <span class="n">end_lon</span><span class="p">)</span>
-        <span class="p">)</span>
-        <span class="n">num_stations</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">total_distance_km</span> <span class="o">/</span> <span class="n">distance_km</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># Validate all waypoint coordinates</span>
+        <span class="n">waypoints</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">coords_valid</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">for</span> <span class="n">wp</span> <span class="ow">in</span> <span class="n">route</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">coord</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="p">[</span><span class="n">wp</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">wp</span><span class="o">.</span><span class="n">longitude</span><span class="p">]):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid coordinates for section </span><span class="si">{</span><span class="n">section_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">coords_valid</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">break</span>
+            <span class="n">waypoints</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">wp</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">wp</span><span class="o">.</span><span class="n">longitude</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">coords_valid</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Compute per-segment distances</span>
+        <span class="n">segment_distances</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">haversine_distance</span><span class="p">(</span><span class="n">waypoints</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">waypoints</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">waypoints</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="c1"># Build the list of station positions segment by segment, so every</span>
+        <span class="c1"># route waypoint is always a station.  Each segment contributes</span>
+        <span class="c1"># int(seg_dist / spacing) intervals; the segment endpoint is excluded</span>
+        <span class="c1"># to avoid duplication with the next segment&#39;s start, except for the</span>
+        <span class="c1"># very last waypoint which is appended once at the end.</span>
+        <span class="n">station_positions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">seg_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">waypoints</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">lat1</span><span class="p">,</span> <span class="n">lon1</span> <span class="o">=</span> <span class="n">waypoints</span><span class="p">[</span><span class="n">seg_idx</span><span class="p">]</span>
+            <span class="n">lat2</span><span class="p">,</span> <span class="n">lon2</span> <span class="o">=</span> <span class="n">waypoints</span><span class="p">[</span><span class="n">seg_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">seg_dist</span> <span class="o">=</span> <span class="n">segment_distances</span><span class="p">[</span><span class="n">seg_idx</span><span class="p">]</span>
+            <span class="n">n_intervals</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">seg_dist</span> <span class="o">/</span> <span class="n">distance_km</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_intervals</span><span class="p">):</span>
+                <span class="n">local_f</span> <span class="o">=</span> <span class="n">k</span> <span class="o">/</span> <span class="n">n_intervals</span>
+                <span class="n">station_positions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">interpolate_great_circle_position</span><span class="p">(</span><span class="n">lat1</span><span class="p">,</span> <span class="n">lon1</span><span class="p">,</span> <span class="n">lat2</span><span class="p">,</span> <span class="n">lon2</span><span class="p">,</span> <span class="n">local_f</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="c1"># Always include the final waypoint</span>
+        <span class="n">station_positions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">waypoints</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">num_stations</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">station_positions</span><span class="p">)</span>
 
         <span class="c1"># Create station definitions for each calculated position</span>
         <span class="n">stations_created</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">station_names_created</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_stations</span><span class="p">):</span>
-            <span class="c1"># Calculate position along great circle route</span>
-            <span class="n">fraction</span> <span class="o">=</span> <span class="n">ii</span> <span class="o">/</span> <span class="p">(</span><span class="n">num_stations</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">num_stations</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">0</span>
-            <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span> <span class="o">=</span> <span class="n">interpolate_great_circle_position</span><span class="p">(</span>
-                <span class="n">start_lat</span><span class="p">,</span> <span class="n">start_lon</span><span class="p">,</span> <span class="n">end_lat</span><span class="p">,</span> <span class="n">end_lon</span><span class="p">,</span> <span class="n">fraction</span>
-            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">station_positions</span><span class="p">):</span>
 
             <span class="c1"># Generate unique station name (handle duplicates)</span>
             <span class="n">base_station_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2">_Stn</span><span class="si">{</span><span class="n">ii</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">&quot;</span>
