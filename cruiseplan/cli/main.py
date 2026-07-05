@@ -999,6 +999,40 @@ Examples:
         help="Figure size for PNG maps in inches (default: 10 8.1)",
     )
     stationplan_parser.add_argument(
+        "--max-depth",
+        type=int,
+        dest="max_depth",
+        default=None,
+        help="Maximum water depth (m) for the bathymetry colour scale. Example: --max-depth 1000",
+    )
+    stationplan_parser.add_argument(
+        "--bathy-contours",
+        nargs="+",
+        type=float,
+        dest="bathy_contours",
+        default=None,
+        metavar="DEPTH",
+        help="Explicit contour depths in metres (e.g. --bathy-contours 200 500 1000 2000)",
+    )
+    stationplan_parser.add_argument(
+        "--no-title",
+        action="store_true",
+        dest="no_title",
+        help="Suppress the map title",
+    )
+    stationplan_parser.add_argument(
+        "--no-labels",
+        action="store_true",
+        dest="no_labels",
+        help="Suppress station name labels on the map",
+    )
+    stationplan_parser.add_argument(
+        "--no-legend",
+        action="store_true",
+        dest="no_legend",
+        help="Suppress the map legend",
+    )
+    stationplan_parser.add_argument(
         "--lat",
         nargs=2,
         type=float,

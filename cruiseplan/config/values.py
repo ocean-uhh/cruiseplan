@@ -118,11 +118,17 @@ class StrategyEnum(str, Enum):
     Enumeration of scheduling strategies for cruise operations.
 
     Defines how operations within a cluster or composite should be executed.
+
+    Notes
+    -----
+    Only ``SEQUENTIAL`` is currently implemented in the scheduler. The
+    ``SPATIAL_INTERLEAVED`` and ``DAY_NIGHT_SPLIT`` values are accepted by the
+    YAML schema but have no effect on schedule generation.
     """
 
     SEQUENTIAL = "sequential"
-    SPATIAL_INTERLEAVED = "spatial_interleaved"
-    DAY_NIGHT_SPLIT = "day_night_split"
+    SPATIAL_INTERLEAVED = "spatial_interleaved"  # not yet implemented
+    DAY_NIGHT_SPLIT = "day_night_split"  # not yet implemented
 
 
 class OperationTypeEnum(str, Enum):

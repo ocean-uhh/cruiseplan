@@ -37,6 +37,46 @@ Coordinate Conventions
 - **Distance**: kilometers
 - **Duration**: minutes
 
+Units Reference
+===============
+
+All numeric fields use the units shown below. Units are fixed and not configurable.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 20 50
+
+   * - Field
+     - Unit
+     - Notes
+   * - ``latitude``, ``longitude``
+     - decimal degrees
+     - WGS-84; negative = South / West
+   * - ``water_depth``, ``operation_depth``
+     - metres
+     - Positive below sea level (e.g., ``3500`` = 3500 m)
+   * - ``distance_between_stations``
+     - km
+     - Along-track spacing when expanding CTD sections
+   * - ``default_vessel_speed``
+     - knots
+     - Transit speed used for scheduling
+   * - ``ctd_descent_rate``, ``ctd_ascent_rate``
+     - m/s
+     - Used to compute CTD cast duration from depth
+   * - ``duration``
+     - minutes
+     - Station occupation time
+   * - ``turnaround_time``
+     - minutes
+     - Gap between consecutive operations
+   * - ``delay_start``
+     - minutes
+     - Hold time at departure port before a leg begins
+   * - ``tolerance`` (validate)
+     - percent
+     - Allowable depth difference between planned and bathymetric depth
+
 Cruise Metadata
 ===============
 

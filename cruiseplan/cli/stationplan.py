@@ -175,9 +175,14 @@ def main(args: argparse.Namespace) -> None:
                     bathy_source=getattr(args, "bathy_source", "gebco2025"),
                     bathy_dir=getattr(args, "bathy_dir", "data/bathymetry"),
                     bathy_stride=getattr(args, "bathy_stride", 10),
-                    figsize=tuple(getattr(args, "figsize", [12.0, 8.0])),
+                    figsize=tuple(getattr(args, "figsize", [10.0, 8.1])),
                     lat_bounds=lat_bounds,
                     lon_bounds=lon_bounds,
+                    max_depth=getattr(args, "max_depth", None),
+                    bathy_contours=getattr(args, "bathy_contours", None),
+                    no_title=getattr(args, "no_title", False),
+                    no_labels=getattr(args, "no_labels", False),
+                    no_legend=getattr(args, "no_legend", False),
                 )
 
                 if result.success:

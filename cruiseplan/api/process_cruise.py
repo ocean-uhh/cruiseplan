@@ -1014,8 +1014,8 @@ def validate(
             for warning in warnings:
                 logger.warning(f"  • {warning}")
 
-        # Handle warnings_only mode
-        final_success = success if not warnings_only else (success or len(errors) == 0)
+        # success is already len(errors) == 0; warnings never affect the result
+        final_success = success
 
         if final_success:
             logger.info("✅ Validation passed")

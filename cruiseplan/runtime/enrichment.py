@@ -221,33 +221,48 @@ def expand_sections(
             logger.warning(f"No valid route for section {section_name}")
             continue
 
-        start = route[0]
-        end = route[-1]
-
-        # Extract coordinates from GeoPoint objects
-        start_lat = start.latitude
-        start_lon = start.longitude
-        end_lat = end.latitude
-        end_lon = end.longitude
-
-        if any(coord is None for coord in [start_lat, start_lon, end_lat, end_lon]):
-            logger.warning(f"Invalid coordinates for section {section_name}")
+        # Validate all waypoint coordinates
+        waypoints = []
+        coords_valid = True
+        for wp in route:
+            if any(coord is None for coord in [wp.latitude, wp.longitude]):
+                logger.warning(f"Invalid coordinates for section {section_name}")
+                coords_valid = False
+                break
+            waypoints.append((wp.latitude, wp.longitude))
+        if not coords_valid:
             continue
 
-        total_distance_km = haversine_distance(
-            (start_lat, start_lon), (end_lat, end_lon)
-        )
-        num_stations = max(2, int(total_distance_km / distance_km) + 1)
+        # Compute per-segment distances
+        segment_distances = [
+            haversine_distance(waypoints[i], waypoints[i + 1])
+            for i in range(len(waypoints) - 1)
+        ]
+
+        # Build the list of station positions segment by segment, so every
+        # route waypoint is always a station.  Each segment contributes
+        # int(seg_dist / spacing) intervals; the segment endpoint is excluded
+        # to avoid duplication with the next segment's start, except for the
+        # very last waypoint which is appended once at the end.
+        station_positions: list[tuple[float, float]] = []
+        for seg_idx in range(len(waypoints) - 1):
+            lat1, lon1 = waypoints[seg_idx]
+            lat2, lon2 = waypoints[seg_idx + 1]
+            seg_dist = segment_distances[seg_idx]
+            n_intervals = max(1, int(seg_dist / distance_km))
+            for k in range(n_intervals):
+                local_f = k / n_intervals
+                station_positions.append(
+                    interpolate_great_circle_position(lat1, lon1, lat2, lon2, local_f)
+                )
+        # Always include the final waypoint
+        station_positions.append(waypoints[-1])
+        num_stations = len(station_positions)
 
         # Create station definitions for each calculated position
         stations_created = 0
         station_names_created = []
-        for ii in range(num_stations):
-            # Calculate position along great circle route
-            fraction = ii / (num_stations - 1) if num_stations > 1 else 0
-            lat, lon = interpolate_great_circle_position(
-                start_lat, start_lon, end_lat, end_lon, fraction
-            )
+        for ii, (lat, lon) in enumerate(station_positions):
 
             # Generate unique station name (handle duplicates)
             base_station_name = f"{base_name}_Stn{ii + 1:03d}"
