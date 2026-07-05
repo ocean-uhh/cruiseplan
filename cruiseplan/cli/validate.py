@@ -129,6 +129,7 @@ if __name__ == "__main__":
         "--bathymetry-source",
         dest="bathy_source",
         default="gebco2025",
+        help="Bathymetry dataset to use for depth lookups (default: gebco2025)",
     )
 
     args = parser.parse_args()

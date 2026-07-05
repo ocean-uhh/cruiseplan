@@ -964,7 +964,7 @@ def generate_map(
     show_plot : bool, optional
         Whether to display the plot inline (useful for notebooks). Default is False.
     figsize : tuple of float, optional
-        Figure size as (width, height) in inches. Default is (10, 8).
+        Figure size as (width, height) in inches. Default is (10, 8.1).
     include_ports : bool, optional
         Whether to include departure/arrival ports in the map. Default is True.
 
@@ -1192,7 +1192,7 @@ def generate_map_from_yaml(
     show_plot : bool, optional
         Whether to display the plot inline (useful for notebooks). Default is False.
     figsize : tuple of float, optional
-        Figure size as (width, height) in inches. Default is (10, 8).
+        Figure size as (width, height) in inches. Default is (10, 8.1).
     include_ports : bool, optional
         Whether to include departure/arrival ports in the map. Default is True.
 
@@ -1252,11 +1252,11 @@ def generate_map_from_timeline(
     bathy_source : str, optional
         Bathymetry dataset to use ("etopo2022" or "gebco2025"). Default is "gebco2025".
     bathy_dir : str, optional
-        Directory containing bathymetry data. Default is "data".
+        Directory containing bathymetry data. Default is "data/bathymetry".
     bathy_stride : int, optional
         Downsampling factor for bathymetry (higher = faster but less detailed). Default is 5.
     figsize : tuple of float, optional
-        Figure size as (width, height) in inches. Default is (10, 8).
+        Figure size as (width, height) in inches. Default is (10, 8.1).
     no_ports : bool, optional
         If True, exclude departure and arrival ports from the map. Default is False.
     config : CruiseConfig, optional
