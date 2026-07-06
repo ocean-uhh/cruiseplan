@@ -14,7 +14,7 @@ pydantic>=2.13.4
 ruamel.yaml>=0.19.1,<0.20.0
 
 # Visualization
-matplotlib>=3.9.4
+matplotlib>=3.10.9
 folium
 branca  # Folium dependency, good to be explicit
 
