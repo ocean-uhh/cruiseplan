@@ -11,7 +11,7 @@ pypandoc>=1.17  # optional, confirm usage
 myst-parser>=3.0.1
 
 # Testing
-pytest>=8.4.2
+pytest>=9.1.1
 pytest-cov>=7.1.0  # optional
 mock
 pyyaml>=6.0.3
