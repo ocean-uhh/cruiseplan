@@ -21,7 +21,7 @@ black>=26.5.1
 ruff>=0.15.20
 pre-commit>=4.3.0
 codespell
-mypy>=1.19.1
+mypy>=2.2.0
 types-requests
 types-tqdm
 pandas-stubs
