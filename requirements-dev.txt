@@ -18,7 +18,7 @@ pyyaml>=6.0.3
 
 # Code quality
 black>=26.5.1
-ruff>=0.15.20
+ruff>=0.16.0
 pre-commit>=4.3.0
 codespell
 mypy>=1.19.1
