@@ -397,7 +397,7 @@ def stationplan_forecast_tex(
                     exit_lon_val = float(schedule.exit_longitude[index].values)
                     if not (np.isnan(exit_lat_val) or np.isnan(exit_lon_val)):
                         exit_lat, exit_lon = exit_lat_val, exit_lon_val
-            except:
+            except Exception:
                 pass  # Use entry coordinates as fallback
 
             # Skip transit activities for TeX output (like waypoints)
@@ -657,7 +657,7 @@ def stationplan_waypoints(
                                 next_lon = float(schedule.longitude[index + 1].values)
                                 if not (np.isnan(next_lat) or np.isnan(next_lon)):
                                     exit_lat, exit_lon = next_lat, next_lon
-                        except:
+                        except Exception:
                             pass  # Use entry coordinates as fallback
 
                     # Convert coordinates to appropriate format
@@ -1104,7 +1104,7 @@ def stationplan_forecast_png(
                     op_depth_val = schedule.operation_depth[index].values
                     if not np.isnan(float(op_depth_val)):
                         timeline_record["operation_depth"] = float(op_depth_val)
-            except:
+            except Exception:
                 pass  # Skip if depth data unavailable
 
             timeline_for_map.append(timeline_record)

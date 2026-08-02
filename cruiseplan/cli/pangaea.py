@@ -49,20 +49,15 @@ def determine_workflow_mode(args: argparse.Namespace) -> str:
         return "search"
 
 
-def main(args: argparse.Namespace) -> None:
+def run(args: argparse.Namespace) -> None:
     """
     Thin CLI wrapper for pangaea command.
 
     Delegates all business logic to the cruiseplan.pangaea() API function.
     """
     try:
-        # Determine workflow mode (CLI-specific logic)
         _ = determine_workflow_mode(args)
 
-        # Note: DOI file mode is now handled automatically by the API
-        # based on query_or_file parameter detection
-
-        # Validate lat/lon bounds if provided (CLI-specific validation)
         lat_bounds = getattr(args, "lat", None)
         lon_bounds = getattr(args, "lon", None)
 
@@ -73,7 +68,6 @@ def main(args: argparse.Namespace) -> None:
                 print(f"ERROR: Invalid coordinate bounds: {e}", file=sys.stderr)
                 sys.exit(1)
 
-        # Call the API function with CLI arguments
         result = cruiseplan.pangaea(
             query_terms=args.query_or_file,
             output_dir=str(getattr(args, "output_dir", "data")),
@@ -86,7 +80,6 @@ def main(args: argparse.Namespace) -> None:
             verbose=getattr(args, "verbose", False),
         )
 
-        # Display results
         print("")
         print("=" * 50)
         print("PANGAEA Processing Results")
@@ -98,7 +91,6 @@ def main(args: argparse.Namespace) -> None:
             for file_path in result.files_created:
                 print(f"  • {file_path}")
 
-            # Show next steps
             print("Next steps:")
             stations_file = next(
                 (f for f in result.files_created if str(f).endswith(".pkl")),
@@ -111,7 +103,6 @@ def main(args: argparse.Namespace) -> None:
             print("PANGAEA processing failed")
             sys.exit(1)
 
-        # Successful completion
         sys.exit(0)
 
     except cruiseplan.ValidationError as e:
@@ -138,53 +129,77 @@ def main(args: argparse.Namespace) -> None:
         sys.exit(1)
 
 
-if __name__ == "__main__":
-    # This allows the module to be run directly for testing
-    parser = argparse.ArgumentParser(description="Search and download PANGAEA data")
-    parser.add_argument("query", help="Search terms for PANGAEA database")
-    parser.add_argument(
+def build_parser(subparsers: argparse._SubParsersAction) -> argparse.ArgumentParser:
+    """Add the pangaea subparser and return it."""
+    p = subparsers.add_parser(
+        "pangaea",
+        help="Search and download PANGAEA datasets, or process existing DOI lists",
+        description="Unified PANGAEA data processor - search by query + geographic bounds OR process existing DOI files",
+        epilog="""
+This command combines PANGAEA dataset search and download functionality:
+
+SEARCH + DOWNLOAD MODE (requires --lat and --lon):
+  cruiseplan pangaea "CTD temperature" --lat 50 60 --lon -50 -30 --output atlantic_study
+  → Generates: atlantic_study_dois.txt + atlantic_study_stations.pkl
+
+DOI FILE MODE (provide existing .txt file):
+  cruiseplan pangaea arctic_dois.txt --output arctic_analysis
+  → Generates: arctic_analysis_stations.pkl
+
+Examples:
+  cruiseplan pangaea "CTD Arctic Ocean" --lat 70 85 --lon -180 -120 --limit 50
+  cruiseplan pangaea my_dois.txt --rate-limit 0.5 --merge-campaigns
+  cruiseplan pangaea "salinity North Atlantic" --lat 40 65 --lon -70 -10 --output north_atlantic
+        """,
+    )
+    p.add_argument(
+        "query_or_file",
+        help="Search query string (for search mode) or DOI file path (for file mode)",
+    )
+    p.add_argument(
+        "--lat",
+        nargs=2,
+        type=float,
+        metavar=("MIN", "MAX"),
+        help="Latitude bounds for search mode (e.g., --lat 50 70)",
+    )
+    p.add_argument(
+        "--lon",
+        nargs=2,
+        type=float,
+        metavar=("MIN", "MAX"),
+        help="Longitude bounds for search mode (e.g., --lon -60 -30)",
+    )
+    p.add_argument(
+        "--limit",
+        type=int,
+        default=10,
+        help="Maximum search results to return (default: 10, max recommended: 100)",
+    )
+    p.add_argument(
         "-o",
         "--output-dir",
         type=Path,
         default=Path("data"),
-        help="Output directory for station files",
+        help="Output directory (default: data)",
     )
-    parser.add_argument(
-        "--output", type=str, help="Base filename for outputs (without extension)"
+    p.add_argument(
+        "--output",
+        help="Base filename for outputs (without extension or directory)",
     )
-    parser.add_argument(
-        "--lat",
-        type=float,
-        nargs=2,
-        metavar=("MIN_LAT", "MAX_LAT"),
-        help="Latitude bounds [min_lat, max_lat]",
-    )
-    parser.add_argument(
-        "--lon",
-        type=float,
-        nargs=2,
-        metavar=("MIN_LON", "MAX_LON"),
-        help="Longitude bounds [min_lon, max_lon]",
-    )
-    parser.add_argument(
-        "--max-results",
-        type=int,
-        default=100,
-        help="Maximum number of results to process",
-    )
-    parser.add_argument(
+    p.add_argument(
         "--rate-limit",
         type=float,
         default=1.0,
-        help="API request rate limit (requests per second)",
+        help="API request rate limit (requests per second, default: 1.0)",
     )
-    parser.add_argument(
-        "--no-merge-campaigns",
-        action="store_false",
-        dest="merge_campaigns",
-        help="Don't merge campaigns with the same name",
+    p.add_argument(
+        "--merge-campaigns",
+        action="store_true",
+        default=True,
+        help="Merge campaigns with the same name (default: true)",
     )
-    parser.add_argument("--verbose", action="store_true", help="Verbose output")
-
-    args = parser.parse_args()
-    main(args)
+    p.add_argument(
+        "--verbose", "-v", action="store_true", help="Enable verbose logging"
+    )
+    return p

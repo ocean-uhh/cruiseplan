@@ -264,8 +264,6 @@ def expand_sections(
                 )
         # Always include the final waypoint
         station_positions.append(waypoints[-1])
-        num_stations = len(station_positions)
-
         # Create station definitions for each calculated position
         stations_created = 0
         station_names_created = []

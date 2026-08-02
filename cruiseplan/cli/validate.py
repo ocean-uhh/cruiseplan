@@ -12,6 +12,11 @@ import sys
 from pathlib import Path
 
 import cruiseplan
+from cruiseplan.config.values import (
+    BATHY_SOURCES,
+    DEFAULT_BATHY_DIR,
+    DEFAULT_BATHY_SOURCE,
+)
 
 
 def _display_validation_results(result, warnings_only: bool) -> None:
@@ -77,14 +82,13 @@ def _handle_exceptions(args: argparse.Namespace) -> None:
         sys.exit(1)
 
 
-def main(args: argparse.Namespace) -> None:
+def run(args: argparse.Namespace) -> None:
     """
     Thin CLI wrapper for validate command.
 
     Delegates all business logic to the cruiseplan.validate() API function.
     """
     try:
-        # Call the API function with CLI arguments
         result = cruiseplan.validate(
             config_file=args.config_file,
             bathy_source=getattr(args, "bathy_source", "gebco2025"),
@@ -95,7 +99,6 @@ def main(args: argparse.Namespace) -> None:
             verbose=getattr(args, "verbose", False),
         )
 
-        # Display results and exit
         warnings_only = getattr(args, "warnings_only", False)
         _display_validation_results(result, warnings_only)
         _print_summary_and_exit(result, warnings_only)
@@ -104,33 +107,47 @@ def main(args: argparse.Namespace) -> None:
         _handle_exceptions(args)
 
 
-if __name__ == "__main__":
-    # This allows the module to be run directly for testing
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Validate cruise configurations")
-    parser.add_argument(
-        "-c", "--config-file", type=Path, required=True, help="Input YAML file"
+def build_parser(subparsers: argparse._SubParsersAction) -> argparse.ArgumentParser:
+    """Add the validate subparser and return it."""
+    p = subparsers.add_parser(
+        "validate", help="Validate configuration files (read-only)"
     )
-    parser.add_argument(
+    p.add_argument(
+        "config_file",
+        type=Path,
+        metavar="CONFIG_FILE",
+        help="Input YAML configuration file",
+    )
+    p.add_argument(
         "--no-depth-check",
         action="store_false",
         dest="check_depths",
-        help="Skip depth accuracy check",
+        help="Skip comparison of existing depths with bathymetry data",
     )
-    parser.add_argument(
-        "--warnings-only", action="store_true", help="Show warnings without failing"
+    p.add_argument(
+        "--tolerance",
+        type=float,
+        default=10.0,
+        help="Depth difference tolerance in percent (default: 10.0)",
     )
-    parser.add_argument(
-        "--tolerance", type=float, default=10.0, help="Depth tolerance percentage"
-    )
-    parser.add_argument(
+    p.add_argument(
         "--bathy-source",
-        "--bathymetry-source",
-        dest="bathy_source",
-        default="gebco2025",
-        help="Bathymetry dataset to use for depth lookups (default: gebco2025)",
+        choices=BATHY_SOURCES,
+        default=DEFAULT_BATHY_SOURCE,
+        help="Bathymetry dataset (default: gebco2025)",
     )
-
-    args = parser.parse_args()
-    main(args)
+    p.add_argument(
+        "--bathy-dir",
+        type=Path,
+        default=Path(DEFAULT_BATHY_DIR),
+        help="Directory containing bathymetry data (default: data/bathymetry)",
+    )
+    p.add_argument(
+        "--warnings-only",
+        action="store_true",
+        help="Show warnings without failing",
+    )
+    p.add_argument(
+        "--verbose", "-v", action="store_true", help="Enable verbose logging"
+    )
+    return p

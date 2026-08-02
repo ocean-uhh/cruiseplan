@@ -13,9 +13,14 @@ from pathlib import Path
 
 import cruiseplan
 from cruiseplan.cli import handle_cli_errors
+from cruiseplan.config.values import (
+    BATHY_SOURCES,
+    DEFAULT_BATHY_DIR,
+    DEFAULT_BATHY_SOURCE,
+)
 
 
-def main(args: argparse.Namespace) -> None:
+def run(args: argparse.Namespace) -> None:
     """
     Thin CLI wrapper for schedule command.
 
@@ -23,7 +28,6 @@ def main(args: argparse.Namespace) -> None:
     """
     verbose = getattr(args, "verbose", False)
     with handle_cli_errors("schedule", verbose):
-        # Check --derive-netcdf flag compatibility (CLI-specific logic)
         derive_netcdf = getattr(args, "derive_netcdf", False)
         format_list = getattr(args, "format", None)
         format_str = ",".join(format_list) if format_list else "all"
@@ -62,7 +66,6 @@ def main(args: argparse.Namespace) -> None:
             max_depth=getattr(args, "max_depth", None),
         )
 
-        # Display results
         print("")
         print("=" * 50)
         print("Schedule Generation Results")
@@ -85,20 +88,36 @@ def main(args: argparse.Namespace) -> None:
             sys.exit(1)
 
 
-if __name__ == "__main__":
-    # This allows the module to be run directly for testing
-    parser = argparse.ArgumentParser(description="Generate cruise schedules")
-    parser.add_argument(
-        "-c",
-        "--config-file",
+def build_parser(subparsers: argparse._SubParsersAction) -> argparse.ArgumentParser:
+    """Add the schedule subparser and return it."""
+    p = subparsers.add_parser(
+        "schedule", help="Generate cruise schedule from YAML configuration"
+    )
+    p.add_argument(
+        "config_file",
         type=Path,
-        required=True,
-        help="Input YAML configuration file",
+        metavar="CONFIG_FILE",
+        help="YAML cruise configuration file",
     )
-    parser.add_argument(
-        "-o", "--output-dir", type=Path, help="Output directory for schedule files"
+    p.add_argument("--leg", help="Process specific leg only")
+    p.add_argument(
+        "--derive-netcdf",
+        action="store_true",
+        help="Generate specialised NetCDF files (_points.nc, _lines.nc, _areas.nc) in addition to master schedule",
     )
-    parser.add_argument(
+    p.add_argument(
+        "-o",
+        "--output-dir",
+        type=Path,
+        default=Path("data"),
+        help="Output directory (default: data)",
+    )
+    p.add_argument(
+        "--output",
+        type=str,
+        help="Base filename for outputs (default: use cruise name from config)",
+    )
+    p.add_argument(
         "--format",
         nargs="+",
         choices=["html", "latex", "csv", "netcdf", "png"],
@@ -106,14 +125,81 @@ if __name__ == "__main__":
         metavar="FORMAT",
         help="Output formats: html latex csv netcdf png (space-separated). Omit to generate all.",
     )
-    parser.add_argument(
-        "--leg", type=str, help="Generate schedule for specific leg only"
+    p.add_argument(
+        "--bathy-source",
+        choices=BATHY_SOURCES,
+        default=DEFAULT_BATHY_SOURCE,
+        help="Bathymetry dataset for PNG maps (default: gebco2025)",
     )
-    parser.add_argument("--verbose", action="store_true", help="Verbose output")
-    parser.add_argument("--quiet", action="store_true", help="Quiet output")
-    parser.add_argument(
-        "--derive-netcdf", action="store_true", help="Generate specialized NetCDF files"
+    p.add_argument(
+        "--bathy-dir",
+        type=Path,
+        default=Path(DEFAULT_BATHY_DIR),
+        help="Directory containing bathymetry data (default: data/bathymetry)",
     )
-
-    args = parser.parse_args()
-    main(args)
+    p.add_argument(
+        "--bathy-stride",
+        type=int,
+        default=10,
+        help="Bathymetry grid downsampling factor: 1 = full resolution, higher = faster but less detail (default: 10)",
+    )
+    p.add_argument(
+        "--bathy-contours",
+        type=float,
+        nargs="+",
+        metavar="DEPTH",
+        help="Bathymetry contour depths in metres (e.g. --bathy-contours 200 500 1000 2000). Replaces defaults.",
+    )
+    p.add_argument(
+        "--max-depth",
+        type=int,
+        default=None,
+        metavar="METRES",
+        help="Maximum water depth (m) for the bathymetry colour scale. Example: --max-depth 1000",
+    )
+    p.add_argument(
+        "--lat",
+        nargs=2,
+        type=float,
+        metavar=("MIN", "MAX"),
+        help="Latitude bounds for map extent (e.g., --lat -75 -70)",
+    )
+    p.add_argument(
+        "--lon",
+        nargs=2,
+        type=float,
+        metavar=("MIN", "MAX"),
+        help="Longitude bounds for map extent (e.g., --lon 170 175)",
+    )
+    p.add_argument(
+        "--figsize",
+        nargs=2,
+        type=float,
+        metavar=("WIDTH", "HEIGHT"),
+        default=[10, 8.1],
+        help="Figure size for PNG maps in inches (default: 10 8.1)",
+    )
+    p.add_argument(
+        "--no-ports",
+        action="store_true",
+        help="Exclude ports from PNG schedule maps",
+    )
+    p.add_argument(
+        "--no-title",
+        action="store_true",
+        help="Omit title from PNG schedule maps",
+    )
+    p.add_argument(
+        "--no-labels",
+        action="store_true",
+        help="Omit station name labels from PNG schedule maps",
+    )
+    p.add_argument(
+        "--no-legend",
+        action="store_true",
+        help="Omit legend from PNG schedule maps",
+    )
+    p.add_argument(
+        "--verbose", "-v", action="store_true", help="Enable verbose logging"
+    )
+    return p

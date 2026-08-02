@@ -12,9 +12,14 @@ from pathlib import Path
 
 import cruiseplan
 from cruiseplan.cli import handle_cli_errors
+from cruiseplan.config.values import (
+    BATHY_SOURCES,
+    DEFAULT_BATHY_DIR,
+    DEFAULT_BATHY_SOURCE,
+)
 
 
-def main(args: argparse.Namespace) -> None:
+def run(args: argparse.Namespace) -> None:
     """
     Thin CLI wrapper for enrich command.
 
@@ -22,7 +27,6 @@ def main(args: argparse.Namespace) -> None:
     """
     verbose = getattr(args, "verbose", False)
     with handle_cli_errors("enrich", verbose):
-        # Call the API function with CLI arguments
         result = cruiseplan.enrich(
             config_file=args.config_file,
             output_dir=(
@@ -46,37 +50,50 @@ def main(args: argparse.Namespace) -> None:
         print(f"Configuration enriched successfully: {result}")
 
 
-if __name__ == "__main__":
-    # This allows the module to be run directly for testing
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Enrich cruise configurations")
-    parser.add_argument(
-        "-c", "--config-file", type=Path, required=True, help="Input YAML file"
+def build_parser(subparsers: argparse._SubParsersAction) -> argparse.ArgumentParser:
+    """Add the enrich subparser and return it."""
+    p = subparsers.add_parser("enrich", help="Add missing data to configuration files")
+    p.add_argument(
+        "config_file",
+        type=Path,
+        metavar="CONFIG_FILE",
+        help="Input YAML configuration file",
     )
-    parser.add_argument("--add-depths", action="store_true", help="Add missing depths")
-    parser.add_argument(
-        "--add-coords", action="store_true", help="Add coordinate fields"
+    p.add_argument(
+        "--add-depths",
+        action="store_true",
+        help="Add missing depth values to stations using bathymetry data",
     )
-    parser.add_argument(
-        "--expand-sections", action="store_true", help="Expand CTD sections"
+    p.add_argument(
+        "--add-coords",
+        action="store_true",
+        help="Add formatted coordinate fields (DMM; DMS not yet implemented)",
     )
-    parser.add_argument(
-        "--expand-ports", action="store_true", help="Expand global port references"
+    p.add_argument(
+        "--expand-sections",
+        action="store_true",
+        help="Expand CTD sections into individual station definitions",
     )
-    parser.add_argument("-o", "--output-dir", type=Path, default=Path("."))
-    parser.add_argument(
-        "--output", type=str, help="Base filename for output (without extension)"
+    p.add_argument(
+        "-o",
+        "--output-dir",
+        type=Path,
+        default=Path("data"),
+        help="Output directory (default: data)",
     )
-    parser.add_argument("--bathy-source", default="gebco2025")
-    parser.add_argument("--bathy-dir", type=Path, default=Path("data/bathymetry"))
-    # Keep deprecated parameters for backward compatibility
-    parser.add_argument(
-        "--bathymetry-source", dest="bathymetry_source", help=argparse.SUPPRESS
+    p.add_argument(
+        "--bathy-source",
+        choices=BATHY_SOURCES,
+        default=DEFAULT_BATHY_SOURCE,
+        help="Bathymetry dataset (default: gebco2025)",
     )
-    parser.add_argument(
-        "--bathymetry-dir", type=Path, dest="bathymetry_dir", help=argparse.SUPPRESS
+    p.add_argument(
+        "--bathy-dir",
+        type=Path,
+        default=Path(DEFAULT_BATHY_DIR),
+        help="Directory containing bathymetry data (default: data/bathymetry)",
     )
-
-    args = parser.parse_args()
-    main(args)
+    p.add_argument(
+        "--verbose", "-v", action="store_true", help="Enable verbose logging"
+    )
+    return p

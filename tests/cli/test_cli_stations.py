@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 # Import the main function of the CLI subcommand
-from cruiseplan.cli.stations import main
+from cruiseplan.cli.stations import run
 
 # --- Fixtures for Mocking External Dependencies ---
 
@@ -56,7 +56,7 @@ def test_main_success_with_pangaea(mock_args, mock_external_deps):
     # Ensure the output directory exists
     mock_args.output_dir.mkdir(parents=True, exist_ok=True)
 
-    main(mock_args)
+    run(mock_args)
 
     # Assert the stations API was called with correct parameters
     MockStationsAPI.assert_called_once_with(
@@ -87,7 +87,7 @@ def test_main_uses_default_bounds_if_not_provided(mock_args, mock_external_deps)
     mock_args.lat = None
     mock_args.lon = None
 
-    main(mock_args)
+    run(mock_args)
 
     # Assert the stations API was called with None bounds (API handles defaults internally)
     MockStationsAPI.assert_called_once()
@@ -106,7 +106,7 @@ def test_main_handles_missing_pangaea_file(mock_args, mock_external_deps):
     # Configure API to raise FileNotFoundError to simulate file validation failure
     MockStationsAPI.side_effect = FileNotFoundError("PANGAEA file not found")
 
-    main(mock_args)
+    run(mock_args)
 
     # CLI should call API and handle API's FileNotFoundError by exiting
     MockStationsAPI.assert_called_once()

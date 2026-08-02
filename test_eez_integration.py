@@ -46,8 +46,8 @@ def test_imports():
 
         return True
 
-    except ImportError as e:
-        logger.exception(f"Import failed: {e}")
+    except ImportError:
+        logger.exception("Import failed")
         return False
 
 
@@ -84,8 +84,8 @@ def test_api_signatures():
 
         return True
 
-    except Exception as e:
-        logger.exception(f"API signature test failed: {e}")
+    except Exception:
+        logger.exception("API signature test failed")
         return False
 
 
@@ -114,8 +114,8 @@ def test_config_classes():
 
         return True
 
-    except Exception as e:
-        logger.exception(f"Config class test failed: {e}")
+    except Exception:
+        logger.exception("Config class test failed")
         return False
 
 
@@ -167,8 +167,8 @@ def test_folium_integration():
                 logger.error("❌ Folium map generation failed")
                 return False
 
-    except Exception as e:
-        logger.exception(f"Folium integration test failed: {e}")
+    except Exception:
+        logger.exception("Folium integration test failed")
         return False
 
 
@@ -224,8 +224,8 @@ def main():
         try:
             result = test()
             results.append(result)
-        except Exception as e:
-            logger.exception(f"Test {test.__name__} failed with exception: {e}")
+        except Exception:
+            logger.exception("Test %s failed with exception", test.__name__)
             results.append(False)
         logger.info("")
 

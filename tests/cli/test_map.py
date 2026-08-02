@@ -12,7 +12,7 @@ from unittest.mock import patch
 import pytest
 
 import cruiseplan
-from cruiseplan.cli.map import main
+from cruiseplan.cli.map import run
 
 
 class TestMapThinCLI:
@@ -50,7 +50,7 @@ class TestMapThinCLI:
                 },
             )
 
-            main(args)
+            run(args)
 
             # Verify API was called with correct arguments
             mock_map.assert_called_once_with(
@@ -105,7 +105,7 @@ class TestMapThinCLI:
                 },
             )
 
-            main(args)
+            run(args)
 
             mock_map.assert_called_once_with(
                 config_file=Path("custom.yaml"),
@@ -147,7 +147,7 @@ class TestMapThinCLI:
             )
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -163,7 +163,7 @@ class TestMapThinCLI:
             )
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -177,7 +177,7 @@ class TestMapThinCLI:
             mock_map.side_effect = cruiseplan.FileError("Configuration file not found")
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -196,7 +196,7 @@ class TestMapThinCLI:
             )
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -210,7 +210,7 @@ class TestMapThinCLI:
             mock_map.side_effect = FileNotFoundError("Configuration file not found")
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -224,7 +224,7 @@ class TestMapThinCLI:
             mock_map.side_effect = RuntimeError("Map generation failed unexpectedly")
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -238,7 +238,7 @@ class TestMapThinCLI:
             mock_map.side_effect = KeyboardInterrupt()
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -256,7 +256,7 @@ class TestMapThinCLI:
             mock_map.side_effect = ValueError("Unexpected error")
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             # Should print traceback when verbose=True
             mock_traceback.assert_called_once()
@@ -277,7 +277,7 @@ class TestMapThinCLI:
                 summary={"config_file": "test.yaml", "files_generated": 1},
             )
 
-            main(args)
+            run(args)
 
             # Should use defaults for missing arguments
             mock_map.assert_called_once_with(

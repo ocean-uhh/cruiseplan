@@ -487,7 +487,7 @@ class StationPicker:
                 label = "Station"
 
             # Plot the station with appropriate style
-            artist = self.ax_map.scatter(
+            self.ax_map.scatter(
                 lon,
                 lat,
                 marker=marker,

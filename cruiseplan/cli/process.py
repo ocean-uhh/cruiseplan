@@ -13,9 +13,14 @@ from pathlib import Path
 
 import cruiseplan
 from cruiseplan.cli import handle_cli_errors
+from cruiseplan.config.values import (
+    BATHY_SOURCES,
+    DEFAULT_BATHY_DIR,
+    DEFAULT_BATHY_SOURCE,
+)
 
 
-def main(args: argparse.Namespace) -> None:
+def run(args: argparse.Namespace) -> None:
     """
     Thin CLI wrapper for process command.
 
@@ -23,7 +28,6 @@ def main(args: argparse.Namespace) -> None:
     """
     verbose = getattr(args, "verbose", False)
     with handle_cli_errors("process", verbose):
-        # Call the API function with CLI arguments
         format_list = getattr(args, "format", None)
         format_str = ",".join(format_list) if format_list else "all"
         result = cruiseplan.process(
@@ -32,7 +36,6 @@ def main(args: argparse.Namespace) -> None:
             output=getattr(args, "output", None),
             bathy_source=getattr(args, "bathy_source", "gebco2025"),
             bathy_dir=getattr(args, "bathy_dir", "data/bathymetry"),
-            # CLI uses --no-* flags; API uses positive parameter names. Translation here.
             add_depths=not (
                 getattr(args, "no_enrich", False) or getattr(args, "no_depths", False)
             ),
@@ -60,7 +63,6 @@ def main(args: argparse.Namespace) -> None:
             max_depth=getattr(args, "max_depth", None),
         )
 
-        # Display results
         print("")
         print("=" * 50)
         print("Processing Results")
@@ -72,7 +74,6 @@ def main(args: argparse.Namespace) -> None:
             for file_path in result.files_created:
                 print(f"  • {file_path}")
 
-            # Show processing summary
             print("Processing summary:")
             print(f"  • Config file: {result.summary.get('config_file', 'N/A')}")
             print(f"  • Files generated: {result.summary.get('files_generated', 0)}")
@@ -87,59 +88,75 @@ def main(args: argparse.Namespace) -> None:
             sys.exit(1)
 
 
-if __name__ == "__main__":
-    # This allows the module to be run directly for testing
-    parser = argparse.ArgumentParser(description="Process cruise configurations")
-    parser.add_argument(
-        "-c",
-        "--config-file",
+def build_parser(subparsers: argparse._SubParsersAction) -> argparse.ArgumentParser:
+    """Add the process subparser and return it."""
+    p = subparsers.add_parser(
+        "process",
+        help="Unified configuration processing (enrich + validate + map)",
+        description="Unified interface for complete configuration processing pipeline",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+This command provides a unified interface for the complete configuration
+processing pipeline, combining enrichment (adding missing data), validation
+(checking configuration integrity), and map generation into a single command
+with smart defaults and flexible control.
+
+Examples:
+  cruiseplan process cruise.yaml                             # Full processing
+  cruiseplan process cruise.yaml --output expedition_2024   # Custom filename
+  cruiseplan process cruise.yaml --no-map                   # Skip map generation
+  cruiseplan process cruise.yaml --no-validate              # Skip validation
+  cruiseplan enrich   cruise.yaml                           # Enrichment only
+  cruiseplan validate cruise.yaml                           # Validation only
+  cruiseplan map      cruise.yaml --format png              # Map only
+        """,
+    )
+    p.add_argument(
+        "config_file",
         type=Path,
-        required=True,
+        metavar="CONFIG_FILE",
         help="Input YAML configuration file",
     )
-    parser.add_argument(
+    p.add_argument("--no-enrich", action="store_true", help="Skip enrichment step")
+    p.add_argument("--no-validate", action="store_true", help="Skip validation step")
+    p.add_argument("--no-map", action="store_true", help="Skip map generation step")
+    p.add_argument(
+        "--no-depths",
+        action="store_true",
+        help="Skip adding missing depths (default: depths added)",
+    )
+    p.add_argument(
+        "--no-coords",
+        action="store_true",
+        help="Skip adding coordinate fields (default: coords added)",
+    )
+    p.add_argument(
+        "--no-sections",
+        action="store_true",
+        help="Skip expanding CTD sections (default: sections expanded)",
+    )
+    p.add_argument(
+        "--no-depth-check",
+        action="store_true",
+        help="Skip depth accuracy checking (default: depths checked)",
+    )
+    p.add_argument(
+        "--tolerance",
+        type=float,
+        default=10.0,
+        help="Depth difference tolerance in percent (default: 10.0)",
+    )
+    p.add_argument(
         "-o",
         "--output-dir",
         type=Path,
         default=Path("data"),
-        help="Output directory for processed files",
+        help="Output directory (default: data)",
     )
-    parser.add_argument(
-        "--output", help="Base filename for outputs (without extension)"
+    p.add_argument(
+        "--output", type=str, help="Base filename for outputs (without extension)"
     )
-    parser.add_argument(
-        "--bathy-source",
-        default="gebco2025",
-        help="Bathymetry data source (default: gebco2025)",
-    )
-    parser.add_argument(
-        "--bathy-dir", default="data/bathymetry", help="Bathymetry data directory"
-    )
-    parser.add_argument(
-        "--no-add-depths",
-        action="store_false",
-        dest="add_depths",
-        help="Skip adding depth information",
-    )
-    parser.add_argument(
-        "--no-add-coords",
-        action="store_false",
-        dest="add_coords",
-        help="Skip adding coordinate information",
-    )
-    parser.add_argument(
-        "--no-validation",
-        action="store_false",
-        dest="run_validation",
-        help="Skip validation step",
-    )
-    parser.add_argument(
-        "--no-map-generation",
-        action="store_false",
-        dest="run_map_generation",
-        help="Skip map generation step",
-    )
-    parser.add_argument(
+    p.add_argument(
         "--format",
         nargs="+",
         choices=["png", "kml"],
@@ -147,13 +164,82 @@ if __name__ == "__main__":
         metavar="FORMAT",
         help="Map output formats: png kml (space-separated). Omit to generate all.",
     )
-    parser.add_argument(
-        "--tolerance",
-        type=float,
-        default=10.0,
-        help="Depth tolerance percentage (default: 10.0)",
+    p.add_argument(
+        "--bathy-source",
+        default=DEFAULT_BATHY_SOURCE,
+        choices=BATHY_SOURCES,
+        help="Bathymetry dataset (default: gebco2025)",
     )
-    parser.add_argument("--verbose", action="store_true", help="Verbose output")
-
-    args = parser.parse_args()
-    main(args)
+    p.add_argument(
+        "--bathy-dir",
+        type=Path,
+        default=Path(DEFAULT_BATHY_DIR),
+        help="Directory containing bathymetry data (default: data/bathymetry)",
+    )
+    p.add_argument(
+        "--bathy-stride",
+        type=int,
+        default=10,
+        help="Bathymetry grid downsampling factor: 1 = full resolution, higher = faster but less detail (default: 10)",
+    )
+    p.add_argument(
+        "--bathy-contours",
+        type=float,
+        nargs="+",
+        metavar="DEPTH",
+        help="Bathymetry contour depths in metres (e.g. --bathy-contours 200 500 1000 2000). Replaces defaults.",
+    )
+    p.add_argument(
+        "--max-depth",
+        type=int,
+        default=None,
+        metavar="METRES",
+        help="Maximum water depth (m) for the bathymetry colour scale. Example: --max-depth 1000",
+    )
+    p.add_argument(
+        "--lat",
+        nargs=2,
+        type=float,
+        metavar=("MIN", "MAX"),
+        help="Latitude bounds for map extent (e.g., --lat -75 -70)",
+    )
+    p.add_argument(
+        "--lon",
+        nargs=2,
+        type=float,
+        metavar=("MIN", "MAX"),
+        help="Longitude bounds for map extent (e.g., --lon 170 175)",
+    )
+    p.add_argument(
+        "--figsize",
+        nargs=2,
+        type=float,
+        metavar=("WIDTH", "HEIGHT"),
+        default=[10, 8.1],
+        help="Figure size for PNG maps (width height, default: 10 8.1)",
+    )
+    p.add_argument(
+        "--no-ports",
+        action="store_true",
+        help="Exclude ports from generated maps (default: ports plotted)",
+    )
+    p.add_argument(
+        "--no-title",
+        action="store_true",
+        help="Omit title from generated PNG maps",
+    )
+    p.add_argument(
+        "--no-labels",
+        action="store_true",
+        help="Omit station name labels from generated PNG maps",
+    )
+    p.add_argument(
+        "--no-legend",
+        action="store_true",
+        help="Omit legend from generated PNG maps",
+    )
+    p.add_argument(
+        "--verbose", "-v", action="store_true", help="Enable verbose logging"
+    )
+    p.add_argument("--quiet", "-q", action="store_true", help="Enable quiet mode")
+    return p

@@ -11,11 +11,16 @@ import sys
 from pathlib import Path
 
 from cruiseplan.api.stations_api import stations
+from cruiseplan.config.values import (
+    BATHY_SOURCES,
+    DEFAULT_BATHY_DIR,
+    DEFAULT_BATHY_SOURCE,
+)
 
 logger = logging.getLogger(__name__)
 
 
-def main(args: argparse.Namespace) -> None:
+def run(args: argparse.Namespace) -> None:
     """
     Main entry point for interactive station placement.
 
@@ -28,11 +33,9 @@ def main(args: argparse.Namespace) -> None:
         Parsed command line arguments
     """
     try:
-        # Convert CLI args to API parameters
         lat_bounds = tuple(args.lat) if args.lat else None
         lon_bounds = tuple(args.lon) if args.lon else None
 
-        # Call the API function
         result = stations(
             lat_bounds=lat_bounds,
             lon_bounds=lon_bounds,
@@ -53,11 +56,9 @@ def main(args: argparse.Namespace) -> None:
             verbose=getattr(args, "verbose", False),
         )
 
-        # The API function handles all logging and user interaction
         logger.info(str(result))
 
     except (ImportError, ValueError, FileNotFoundError, RuntimeError) as e:
-        # Inline simple error formatting
         error_msg = f"ERROR: Interactive station placement failed: {e}\nSuggestions:\n"
         error_msg += "  • Check coordinate bounds are valid\n"
         error_msg += "  • Verify PANGAEA file format if provided\n"
@@ -72,32 +73,82 @@ def main(args: argparse.Namespace) -> None:
         sys.exit(1)
 
 
-if __name__ == "__main__":
-    # This allows the module to be run directly for testing
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Interactive station placement")
-    parser.add_argument(
+def build_parser(subparsers: argparse._SubParsersAction) -> argparse.ArgumentParser:
+    """Add the stations subparser and return it."""
+    p = subparsers.add_parser(
+        "stations", help="Interactive station placement with PANGAEA background"
+    )
+    p.add_argument(
+        "config_file",
+        type=Path,
+        nargs="?",
+        metavar="CONFIG_FILE",
+        help="Existing YAML cruise configuration file to load and edit (optional)",
+    )
+    p.add_argument(
         "-p", "--pangaea-file", type=Path, help="PANGAEA campaigns pickle file"
     )
-    parser.add_argument(
-        "--lat", nargs=2, type=float, metavar=("MIN", "MAX"), help="Latitude bounds"
+    p.add_argument(
+        "--lat",
+        nargs=2,
+        type=float,
+        metavar=("MIN", "MAX"),
+        default=(45, 70),
+        help="Latitude bounds (default: 45 70)",
     )
-    parser.add_argument(
-        "--lon", nargs=2, type=float, metavar=("MIN", "MAX"), help="Longitude bounds"
+    p.add_argument(
+        "--lon",
+        nargs=2,
+        type=float,
+        metavar=("MIN", "MAX"),
+        default=(-65, -5),
+        help="Longitude bounds (default: -65 -5)",
     )
-    parser.add_argument(
-        "-o", "--output-dir", type=Path, default=Path("."), help="Output directory"
+    p.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="Overwrite existing output file without prompting",
     )
-    parser.add_argument(
-        "--bathy-source", choices=["etopo2022", "gebco2025"], default="gebco2025"
+    p.add_argument(
+        "-o",
+        "--output-dir",
+        type=Path,
+        default=Path("data"),
+        help="Output directory (default: data)",
     )
-    parser.add_argument(
+    p.add_argument(
+        "--bathy-source",
+        choices=BATHY_SOURCES,
+        default=DEFAULT_BATHY_SOURCE,
+        help="Bathymetry dataset (default: gebco2025)",
+    )
+    p.add_argument(
         "--bathy-dir",
         type=Path,
-        default=Path("data/bathymetry"),
-        help="Bathymetry directory",
+        default=Path(DEFAULT_BATHY_DIR),
+        help="Directory containing bathymetry data (default: data/bathymetry)",
     )
-
-    args = parser.parse_args()
-    main(args)
+    p.add_argument(
+        "--bathy-contours",
+        type=float,
+        nargs="+",
+        metavar="DEPTH",
+        help="Bathymetry contour depths in metres (e.g. --bathy-contours 200 500 1000 2000). Replaces defaults.",
+    )
+    p.add_argument(
+        "--bathy-stride",
+        type=int,
+        default=10,
+        help="Bathymetry grid downsampling factor: 1 = full resolution, higher = faster but less detail (default: 10)",
+    )
+    p.add_argument(
+        "--max-depth",
+        type=int,
+        default=None,
+        metavar="METRES",
+        help="Maximum water depth (m) for the colour scale (e.g. 500 to focus on shelf seas)",
+    )
+    p.add_argument(
+        "--verbose", "-v", action="store_true", help="Enable verbose logging"
+    )
+    return p

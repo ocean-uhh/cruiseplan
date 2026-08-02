@@ -2,7 +2,7 @@
 Map generation command.
 
 This module implements the 'cruiseplan map' command for generating
-cruise track visualizations (PNG maps and KML files).
+cruise track visualisations (PNG maps and KML files).
 
 Thin CLI layer that delegates all business logic to the API layer.
 """
@@ -13,9 +13,14 @@ from pathlib import Path
 
 import cruiseplan
 from cruiseplan.cli import handle_cli_errors
+from cruiseplan.config.values import (
+    BATHY_SOURCES,
+    DEFAULT_BATHY_DIR,
+    DEFAULT_BATHY_SOURCE,
+)
 
 
-def main(args: argparse.Namespace) -> None:
+def run(args: argparse.Namespace) -> None:
     """
     Thin CLI wrapper for map command.
 
@@ -46,7 +51,6 @@ def main(args: argparse.Namespace) -> None:
             max_depth=getattr(args, "max_depth", None),
         )
 
-        # Display results
         print("")
         print("=" * 50)
         print("Map Generation Results")
@@ -70,27 +74,63 @@ def main(args: argparse.Namespace) -> None:
             sys.exit(1)
 
 
-if __name__ == "__main__":
-    # This allows the module to be run directly for testing
-    parser = argparse.ArgumentParser(description="Generate cruise maps")
-    parser.add_argument(
-        "-c",
-        "--config-file",
-        type=Path,
-        required=True,
-        help="Input YAML configuration file",
+def build_parser(subparsers: argparse._SubParsersAction) -> argparse.ArgumentParser:
+    """Add the map subparser and return it."""
+    p = subparsers.add_parser(
+        "map",
+        help="Generate PNG maps and KML geographic data from YAML configuration",
+        description="Create static PNG maps and/or KML files from cruise configuration catalog",
+        epilog="""
+This command generates PNG maps and/or KML geographic data from cruise configuration.
+PNG maps show stations, cruise tracks, ports, and bathymetric background.
+KML files contain geographic data for Google Earth viewing of all catalog entities.
+
+Examples:
+  cruiseplan map cruise.yaml                              # Generate map with default settings
+  cruiseplan map cruise.yaml -o maps/ --figsize 14 10     # Custom output dir and size
+  cruiseplan map cruise.yaml --bathy-source gebco2025     # High-resolution bathymetry
+  cruiseplan map cruise.yaml --output cruise_track        # Custom base filename
+        """,
     )
-    parser.add_argument(
+    p.add_argument(
+        "config_file",
+        type=Path,
+        metavar="CONFIG_FILE",
+        help="YAML cruise configuration file",
+    )
+    p.add_argument(
+        "--no-ports",
+        action="store_true",
+        help="Suppress plotting of departure and arrival ports in both PNG and KML outputs",
+    )
+    p.add_argument(
+        "--no-title",
+        action="store_true",
+        help="Omit title from PNG map",
+    )
+    p.add_argument(
+        "--no-labels",
+        action="store_true",
+        help="Omit station name labels from PNG map",
+    )
+    p.add_argument(
+        "--no-legend",
+        action="store_true",
+        help="Omit legend from PNG map",
+    )
+    p.add_argument(
         "-o",
         "--output-dir",
         type=Path,
         default=Path("data"),
-        help="Output directory for map files",
+        help="Output directory (default: data)",
     )
-    parser.add_argument(
-        "--output", help="Base filename for outputs (without extension)"
+    p.add_argument(
+        "--output",
+        type=str,
+        help="Base filename for output maps (default: use config filename)",
     )
-    parser.add_argument(
+    p.add_argument(
         "--format",
         nargs="+",
         choices=["png", "kml"],
@@ -98,60 +138,66 @@ if __name__ == "__main__":
         metavar="FORMAT",
         help="Output formats: png kml (space-separated). Omit to generate all.",
     )
-    parser.add_argument(
+    p.add_argument(
         "--bathy-source",
-        default="gebco2025",
-        help="Bathymetry data source (default: gebco2025)",
+        choices=BATHY_SOURCES,
+        default=DEFAULT_BATHY_SOURCE,
+        help="Bathymetry dataset (default: gebco2025)",
     )
-    parser.add_argument(
-        "--bathy-dir", default="data/bathymetry", help="Bathymetry data directory"
+    p.add_argument(
+        "--bathy-dir",
+        type=Path,
+        default=Path(DEFAULT_BATHY_DIR),
+        help="Directory containing bathymetry data (default: data/bathymetry)",
     )
-    parser.add_argument(
+    p.add_argument(
         "--bathy-stride",
         type=int,
         default=5,
-        help="Bathymetry data stride (default: 5)",
+        help="Bathymetry grid downsampling factor: 1 = full resolution, higher = faster but less detail (default: 5)",
     )
-    parser.add_argument(
-        "--bathy-contours",
+    p.add_argument(
+        "--figsize",
+        nargs=2,
         type=float,
-        nargs="+",
-        metavar="DEPTH",
-        help="Bathymetry contour depths in meters (e.g. --bathy-contours 200 500 1000 2000). Replaces defaults.",
+        metavar=("WIDTH", "HEIGHT"),
+        default=[10, 8.1],
+        help="Figure size in inches (default: 10 8.1)",
     )
-    parser.add_argument(
+    p.add_argument(
+        "--show-plot",
+        action="store_true",
+        help="Display plot interactively instead of saving to file",
+    )
+    p.add_argument(
         "--lat",
         nargs=2,
         type=float,
         metavar=("MIN", "MAX"),
         help="Latitude bounds for map extent (e.g., --lat -75 -70)",
     )
-    parser.add_argument(
+    p.add_argument(
         "--lon",
         nargs=2,
         type=float,
         metavar=("MIN", "MAX"),
         help="Longitude bounds for map extent (e.g., --lon 170 175)",
     )
-    parser.add_argument(
-        "--figsize",
+    p.add_argument(
+        "--bathy-contours",
         type=float,
-        nargs=2,
-        metavar=("WIDTH", "HEIGHT"),
-        help="Figure size in inches (width height)",
+        nargs="+",
+        metavar="DEPTH",
+        help="Bathymetry contour depths in metres (e.g. --bathy-contours 200 500 1000 2000). Replaces defaults.",
     )
-    parser.add_argument(
-        "--show-plot", action="store_true", help="Display plot interactively"
+    p.add_argument(
+        "--max-depth",
+        type=int,
+        default=None,
+        metavar="METRES",
+        help="Maximum water depth (m) for the bathymetry colour scale. Example: --max-depth 1000",
     )
-    parser.add_argument(
-        "--no-ports", action="store_true", help="Exclude ports from map"
+    p.add_argument(
+        "--verbose", "-v", action="store_true", help="Enable verbose logging"
     )
-    parser.add_argument("--no-title", action="store_true", help="Omit map title")
-    parser.add_argument(
-        "--no-labels", action="store_true", help="Omit station name labels"
-    )
-    parser.add_argument("--no-legend", action="store_true", help="Omit map legend")
-    parser.add_argument("--verbose", action="store_true", help="Verbose output")
-
-    args = parser.parse_args()
-    main(args)
+    return p

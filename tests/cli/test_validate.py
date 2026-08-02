@@ -12,7 +12,7 @@ from unittest.mock import patch
 import pytest
 
 import cruiseplan
-from cruiseplan.cli.validate import main
+from cruiseplan.cli.validate import run
 
 
 class TestValidateThinCLI:
@@ -44,7 +44,7 @@ class TestValidateThinCLI:
             )
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             # Should exit with code 0 (success)
             assert exc_info.value.code == 0
@@ -85,7 +85,7 @@ class TestValidateThinCLI:
             )
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 0
             mock_validate.assert_called_once_with(
@@ -122,7 +122,7 @@ class TestValidateThinCLI:
             )
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             # Should exit with code 1 (failure)
             assert exc_info.value.code == 1
@@ -145,7 +145,7 @@ class TestValidateThinCLI:
             )
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -167,7 +167,7 @@ class TestValidateThinCLI:
             )
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -189,7 +189,7 @@ class TestValidateThinCLI:
             )
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -213,7 +213,7 @@ class TestValidateThinCLI:
             # Capture the exception handling without letting it propagate
             with patch("sys.exit") as mock_exit:
                 try:
-                    main(args)
+                    run(args)
                 except SystemExit:
                     pass  # Expected, but don't let it propagate to pytest
 
@@ -238,7 +238,7 @@ class TestValidateThinCLI:
             mock_validate.side_effect = RuntimeError("Unexpected error")
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -261,7 +261,7 @@ class TestValidateThinCLI:
             mock_validate.side_effect = RuntimeError("Unexpected error")
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             # Should print traceback when verbose=True
             mock_traceback.assert_called_once()
@@ -281,7 +281,7 @@ class TestValidateThinCLI:
             )
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             # Should use defaults for missing arguments
             mock_validate.assert_called_once_with(

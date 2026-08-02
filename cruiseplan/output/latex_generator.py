@@ -847,7 +847,7 @@ class LaTeXGenerator:
 
         # Generate table blocks for each section
         table_blocks = []
-        for i, table_content in enumerate(table_contents):
+        for _i, table_content in enumerate(table_contents):
             table_block = f"""\\begin{{table}}[htbp]
 \\begin{{tabular}}{{lllllp{{2in}}}}
 \\toprule
