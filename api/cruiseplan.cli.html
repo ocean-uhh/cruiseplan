@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Command-line-interface (CLI) &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev53</title>
+  <title>Command-line-interface (CLI) &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev54</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=2f606821"></script>
+      <script src="../_static/documentation_options.js?v=e4e9f8ec"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -73,37 +73,45 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.cli.bathymetry">cruiseplan.cli.bathymetry module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.bathymetry.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.bathymetry.build_parser"><code class="docutils literal notranslate"><span class="pre">build_parser()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.bathymetry.run"><code class="docutils literal notranslate"><span class="pre">run()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.cli.pangaea">cruiseplan.cli.pangaea module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.pangaea.build_parser"><code class="docutils literal notranslate"><span class="pre">build_parser()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.pangaea.determine_workflow_mode"><code class="docutils literal notranslate"><span class="pre">determine_workflow_mode()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.pangaea.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.pangaea.run"><code class="docutils literal notranslate"><span class="pre">run()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.pangaea.validate_lat_lon_bounds"><code class="docutils literal notranslate"><span class="pre">validate_lat_lon_bounds()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.cli.stations">cruiseplan.cli.stations module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.stations.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.stations.build_parser"><code class="docutils literal notranslate"><span class="pre">build_parser()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.stations.run"><code class="docutils literal notranslate"><span class="pre">run()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.cli.process">cruiseplan.cli.process module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.process.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.process.build_parser"><code class="docutils literal notranslate"><span class="pre">build_parser()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.process.run"><code class="docutils literal notranslate"><span class="pre">run()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.cli.schedule">cruiseplan.cli.schedule module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.schedule.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.schedule.build_parser"><code class="docutils literal notranslate"><span class="pre">build_parser()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.schedule.run"><code class="docutils literal notranslate"><span class="pre">run()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.cli.enrich">cruiseplan.cli.enrich module (part of cruiseplan.cli.process)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.enrich.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.enrich.build_parser"><code class="docutils literal notranslate"><span class="pre">build_parser()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.enrich.run"><code class="docutils literal notranslate"><span class="pre">run()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.cli.validate">cruiseplan.cli.validate module (part of cruiseplan.cli.process)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.validate.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.validate.build_parser"><code class="docutils literal notranslate"><span class="pre">build_parser()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.validate.run"><code class="docutils literal notranslate"><span class="pre">run()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.cli.map">cruiseplan.cli.map module (part of cruiseplan.cli.process)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.map.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.map.build_parser"><code class="docutils literal notranslate"><span class="pre">build_parser()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.map.run"><code class="docutils literal notranslate"><span class="pre">run()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -175,10 +183,10 @@ through the command line, supporting the full workflow from configuration to out
 
 <section id="module-cruiseplan.cli.main">
 <span id="cruiseplan-cli-main-module"></span><h2>cruiseplan.cli.main module<a class="headerlink" href="#module-cruiseplan.cli.main" title="Link to this heading"></a></h2>
-<p>cruiseplan CLI - Modern subcommand architecture for oceanographic cruise planning.</p>
-<p>This module provides the main command-line interface for the cruiseplan system,
-implementing a git-style subcommand pattern with various operations for cruise
-planning, data processing, and output generation.</p>
+<p>cruiseplan CLI - Subcommand dispatcher for oceanographic cruise planning.</p>
+<p>Each subcommand is defined in its own module (e.g. cruiseplan/cli/schedule.py)
+via a build_parser(subparsers) function. This module wires them together and
+dispatches to the appropriate run(args) function.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.cli.main.main">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.main.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/cli/main.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.main.main" title="Link to this definition"></a></dt>
@@ -193,8 +201,14 @@ planning, data processing, and output generation.</p>
 bathymetry data assets required for cruise planning.</p>
 <p>Thin CLI layer that delegates all business logic to the API layer.</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.cli.bathymetry.main">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.bathymetry.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/bathymetry.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.bathymetry.main" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.cli.bathymetry.build_parser">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.bathymetry.</span></span><span class="sig-name descname"><span class="pre">build_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subparsers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_SubParsersAction</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ArgumentParser</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/bathymetry.html#build_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.bathymetry.build_parser" title="Link to this definition"></a></dt>
+<dd><p>Add the bathymetry subparser and return it.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.cli.bathymetry.run">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.bathymetry.</span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/bathymetry.html#run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.bathymetry.run" title="Link to this definition"></a></dt>
 <dd><p>Thin CLI wrapper for bathymetry command.</p>
 <p>Delegates all business logic to the cruiseplan.bathymetry() API function.</p>
 </dd></dl>
@@ -208,14 +222,20 @@ bathymetry data assets required for cruise planning.</p>
 2. Process an existing DOI list file directly into station data</p>
 <p>Thin CLI layer that delegates all business logic to the API layer.</p>
 <dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.cli.pangaea.build_parser">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.pangaea.</span></span><span class="sig-name descname"><span class="pre">build_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subparsers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_SubParsersAction</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ArgumentParser</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/pangaea.html#build_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.pangaea.build_parser" title="Link to this definition"></a></dt>
+<dd><p>Add the pangaea subparser and return it.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.cli.pangaea.determine_workflow_mode">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.pangaea.</span></span><span class="sig-name descname"><span class="pre">determine_workflow_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/pangaea.html#determine_workflow_mode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.pangaea.determine_workflow_mode" title="Link to this definition"></a></dt>
 <dd><p>Determine whether we’re in search mode or DOI file mode.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.cli.pangaea.main">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.pangaea.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/pangaea.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.pangaea.main" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.cli.pangaea.run">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.pangaea.</span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/pangaea.html#run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.pangaea.run" title="Link to this definition"></a></dt>
 <dd><p>Thin CLI wrapper for pangaea command.</p>
 <p>Delegates all business logic to the cruiseplan.pangaea() API function.</p>
 </dd></dl>
@@ -234,8 +254,14 @@ bathymetry data assets required for cruise planning.</p>
 <p>Thin CLI wrapper that calls the cruiseplan.stations() API function.
 This follows the established pattern used by process.py, validate.py, map.py, and schedule.py.</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.cli.stations.main">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.stations.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/stations.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.stations.main" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.cli.stations.build_parser">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.stations.</span></span><span class="sig-name descname"><span class="pre">build_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subparsers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_SubParsersAction</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ArgumentParser</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/stations.html#build_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.stations.build_parser" title="Link to this definition"></a></dt>
+<dd><p>Add the stations subparser and return it.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.cli.stations.run">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.stations.</span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/stations.html#run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.stations.run" title="Link to this definition"></a></dt>
 <dd><p>Main entry point for interactive station placement.</p>
 <p>Thin CLI wrapper that calls the cruiseplan.stations() API function.
 This follows the established pattern used by process.py, validate.py, map.py, and schedule.py.</p>
@@ -254,8 +280,14 @@ This follows the established pattern used by process.py, validate.py, map.py, an
 workflow: enrichment -&gt; validation -&gt; map generation.</p>
 <p>Thin CLI layer that delegates all business logic to the API layer.</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.cli.process.main">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.process.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/process.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.process.main" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.cli.process.build_parser">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.process.</span></span><span class="sig-name descname"><span class="pre">build_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subparsers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_SubParsersAction</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ArgumentParser</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/process.html#build_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.process.build_parser" title="Link to this definition"></a></dt>
+<dd><p>Add the process subparser and return it.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.cli.process.run">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.process.</span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/process.html#run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.process.run" title="Link to this definition"></a></dt>
 <dd><p>Thin CLI wrapper for process command.</p>
 <p>Delegates all business logic to the cruiseplan.process() API function.</p>
 </dd></dl>
@@ -268,8 +300,14 @@ workflow: enrichment -&gt; validation -&gt; map generation.</p>
 comprehensive cruise schedules from YAML configuration files.</p>
 <p>Thin CLI layer that delegates all business logic to the API layer.</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.cli.schedule.main">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.schedule.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/schedule.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.schedule.main" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.cli.schedule.build_parser">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.schedule.</span></span><span class="sig-name descname"><span class="pre">build_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subparsers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_SubParsersAction</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ArgumentParser</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/schedule.html#build_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.schedule.build_parser" title="Link to this definition"></a></dt>
+<dd><p>Add the schedule subparser and return it.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.cli.schedule.run">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.schedule.</span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/schedule.html#run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.schedule.run" title="Link to this definition"></a></dt>
 <dd><p>Thin CLI wrapper for schedule command.</p>
 <p>Delegates all business logic to the cruiseplan.schedule() API function.</p>
 </dd></dl>
@@ -282,8 +320,14 @@ comprehensive cruise schedules from YAML configuration files.</p>
 data to existing YAML configuration files.</p>
 <p>Thin CLI layer that delegates all business logic to the API layer.</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.cli.enrich.main">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.enrich.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/enrich.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.enrich.main" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.cli.enrich.build_parser">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.enrich.</span></span><span class="sig-name descname"><span class="pre">build_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subparsers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_SubParsersAction</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ArgumentParser</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/enrich.html#build_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.enrich.build_parser" title="Link to this definition"></a></dt>
+<dd><p>Add the enrich subparser and return it.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.cli.enrich.run">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.enrich.</span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/enrich.html#run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.enrich.run" title="Link to this definition"></a></dt>
 <dd><p>Thin CLI wrapper for enrich command.</p>
 <p>Delegates all business logic to the cruiseplan.enrich() API function.</p>
 </dd></dl>
@@ -296,8 +340,14 @@ data to existing YAML configuration files.</p>
 validation of YAML configuration files without modification.</p>
 <p>Thin CLI layer that delegates all business logic to the API layer.</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.cli.validate.main">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.validate.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/validate.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.validate.main" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.cli.validate.build_parser">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.validate.</span></span><span class="sig-name descname"><span class="pre">build_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subparsers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_SubParsersAction</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ArgumentParser</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/validate.html#build_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.validate.build_parser" title="Link to this definition"></a></dt>
+<dd><p>Add the validate subparser and return it.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.cli.validate.run">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.validate.</span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/validate.html#run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.validate.run" title="Link to this definition"></a></dt>
 <dd><p>Thin CLI wrapper for validate command.</p>
 <p>Delegates all business logic to the cruiseplan.validate() API function.</p>
 </dd></dl>
@@ -307,11 +357,17 @@ validation of YAML configuration files without modification.</p>
 <span id="cruiseplan-cli-map-module-part-of-cruiseplan-cli-process"></span><h2>cruiseplan.cli.map module (part of cruiseplan.cli.process)<a class="headerlink" href="#module-cruiseplan.cli.map" title="Link to this heading"></a></h2>
 <p>Map generation command.</p>
 <p>This module implements the ‘cruiseplan map’ command for generating
-cruise track visualizations (PNG maps and KML files).</p>
+cruise track visualisations (PNG maps and KML files).</p>
 <p>Thin CLI layer that delegates all business logic to the API layer.</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.cli.map.main">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.map.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/map.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.map.main" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.cli.map.build_parser">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.map.</span></span><span class="sig-name descname"><span class="pre">build_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subparsers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_SubParsersAction</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ArgumentParser</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/map.html#build_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.map.build_parser" title="Link to this definition"></a></dt>
+<dd><p>Add the map subparser and return it.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.cli.map.run">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.map.</span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/map.html#run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.map.run" title="Link to this definition"></a></dt>
 <dd><p>Thin CLI wrapper for map command.</p>
 <p>Delegates all business logic to the cruiseplan.map() API function.</p>
 </dd></dl>
