@@ -1481,7 +1481,7 @@ def _add_eez_boundaries(folium_map, tracks: list[dict[str, Any]]) -> None:
     )
 
     # Add EEZ boundaries to map
-    for idx, eez in eez_gdf.iterrows():
+    for _idx, eez in eez_gdf.iterrows():
         # Get country and zone info
         country = eez.get("SOVEREIGN1", "Unknown")
         zone_name = eez.get("GEONAME", "Unknown EEZ")

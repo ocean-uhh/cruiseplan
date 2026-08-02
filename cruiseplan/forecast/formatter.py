@@ -164,7 +164,7 @@ def format_letsgo_output(
     try:
         start_dt = datetime.fromisoformat(start_time.replace("T", " "))
         start_date_str = start_dt.strftime("%Y/%m/%d %H:%M")
-    except:
+    except ValueError:
         start_date_str = start_time
 
     # Header
@@ -181,8 +181,8 @@ def format_letsgo_output(
 
     # Activity lines
     for (
-        orig_idx,
-        abs_time,
+        _orig_idx,
+        _abs_time,
         category,
         activity_type,
         action,

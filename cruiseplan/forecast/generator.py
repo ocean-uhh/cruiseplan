@@ -244,9 +244,6 @@ def generate_forecast(
     except Exception as e:
         raise ValueError(f"Invalid start_time format '{start_time}': {e}")
 
-    # Get all activities (we only need the time offsets for forecast calculation)
-    activities = list_activities(schedule)
-
     # Convert time data to pandas timedeltas for easier calculation
     time_data = schedule.time.values
     if hasattr(time_data[0], "total_seconds"):
