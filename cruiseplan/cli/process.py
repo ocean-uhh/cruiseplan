@@ -24,6 +24,8 @@ def main(args: argparse.Namespace) -> None:
     verbose = getattr(args, "verbose", False)
     with handle_cli_errors("process", verbose):
         # Call the API function with CLI arguments
+        format_list = getattr(args, "format", None)
+        format_str = ",".join(format_list) if format_list else "all"
         result = cruiseplan.process(
             config_file=args.config_file,
             output_dir=str(getattr(args, "output_dir", "data")),
@@ -44,7 +46,7 @@ def main(args: argparse.Namespace) -> None:
             run_map_generation=not getattr(args, "no_map", False),
             depth_check=not getattr(args, "no_depth_check", False),
             tolerance=getattr(args, "tolerance", 10.0),
-            format=getattr(args, "format", "all"),
+            format=format_str,
             bathy_stride=getattr(args, "bathy_stride", 10),
             bathy_contours=getattr(args, "bathy_contours", None),
             lat_bounds=getattr(args, "lat", None),
@@ -65,23 +67,23 @@ def main(args: argparse.Namespace) -> None:
         print("=" * 50)
 
         if result.config:
-            print(f"✅ {result}")
-            print("📁 Generated files:")
+            print(result)
+            print("Generated files:")
             for file_path in result.files_created:
                 print(f"  • {file_path}")
 
             # Show processing summary
-            print("📊 Processing summary:")
+            print("Processing summary:")
             print(f"  • Config file: {result.summary.get('config_file', 'N/A')}")
             print(f"  • Files generated: {result.summary.get('files_generated', 0)}")
             if result.summary.get("enrichment_run"):
-                print("  • ✅ Enrichment completed")
+                print("  - Enrichment completed")
             if result.summary.get("validation_run"):
-                print("  • ✅ Validation completed")
+                print("  - Validation completed")
             if result.summary.get("map_generation_run"):
-                print("  • ✅ Map generation completed")
+                print("  - Map generation completed")
         else:
-            print("❌ Processing failed")
+            print("Processing failed")
             sys.exit(1)
 
 
@@ -139,9 +141,11 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--format",
-        choices=["html", "latex", "csv", "netcdf", "all"],
-        default="all",
-        help="Output format for schedule (default: all)",
+        nargs="+",
+        choices=["png", "kml"],
+        default=None,
+        metavar="FORMAT",
+        help="Map output formats: png kml (space-separated). Omit to generate all.",
     )
     parser.add_argument(
         "--tolerance",

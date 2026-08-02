@@ -63,28 +63,28 @@ class TestNetCDFIntegration:
             netcdf_files = generate_netcdf_outputs(cruise.config, timeline, output_path)
 
             # Verify files were created
-            assert (
-                len(netcdf_files) == 4
-            ), f"Should create 4 NetCDF files for {yaml_path}"
+            assert len(netcdf_files) == 4, (
+                f"Should create 4 NetCDF files for {yaml_path}"
+            )
 
             # Verify all files exist and have content
             for netcdf_file in netcdf_files:
                 assert netcdf_file.exists(), f"NetCDF file should exist: {netcdf_file}"
-                assert (
-                    netcdf_file.stat().st_size > 0
-                ), f"NetCDF file should not be empty: {netcdf_file}"
+                assert netcdf_file.stat().st_size > 0, (
+                    f"NetCDF file should not be empty: {netcdf_file}"
+                )
 
                 # Quick CF compliance check
                 with nc.Dataset(netcdf_file, "r") as ds:
-                    assert hasattr(
-                        ds, "Conventions"
-                    ), f"Missing Conventions attribute in {netcdf_file}"
-                    assert (
-                        ds.Conventions == "CF-1.8"
-                    ), f"Should be CF-1.8 compliant: {netcdf_file}"
-                    assert hasattr(
-                        ds, "featureType"
-                    ), f"Missing featureType attribute in {netcdf_file}"
+                    assert hasattr(ds, "Conventions"), (
+                        f"Missing Conventions attribute in {netcdf_file}"
+                    )
+                    assert ds.Conventions == "CF-1.8", (
+                        f"Should be CF-1.8 compliant: {netcdf_file}"
+                    )
+                    assert hasattr(ds, "featureType"), (
+                        f"Missing featureType attribute in {netcdf_file}"
+                    )
 
         finally:
             # Clean up temporary enriched file
@@ -97,9 +97,9 @@ class TestNetCDFIntegration:
             # Check required global attributes
             required_attrs = ["Conventions", "title", "institution", "featureType"]
             for attr in required_attrs:
-                assert hasattr(
-                    ds, attr
-                ), f"Missing required global attribute: {attr} in {netcdf_file}"
+                assert hasattr(ds, attr), (
+                    f"Missing required global attribute: {attr} in {netcdf_file}"
+                )
 
             # Check Conventions value
             assert ds.Conventions == "CF-1.8"
@@ -112,12 +112,12 @@ class TestNetCDFIntegration:
             for var_name in ["longitude", "latitude"]:
                 if var_name in ds.variables:
                     var = ds.variables[var_name]
-                    assert hasattr(
-                        var, "units"
-                    ), f"Variable {var_name} missing 'units' attribute"
-                    assert hasattr(
-                        var, "long_name"
-                    ), f"Variable {var_name} missing 'long_name' attribute"
+                    assert hasattr(var, "units"), (
+                        f"Variable {var_name} missing 'units' attribute"
+                    )
+                    assert hasattr(var, "long_name"), (
+                        f"Variable {var_name} missing 'long_name' attribute"
+                    )
 
     def test_empty_configuration_handling(self):
         """Test NetCDF generation with minimal/empty configuration."""

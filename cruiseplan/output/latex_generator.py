@@ -585,9 +585,7 @@ class LaTeXGenerator:
 
         # Track current date for potential break points
         current_date = None
-        potential_break_points = (
-            []
-        )  # Store indices where we could break at date changes
+        potential_break_points = []  # Store indices where we could break at date changes
 
         # First print the date
         if station_records:

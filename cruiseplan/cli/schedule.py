@@ -25,23 +25,26 @@ def main(args: argparse.Namespace) -> None:
     with handle_cli_errors("schedule", verbose):
         # Check --derive-netcdf flag compatibility (CLI-specific logic)
         derive_netcdf = getattr(args, "derive_netcdf", False)
-        format_str = getattr(args, "format", "all")
-        if derive_netcdf and format_str != "all" and "netcdf" not in format_str:
+        format_list = getattr(args, "format", None)
+        format_str = ",".join(format_list) if format_list else "all"
+        if derive_netcdf and format_list and "netcdf" not in format_list:
             print(
-                "⚠️  --derive-netcdf flag requires NetCDF output format", file=sys.stderr
-            )
-            print(
-                "   Either add 'netcdf' to --format or use --format all",
+                "WARNING: --derive-netcdf requires netcdf output format",
                 file=sys.stderr,
             )
-            print("   Ignoring --derive-netcdf flag.", file=sys.stderr)
+            print(
+                "  Either add 'netcdf' to --format (e.g., --format netcdf html)"
+                " or omit --format to generate all formats.",
+                file=sys.stderr,
+            )
+            print("  Ignoring --derive-netcdf flag.", file=sys.stderr)
             derive_netcdf = False
 
         result = cruiseplan.schedule(
             config_file=args.config_file,
             output_dir=str(getattr(args, "output_dir", "data")),
             output=getattr(args, "output", None),
-            format=getattr(args, "format", "all"),
+            format=format_str,
             leg=getattr(args, "leg", None),
             derive_netcdf=derive_netcdf,
             bathy_source=getattr(args, "bathy_source", "gebco2025"),
@@ -66,8 +69,8 @@ def main(args: argparse.Namespace) -> None:
         print("=" * 50)
 
         if result.timeline:
-            print(f"✅ {result}")
-            print("📁 Generated files:")
+            print(result)
+            print("Generated files:")
             for file_path in result.files_created:
                 print(f"  • {file_path}")
 
@@ -75,10 +78,10 @@ def main(args: argparse.Namespace) -> None:
                 sum(activity.get("duration_minutes", 0) for activity in result.timeline)
                 / 60.0
             )
-            print(f"⏱️  Total timeline duration: {total_duration_hours:.1f} hours")
-            print(f"📊 Timeline activities: {len(result.timeline)}")
+            print(f"Total timeline duration: {total_duration_hours:.1f} hours")
+            print(f"Timeline activities: {len(result.timeline)}")
         else:
-            print("❌ Schedule generation failed")
+            print("Schedule generation failed")
             sys.exit(1)
 
 
@@ -97,9 +100,11 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--format",
-        choices=["html", "latex", "csv", "netcdf", "png", "all"],
-        default="all",
-        help="Output format (default: all)",
+        nargs="+",
+        choices=["html", "latex", "csv", "netcdf", "png"],
+        default=None,
+        metavar="FORMAT",
+        help="Output formats: html latex csv netcdf png (space-separated). Omit to generate all.",
     )
     parser.add_argument(
         "--leg", type=str, help="Generate schedule for specific leg only"

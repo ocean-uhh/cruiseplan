@@ -22,15 +22,15 @@ def _display_validation_results(result, warnings_only: bool) -> None:
     print("=" * 50)
 
     if result.errors:
-        print("❌ Validation Errors:")
+        print("Validation errors:")
         for error in result.errors:
             print(f"  • {error}")
 
     if result.warnings:
         if warnings_only:
-            print("i Validation Warnings (informational only):")
+            print("Validation warnings (informational only):")
         else:
-            print("⚠️ Validation Warnings:")
+            print("Validation warnings:")
         for warning in result.warnings:
             print(f"  • {warning}")
 
@@ -38,13 +38,13 @@ def _display_validation_results(result, warnings_only: bool) -> None:
 def _print_summary_and_exit(result, warnings_only: bool) -> None:
     """Print validation summary and exit with appropriate code."""
     if result.success:
-        print(f"✅ Validation passed ({len(result.warnings)} warnings)")
+        print(f"Validation passed ({len(result.warnings)} warnings)")
         if result.warnings and warnings_only:
-            print("i Treating warnings as informational only")
+            print("Treating warnings as informational only")
         sys.exit(0)
     else:
         print(
-            f"❌ Validation failed ({len(result.errors)} errors, {len(result.warnings)} warnings)"
+            f"Validation failed ({len(result.errors)} errors, {len(result.warnings)} warnings)"
         )
         sys.exit(1)
 
@@ -59,17 +59,17 @@ def _handle_exceptions(args: argparse.Namespace) -> None:
     try:
         raise
     except cruiseplan.ValidationError as e:
-        handle_error(f"❌ Configuration validation error: {e}")
+        handle_error(f"ERROR: Configuration validation error: {e}")
     except cruiseplan.FileError as e:
-        handle_error(f"❌ File operation error: {e}")
+        handle_error(f"ERROR: File operation error: {e}")
     except cruiseplan.BathymetryError as e:
-        handle_error(f"❌ Bathymetry error: {e}")
+        handle_error(f"ERROR: Bathymetry error: {e}")
     except FileNotFoundError as e:
-        handle_error(f"❌ File not found: {e}")
+        handle_error(f"ERROR: File not found: {e}")
     except KeyboardInterrupt:
-        handle_error("\n⚠️ Operation cancelled by user.")
+        handle_error("\nOperation cancelled by user.")
     except Exception as e:
-        print(f"❌ Unexpected error: {e}", file=sys.stderr)
+        print(f"ERROR: Unexpected error: {e}", file=sys.stderr)
         if getattr(args, "verbose", False):
             import traceback
 

@@ -37,25 +37,25 @@ def handle_cli_errors(command_name: str, verbose: bool = False):
     try:
         yield
     except cruiseplan.ValidationError as e:
-        print(f"❌ Configuration validation error: {e}", file=sys.stderr)
+        print(f"ERROR: Configuration validation error: {e}", file=sys.stderr)
         sys.exit(1)
     except cruiseplan.FileError as e:
-        print(f"❌ File operation error: {e}", file=sys.stderr)
+        print(f"ERROR: File operation error: {e}", file=sys.stderr)
         sys.exit(1)
     except cruiseplan.BathymetryError as e:
-        print(f"❌ Bathymetry error: {e}", file=sys.stderr)
+        print(f"ERROR: Bathymetry error: {e}", file=sys.stderr)
         sys.exit(1)
     except FileNotFoundError as e:
-        print(f"❌ File not found: {e}", file=sys.stderr)
+        print(f"ERROR: File not found: {e}", file=sys.stderr)
         sys.exit(1)
     except RuntimeError as e:
-        print(f"❌ {command_name} error: {e}", file=sys.stderr)
+        print(f"ERROR: {command_name} error: {e}", file=sys.stderr)
         sys.exit(1)
     except KeyboardInterrupt:
-        print("\n⚠️ Operation cancelled by user.", file=sys.stderr)
+        print("\nOperation cancelled by user.", file=sys.stderr)
         sys.exit(1)
     except Exception as e:
-        print(f"❌ Unexpected error: {e}", file=sys.stderr)
+        print(f"ERROR: Unexpected error: {e}", file=sys.stderr)
         if verbose:
             import traceback
 

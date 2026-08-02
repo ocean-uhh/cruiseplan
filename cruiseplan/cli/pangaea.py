@@ -70,7 +70,7 @@ def main(args: argparse.Namespace) -> None:
             try:
                 validate_lat_lon_bounds(lat_bounds, lon_bounds)
             except ValueError as e:
-                print(f"❌ Invalid coordinate bounds: {e}", file=sys.stderr)
+                print(f"ERROR: Invalid coordinate bounds: {e}", file=sys.stderr)
                 sys.exit(1)
 
         # Call the API function with CLI arguments
@@ -93,13 +93,13 @@ def main(args: argparse.Namespace) -> None:
         print("=" * 50)
 
         if result.stations_data:
-            print(f"✅ {result}")
-            print("📁 Generated files:")
+            print(result)
+            print("Generated files:")
             for file_path in result.files_created:
                 print(f"  • {file_path}")
 
             # Show next steps
-            print("🚀 Next steps:")
+            print("Next steps:")
             stations_file = next(
                 (f for f in result.files_created if str(f).endswith(".pkl")),
                 None,
@@ -108,29 +108,29 @@ def main(args: argparse.Namespace) -> None:
                 print(f"   1. Review stations: {stations_file}")
                 print(f"   2. Plan cruise: cruiseplan stations -p {stations_file}")
         else:
-            print("❌ PANGAEA processing failed")
+            print("PANGAEA processing failed")
             sys.exit(1)
 
         # Successful completion
         sys.exit(0)
 
     except cruiseplan.ValidationError as e:
-        print(f"❌ Configuration validation error: {e}", file=sys.stderr)
+        print(f"ERROR: Configuration validation error: {e}", file=sys.stderr)
         sys.exit(1)
     except cruiseplan.FileError as e:
-        print(f"❌ File operation error: {e}", file=sys.stderr)
+        print(f"ERROR: File operation error: {e}", file=sys.stderr)
         sys.exit(1)
     except FileNotFoundError as e:
-        print(f"❌ File not found: {e}", file=sys.stderr)
+        print(f"ERROR: File not found: {e}", file=sys.stderr)
         sys.exit(1)
     except RuntimeError as e:
-        print(f"❌ PANGAEA processing error: {e}", file=sys.stderr)
+        print(f"ERROR: PANGAEA processing error: {e}", file=sys.stderr)
         sys.exit(1)
     except KeyboardInterrupt:
-        print("\n⚠️ Operation cancelled by user.", file=sys.stderr)
+        print("\nOperation cancelled by user.", file=sys.stderr)
         sys.exit(1)
     except Exception as e:
-        print(f"❌ Unexpected error: {e}", file=sys.stderr)
+        print(f"ERROR: Unexpected error: {e}", file=sys.stderr)
         if getattr(args, "verbose", False):
             import traceback
 

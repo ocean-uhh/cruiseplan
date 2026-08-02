@@ -1363,7 +1363,7 @@ def generate_folium_map(
             continue
 
         # Zip coordinates for Folium (Lat, Lon)
-        points = list(zip(lats, lons))
+        points = list(zip(lats, lons, strict=False))
 
         # Pick a color
         color = colors[i % len(colors)]

@@ -284,16 +284,16 @@ legs:
 
         # Verify configured durations are preserved
         if stn_001:
-            assert (
-                stn_001["duration_minutes"] == 120.0
-            ), f"STN_001 duration should be 120 minutes, got {stn_001['duration_minutes']}"
+            assert stn_001["duration_minutes"] == 120.0, (
+                f"STN_001 duration should be 120 minutes, got {stn_001['duration_minutes']}"
+            )
 
         if stn_002:
-            assert (
-                stn_002["duration_minutes"] == 180.0
-            ), f"STN_002 duration should be 180 minutes, got {stn_002['duration_minutes']}"
+            assert stn_002["duration_minutes"] == 180.0, (
+                f"STN_002 duration should be 180 minutes, got {stn_002['duration_minutes']}"
+            )
 
         if mooring_001:
-            assert (
-                mooring_001["duration_minutes"] == 240.0
-            ), f"MOORING_001 duration should be 240 minutes, got {mooring_001['duration_minutes']}"
+            assert mooring_001["duration_minutes"] == 240.0, (
+                f"MOORING_001 duration should be 240 minutes, got {mooring_001['duration_minutes']}"
+            )

@@ -53,17 +53,17 @@ class TestOperationCountConsistency:
         # Calculate total from unified method
         unified_total = stats["total_scientific"]
 
-        assert (
-            cruise_total == leg_total_sum
-        ), f"Cruise total ({cruise_total}) != sum of leg totals ({leg_total_sum})"
+        assert cruise_total == leg_total_sum, (
+            f"Cruise total ({cruise_total}) != sum of leg totals ({leg_total_sum})"
+        )
 
-        assert (
-            unified_total == leg_total_sum
-        ), f"Unified total ({unified_total}) != sum of leg totals ({leg_total_sum})"
+        assert unified_total == leg_total_sum, (
+            f"Unified total ({unified_total}) != sum of leg totals ({leg_total_sum})"
+        )
 
-        assert (
-            cruise_total == unified_total
-        ), f"Cruise total ({cruise_total}) != unified total ({unified_total})"
+        assert cruise_total == unified_total, (
+            f"Cruise total ({cruise_total}) != unified total ({unified_total})"
+        )
 
         return cruise_total, leg_total_sum, unified_total
 

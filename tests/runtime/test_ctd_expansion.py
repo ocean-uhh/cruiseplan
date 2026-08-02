@@ -172,9 +172,9 @@ class TestCTDSectionExpansion:
 
         # Should have original station plus new ones with suffixes
         assert "Test_Section_Stn001" in station_names  # Original
-        assert any(
-            "Test_Section_Stn001_" in name for name in station_names
-        ), "No collision-resolved names found"
+        assert any("Test_Section_Stn001_" in name for name in station_names), (
+            "No collision-resolved names found"
+        )
 
     def test_expand_section_with_max_depth_override(self):
         """Test CTD section expansion with max_depth override from transit."""
@@ -489,7 +489,7 @@ class TestCTDExpansionEdgeCases:
         # Waypoint B must be an exact station (local_f=0 at segment start)
         b_present = any(
             abs(lat - 51.0) < 1e-5 and abs(lon - (-31.0)) < 1e-5
-            for lat, lon in zip(lats, lons)
+            for lat, lon in zip(lats, lons, strict=False)
         )
         assert b_present, "Intermediate waypoint B(51, -31) must be a station"
 

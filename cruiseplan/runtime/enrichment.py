@@ -270,7 +270,6 @@ def expand_sections(
         stations_created = 0
         station_names_created = []
         for ii, (lat, lon) in enumerate(station_positions):
-
             # Generate unique station name (handle duplicates)
             base_station_name = f"{base_name}_Stn{ii + 1:03d}"
             station_name = _generate_unique_name(

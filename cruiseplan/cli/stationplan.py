@@ -37,7 +37,7 @@ def main(args: argparse.Namespace) -> None:
         # Validate schedule file exists
         schedule_file = Path(args.schedule)
         if not schedule_file.exists():
-            print(f"❌ Schedule file not found: {schedule_file}", file=sys.stderr)
+            print(f"ERROR: Schedule file not found: {schedule_file}", file=sys.stderr)
             sys.exit(1)
 
         # List mode
@@ -47,7 +47,7 @@ def main(args: argparse.Namespace) -> None:
             if result.success:
                 print(result.output)
             else:
-                print(f"❌ {result.message}", file=sys.stderr)
+                print(f"ERROR: {result.message}", file=sys.stderr)
                 sys.exit(1)
 
         # Forecast mode with optional format
@@ -73,9 +73,9 @@ def main(args: argparse.Namespace) -> None:
                 )
 
                 if result.success:
-                    print(f"✅ Generated TeX forecast: {result.output}")
+                    print(f"Generated TeX forecast: {result.output}")
                 else:
-                    print(f"❌ {result.message}", file=sys.stderr)
+                    print(f"ERROR: {result.message}", file=sys.stderr)
                     sys.exit(1)
 
             elif format_type == "waypoints":
@@ -90,7 +90,7 @@ def main(args: argparse.Namespace) -> None:
                         )
                     except (ValueError, AttributeError) as e:
                         print(
-                            f"❌ Invalid current position format. Use 'lat,lon' like '65.123,-30.456': {e}",
+                            f"ERROR: Invalid current position format. Use 'lat,lon' like '65.123,-30.456': {e}",
                             file=sys.stderr,
                         )
                         sys.exit(1)
@@ -111,11 +111,11 @@ def main(args: argparse.Namespace) -> None:
 
                 if result.success:
                     if output_path:
-                        print(f"✅ Generated bridge waypoints: {result.output}")
+                        print(f"Generated bridge waypoints: {result.output}")
                     else:
                         print(result.output)
                 else:
-                    print(f"❌ {result.message}", file=sys.stderr)
+                    print(f"ERROR: {result.message}", file=sys.stderr)
                     sys.exit(1)
 
             elif format_type == "kml":
@@ -140,9 +140,9 @@ def main(args: argparse.Namespace) -> None:
                 )
 
                 if result.success:
-                    print(f"✅ Generated KML forecast: {result.output}")
+                    print(f"Generated KML forecast: {result.output}")
                 else:
-                    print(f"❌ {result.message}", file=sys.stderr)
+                    print(f"ERROR: {result.message}", file=sys.stderr)
                     sys.exit(1)
 
             elif format_type == "png":
@@ -186,9 +186,9 @@ def main(args: argparse.Namespace) -> None:
                 )
 
                 if result.success:
-                    print(f"✅ Generated PNG forecast map: {result.output}")
+                    print(f"Generated PNG forecast map: {result.output}")
                 else:
-                    print(f"❌ {result.message}", file=sys.stderr)
+                    print(f"ERROR: {result.message}", file=sys.stderr)
                     sys.exit(1)
 
             else:
@@ -209,10 +209,10 @@ def main(args: argparse.Namespace) -> None:
                             output_path.parent.mkdir(parents=True, exist_ok=True)
                             with open(output_path, "w") as f:
                                 f.write(result.output)
-                            print(f"✅ Forecast written to: {output_path}")
+                            print(f"Forecast written to: {output_path}")
                         except Exception as e:
                             print(
-                                f"❌ Error writing to {output_path}: {e}",
+                                f"ERROR: Error writing to {output_path}: {e}",
                                 file=sys.stderr,
                             )
                             sys.exit(1)
@@ -220,7 +220,7 @@ def main(args: argparse.Namespace) -> None:
                         # Output to stdout
                         print(result.output)
                 else:
-                    print(f"❌ {result.message}", file=sys.stderr)
+                    print(f"ERROR: {result.message}", file=sys.stderr)
                     sys.exit(1)
 
         # Format mode without forecast parameters
@@ -242,9 +242,9 @@ def main(args: argparse.Namespace) -> None:
                 )
 
                 if result.success:
-                    print(f"✅ Generated TeX station table: {result.output}")
+                    print(f"Generated TeX station table: {result.output}")
                 else:
-                    print(f"❌ {result.message}", file=sys.stderr)
+                    print(f"ERROR: {result.message}", file=sys.stderr)
                     sys.exit(1)
 
             elif format_type == "waypoints":
@@ -259,7 +259,7 @@ def main(args: argparse.Namespace) -> None:
                         )
                     except (ValueError, AttributeError) as e:
                         print(
-                            f"❌ Invalid current position format. Use 'lat,lon' like '65.123,-30.456': {e}",
+                            f"ERROR: Invalid current position format. Use 'lat,lon' like '65.123,-30.456': {e}",
                             file=sys.stderr,
                         )
                         sys.exit(1)
@@ -280,17 +280,17 @@ def main(args: argparse.Namespace) -> None:
 
                 if result.success:
                     if output_path:
-                        print(f"✅ Generated bridge waypoints: {result.output}")
+                        print(f"Generated bridge waypoints: {result.output}")
                     else:
                         print(result.output)
                 else:
-                    print(f"❌ {result.message}", file=sys.stderr)
+                    print(f"ERROR: {result.message}", file=sys.stderr)
                     sys.exit(1)
 
             elif format_type == "kml":
                 # For KML without forecast parameters, we need start_index and start_time
                 print(
-                    "❌ KML format requires forecast parameters: --start-index and --start-time",
+                    "ERROR: KML format requires forecast parameters: --start-index and --start-time",
                     file=sys.stderr,
                 )
                 print(
@@ -302,7 +302,7 @@ def main(args: argparse.Namespace) -> None:
             elif format_type == "png":
                 # For PNG without forecast parameters, we need start_index and start_time
                 print(
-                    "❌ PNG format requires forecast parameters: --start-index and --start-time",
+                    "ERROR: PNG format requires forecast parameters: --start-index and --start-time",
                     file=sys.stderr,
                 )
                 print(
@@ -314,7 +314,7 @@ def main(args: argparse.Namespace) -> None:
         # No valid mode specified
         else:
             print(
-                "❌ Must specify either --list or both --start-index and --start-time",
+                "ERROR: Must specify either --list or both --start-index and --start-time",
                 file=sys.stderr,
             )
             print(
@@ -324,8 +324,8 @@ def main(args: argparse.Namespace) -> None:
             sys.exit(1)
 
     except KeyboardInterrupt:
-        print("\n⚠️ Operation cancelled by user.", file=sys.stderr)
+        print("\nOperation cancelled by user.", file=sys.stderr)
         sys.exit(1)
     except Exception as e:
-        print(f"❌ Unexpected error: {e}", file=sys.stderr)
+        print(f"ERROR: Unexpected error: {e}", file=sys.stderr)
         sys.exit(1)
