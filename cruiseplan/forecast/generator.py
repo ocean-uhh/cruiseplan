@@ -68,6 +68,7 @@ def list_activities(
             ),
             schedule.duration.values,
             schedule.name.values,
+            strict=False,
         )
     ):
         # Format time offset as days and decimal hours, rounded to nearest 0.1h

@@ -6,12 +6,13 @@ This tests that TeX tables break correctly when they exceed 36 lines,
 preferably at date boundaries.
 """
 
+import sys
 import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
 
 
-def test_table_breaking():
+def test_table_breaking():  # noqa: C901
     """Test that tables break correctly when exceeding 36 lines."""
     try:
         from cruiseplan.output.latex_generator import LaTeXGenerator
@@ -159,4 +160,4 @@ def main():
 
 if __name__ == "__main__":
     success = main()
-    exit(0 if success else 1)
+    sys.exit(0 if success else 1)

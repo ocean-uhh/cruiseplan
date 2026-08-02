@@ -151,7 +151,11 @@ class TestScheduleThinCLI:
 
             # Verify warning was printed
             warning_calls = [
-                call for call in mock_print.call_args_list if call[0][0].startswith("⚠️")
+                call
+                for call in mock_print.call_args_list
+                if call[0]
+                and isinstance(call[0][0], str)
+                and call[0][0].startswith("WARNING:")
             ]
             assert len(warning_calls) > 0
 
@@ -260,7 +264,7 @@ class TestScheduleThinCLI:
         # Minimal args - missing optional attributes
         args = argparse.Namespace(
             config_file=Path("test.yaml"),
-            format="csv",
+            format=["csv"],
             # Missing: output_dir, output, leg, derive_netcdf, etc.
         )
 

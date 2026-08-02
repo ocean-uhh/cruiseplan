@@ -768,7 +768,7 @@ class StationPicker:
             self.temp_area_artist.remove()
 
         # Create polygon from current points
-        lons, lats = zip(*self.current_area_points)
+        lons, lats = zip(*self.current_area_points, strict=False)
 
         # Add the current mouse position to close the polygon visually
         # For now, just draw the current polygon
@@ -794,8 +794,8 @@ class StationPicker:
         # Create polygon patch for the completed area
         from matplotlib.patches import Polygon
 
-        lons, lats = zip(*self.current_area_points)
-        polygon_coords = list(zip(lons, lats))
+        lons, lats = zip(*self.current_area_points, strict=False)
+        polygon_coords = list(zip(lons, lats, strict=False))
 
         polygon = Polygon(
             polygon_coords,

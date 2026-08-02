@@ -29,7 +29,8 @@ def main(args: argparse.Namespace) -> None:
         format_str = ",".join(format_list) if format_list else "all"
         if derive_netcdf and format_list and "netcdf" not in format_list:
             print(
-                "WARNING: --derive-netcdf requires netcdf output format", file=sys.stderr
+                "WARNING: --derive-netcdf requires netcdf output format",
+                file=sys.stderr,
             )
             print(
                 "  Either add 'netcdf' to --format (e.g., --format netcdf html)"

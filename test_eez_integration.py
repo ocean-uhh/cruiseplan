@@ -7,6 +7,7 @@ without needing to download actual EEZ data.
 """
 
 import logging
+import sys
 import tempfile
 from pathlib import Path
 
@@ -46,7 +47,7 @@ def test_imports():
         return True
 
     except ImportError as e:
-        logger.error(f"❌ Import failed: {e}")
+        logger.exception(f"Import failed: {e}")
         return False
 
 
@@ -84,7 +85,7 @@ def test_api_signatures():
         return True
 
     except Exception as e:
-        logger.error(f"❌ API signature test failed: {e}")
+        logger.exception(f"API signature test failed: {e}")
         return False
 
 
@@ -114,7 +115,7 @@ def test_config_classes():
         return True
 
     except Exception as e:
-        logger.error(f"❌ Config class test failed: {e}")
+        logger.exception(f"Config class test failed: {e}")
         return False
 
 
@@ -167,7 +168,7 @@ def test_folium_integration():
                 return False
 
     except Exception as e:
-        logger.error(f"❌ Folium integration test failed: {e}")
+        logger.exception(f"Folium integration test failed: {e}")
         return False
 
 
@@ -224,7 +225,7 @@ def main():
             result = test()
             results.append(result)
         except Exception as e:
-            logger.error(f"❌ Test {test.__name__} failed with exception: {e}")
+            logger.exception(f"Test {test.__name__} failed with exception: {e}")
             results.append(False)
         logger.info("")
 
@@ -233,7 +234,7 @@ def main():
     passed = sum(results)
     total = len(results)
 
-    for i, (test, result) in enumerate(zip(tests, results)):
+    for i, (test, result) in enumerate(zip(tests, results, strict=False)):
         status = "✅ PASS" if result else "❌ FAIL"
         logger.info(f"{i + 1}. {test.__name__}: {status}")
 
@@ -266,4 +267,4 @@ def main():
 
 if __name__ == "__main__":
     success = main()
-    exit(0 if success else 1)
+    sys.exit(0 if success else 1)

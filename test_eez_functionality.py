@@ -279,7 +279,7 @@ def main():
     passed = sum(results)
     total = len(results)
 
-    for i, (test, result) in enumerate(zip(tests, results)):
+    for i, (test, result) in enumerate(zip(tests, results, strict=False)):
         status = "✅ PASS" if result else "❌ FAIL"
         logger.info(f"{i + 1}. {test.__name__}: {status}")
 
