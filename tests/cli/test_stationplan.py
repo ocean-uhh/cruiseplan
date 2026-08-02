@@ -10,7 +10,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from cruiseplan.api.stationplan_api import StationplanResult
-from cruiseplan.cli.stationplan import main
+from cruiseplan.cli.stationplan import run
 
 
 class TestStationplanThinCLI:
@@ -19,7 +19,7 @@ class TestStationplanThinCLI:
     def test_list_mode_success(self):
         """Test list mode calls stationplan_list API correctly."""
         args = argparse.Namespace(
-            schedule=Path("test_schedule.nc"),
+            schedule_file=Path("test_schedule.nc"),
             list=True,
             forecast=False,
             tex=False,
@@ -37,7 +37,7 @@ class TestStationplanThinCLI:
                 )
 
                 # Should not raise exception
-                main(args)
+                run(args)
 
                 # Verify API was called correctly
                 mock_list.assert_called_once_with(Path("test_schedule.nc"))
@@ -45,7 +45,7 @@ class TestStationplanThinCLI:
     def test_forecast_mode_success(self):
         """Test forecast mode calls stationplan_forecast API correctly."""
         args = argparse.Namespace(
-            schedule=Path("test_schedule.nc"),
+            schedule_file=Path("test_schedule.nc"),
             list=False,
             forecast=True,
             tex=False,
@@ -67,7 +67,7 @@ class TestStationplanThinCLI:
                 )
 
                 # Should not raise exception
-                main(args)
+                run(args)
 
                 # Verify API was called correctly
                 mock_forecast.assert_called_once_with(
@@ -81,7 +81,7 @@ class TestStationplanThinCLI:
     def test_api_failure_handling(self):
         """Test handling of API failures."""
         args = argparse.Namespace(
-            schedule=Path("test_schedule.nc"),
+            schedule_file=Path("test_schedule.nc"),
             list=True,
             forecast=False,
             tex=False,
@@ -99,5 +99,5 @@ class TestStationplanThinCLI:
                 )
 
                 with patch("sys.exit") as mock_exit:
-                    main(args)
+                    run(args)
                     mock_exit.assert_called_once_with(1)

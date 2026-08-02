@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pytest
 
-from cruiseplan.cli.schedule import main as schedule_main
+from cruiseplan.cli.schedule import run as schedule_run
 
 
 class TestOutputGenerationValidation:
@@ -57,7 +57,7 @@ class TestOutputGenerationValidation:
                     args = self.create_schedule_args(
                         config_path, str(output_path), "latex"
                     )
-                    schedule_main(args)
+                    schedule_run(args)
                 except SystemExit as e:
                     if e.code != 0:
                         pytest.fail(f"LaTeX generation failed for {config_path}")
@@ -103,7 +103,7 @@ class TestOutputGenerationValidation:
                     args = self.create_schedule_args(
                         config_path, str(output_path), "png"
                     )
-                    schedule_main(args)
+                    schedule_run(args)
                 except SystemExit as e:
                     if e.code != 0:
                         pytest.fail(f"PNG generation failed for {config_path}")
@@ -139,7 +139,7 @@ class TestOutputGenerationValidation:
                 args = self.create_schedule_args(
                     config_path, str(output_path), "html,csv,latex,netcdf,png"
                 )
-                schedule_main(args)
+                schedule_run(args)
             except SystemExit as e:
                 if e.code != 0:
                     pytest.fail(f"Multi-format generation failed for {config_path}")
@@ -181,7 +181,7 @@ cruise_name: "Broken Test"
                     args = self.create_schedule_args(
                         broken_config, str(output_path), "latex"
                     )
-                    schedule_main(args)
+                    schedule_run(args)
 
                 # Verify it failed (non-zero exit code)
                 assert exc_info.value.code != 0, (
@@ -224,7 +224,7 @@ class TestSpecificOutputFormats:
 
             try:
                 args = self.create_schedule_args(config_path, str(output_path), "latex")
-                schedule_main(args)
+                schedule_run(args)
             except SystemExit as e:
                 if e.code != 0:
                     pytest.fail(f"LaTeX generation failed for {config_path}")
@@ -263,7 +263,7 @@ class TestSpecificOutputFormats:
 
             try:
                 args = self.create_schedule_args(config_path, str(output_path), "png")
-                schedule_main(args)
+                schedule_run(args)
             except SystemExit as e:
                 if e.code != 0:
                     pytest.fail(f"PNG generation failed for {config_path}")

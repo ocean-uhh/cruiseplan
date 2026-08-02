@@ -12,7 +12,7 @@ from cruiseplan.api.stations_api import (
     determine_coordinate_bounds,
     load_pangaea_campaign_data,
 )
-from cruiseplan.cli.stations import main
+from cruiseplan.cli.stations import run
 
 
 class TestPangaeaDataLoading:
@@ -146,7 +146,7 @@ class TestMainCommand:
         )
 
         # Should not raise exception
-        main(args)
+        run(args)
 
         # Verify calls
         mock_validate_input.assert_called_once()
@@ -179,7 +179,7 @@ class TestMainCommand:
             quiet=False,
         )
 
-        main(args)
+        run(args)
 
         # Should still work without PANGAEA data
         mock_picker_class.assert_called_once()
@@ -210,7 +210,7 @@ class TestMainCommand:
             )
 
             with pytest.raises(SystemExit):
-                main(args)
+                run(args)
 
     def test_main_invalid_bounds(self):
         """Test main command with invalid coordinate bounds."""
@@ -224,7 +224,7 @@ class TestMainCommand:
         )
 
         with pytest.raises(SystemExit):
-            main(args)
+            run(args)
 
     @patch("cruiseplan.api.stations_api.validate_input_file")
     def test_main_pangaea_file_error(self, mock_validate_input):
@@ -241,7 +241,7 @@ class TestMainCommand:
         )
 
         with pytest.raises(SystemExit):
-            main(args)
+            run(args)
 
     def test_main_keyboard_interrupt(self):
         """Test main command handles keyboard interrupt."""
@@ -262,7 +262,7 @@ class TestMainCommand:
             mock_picker.show.side_effect = KeyboardInterrupt()
 
             with pytest.raises(SystemExit):
-                main(args)
+                run(args)
 
 
 class TestEdgeCases:
@@ -306,4 +306,4 @@ class TestModuleStructure:
         """Test the module can be imported and has required functions."""
         from cruiseplan.cli import stations
 
-        assert hasattr(stations, "main")
+        assert hasattr(stations, "run")

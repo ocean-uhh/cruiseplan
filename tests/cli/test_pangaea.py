@@ -14,7 +14,7 @@ import pytest
 import cruiseplan
 from cruiseplan.cli.pangaea import (
     determine_workflow_mode,
-    main,
+    run,
     validate_lat_lon_bounds,
 )
 
@@ -56,7 +56,7 @@ class TestPangaeaThinCLI:
             )
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             # Should exit with code 0 (success)
             assert exc_info.value.code == 0
@@ -108,7 +108,7 @@ class TestPangaeaThinCLI:
             )
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             # Should exit with code 0 (success)
             assert exc_info.value.code == 0
@@ -135,7 +135,7 @@ class TestPangaeaThinCLI:
         )
 
         with pytest.raises(SystemExit) as exc_info:
-            main(args)
+            run(args)
 
         assert exc_info.value.code == 1
 
@@ -151,7 +151,7 @@ class TestPangaeaThinCLI:
             )
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -165,7 +165,7 @@ class TestPangaeaThinCLI:
             )
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -177,7 +177,7 @@ class TestPangaeaThinCLI:
             mock_pangaea.side_effect = KeyboardInterrupt()
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -197,7 +197,7 @@ class TestPangaeaThinCLI:
             )
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             # Should exit with code 0 (success)
             assert exc_info.value.code == 0

@@ -12,7 +12,7 @@ from unittest.mock import patch
 import pytest
 
 import cruiseplan
-from cruiseplan.cli.enrich import main
+from cruiseplan.cli.enrich import run
 
 
 class TestEnrichThinCLI:
@@ -39,7 +39,7 @@ class TestEnrichThinCLI:
                 summary={"stations_enriched": 3},
             )
 
-            main(args)
+            run(args)
 
             # Verify API was called with correct arguments
             mock_enrich.assert_called_once_with(
@@ -75,7 +75,7 @@ class TestEnrichThinCLI:
                 summary={"stations_enriched": 5, "depths_added": 5},
             )
 
-            main(args)
+            run(args)
 
             mock_enrich.assert_called_once_with(
                 config_file=Path("tc1_single.yaml"),
@@ -108,7 +108,7 @@ class TestEnrichThinCLI:
             )
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             # Should exit with code 1
             assert exc_info.value.code == 1
@@ -132,7 +132,7 @@ class TestEnrichThinCLI:
             )
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -153,7 +153,7 @@ class TestEnrichThinCLI:
             mock_enrich.side_effect = FileNotFoundError("No such file or directory")
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -174,7 +174,7 @@ class TestEnrichThinCLI:
             mock_enrich.side_effect = KeyboardInterrupt()
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -195,7 +195,7 @@ class TestEnrichThinCLI:
             mock_enrich.side_effect = RuntimeError("Unexpected error")
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -221,7 +221,7 @@ class TestEnrichThinCLI:
             mock_enrich.side_effect = ValueError("Unexpected error")
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             # Should print traceback when verbose=True
             mock_traceback.assert_called_once()
@@ -242,7 +242,7 @@ class TestEnrichThinCLI:
                 summary={},
             )
 
-            main(args)
+            run(args)
 
             # Should use defaults for missing arguments
             mock_enrich.assert_called_once_with(

@@ -12,7 +12,7 @@ from unittest.mock import patch
 import pytest
 
 import cruiseplan
-from cruiseplan.cli.schedule import main
+from cruiseplan.cli.schedule import run
 
 
 class TestScheduleThinCLI:
@@ -48,7 +48,7 @@ class TestScheduleThinCLI:
                 },
             )
 
-            main(args)
+            run(args)
 
             # Verify API was called with correct arguments
             mock_schedule.assert_called_once_with(
@@ -99,7 +99,7 @@ class TestScheduleThinCLI:
                 },
             )
 
-            main(args)
+            run(args)
 
             mock_schedule.assert_called_once_with(
                 config_file=Path("cruise.yaml"),
@@ -147,7 +147,7 @@ class TestScheduleThinCLI:
                 },
             )
 
-            main(args)
+            run(args)
 
             # Verify warning was printed
             warning_calls = [
@@ -176,7 +176,7 @@ class TestScheduleThinCLI:
             )
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -192,7 +192,7 @@ class TestScheduleThinCLI:
             )
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -206,7 +206,7 @@ class TestScheduleThinCLI:
             mock_schedule.side_effect = RuntimeError("Failed to generate timeline")
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -220,7 +220,7 @@ class TestScheduleThinCLI:
             mock_schedule.side_effect = KeyboardInterrupt()
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -234,7 +234,7 @@ class TestScheduleThinCLI:
             mock_schedule.side_effect = Exception("Unexpected error")
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -253,7 +253,7 @@ class TestScheduleThinCLI:
             mock_schedule.side_effect = Exception("Unexpected error")
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             # Should print traceback when verbose=True
             mock_traceback.assert_called_once()
@@ -275,7 +275,7 @@ class TestScheduleThinCLI:
                 summary={"activities": 1, "files_generated": 1},
             )
 
-            main(args)
+            run(args)
 
             # Should use defaults for missing arguments
             mock_schedule.assert_called_once_with(
@@ -315,7 +315,7 @@ class TestScheduleThinCLI:
             )
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             # Should exit with failure code for empty timeline
             assert exc_info.value.code == 1

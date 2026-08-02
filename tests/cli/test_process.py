@@ -12,7 +12,7 @@ from unittest.mock import patch
 import pytest
 
 import cruiseplan
-from cruiseplan.cli.process import main
+from cruiseplan.cli.process import run
 from cruiseplan.config.fields import POINTS_FIELD
 
 
@@ -66,7 +66,7 @@ class TestProcessThinCLI:
                 },
             )
 
-            main(args)
+            run(args)
 
             # Verify API was called with correct arguments
             mock_process.assert_called_once_with(
@@ -135,7 +135,7 @@ class TestProcessThinCLI:
                 },
             )
 
-            main(args)
+            run(args)
 
             mock_process.assert_called_once_with(
                 config_file=Path("custom.yaml"),
@@ -178,7 +178,7 @@ class TestProcessThinCLI:
             )
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -194,7 +194,7 @@ class TestProcessThinCLI:
             )
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -210,7 +210,7 @@ class TestProcessThinCLI:
             )
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -229,7 +229,7 @@ class TestProcessThinCLI:
             )
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -243,7 +243,7 @@ class TestProcessThinCLI:
             mock_process.side_effect = KeyboardInterrupt()
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -257,7 +257,7 @@ class TestProcessThinCLI:
             mock_process.side_effect = RuntimeError("Processing failed unexpectedly")
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -275,7 +275,7 @@ class TestProcessThinCLI:
             mock_process.side_effect = ValueError("Unexpected error")
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             # Should print traceback when verbose=True
             mock_traceback.assert_called_once()
@@ -296,7 +296,7 @@ class TestProcessThinCLI:
                 summary={"config_file": "test.yaml", "files_generated": 1},
             )
 
-            main(args)
+            run(args)
 
             # Should use defaults for missing arguments
             mock_process.assert_called_once_with(

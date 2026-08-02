@@ -20,9 +20,14 @@ from cruiseplan.api.stationplan_api import (
     stationplan_tex,
     stationplan_waypoints,
 )
+from cruiseplan.config.values import (
+    BATHY_SOURCES,
+    DEFAULT_BATHY_DIR,
+    DEFAULT_BATHY_SOURCE,
+)
 
 
-def main(args: argparse.Namespace) -> None:
+def run(args: argparse.Namespace) -> None:
     """
     Thin CLI wrapper for stationplan command.
 
@@ -34,8 +39,7 @@ def main(args: argparse.Namespace) -> None:
         Parsed command-line arguments containing schedule file and operation mode.
     """
     try:
-        # Validate schedule file exists
-        schedule_file = Path(args.schedule)
+        schedule_file = Path(args.schedule_file)
         if not schedule_file.exists():
             print(f"ERROR: Schedule file not found: {schedule_file}", file=sys.stderr)
             sys.exit(1)
@@ -52,11 +56,9 @@ def main(args: argparse.Namespace) -> None:
 
         # Forecast mode with optional format
         elif args.start_index is not None and args.start_time is not None:
-            # Check format type
             format_type = getattr(args, "format", None)
 
             if format_type == "tex":
-                # Determine output path
                 output_path = None
                 if args.output:
                     output_path = args.output_dir / args.output
@@ -79,7 +81,6 @@ def main(args: argparse.Namespace) -> None:
                     sys.exit(1)
 
             elif format_type == "waypoints":
-                # Parse current position if provided
                 current_position = None
                 if hasattr(args, "current_position") and args.current_position:
                     try:
@@ -95,7 +96,6 @@ def main(args: argparse.Namespace) -> None:
                         )
                         sys.exit(1)
 
-                # Determine output path
                 output_path = None
                 if args.output:
                     output_path = args.output_dir / args.output
@@ -119,10 +119,8 @@ def main(args: argparse.Namespace) -> None:
                     sys.exit(1)
 
             elif format_type == "kml":
-                # Determine output path
                 output_path = None
                 if args.output:
-                    # If user provided Stationsplan28.txt, make it Stationsplan28.kml
                     output_file = Path(args.output)
                     if output_file.suffix.lower() in [".txt", ".tex"]:
                         output_path = (
@@ -146,10 +144,8 @@ def main(args: argparse.Namespace) -> None:
                     sys.exit(1)
 
             elif format_type == "png":
-                # Determine output path
                 output_path = None
                 if args.output:
-                    # If user provided Stationsplan28.txt, make it Stationsplan28.png
                     output_file = Path(args.output)
                     if output_file.suffix.lower() in [".txt", ".tex", ".kml"]:
                         output_path = (
@@ -158,7 +154,6 @@ def main(args: argparse.Namespace) -> None:
                     else:
                         output_path = args.output_dir / args.output
 
-                # Prepare bounds if specified
                 lat_bounds = None
                 lon_bounds = None
                 if hasattr(args, "lat") and args.lat:
@@ -192,7 +187,6 @@ def main(args: argparse.Namespace) -> None:
                     sys.exit(1)
 
             else:
-                # Regular text forecast
                 result = stationplan_forecast(
                     schedule_file=schedule_file,
                     start_index=args.start_index,
@@ -202,7 +196,6 @@ def main(args: argparse.Namespace) -> None:
                 )
 
                 if result.success:
-                    # Handle output - either to file or stdout
                     if args.output:
                         output_path = args.output_dir / args.output
                         try:
@@ -217,7 +210,6 @@ def main(args: argparse.Namespace) -> None:
                             )
                             sys.exit(1)
                     else:
-                        # Output to stdout
                         print(result.output)
                 else:
                     print(f"ERROR: {result.message}", file=sys.stderr)
@@ -228,7 +220,6 @@ def main(args: argparse.Namespace) -> None:
             format_type = getattr(args, "format", None)
 
             if format_type == "tex":
-                # Determine output path
                 output_path = None
                 if args.output:
                     output_path = args.output_dir / args.output
@@ -248,7 +239,6 @@ def main(args: argparse.Namespace) -> None:
                     sys.exit(1)
 
             elif format_type == "waypoints":
-                # Parse current position if provided
                 current_position = None
                 if hasattr(args, "current_position") and args.current_position:
                     try:
@@ -264,16 +254,15 @@ def main(args: argparse.Namespace) -> None:
                         )
                         sys.exit(1)
 
-                # Determine output path
                 output_path = None
                 if args.output:
                     output_path = args.output_dir / args.output
 
                 result = stationplan_waypoints(
                     schedule_file=schedule_file,
-                    start_index=None,  # Defaults to 0 (full cruise)
-                    start_time=None,  # Defaults to now
-                    duration_hours=None,  # Will use default 48h
+                    start_index=None,
+                    start_time=None,
+                    duration_hours=None,
                     current_position=current_position,
                     output_path=output_path,
                 )
@@ -288,7 +277,6 @@ def main(args: argparse.Namespace) -> None:
                     sys.exit(1)
 
             elif format_type == "kml":
-                # For KML without forecast parameters, we need start_index and start_time
                 print(
                     "ERROR: KML format requires forecast parameters: --start-index and --start-time",
                     file=sys.stderr,
@@ -300,7 +288,6 @@ def main(args: argparse.Namespace) -> None:
                 sys.exit(1)
 
             elif format_type == "png":
-                # For PNG without forecast parameters, we need start_index and start_time
                 print(
                     "ERROR: PNG format requires forecast parameters: --start-index and --start-time",
                     file=sys.stderr,
@@ -329,3 +316,166 @@ def main(args: argparse.Namespace) -> None:
     except Exception as e:
         print(f"ERROR: Unexpected error: {e}", file=sys.stderr)
         sys.exit(1)
+
+
+def build_parser(subparsers: argparse._SubParsersAction) -> argparse.ArgumentParser:
+    """Add the stationplan subparser and return it."""
+    p = subparsers.add_parser(
+        "stationplan",
+        help="Generate station plan forecasts from NetCDF schedules",
+        description="Generate simple text-based station plans for real-time cruise operations",
+        epilog="""
+This command generates station plans from processed cruise schedules for real-time
+cruise operations. It can list all activities with indices or generate rolling
+forecasts starting from any activity with updated timing.
+
+Examples:
+  cruiseplan stationplan MSM142_leg_2_schedule.nc --list
+  cruiseplan stationplan data/cruise_schedule.nc --start-index 18 --start-time "2026-08-30T14:00:00"
+  cruiseplan stationplan data/cruise_schedule.nc --start-index 5 --start-time "2026-08-29T08:00:00" --duration 36 --output forecast.txt
+  cruiseplan stationplan data/cruise_schedule.nc --start-index 5 --start-time "2026-08-29T08:00:00" --current-position "65.123,-30.456"
+  cruiseplan stationplan data/cruise_schedule.nc --format tex --output station_plan.tex
+  cruiseplan stationplan data/cruise_schedule.nc --start-index 5 --duration 48 --format waypoints --output bridge_waypoints.txt
+  cruiseplan stationplan data/cruise_schedule.nc --start-index 2 --start-time "2026-05-05 08:00" --duration 24 --format png --output forecast_map.png
+        """,
+    )
+    p.add_argument(
+        "schedule_file",
+        type=Path,
+        metavar="SCHEDULE_FILE",
+        help="NetCDF schedule file (e.g., 'MSM142_leg_2_schedule.nc')",
+    )
+    p.add_argument(
+        "--list",
+        action="store_true",
+        help="Display all activities with indices and exit",
+    )
+    p.add_argument(
+        "--start-index",
+        type=int,
+        help="Starting activity index for forecast mode (0-based)",
+    )
+    p.add_argument(
+        "--start-time",
+        help="New start time for first activity (ISO format: '2026-08-30T14:00:00')",
+    )
+    p.add_argument(
+        "--duration",
+        type=float,
+        default=24.0,
+        help="Forecast duration in hours (default: 24)",
+    )
+    p.add_argument(
+        "--transit-speed",
+        type=float,
+        default=10.0,
+        help="Ship transit speed in knots (default: 10)",
+    )
+    p.add_argument(
+        "--current-position",
+        help="Current ship position as 'lat,lon' in decimal degrees (e.g., '65.123,-30.456')",
+    )
+    p.add_argument(
+        "--format",
+        choices=["text", "tex", "waypoints", "kml", "png"],
+        default="text",
+        help="Output format: 'text' for console/file output, 'tex' for LaTeX tables, 'waypoints' for bridge navigation, 'kml' for Google Earth, 'png' for map visualisation (default: text)",
+    )
+    p.add_argument(
+        "-o",
+        "--output-dir",
+        type=Path,
+        default=Path("."),
+        help="Output directory (default: current directory)",
+    )
+    p.add_argument(
+        "--output",
+        help="Output filename (default: stdout)",
+    )
+    p.add_argument(
+        "--logo",
+        type=Path,
+        help="Path to logo image file (PNG, JPG, PDF). If not specified, uses default logo from images/ folder",
+    )
+    p.add_argument(
+        "--number",
+        help="Workplan number for TeX output (e.g., '28'). Used in title as 'TITLE - Workplan XX'",
+    )
+    p.add_argument(
+        "--title",
+        help="Cruise title for TeX output (e.g., 'MSM142'). Used in title as 'TITLE - Workplan XX'",
+    )
+    p.add_argument(
+        "--bathy-source",
+        choices=BATHY_SOURCES,
+        default=DEFAULT_BATHY_SOURCE,
+        help="Bathymetry dataset for PNG maps (default: gebco2025)",
+    )
+    p.add_argument(
+        "--bathy-dir",
+        type=Path,
+        default=Path(DEFAULT_BATHY_DIR),
+        help="Directory containing bathymetry data (default: data/bathymetry)",
+    )
+    p.add_argument(
+        "--bathy-stride",
+        type=int,
+        default=10,
+        help="Bathymetry grid downsampling factor: 1 = full resolution, higher = faster but less detail (default: 10)",
+    )
+    p.add_argument(
+        "--figsize",
+        nargs=2,
+        type=float,
+        metavar=("WIDTH", "HEIGHT"),
+        default=[10, 8.1],
+        help="Figure size for PNG maps in inches (default: 10 8.1)",
+    )
+    p.add_argument(
+        "--max-depth",
+        type=int,
+        default=None,
+        metavar="METRES",
+        help="Maximum water depth (m) for the bathymetry colour scale. Example: --max-depth 1000",
+    )
+    p.add_argument(
+        "--bathy-contours",
+        nargs="+",
+        type=float,
+        default=None,
+        metavar="DEPTH",
+        help="Bathymetry contour depths in metres (e.g. --bathy-contours 200 500 1000 2000). Replaces defaults.",
+    )
+    p.add_argument(
+        "--no-title",
+        action="store_true",
+        help="Suppress the map title",
+    )
+    p.add_argument(
+        "--no-labels",
+        action="store_true",
+        help="Suppress station name labels on the map",
+    )
+    p.add_argument(
+        "--no-legend",
+        action="store_true",
+        help="Suppress the map legend",
+    )
+    p.add_argument(
+        "--lat",
+        nargs=2,
+        type=float,
+        metavar=("MIN", "MAX"),
+        help="Latitude bounds for map extent (e.g., --lat 60 70)",
+    )
+    p.add_argument(
+        "--lon",
+        nargs=2,
+        type=float,
+        metavar=("MIN", "MAX"),
+        help="Longitude bounds for map extent (e.g., --lon -40 -20)",
+    )
+    p.add_argument(
+        "--verbose", "-v", action="store_true", help="Enable verbose logging"
+    )
+    return p

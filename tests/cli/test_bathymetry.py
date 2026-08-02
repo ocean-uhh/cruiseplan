@@ -12,7 +12,7 @@ from unittest.mock import patch
 import pytest
 
 import cruiseplan
-from cruiseplan.cli.bathymetry import main
+from cruiseplan.cli.bathymetry import run
 
 
 class TestBathymetryThinCLI:
@@ -37,7 +37,7 @@ class TestBathymetryThinCLI:
                 },
             )
 
-            main(args)
+            run(args)
 
             # Verify API was called with correct arguments
             mock_bathymetry.assert_called_once_with(
@@ -65,7 +65,7 @@ class TestBathymetryThinCLI:
                 },
             )
 
-            main(args)
+            run(args)
 
             mock_bathymetry.assert_called_once_with(
                 bathy_source="gebco2025",
@@ -92,7 +92,7 @@ class TestBathymetryThinCLI:
             )
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -111,7 +111,7 @@ class TestBathymetryThinCLI:
             )
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -130,7 +130,7 @@ class TestBathymetryThinCLI:
             )
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -146,7 +146,7 @@ class TestBathymetryThinCLI:
             )
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -160,7 +160,7 @@ class TestBathymetryThinCLI:
             mock_bathymetry.side_effect = FileNotFoundError("Bathymetry data not found")
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -174,7 +174,7 @@ class TestBathymetryThinCLI:
             mock_bathymetry.side_effect = RuntimeError("Download failed unexpectedly")
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -188,7 +188,7 @@ class TestBathymetryThinCLI:
             mock_bathymetry.side_effect = KeyboardInterrupt()
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             assert exc_info.value.code == 1
 
@@ -206,7 +206,7 @@ class TestBathymetryThinCLI:
             mock_bathymetry.side_effect = ValueError("Unexpected error")
 
             with pytest.raises(SystemExit) as exc_info:
-                main(args)
+                run(args)
 
             # Should print traceback when verbose=True
             mock_traceback.assert_called_once()
@@ -226,7 +226,7 @@ class TestBathymetryThinCLI:
                 summary={"source": "etopo2022", "file_size_mb": 850.5},
             )
 
-            main(args)
+            run(args)
 
             # Should use defaults for missing arguments
             mock_bathymetry.assert_called_once_with(
@@ -253,7 +253,7 @@ class TestBathymetryThinCLI:
                 },
             )
 
-            main(args)
+            run(args)
 
             mock_bathymetry.assert_called_once_with(
                 bathy_source="etopo2022", output_dir=None, citation=True

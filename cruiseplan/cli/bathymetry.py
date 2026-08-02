@@ -12,16 +12,16 @@ import sys
 from pathlib import Path
 
 import cruiseplan
+from cruiseplan.config.values import BATHY_SOURCES, DEFAULT_BATHY_SOURCE
 
 
-def main(args: argparse.Namespace) -> None:
+def run(args: argparse.Namespace) -> None:
     """
     Thin CLI wrapper for bathymetry command.
 
     Delegates all business logic to the cruiseplan.bathymetry() API function.
     """
     try:
-        # Call the API function with CLI arguments
         result = cruiseplan.bathymetry(
             bathy_source=getattr(args, "bathy_source", "gebco2025"),
             output_dir=(
@@ -32,7 +32,6 @@ def main(args: argparse.Namespace) -> None:
             citation=getattr(args, "citation", False),
         )
 
-        # Display results
         print("")
         print("=" * 50)
         print("Bathymetry Download Results")
@@ -43,14 +42,12 @@ def main(args: argparse.Namespace) -> None:
             print("Downloaded file:")
             print(f"  • {result.data_file}")
 
-            # Show download summary
             print("Download summary:")
             print(f"  • Data source: {result.source}")
             print(f"  • Output directory: {result.summary.get('output_dir', 'N/A')}")
             if result.summary.get("file_size_mb"):
                 print(f"  • File size: {result.summary.get('file_size_mb')} MB")
 
-            # Show citation if requested
             if getattr(args, "citation", False):
                 print("")
                 print("Citation information:")
@@ -66,9 +63,9 @@ def main(args: argparse.Namespace) -> None:
                         "  https://doi.org/10.5285/c6612cbe-50b3-0cff-e053-6c86abc09f8f"
                     )
         else:
-            print("Bathymetry download failed")
+            print("Bathymetry download failed", file=sys.stderr)
             if "error" in result.summary:
-                print(f"Error: {result.summary['error']}")
+                print(f"Error: {result.summary['error']}", file=sys.stderr)
             sys.exit(1)
 
     except cruiseplan.ValidationError as e:
@@ -98,28 +95,44 @@ def main(args: argparse.Namespace) -> None:
         sys.exit(1)
 
 
-if __name__ == "__main__":
-    # This allows the module to be run directly for testing
-    parser = argparse.ArgumentParser(description="Download bathymetry data")
-    parser.add_argument(
-        "--source",
-        dest="bathy_source",
-        choices=["etopo2022", "gebco2025"],
-        default="gebco2025",
-        help="Bathymetry data source (default: gebco2025)",
+def build_parser(subparsers: argparse._SubParsersAction) -> argparse.ArgumentParser:
+    """Add the bathymetry subparser and return it."""
+    p = subparsers.add_parser(
+        "bathymetry",
+        help="Download bathymetry datasets for depth calculations",
+        description="Download bathymetry datasets for cruise planning",
+        epilog="""
+This command downloads bathymetry datasets for depth calculations and bathymetric analysis.
+
+Available sources:
+  etopo2022: ETOPO 2022 bathymetry (60s resolution, ~500MB)
+  gebco2025: GEBCO 2025 bathymetry (15s resolution, ~7.5GB)
+
+Examples:
+  cruiseplan bathymetry                                          # Download gebco2025 (default)
+  cruiseplan bathymetry --bathy-source etopo2022                # Download ETOPO 2022
+  cruiseplan bathymetry --bathy-source gebco2025 --citation     # Show citation info
+        """,
     )
-    parser.add_argument(
+    p.add_argument(
+        "--citation",
+        action="store_true",
+        help="Show citation information for the bathymetry source without downloading",
+    )
+    p.add_argument(
         "-o",
         "--output-dir",
         type=Path,
+        default=Path("data/bathymetry"),
         help="Output directory for bathymetry files (default: data/bathymetry)",
     )
-    parser.add_argument(
-        "--citation",
-        action="store_true",
-        help="Show citation information for the bathymetry source",
+    p.add_argument(
+        "--bathy-source",
+        choices=BATHY_SOURCES,
+        default=DEFAULT_BATHY_SOURCE,
+        help="Bathymetry dataset to download (default: gebco2025)",
     )
-    parser.add_argument("--verbose", action="store_true", help="Verbose output")
-
-    args = parser.parse_args()
-    main(args)
+    p.add_argument(
+        "--verbose", "-v", action="store_true", help="Enable verbose logging"
+    )
+    return p

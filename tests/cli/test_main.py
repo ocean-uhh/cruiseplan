@@ -21,7 +21,7 @@ class TestCLIMainFunction:
                 main()
                 mock_exit.assert_called_with(1)
 
-    @patch("cruiseplan.cli.pangaea.main")
+    @patch("cruiseplan.cli.pangaea.run")
     def test_pangaea_subcommand(self, mock_pangaea_main):
         """Test pangaea subcommand is called correctly."""
         test_args = [
@@ -38,7 +38,7 @@ class TestCLIMainFunction:
             main()
             mock_pangaea_main.assert_called_once()
 
-    @patch("cruiseplan.cli.stations.main")
+    @patch("cruiseplan.cli.stations.run")
     def test_stations_subcommand(self, mock_stations_main):
         """Test stations subcommand is called correctly."""
         test_args = [
@@ -57,11 +57,10 @@ class TestCLIMainFunction:
             mock_stations_main.assert_called_once()
 
     def test_schedule_subcommand(self):
-        """Test schedule subcommand shows not implemented message."""
+        """Test schedule subcommand exits with error when config file missing."""
         test_args = [
             "cruiseplan",
             "schedule",
-            "-c",
             "cruise.yaml",
             "-o",
             "tests_output",
@@ -86,7 +85,7 @@ class TestCLIMainFunction:
         test_args = ["cruiseplan", "pangaea", "dois.txt"]
 
         with patch.object(sys, "argv", test_args):
-            with patch("cruiseplan.cli.pangaea.main") as mock_pangaea:
+            with patch("cruiseplan.cli.pangaea.run") as mock_pangaea:
                 mock_pangaea.side_effect = KeyboardInterrupt()
 
                 with patch("sys.exit") as mock_exit:
@@ -98,7 +97,7 @@ class TestCLIMainFunction:
         test_args = ["cruiseplan", "pangaea", "dois.txt"]
 
         with patch.object(sys, "argv", test_args):
-            with patch("cruiseplan.cli.pangaea.main") as mock_pangaea:
+            with patch("cruiseplan.cli.pangaea.run") as mock_pangaea:
                 mock_pangaea.side_effect = RuntimeError("Unexpected error")
 
                 with patch("sys.exit") as mock_exit:
@@ -125,7 +124,7 @@ class TestSubcommandArguments:
         ]
 
         with patch.object(sys, "argv", test_args):
-            with patch("cruiseplan.cli.pangaea.main") as mock_main:
+            with patch("cruiseplan.cli.pangaea.run") as mock_main:
                 main()
 
                 # Check that args were parsed correctly
@@ -156,7 +155,7 @@ class TestSubcommandArguments:
         ]
 
         with patch.object(sys, "argv", test_args):
-            with patch("cruiseplan.cli.stations.main") as mock_main:
+            with patch("cruiseplan.cli.stations.run") as mock_main:
                 main()
 
                 args = mock_main.call_args[0][0]
@@ -167,11 +166,10 @@ class TestSubcommandArguments:
                 assert args.bathy_source == "gebco2025"
 
     def test_schedule_arguments_not_implemented(self):
-        """Test schedule subcommand shows not implemented for now."""
+        """Test schedule subcommand exits with error when config file missing."""
         test_args = [
             "cruiseplan",
             "schedule",
-            "-c",
             "cruise.yaml",
             "-o",
             "output_dir",
