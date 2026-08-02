@@ -43,7 +43,7 @@ def main(args: argparse.Namespace) -> None:
             verbose=verbose,
         )
 
-        print(f"✅ Configuration enriched successfully: {result}")
+        print(f"Configuration enriched successfully: {result}")
 
 
 if __name__ == "__main__":

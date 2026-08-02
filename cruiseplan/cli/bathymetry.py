@@ -39,12 +39,12 @@ def main(args: argparse.Namespace) -> None:
         print("=" * 50)
 
         if result.data_file:
-            print(f"✅ {result}")
-            print("📁 Downloaded file:")
+            print(result)
+            print("Downloaded file:")
             print(f"  • {result.data_file}")
 
             # Show download summary
-            print("📊 Download summary:")
+            print("Download summary:")
             print(f"  • Data source: {result.source}")
             print(f"  • Output directory: {result.summary.get('output_dir', 'N/A')}")
             if result.summary.get("file_size_mb"):
@@ -53,7 +53,7 @@ def main(args: argparse.Namespace) -> None:
             # Show citation if requested
             if getattr(args, "citation", False):
                 print("")
-                print("📖 Citation Information:")
+                print("Citation information:")
                 if result.source == "etopo2022":
                     print(
                         "  NOAA National Centers for Environmental Information. 2022."
@@ -66,31 +66,31 @@ def main(args: argparse.Namespace) -> None:
                         "  https://doi.org/10.5285/c6612cbe-50b3-0cff-e053-6c86abc09f8f"
                     )
         else:
-            print("❌ Bathymetry download failed")
+            print("Bathymetry download failed")
             if "error" in result.summary:
                 print(f"Error: {result.summary['error']}")
             sys.exit(1)
 
     except cruiseplan.ValidationError as e:
-        print(f"❌ Configuration validation error: {e}", file=sys.stderr)
+        print(f"ERROR: Configuration validation error: {e}", file=sys.stderr)
         sys.exit(1)
     except cruiseplan.FileError as e:
-        print(f"❌ File operation error: {e}", file=sys.stderr)
+        print(f"ERROR: File operation error: {e}", file=sys.stderr)
         sys.exit(1)
     except cruiseplan.BathymetryError as e:
-        print(f"❌ Bathymetry error: {e}", file=sys.stderr)
+        print(f"ERROR: Bathymetry error: {e}", file=sys.stderr)
         sys.exit(1)
     except FileNotFoundError as e:
-        print(f"❌ File not found: {e}", file=sys.stderr)
+        print(f"ERROR: File not found: {e}", file=sys.stderr)
         sys.exit(1)
     except RuntimeError as e:
-        print(f"❌ Download error: {e}", file=sys.stderr)
+        print(f"ERROR: Download error: {e}", file=sys.stderr)
         sys.exit(1)
     except KeyboardInterrupt:
-        print("\n⚠️ Operation cancelled by user.", file=sys.stderr)
+        print("\nOperation cancelled by user.", file=sys.stderr)
         sys.exit(1)
     except Exception as e:
-        print(f"❌ Unexpected error: {e}", file=sys.stderr)
+        print(f"ERROR: Unexpected error: {e}", file=sys.stderr)
         if getattr(args, "verbose", False):
             import traceback
 

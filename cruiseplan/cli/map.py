@@ -23,11 +23,13 @@ def main(args: argparse.Namespace) -> None:
     """
     verbose = getattr(args, "verbose", False)
     with handle_cli_errors("map", verbose):
+        format_list = getattr(args, "format", None)
+        format_str = ",".join(format_list) if format_list else "all"
         result = cruiseplan.map(
             config_file=args.config_file,
             output_dir=str(getattr(args, "output_dir", "data")),
             output=getattr(args, "output", None),
-            format=getattr(args, "format", "all"),
+            format=format_str,
             bathy_source=getattr(args, "bathy_source", "gebco2025"),
             bathy_dir=getattr(args, "bathy_dir", "data/bathymetry"),
             bathy_stride=getattr(args, "bathy_stride", 5),
@@ -51,18 +53,18 @@ def main(args: argparse.Namespace) -> None:
         print("=" * 50)
 
         if result.map_files:
-            print(f"✅ {result}")
-            print("📁 Generated files:")
+            print(result)
+            print("Generated files:")
             for file_path in result.map_files:
                 print(f"  • {file_path}")
 
-            print("📊 Generation summary:")
+            print("Generation summary:")
             print(f"  • Config file: {result.summary.get('config_file', 'N/A')}")
             print(f"  • Output format: {result.format}")
             print(f"  • Files generated: {result.summary.get('files_generated', 0)}")
             print(f"  • Output directory: {result.summary.get('output_dir', 'N/A')}")
         else:
-            print("❌ Map generation failed")
+            print("Map generation failed")
             if "error" in result.summary:
                 print(f"Error: {result.summary['error']}")
             sys.exit(1)
@@ -90,9 +92,11 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--format",
-        choices=["png", "kml", "all"],
-        default="all",
-        help="Output format (default: all)",
+        nargs="+",
+        choices=["png", "kml"],
+        default=None,
+        metavar="FORMAT",
+        help="Output formats: png kml (space-separated). Omit to generate all.",
     )
     parser.add_argument(
         "--bathy-source",
@@ -113,7 +117,7 @@ if __name__ == "__main__":
         type=float,
         nargs="+",
         metavar="DEPTH",
-        help="Custom bathymetry contour levels in meters (space-separated positive values), e.g., '500 400 300'",
+        help="Bathymetry contour depths in meters (e.g. --bathy-contours 200 500 1000 2000). Replaces defaults.",
     )
     parser.add_argument(
         "--lat",

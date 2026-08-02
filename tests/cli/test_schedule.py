@@ -23,7 +23,7 @@ class TestScheduleThinCLI:
         args = argparse.Namespace(
             config_file=Path("test.yaml"),
             output_dir="data",
-            format="all",
+            format=None,
             leg=None,
             derive_netcdf=False,
             verbose=False,
@@ -79,7 +79,7 @@ class TestScheduleThinCLI:
             config_file=Path("cruise.yaml"),
             output_dir="/custom/output",
             output="my_schedule",
-            format="netcdf",  # Use NetCDF format to allow derive_netcdf=True
+            format=["netcdf"],  # Use NetCDF format to allow derive_netcdf=True
             leg="leg1",
             derive_netcdf=True,
             bathy_source="gebco2025",
@@ -127,7 +127,7 @@ class TestScheduleThinCLI:
         """Test --derive-netcdf flag compatibility warning for non-NetCDF formats."""
         args = argparse.Namespace(
             config_file=Path("test.yaml"),
-            format="html",  # Non-NetCDF format
+            format=["html"],  # Non-NetCDF format
             derive_netcdf=True,  # Should trigger warning
             verbose=False,
         )

@@ -22,70 +22,6 @@ except ImportError:
     __version__ = "unknown"
 
 
-# Define placeholder main functions for dynamic imports
-# (These will be overwritten when the modules are implemented)
-def schedule_main(args: argparse.Namespace) -> None:
-    """
-    Placeholder for schedule subcommand logic.
-
-    Parameters
-    ----------
-    args : argparse.Namespace
-        Parsed command-line arguments containing config_file and output_dir.
-    """
-    print(
-        f"Schedule logic will process config: {args.config_file} and output to {args.output_dir}"
-    )
-
-
-def stations_main(args: argparse.Namespace) -> None:
-    """
-    Placeholder for stations subcommand logic.
-
-    Parameters
-    ----------
-    args : argparse.Namespace
-        Parsed command-line arguments containing lat, lon bounds.
-    """
-    print(f"Stations logic will process bounds: {args.lat}, {args.lon}")
-
-
-def enrich_main(args: argparse.Namespace) -> None:
-    """
-    Placeholder for enrich logic.
-
-    Parameters
-    ----------
-    args : argparse.Namespace
-        Parsed command-line arguments containing config_file.
-    """
-    print(f"Enrich logic for config: {args.config_file}")
-
-
-def validate_main(args: argparse.Namespace) -> None:
-    """
-    Placeholder for validate logic.
-
-    Parameters
-    ----------
-    args : argparse.Namespace
-        Parsed command-line arguments containing config_file.
-    """
-    print(f"Validate logic for config: {args.config_file}")
-
-
-def pangaea_main(args: argparse.Namespace) -> None:
-    """
-    Placeholder for PANGAEA data processing logic.
-
-    Parameters
-    ----------
-    args : argparse.Namespace
-        Parsed command-line arguments containing doi_file.
-    """
-    print(f"PANGAEA logic for DOI file: {args.doi_file}")
-
-
 def main():
     """Main CLI entry point following git-style subcommand pattern."""
     parser = argparse.ArgumentParser(
@@ -108,7 +44,7 @@ For detailed help on a subcommand:
     )
 
     parser.add_argument(
-        "--version", action="version", version=f"%(prog)s {__version__}"
+        "-V", "--version", action="version", version=f"%(prog)s {__version__}"
     )
 
     subparsers = parser.add_subparsers(
@@ -202,9 +138,11 @@ Examples:
     )
     schedule_parser.add_argument(
         "--format",
-        choices=["html", "latex", "csv", "netcdf", "png", "all"],
-        default="all",
-        help="Output formats (default: all)",
+        nargs="+",
+        choices=["html", "latex", "csv", "netcdf", "png"],
+        default=None,
+        metavar="FORMAT",
+        help="Output formats: html latex csv netcdf png (space-separated). Omit to generate all.",
     )
 
     # Bathymetry options
@@ -231,7 +169,7 @@ Examples:
         type=float,
         nargs="+",
         metavar="DEPTH",
-        help="Custom bathymetry contour levels in meters (space-separated positive values), e.g., '500 400 300'",
+        help="Bathymetry contour depths in meters (e.g. --bathy-contours 200 500 1000 2000). Replaces defaults.",
     )
     schedule_parser.add_argument(
         "--max-depth",
@@ -353,7 +291,7 @@ Examples:
         type=float,
         nargs="+",
         metavar="DEPTH",
-        help="Custom bathymetry contour levels in meters (space-separated positive values), e.g., '500 400 300'",
+        help="Bathymetry contour depths in meters (e.g. --bathy-contours 200 500 1000 2000). Replaces defaults.",
     )
 
     # Display options
@@ -546,9 +484,11 @@ Examples:
     )
     map_parser.add_argument(
         "--format",
-        choices=["png", "kml", "all"],
-        default="all",
-        help="Output format: png (map), kml (geographic data), or all (default: all)",
+        nargs="+",
+        choices=["png", "kml"],
+        default=None,
+        metavar="FORMAT",
+        help="Output formats: png kml (space-separated). Omit to generate all.",
     )
 
     # Bathymetry options
@@ -606,7 +546,7 @@ Examples:
         type=float,
         nargs="+",
         metavar="DEPTH",
-        help="Custom bathymetry contour levels in meters (space-separated positive values), e.g., '500 400 300'",
+        help="Bathymetry contour depths in meters (e.g. --bathy-contours 200 500 1000 2000). Replaces defaults.",
     )
     map_parser.add_argument(
         "--max-depth",
@@ -710,7 +650,12 @@ Examples:
         "--output", type=str, help="Base filename for outputs (without extension)"
     )
     process_parser.add_argument(
-        "--format", default="all", help="Map output formats: png,kml,all (default: all)"
+        "--format",
+        nargs="+",
+        choices=["png", "kml"],
+        default=None,
+        metavar="FORMAT",
+        help="Map output formats: png kml (space-separated). Omit to generate all.",
     )
 
     # Bathymetry options
@@ -737,7 +682,7 @@ Examples:
         type=float,
         nargs="+",
         metavar="DEPTH",
-        help="Custom bathymetry contour levels in meters (space-separated positive values), e.g., '500 400 300'. Replaces default contours.",
+        help="Bathymetry contour depths in meters (e.g. --bathy-contours 200 500 1000 2000). Replaces defaults.",
     )
     process_parser.add_argument(
         "--max-depth",
@@ -1012,7 +957,7 @@ Examples:
         dest="bathy_contours",
         default=None,
         metavar="DEPTH",
-        help="Explicit contour depths in metres (e.g. --bathy-contours 200 500 1000 2000)",
+        help="Bathymetry contour depths in meters (e.g. --bathy-contours 200 500 1000 2000). Replaces defaults.",
     )
     stationplan_parser.add_argument(
         "--no-title",
@@ -1103,11 +1048,11 @@ Examples:
             sys.exit(1)
 
     except KeyboardInterrupt:
-        print("\n\n⚠️ Operation cancelled by user.")
+        print("\n\nOperation cancelled by user.")
         sys.exit(1)
     except Exception as e:
         # A simple catch-all for unexpected errors
-        print(f"\n❌ A critical error occurred during execution: {e}")
+        print(f"\nERROR: A critical error occurred during execution: {e}")
         # Optionally print traceback if debugging is enabled
         # import traceback; traceback.print_exc()
         sys.exit(1)

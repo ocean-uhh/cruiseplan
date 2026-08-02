@@ -54,11 +54,11 @@ def main(args: argparse.Namespace) -> None:
         )
 
         # The API function handles all logging and user interaction
-        logger.info(f"✅ {result}")
+        logger.info(str(result))
 
     except (ImportError, ValueError, FileNotFoundError, RuntimeError) as e:
         # Inline simple error formatting
-        error_msg = f"❌ Interactive station placement failed: {e}\nSuggestions:\n"
+        error_msg = f"ERROR: Interactive station placement failed: {e}\nSuggestions:\n"
         error_msg += "  • Check coordinate bounds are valid\n"
         error_msg += "  • Verify PANGAEA file format if provided\n"
         error_msg += "  • Ensure matplotlib is installed\n"
@@ -68,7 +68,7 @@ def main(args: argparse.Namespace) -> None:
         sys.exit(1)
 
     except KeyboardInterrupt:
-        logger.info("\n\n⚠️ Operation cancelled by user.")
+        logger.info("\n\nOperation cancelled by user.")
         sys.exit(1)
 
 
