@@ -383,7 +383,7 @@ def stationplan_forecast_tex(
 
             if "comment" in schedule.variables:
                 comment_val = str(schedule.comment[index].values)
-                if comment_val and comment_val != "nan" and comment_val != "_":
+                if comment_val and comment_val not in {"nan", "_"}:
                     comment = comment_val
 
             # Look up exit coordinates if available
@@ -606,11 +606,11 @@ def stationplan_waypoints(
                 if len(activity) >= 9:
                     (
                         index,
-                        time,
+                        _time,
                         category,
                         activity_type,
-                        action,
-                        duration,
+                        _action,
+                        _duration,
                         latitude,
                         longitude,
                         name,
@@ -721,9 +721,9 @@ def stationplan_waypoints(
             # Count waypoints (exclude comment lines)
             waypoint_count = len(
                 [
-                    l
-                    for l in waypoint_content_ddm.split("\n")
-                    if l and not l.startswith("%")
+                    line
+                    for line in waypoint_content_ddm.split("\n")
+                    if line and not line.startswith("%")
                 ]
             )
 
@@ -736,9 +736,9 @@ def stationplan_waypoints(
             # Return DDM content directly (default format)
             waypoint_count = len(
                 [
-                    l
-                    for l in waypoint_content_ddm.split("\n")
-                    if l and not l.startswith("%")
+                    line
+                    for line in waypoint_content_ddm.split("\n")
+                    if line and not line.startswith("%")
                 ]
             )
             return StationplanResult(

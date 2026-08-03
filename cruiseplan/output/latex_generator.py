@@ -573,11 +573,7 @@ class LaTeXGenerator:
         # Filter out transits for cleaner output (like MATLAB version)
         station_records = [r for r in records if r.activity != "Transit"]
 
-        # Calculate distances between stations
-        distances = self._calculate_distances_nm(station_records)
-
         # Generate TeX content with table breaking support
-        tex_lines = []
         table_sections = []  # Store table sections for breaking long tables
         current_table_lines = []
         line_count = 0
