@@ -21,15 +21,13 @@ def run(args: argparse.Namespace) -> None:
 
     Delegates all business logic to the cruiseplan.bathymetry() API function.
     """
-    try:
+    from cruiseplan.cli import handle_cli_errors
+
+    with handle_cli_errors("Download", args.verbose):
         result = cruiseplan.bathymetry(
-            bathy_source=getattr(args, "bathy_source", "gebco2025"),
-            output_dir=(
-                str(getattr(args, "output_dir", None))
-                if getattr(args, "output_dir", None)
-                else None
-            ),
-            citation=getattr(args, "citation", False),
+            bathy_source=args.bathy_source,
+            output_dir=str(args.output_dir) if args.output_dir is not None else None,
+            citation=args.citation,
         )
 
         print("")
@@ -48,7 +46,7 @@ def run(args: argparse.Namespace) -> None:
             if result.summary.get("file_size_mb"):
                 print(f"  • File size: {result.summary.get('file_size_mb')} MB")
 
-            if getattr(args, "citation", False):
+            if args.citation:
                 print("")
                 print("Citation information:")
                 if result.source == "etopo2022":
@@ -67,32 +65,6 @@ def run(args: argparse.Namespace) -> None:
             if "error" in result.summary:
                 print(f"Error: {result.summary['error']}", file=sys.stderr)
             sys.exit(1)
-
-    except cruiseplan.ValidationError as e:
-        print(f"ERROR: Configuration validation error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except cruiseplan.FileError as e:
-        print(f"ERROR: File operation error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except cruiseplan.BathymetryError as e:
-        print(f"ERROR: Bathymetry error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except FileNotFoundError as e:
-        print(f"ERROR: File not found: {e}", file=sys.stderr)
-        sys.exit(1)
-    except RuntimeError as e:
-        print(f"ERROR: Download error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except KeyboardInterrupt:
-        print("\nOperation cancelled by user.", file=sys.stderr)
-        sys.exit(1)
-    except Exception as e:
-        print(f"ERROR: Unexpected error: {e}", file=sys.stderr)
-        if getattr(args, "verbose", False):
-            import traceback
-
-            traceback.print_exc()
-        sys.exit(1)
 
 
 def build_parser(subparsers: argparse._SubParsersAction) -> argparse.ArgumentParser:

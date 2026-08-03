@@ -10,7 +10,6 @@ with a focus on:
 """
 
 import logging
-import warnings
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any
@@ -671,24 +670,12 @@ class TimelineGenerator:
         if leg_delay:
             self.current_time = self.current_time + timedelta(minutes=leg_delay)
 
-        # buffer_time is validated and stored but not yet applied to the schedule.
-        # TODO: insert a contingency block after the last scientific station,
-        # before the return transit, so buffer time appears in the timeline.
-        buffer_time = getattr(leg, "buffer_time", None)
-        if buffer_time:
-            warnings.warn(
-                f"Leg '{leg.name}' has buffer_time={buffer_time} min, but buffer time "
-                "is not yet applied to the schedule. Set it to 0 to suppress this warning.",
-                UserWarning,
-                stacklevel=2,
-            )
-
         activities = []
 
-        # Build complete activities sequence: departure_port + leg_activities + arrival_port
+        # Build scientific sequence: departure_port + leg_activities (arrival_port handled separately)
         # Validation ensures departure_port and arrival_port are required fields
         # Use full port objects (which may contain enriched action info) instead of just names
-        complete_activities = [leg.departure_port]
+        scientific_activities = [leg.departure_port]
 
         # Get leg activities - check both runtime leg and config leg
         leg_activities = self._extract_activities_from_leg(leg)
@@ -698,16 +685,12 @@ class TimelineGenerator:
                     leg_activities = config_leg.activities
                     break
 
-        # Add leg activities to sequence
-        complete_activities.extend(leg_activities or [])
-
-        # Add arrival port to sequence (validation ensures it exists)
-        complete_activities.append(leg.arrival_port)
+        scientific_activities.extend(leg_activities or [])
 
         previous_operation = None
 
-        # Process complete activities sequence (ports are treated as regular operations)
-        for activity in complete_activities:
+        # Process departure port and all scientific activities
+        for activity in scientific_activities:
             try:
                 operation = self._create_operation_from_activity(activity, leg)
                 self._add_transit_and_operation(
@@ -719,7 +702,72 @@ class TimelineGenerator:
                 logger.exception(f"Failed to process activity '{activity_name}'")
                 continue
 
+        # Insert buffer time contingency block after last scientific station,
+        # before the return transit to arrival port
+        buffer_time = getattr(leg, "buffer_time", None)
+        if buffer_time and previous_operation is not None:
+            buffer_activity = self._create_buffer_activity(
+                leg, previous_operation, buffer_time
+            )
+            activities.append(buffer_activity)
+
+        # Process arrival port (transit computed from current_time, which includes buffer)
+        try:
+            operation = self._create_operation_from_activity(leg.arrival_port, leg)
+            self._add_transit_and_operation(
+                operation, activities, leg, previous_operation
+            )
+        except Exception:
+            logger.exception("Failed to process arrival port")
+
         return activities
+
+    def _create_buffer_activity(
+        self, leg: Any, last_operation: Any, duration_minutes: float
+    ) -> ActivityRecord:
+        """Create a contingency buffer block at the position of the last operation.
+
+        Parameters
+        ----------
+        leg : Any
+            The current leg (provides name for labelling).
+        last_operation : Any
+            The last scientific operation; the buffer is placed at its exit position.
+        duration_minutes : float
+            Buffer duration in minutes.
+
+        Returns
+        -------
+        ActivityRecord
+            A stationary buffer record; advances ``self.current_time`` by duration.
+        """
+        _, exit_pt = last_operation.get_coordinates()
+
+        buffer_start = self.current_time
+        buffer_end = buffer_start + timedelta(minutes=duration_minutes)
+
+        activity = ActivityRecord(
+            {
+                "activity": "Buffer",
+                "label": f"Contingency ({duration_minutes:.0f} min)",
+                "entry_lat": exit_pt.latitude,
+                "entry_lon": exit_pt.longitude,
+                "exit_lat": exit_pt.latitude,
+                "exit_lon": exit_pt.longitude,
+                "start_time": buffer_start,
+                "end_time": buffer_end,
+                "duration_minutes": duration_minutes,
+                "dist_nm": 0.0,
+                "vessel_speed_kt": 0.0,
+                "leg_name": leg.name,
+                "op_type": "buffer",
+                "operation_class": "Buffer",
+                "comment": "Weather/operational contingency buffer",
+            }
+        )
+
+        self.current_time = buffer_end
+        return activity
 
     def _create_operation_from_activity(self, activity, leg: Any):
         """Create operation object from activity definition."""

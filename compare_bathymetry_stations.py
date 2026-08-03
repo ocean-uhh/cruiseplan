@@ -152,7 +152,7 @@ def get_bathymetry_depth(source: str, lat: float, lon: float, data_dir: str) -> 
 
 
 def compare_stations_bathymetry(
-    yaml_file: str, data_dir: str = "data/bathymetry", output_file: str = None
+    yaml_file: str, data_dir: str = "data/bathymetry", output_file: str | None = None
 ):
     """
     Compare bathymetry depths for all stations in a YAML configuration file.

@@ -10,6 +10,7 @@ Usage:
 """
 
 import logging
+import sys
 import tempfile
 from pathlib import Path
 
@@ -36,12 +37,12 @@ def test_eez_data_download():
             logger.error(f"❌ EEZ data file not found: {eez_file}")
             return False
 
-    except ImportError as e:
-        logger.error(f"❌ Import error - missing dependencies: {e}")
-        logger.error("   Install geopandas: pip install geopandas>=0.14.0")
+    except ImportError:
+        logger.exception("❌ Import error - missing dependencies")
+        logger.exception("   Install geopandas: pip install geopandas>=0.14.0")
         return False
-    except Exception as e:
-        logger.error(f"❌ EEZ data download failed: {e}")
+    except Exception:
+        logger.exception("❌ EEZ data download failed")
         return False
 
 
@@ -74,8 +75,8 @@ def test_eez_spatial_filtering():
             logger.warning("⚠️ No EEZ zones found in test bounding box")
             return False
 
-    except Exception as e:
-        logger.error(f"❌ EEZ spatial filtering failed: {e}")
+    except Exception:
+        logger.exception("❌ EEZ spatial filtering failed")
         return False
 
 
@@ -101,8 +102,8 @@ def test_point_in_eez():
             logger.info("✅ Point is in international waters (no EEZ)")
             return True
 
-    except Exception as e:
-        logger.error(f"❌ Point-in-EEZ lookup failed: {e}")
+    except Exception:
+        logger.exception("❌ Point-in-EEZ lookup failed")
         return False
 
 
@@ -149,8 +150,8 @@ def test_folium_integration():
                 logger.error("❌ Failed to generate Folium map with EEZ")
                 return False
 
-    except Exception as e:
-        logger.error(f"❌ Folium EEZ integration test failed: {e}")
+    except Exception:
+        logger.exception("❌ Folium EEZ integration test failed")
         return False
 
 
@@ -163,15 +164,15 @@ def test_api_integration():
 
         # Test that the EEZ option is available in the configuration
         vis_config = VisualizationConfig(include_eez=False)
-        map_config = MapConfig(visualization=vis_config)
+        MapConfig(visualization=vis_config)
 
         logger.info("✅ API configuration supports EEZ options")
         logger.info(f"   include_eez setting: {vis_config.include_eez}")
 
         return True
 
-    except Exception as e:
-        logger.error(f"❌ API integration test failed: {e}")
+    except Exception:
+        logger.exception("❌ API integration test failed")
         return False
 
 
@@ -189,8 +190,8 @@ waypoints:
     longitude: -69.0
     activities:
       - type: "ctd"
-        
-  - name: "Station 2" 
+
+  - name: "Station 2"
     latitude: 43.0
     longitude: -67.0
     activities:
@@ -244,8 +245,8 @@ def test_full_workflow():
         if config_file.exists():
             config_file.unlink()
 
-    except Exception as e:
-        logger.error(f"❌ Full workflow test failed: {e}")
+    except Exception:
+        logger.exception("❌ Full workflow test failed")
         return False
 
 
@@ -269,8 +270,8 @@ def main():
         try:
             result = test()
             results.append(result if result is not None else False)
-        except Exception as e:
-            logger.error(f"❌ Test {test.__name__} failed with exception: {e}")
+        except Exception:
+            logger.exception(f"❌ Test {test.__name__} failed with exception")
             results.append(False)
         logger.info("")
 
@@ -298,4 +299,4 @@ def main():
 
 if __name__ == "__main__":
     success = main()
-    exit(0 if success else 1)
+    sys.exit(0 if success else 1)
