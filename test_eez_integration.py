@@ -26,6 +26,7 @@ def test_imports():
             get_eez_for_point,
             load_eez_data,
         )
+
         _ = (ensure_eez_data, get_eez_for_point, load_eez_data)
 
         logger.info("✅ EEZ module imports successful")
@@ -35,6 +36,7 @@ def test_imports():
             _add_eez_boundaries,
             generate_folium_map,
         )
+
         _ = (_add_eez_boundaries, generate_folium_map)
 
         logger.info("✅ Map generator EEZ imports successful")
@@ -43,6 +45,7 @@ def test_imports():
         from cruiseplan.api.config import VisualizationConfig
         from cruiseplan.api.map_cruise import map
         from cruiseplan.api.schedule_cruise import schedule
+
         _ = (VisualizationConfig, map, schedule)
 
         logger.info("✅ API imports successful")
