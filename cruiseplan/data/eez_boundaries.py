@@ -235,7 +235,6 @@ def load_eez_data(
 
     # Use GeoPandas spatial windowing for efficient bbox filtering at read-time
     if bbox is not None:
-        min_lon, min_lat, max_lon, max_lat = bbox
         # GeoPandas expects bbox as (minx, miny, maxx, maxy) - same as our format
         logger.debug(f"Loading EEZ data with spatial filter: {bbox}")
         eez_gdf = gpd.read_file(eez_file, bbox=bbox)
