@@ -6,8 +6,6 @@ on:
     paths:
       - '**.py'
       - '**.ipynb'
-      - '**.rst'
-      - '**.md'
       - 'requirements*.txt'
       - 'pyproject.toml'
       - 'setup.cfg'
@@ -17,8 +15,6 @@ on:
     paths:
       - '**.py'
       - '**.ipynb'
-      - '**.rst'
-      - '**.md'
       - 'requirements*.txt'
       - 'pyproject.toml'
       - 'setup.cfg'

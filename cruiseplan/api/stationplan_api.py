@@ -99,17 +99,17 @@ def stationplan_list(schedule_file: str | Path) -> StationplanResult:
 
     except FileNotFoundError as e:
         error_msg = f"Schedule file not found: {e}"
-        logger.error(error_msg)
+        logger.exception(error_msg)
         return StationplanResult(success=False, message=error_msg, output="")
 
     except ValueError as e:
         error_msg = f"Invalid schedule file: {e}"
-        logger.error(error_msg)
+        logger.exception(error_msg)
         return StationplanResult(success=False, message=error_msg, output="")
 
     except Exception as e:
         error_msg = f"Unexpected error processing schedule: {e}"
-        logger.error(error_msg)
+        logger.exception(error_msg)
         return StationplanResult(success=False, message=error_msg, output="")
 
 
@@ -866,7 +866,7 @@ def stationplan_forecast_kml(
         for activity in forecast_activities_raw:
             if len(activity) >= 9:
                 (
-                    index,
+                    _index,
                     time,
                     category,
                     activity_type,
@@ -1066,7 +1066,7 @@ def stationplan_forecast_png(
                 time,
                 category,
                 activity_type,
-                action,
+                _action,
                 duration,
                 latitude,
                 longitude,
