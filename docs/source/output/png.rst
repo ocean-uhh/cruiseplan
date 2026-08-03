@@ -136,7 +136,7 @@ Integration and workflows
 =================================
 
 Visualisation and Customization
--------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Both PNG outputs include bathymetric background visualization.  The bathymetry source can be selected with ``--bathy-source`` on both ``cruiseplan map`` and ``cruiseplan schedule``.
 
@@ -159,7 +159,7 @@ Both PNG outputs include bathymetric background visualization.  The bathymetry s
    --bathy-source etopo2022 --bathy-stride 10
 
 Default Operation Markers
------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Station Markers** (Red Circles):
   - Labels with station names
@@ -177,7 +177,7 @@ Default Operation Markers
 These are not user-configurable unless you clone the repository and edit ``cruiseplan/utils/plot_config.py``. See the file on GitHub: `cruiseplan/utils/plot_config.py on GitHub <https://github.com/ocean-uhh/cruiseplan/blob/main/cruiseplan/utils/plot_config.py>`_.
 
 Figure Customization
---------------------
+~~~~~~~~~~~~~~~~~~~~
 
 **Figure Size Options** for ``cruiseplan map`` only:
 
@@ -195,7 +195,7 @@ Note that making the figure size smaller will increase the relative size of the 
 
 
 Workflow Integration
---------------------
+~~~~~~~~~~~~~~~~~~~~
 
 **Initial Planning Phase** (use ``cruiseplan map``):
   1. Create initial YAML configuration
@@ -212,7 +212,7 @@ Workflow Integration
 
 
 File-Naming Conventions
-------------------------
+~~~~~~~~~~~~~~~~~~~~~~~
 
 **Schedule PNG Files**:
   - Format: ``{cruise_name}_schedule_map.png`` 
