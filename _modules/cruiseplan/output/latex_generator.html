@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.output.latex_generator &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev54</title>
+  <title>cruiseplan.output.latex_generator &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev55</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=e4e9f8ec"></script>
+      <script src="../../../_static/documentation_options.js?v=40917cf5"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -674,11 +674,7 @@
         <span class="c1"># Filter out transits for cleaner output (like MATLAB version)</span>
         <span class="n">station_records</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">records</span> <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">activity</span> <span class="o">!=</span> <span class="s2">&quot;Transit&quot;</span><span class="p">]</span>
 
-        <span class="c1"># Calculate distances between stations</span>
-        <span class="n">distances</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_distances_nm</span><span class="p">(</span><span class="n">station_records</span><span class="p">)</span>
-
         <span class="c1"># Generate TeX content with table breaking support</span>
-        <span class="n">tex_lines</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">table_sections</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Store table sections for breaking long tables</span>
         <span class="n">current_table_lines</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">line_count</span> <span class="o">=</span> <span class="mi">0</span>

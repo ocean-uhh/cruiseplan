@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Command-line-interface (CLI) &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev54</title>
+  <title>Command-line-interface (CLI) &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev55</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=e4e9f8ec"></script>
+      <script src="../_static/documentation_options.js?v=40917cf5"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -157,16 +157,17 @@
 <p>This package contains command-line interface modules for cruiseplan:</p>
 <ul class="simple">
 <li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">main</span></code>: Primary CLI entry point and command dispatcher</p></li>
-<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">stations</span></code>: Commands for managing and validating station definitions</p></li>
-<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">schedule</span></code>: Commands for generating and displaying cruise schedules</p></li>
-<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">download</span></code>: Commands for downloading external data sources</p></li>
-<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">enrich</span></code>: Commands for enriching cruise data with additional information</p></li>
-<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">pangaea</span></code>: Commands for interacting with Pangaea data repository</p></li>
-<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">validate</span></code>: Commands for validating cruise configuration files</p></li>
-<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">utils</span></code>: Shared utility functions for CLI operations</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">bathymetry</span></code>: Download bathymetry data</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">enrich</span></code>: Enrich cruise YAML with computed fields</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">forecast</span></code>: Generate real-time rolling station plan forecasts</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">list</span></code>: List activities in a schedule with indices</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">map</span></code>: Generate cruise track maps</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">pangaea</span></code>: Export data to Pangaea</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">process</span></code>: Process cruise YAML into enriched output</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">schedule</span></code>: Generate cruise schedules</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">stations</span></code>: Validate and display station definitions</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">validate</span></code>: Validate cruise configuration files</p></li>
 </ul>
-<p>These modules provide the user interface for interacting with cruiseplan functionality
-through the command line, supporting the full workflow from configuration to output generation.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.cli.handle_cli_errors">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.</span></span><span class="sig-name descname"><span class="pre">handle_cli_errors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/cli.html#handle_cli_errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.handle_cli_errors" title="Link to this definition"></a></dt>

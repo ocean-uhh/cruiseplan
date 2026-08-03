@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.cli &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev54</title>
+  <title>cruiseplan.cli &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev55</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=e4e9f8ec"></script>
+      <script src="../../_static/documentation_options.js?v=40917cf5"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -95,16 +95,16 @@
 <span class="sd">This package contains command-line interface modules for cruiseplan:</span>
 
 <span class="sd">- :mod:`main`: Primary CLI entry point and command dispatcher</span>
-<span class="sd">- :mod:`stations`: Commands for managing and validating station definitions</span>
-<span class="sd">- :mod:`schedule`: Commands for generating and displaying cruise schedules</span>
-<span class="sd">- :mod:`download`: Commands for downloading external data sources</span>
-<span class="sd">- :mod:`enrich`: Commands for enriching cruise data with additional information</span>
-<span class="sd">- :mod:`pangaea`: Commands for interacting with Pangaea data repository</span>
-<span class="sd">- :mod:`validate`: Commands for validating cruise configuration files</span>
-<span class="sd">- :mod:`utils`: Shared utility functions for CLI operations</span>
-
-<span class="sd">These modules provide the user interface for interacting with cruiseplan functionality</span>
-<span class="sd">through the command line, supporting the full workflow from configuration to output generation.</span>
+<span class="sd">- :mod:`bathymetry`: Download bathymetry data</span>
+<span class="sd">- :mod:`enrich`: Enrich cruise YAML with computed fields</span>
+<span class="sd">- :mod:`forecast`: Generate real-time rolling station plan forecasts</span>
+<span class="sd">- :mod:`list`: List activities in a schedule with indices</span>
+<span class="sd">- :mod:`map`: Generate cruise track maps</span>
+<span class="sd">- :mod:`pangaea`: Export data to Pangaea</span>
+<span class="sd">- :mod:`process`: Process cruise YAML into enriched output</span>
+<span class="sd">- :mod:`schedule`: Generate cruise schedules</span>
+<span class="sd">- :mod:`stations`: Validate and display station definitions</span>
+<span class="sd">- :mod:`validate`: Validate cruise configuration files</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>

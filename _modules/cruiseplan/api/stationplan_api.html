@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.api.stationplan_api &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev54</title>
+  <title>cruiseplan.api.stationplan_api &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev55</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=e4e9f8ec"></script>
+      <script src="../../../_static/documentation_options.js?v=40917cf5"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -488,7 +488,7 @@
 
             <span class="k">if</span> <span class="s2">&quot;comment&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
                 <span class="n">comment_val</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">schedule</span><span class="o">.</span><span class="n">comment</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">comment_val</span> <span class="ow">and</span> <span class="n">comment_val</span> <span class="o">!=</span> <span class="s2">&quot;nan&quot;</span> <span class="ow">and</span> <span class="n">comment_val</span> <span class="o">!=</span> <span class="s2">&quot;_&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">comment_val</span> <span class="ow">and</span> <span class="n">comment_val</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;nan&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">}:</span>
                     <span class="n">comment</span> <span class="o">=</span> <span class="n">comment_val</span>
 
             <span class="c1"># Look up exit coordinates if available</span>
@@ -714,11 +714,11 @@
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">9</span><span class="p">:</span>
                     <span class="p">(</span>
                         <span class="n">index</span><span class="p">,</span>
-                        <span class="n">time</span><span class="p">,</span>
+                        <span class="n">_time</span><span class="p">,</span>
                         <span class="n">category</span><span class="p">,</span>
                         <span class="n">activity_type</span><span class="p">,</span>
-                        <span class="n">action</span><span class="p">,</span>
-                        <span class="n">duration</span><span class="p">,</span>
+                        <span class="n">_action</span><span class="p">,</span>
+                        <span class="n">_duration</span><span class="p">,</span>
                         <span class="n">latitude</span><span class="p">,</span>
                         <span class="n">longitude</span><span class="p">,</span>
                         <span class="n">name</span><span class="p">,</span>
@@ -829,9 +829,9 @@
             <span class="c1"># Count waypoints (exclude comment lines)</span>
             <span class="n">waypoint_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span>
                 <span class="p">[</span>
-                    <span class="n">l</span>
-                    <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">waypoint_content_ddm</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">l</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">l</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;%&quot;</span><span class="p">)</span>
+                    <span class="n">line</span>
+                    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">waypoint_content_ddm</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">line</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;%&quot;</span><span class="p">)</span>
                 <span class="p">]</span>
             <span class="p">)</span>
 
@@ -844,9 +844,9 @@
             <span class="c1"># Return DDM content directly (default format)</span>
             <span class="n">waypoint_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span>
                 <span class="p">[</span>
-                    <span class="n">l</span>
-                    <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">waypoint_content_ddm</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">l</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">l</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;%&quot;</span><span class="p">)</span>
+                    <span class="n">line</span>
+                    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">waypoint_content_ddm</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">line</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;%&quot;</span><span class="p">)</span>
                 <span class="p">]</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="n">StationplanResult</span><span class="p">(</span>

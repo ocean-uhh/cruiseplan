@@ -176,6 +176,133 @@ Search and download PANGAEA historical data.
    # Process existing DOI list
    cruiseplan pangaea my_dois.txt --output processed_data
 
+Cruise Operations
+=================
+
+Commands used at sea once a schedule NetCDF has been generated.
+Run ``cruiseplan list`` first to see activity indices, then ``cruiseplan forecast``
+to generate a rolling workplan from the current ship position.
+
+cruiseplan list
+---------------
+
+Display all activities in a schedule with their indices.
+
+.. code-block:: bash
+
+   cruiseplan list SCHEDULE_FILE
+
+**Arguments:**
+
+- ``SCHEDULE_FILE``: NetCDF schedule file produced by ``cruiseplan schedule``
+
+**Output:**
+
+Prints a table of all activities with index, time offset, category, duration (hours),
+and name. Use the printed indices as ``--start-index`` values for ``cruiseplan forecast``.
+
+**Example:**
+
+.. code-block:: bash
+
+   cruiseplan list schedule/MSM142_schedule.nc
+
+cruiseplan forecast
+-------------------
+
+Generate rolling station plan forecasts from a NetCDF schedule.
+
+Two modes of operation:
+
+- **Forecast mode** (``--start-index`` and ``--start-time`` both required): produce a
+  workplan for the next N hours starting from a given activity at a new wall-clock time.
+- **Static mode** (no start params): generate a full-schedule document (``--format tex``
+  or ``--format waypoints`` only).
+
+.. code-block:: bash
+
+   cruiseplan forecast [-h] SCHEDULE_FILE
+                       [--start-index N] [--start-time DATETIME]
+                       [--duration HOURS] [--transit-speed KNOTS]
+                       [--current-position LAT,LON]
+                       [--format {text,tex,waypoints,kml,png}]
+                       [-o OUTPUT_DIR] [--output FILENAME]
+                       [--logo PATH] [--number TEXT] [--title TEXT]
+                       [--bathy-source ...] [--bathy-dir ...] [--bathy-stride N]
+                       [--lat MIN MAX] [--lon MIN MAX]
+                       [--max-depth METRES] [--bathy-contours DEPTH [DEPTH ...]]
+                       [--no-title] [--no-labels] [--no-legend]
+                       [--verbose]
+
+**Arguments:**
+
+- ``SCHEDULE_FILE``: NetCDF schedule file produced by ``cruiseplan schedule``
+
+**Forecast mode options:**
+
+- ``--start-index N``: Activity index to start from (0-based; see ``cruiseplan list``)
+- ``--start-time DATETIME``: Wall-clock start time for that activity, ISO format
+  (e.g. ``"2026-08-30T14:00:00"``); required together with ``--start-index``
+- ``--duration HOURS``: Forecast window in hours (default: 24)
+- ``--transit-speed KNOTS``: Ship transit speed for text forecast (default: 10 kt)
+- ``--current-position LAT,LON``: Current ship position in decimal degrees
+  (e.g. ``"65.123,-30.456"``); used in waypoints output
+
+**Output options:**
+
+- ``--format``: ``text`` (default), ``tex``, ``waypoints``, ``kml``, ``png``
+- ``-o, --output-dir DIR``: Output directory (default: current directory)
+- ``--output FILENAME``: Output filename, relative to ``--output-dir``
+  (default: stdout for text/waypoints)
+
+**TeX output options** (``--format tex``):
+
+- ``--logo PATH``: Logo image file (PNG, JPG, PDF)
+- ``--number TEXT``: Workplan number (e.g. ``28``)
+- ``--title TEXT``: Cruise title (e.g. ``MSM142``)
+
+**PNG map options** (``--format png``):
+
+- ``--lat MIN MAX``, ``--lon MIN MAX``: Map extent in decimal degrees
+- ``--max-depth METRES``: Depth ceiling for bathymetry colour scale
+- ``--bathy-contours DEPTH [DEPTH ...]``: Contour depths in metres
+- ``--no-title``, ``--no-labels``, ``--no-legend``: Suppress map elements
+- ``--bathy-source``, ``--bathy-dir``, ``--bathy-stride``: Bathymetry data
+
+**Examples:**
+
+.. code-block:: bash
+
+   # Step 1: see activity indices
+   cruiseplan list schedule/MSM142_schedule.nc
+
+   # Step 2: generate a 24-hour text forecast from activity 18
+   cruiseplan forecast schedule/MSM142_schedule.nc \
+       --start-index 18 --start-time "2026-08-30T14:00:00"
+
+   # Forecast with current position, output to file
+   cruiseplan forecast schedule/MSM142_schedule.nc \
+       --start-index 5 --start-time "2026-08-29T08:00:00" \
+       --current-position "65.123,-30.456" --duration 36 \
+       --output forecast.txt
+
+   # Bridge waypoints file
+   cruiseplan forecast schedule/MSM142_schedule.nc \
+       --start-index 2 --start-time "2026-05-05 08:00" --duration 24 \
+       --current-position "65.027,-31.370" \
+       --format waypoints --output-dir route --output Stationsplan28.txt
+
+   # TeX workplan with logo
+   cruiseplan forecast schedule/MSM142_schedule.nc \
+       --start-index 2 --start-time "2026-05-05 08:00" --duration 24 \
+       --current-position "65.027,-31.370" \
+       --format tex --logo config/images/logo.png \
+       --title "MSM142" --number "28" \
+       --output-dir route --output Stationsplan28.tex
+
+   # Static full-schedule TeX table (no start params)
+   cruiseplan forecast schedule/MSM142_schedule.nc --format tex --output station_plan.tex
+
 Individual Processing Commands
 ==============================
 
