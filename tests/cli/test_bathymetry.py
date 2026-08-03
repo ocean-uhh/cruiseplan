@@ -213,26 +213,27 @@ class TestBathymetryThinCLI:
             assert exc_info.value.code == 1
 
     def test_default_argument_handling(self):
-        """Test that missing arguments get proper defaults."""
-        # Minimal args - missing optional attributes
+        """Test that default arguments are forwarded correctly to the API."""
         args = argparse.Namespace(
-            # Missing: bathy_source, output_dir, citation, verbose
+            bathy_source="gebco2025",
+            output_dir=Path("data/bathymetry"),
+            citation=False,
+            verbose=False,
         )
 
         with patch("cruiseplan.bathymetry") as mock_bathymetry:
             mock_bathymetry.return_value = cruiseplan.BathymetryResult(
-                data_file=Path("data/bathymetry/etopo2022.nc"),
-                source="etopo2022",
-                summary={"source": "etopo2022", "file_size_mb": 850.5},
+                data_file=Path("data/bathymetry/gebco2025.nc"),
+                source="gebco2025",
+                summary={"source": "gebco2025", "file_size_mb": 7500.0},
             )
 
             run(args)
 
-            # Should use defaults for missing arguments
             mock_bathymetry.assert_called_once_with(
-                bathy_source="gebco2025",  # default
-                output_dir=None,  # default
-                citation=False,  # default
+                bathy_source="gebco2025",
+                output_dir="data/bathymetry",
+                citation=False,
             )
 
     def test_bathymetry_with_citation(self):

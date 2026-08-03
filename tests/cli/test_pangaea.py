@@ -27,6 +27,7 @@ class TestPangaeaThinCLI:
         args = argparse.Namespace(
             query_or_file="CTD",
             output_dir="data",
+            output=None,
             lat=None,
             lon=None,
             limit=5,
@@ -182,11 +183,17 @@ class TestPangaeaThinCLI:
             assert exc_info.value.code == 1
 
     def test_default_argument_handling(self):
-        """Test that missing arguments get proper defaults."""
-        # Minimal args - missing optional attributes
+        """Test that default arguments are forwarded correctly to the API."""
         args = argparse.Namespace(
-            query_or_file="salinity"
-            # Missing: output_dir, output, lat, lon, limit, etc.
+            query_or_file="salinity",
+            output_dir="data",
+            output=None,
+            lat=None,
+            lon=None,
+            limit=10,
+            rate_limit=1.0,
+            merge_campaigns=True,
+            verbose=False,
         )
 
         with patch("cruiseplan.pangaea") as mock_pangaea:

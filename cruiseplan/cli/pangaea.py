@@ -55,29 +55,26 @@ def run(args: argparse.Namespace) -> None:
 
     Delegates all business logic to the cruiseplan.pangaea() API function.
     """
-    try:
-        _ = determine_workflow_mode(args)
+    from cruiseplan.cli import handle_cli_errors
 
-        lat_bounds = getattr(args, "lat", None)
-        lon_bounds = getattr(args, "lon", None)
-
-        if lat_bounds and lon_bounds:
+    with handle_cli_errors("PANGAEA processing", args.verbose):
+        if args.lat and args.lon:
             try:
-                validate_lat_lon_bounds(lat_bounds, lon_bounds)
+                validate_lat_lon_bounds(args.lat, args.lon)
             except ValueError as e:
                 print(f"ERROR: Invalid coordinate bounds: {e}", file=sys.stderr)
                 sys.exit(1)
 
         result = cruiseplan.pangaea(
             query_terms=args.query_or_file,
-            output_dir=str(getattr(args, "output_dir", "data")),
-            output=getattr(args, "output", None),
-            lat_bounds=lat_bounds,
-            lon_bounds=lon_bounds,
-            limit=getattr(args, "limit", 10),
-            rate_limit=getattr(args, "rate_limit", 1.0),
-            merge_campaigns=getattr(args, "merge_campaigns", True),
-            verbose=getattr(args, "verbose", False),
+            output_dir=str(args.output_dir),
+            output=args.output,
+            lat_bounds=args.lat,
+            lon_bounds=args.lon,
+            limit=args.limit,
+            rate_limit=args.rate_limit,
+            merge_campaigns=args.merge_campaigns,
+            verbose=args.verbose,
         )
 
         print("")
@@ -104,29 +101,6 @@ def run(args: argparse.Namespace) -> None:
             sys.exit(1)
 
         sys.exit(0)
-
-    except cruiseplan.ValidationError as e:
-        print(f"ERROR: Configuration validation error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except cruiseplan.FileError as e:
-        print(f"ERROR: File operation error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except FileNotFoundError as e:
-        print(f"ERROR: File not found: {e}", file=sys.stderr)
-        sys.exit(1)
-    except RuntimeError as e:
-        print(f"ERROR: PANGAEA processing error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except KeyboardInterrupt:
-        print("\nOperation cancelled by user.", file=sys.stderr)
-        sys.exit(1)
-    except Exception as e:
-        print(f"ERROR: Unexpected error: {e}", file=sys.stderr)
-        if getattr(args, "verbose", False):
-            import traceback
-
-            traceback.print_exc()
-        sys.exit(1)
 
 
 def build_parser(subparsers: argparse._SubParsersAction) -> argparse.ArgumentParser:

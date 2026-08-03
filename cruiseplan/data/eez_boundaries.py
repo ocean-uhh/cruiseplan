@@ -86,8 +86,8 @@ def ensure_eez_data() -> Path:
         zip_path.unlink()
         logger.info(f"EEZ data extracted to: {eez_file_path}")
 
-    except Exception as e:
-        logger.error(f"Failed to download or extract EEZ data: {e}")
+    except Exception:
+        logger.exception("Failed to download or extract EEZ data")
         # Clean up partial files
         if zip_path.exists():
             zip_path.unlink()
@@ -150,8 +150,8 @@ def _extract_and_validate_eez_data(zip_path: Path, eez_file_path: Path) -> bool:
             logger.error("No valid EEZ GeoPackage found in zip file")
             return False
 
-    except Exception as e:
-        logger.error(f"Failed to extract GeoPackage: {e}")
+    except Exception:
+        logger.exception("Failed to extract GeoPackage")
         return False
 
 

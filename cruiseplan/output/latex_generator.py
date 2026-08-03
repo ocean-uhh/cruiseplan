@@ -549,9 +549,9 @@ class LaTeXGenerator:
         records: list[ActivityRecord],
         cruise_name: str = "Cruise",
         config: Any = None,
-        logo_path: str | Path = None,
-        workplan_number: str = None,
-        cruise_title: str = None,
+        logo_path: str | Path | None = None,
+        workplan_number: str | None = None,
+        cruise_title: str | None = None,
     ) -> str:
         """
         Generate TeX table in letsgo.m format from ActivityRecord objects.
@@ -1031,10 +1031,10 @@ Time & Position & Depth & Distance & Station & Comment \\\\
 
 def generate_letsgo_table_from_netcdf(
     netcdf_path: Path,
-    output_path: Path = None,
-    logo_path: str | Path = None,
-    workplan_number: str = None,
-    cruise_title: str = None,
+    output_path: Path | None = None,
+    logo_path: str | Path | None = None,
+    workplan_number: str | None = None,
+    cruise_title: str | None = None,
 ) -> Path:
     """
     Generate TeX table in letsgo.m format from NetCDF schedule file.
@@ -1084,7 +1084,7 @@ def generate_latex_tables(
     config: CruiseConfig,
     timeline: list[ActivityRecord],
     output_dir: Path,
-    base_name: str = None,
+    base_name: str | None = None,
 ) -> list[Path]:
     """
     Main interface to generate LaTeX tables for cruise proposal from scheduler timeline.

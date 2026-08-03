@@ -193,26 +193,26 @@ def stationplan_forecast(
 
     except FileNotFoundError as e:
         error_msg = f"Schedule file not found: {e}"
-        logger.error(error_msg)
+        logger.exception(error_msg)
         return StationplanResult(success=False, message=error_msg, output="")
 
     except ValueError as e:
         error_msg = f"Invalid forecast parameters: {e}"
-        logger.error(error_msg)
+        logger.exception(error_msg)
         return StationplanResult(success=False, message=error_msg, output="")
 
     except Exception as e:
         error_msg = f"Unexpected error generating forecast: {e}"
-        logger.error(error_msg)
+        logger.exception(error_msg)
         return StationplanResult(success=False, message=error_msg, output="")
 
 
 def stationplan_tex(
     schedule_file: str | Path,
-    output_path: str | Path = None,
-    logo_path: str | Path = None,
-    workplan_number: str = None,
-    cruise_title: str = None,
+    output_path: str | Path | None = None,
+    logo_path: str | Path | None = None,
+    workplan_number: str | None = None,
+    cruise_title: str | None = None,
 ) -> StationplanResult:
     """
     Generate TeX station table in letsgo.m format from NetCDF schedule file.
@@ -271,12 +271,12 @@ def stationplan_tex(
 
     except FileNotFoundError as e:
         error_msg = f"Schedule file not found: {e}"
-        logger.error(error_msg)
+        logger.exception(error_msg)
         return StationplanResult(success=False, message=error_msg, output="")
 
     except Exception as e:
         error_msg = f"Error generating TeX table: {e}"
-        logger.error(error_msg)
+        logger.exception(error_msg)
         return StationplanResult(success=False, message=error_msg, output="")
 
 
@@ -285,10 +285,10 @@ def stationplan_forecast_tex(
     start_index: int,
     start_time: str,
     duration_hours: float = 24.0,
-    output_path: str | Path = None,
-    logo_path: str | Path = None,
-    workplan_number: str = None,
-    cruise_title: str = None,
+    output_path: str | Path | None = None,
+    logo_path: str | Path | None = None,
+    workplan_number: str | None = None,
+    cruise_title: str | None = None,
 ) -> StationplanResult:
     """
     Generate TeX station forecast starting from specified activity.
@@ -488,17 +488,17 @@ def stationplan_forecast_tex(
 
     except Exception as e:
         error_msg = f"Error generating TeX forecast: {e}"
-        logger.error(error_msg)
+        logger.exception(error_msg)
         return StationplanResult(success=False, message=error_msg, output="")
 
 
 def stationplan_waypoints(
     schedule_file: str | Path,
     start_index: int,
-    start_time: str = None,
+    start_time: str | None = None,
     duration_hours: float = 48.0,
-    current_position: tuple[float, float] = None,
-    output_path: str | Path = None,
+    current_position: tuple[float, float] | None = None,
+    output_path: str | Path | None = None,
 ) -> StationplanResult:
     """
     Generate bridge waypoints file in Stationsplan.txt format.
@@ -749,7 +749,7 @@ def stationplan_waypoints(
 
     except Exception as e:
         error_msg = f"Error generating bridge waypoints: {e}"
-        logger.error(error_msg)
+        logger.exception(error_msg)
         return StationplanResult(success=False, message=error_msg, output="")
 
 
@@ -959,7 +959,7 @@ def stationplan_forecast_kml(
 
     except Exception as e:
         error_msg = f"Error generating KML forecast: {e}"
-        logger.error(error_msg)
+        logger.exception(error_msg)
         return StationplanResult(success=False, message=error_msg, output="")
 
 
@@ -973,8 +973,8 @@ def stationplan_forecast_png(
     bathy_dir: str = "data/bathymetry",
     bathy_stride: int = 10,
     figsize: tuple[float, float] = (10.0, 8.1),
-    lat_bounds: list[float] = None,
-    lon_bounds: list[float] = None,
+    lat_bounds: list[float] | None = None,
+    lon_bounds: list[float] | None = None,
     max_depth: int | None = None,
     bathy_contours: list[float] | None = None,
     no_title: bool = False,
@@ -1153,5 +1153,5 @@ def stationplan_forecast_png(
 
     except Exception as e:
         error_msg = f"Error generating PNG forecast: {e}"
-        logger.error(error_msg)
+        logger.exception(error_msg)
         return StationplanResult(success=False, message=error_msg, output="")
