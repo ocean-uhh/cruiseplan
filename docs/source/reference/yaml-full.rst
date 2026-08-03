@@ -275,18 +275,18 @@ Standard operation types with default durations:
    * - ``mooring``
      - 4 hours
      - Mooring operations
-   * - ``net_tow``
+   * - ``net_tow`` *(planned)*
      - 90 min
-     - Biological sampling
-   * - ``grab_sample``
+     - Biological sampling — not yet implemented
+   * - ``grab_sample`` *(planned)*
      - 30 min
-     - Sediment/water sampling
-   * - ``adcp``
+     - Sediment/water sampling — not yet implemented
+   * - ``adcp`` *(planned)*
      - Transit time
-     - Current profiling
-   * - ``xbt``
+     - Current profiling — not yet implemented
+   * - ``xbt`` *(planned)*
      - 15 min
-     - Expendable temperature probe
+     - Expendable temperature probe — not yet implemented
 
 Overriding Calculated Duration
 ------------------------------
@@ -371,18 +371,18 @@ Parameters cascade from cruise → leg → cluster → operation:
 
 .. code-block:: yaml
 
-   # Cruise level (applied to all)
-   vessel_speed_kt: 10.0
-   
+   # Cruise level (applied to all legs)
+   default_vessel_speed: 10.0
+
    legs:
      - name: "leg1"
-       vessel_speed_kt: 12.0      # Overrides cruise default
+       vessel_speed: 12.0      # Overrides cruise default
        activities:
-         - "CTD_001"              # Uses leg speed: 12.0 kt
-         
+         - "CTD_001"           # Uses leg speed: 12.0 kt
+
    points:
      - name: "CTD_001"
-       vessel_speed_kt: 8.0       # Overrides leg speed for this operation
+       vessel_speed: 8.0       # Overrides leg speed for this operation
 
 Comments and Documentation
 ==========================

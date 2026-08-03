@@ -132,15 +132,15 @@ Legs organize your cruise into phases:
      - name: "leg 1"
        departure_port: port_reykjavik
        arrival_port: port_reykjavik
-       first_waypoint: MOOR_001
-       last_waypoint: survey_box
+       first_activity: MOOR_001
+       last_activity: survey_box
        activities: ["MOOR_001", "MOOR_002", "survey_box"]
-       
+
      - name: "leg 2"
-       departure_port: port_reykjavik            
+       departure_port: port_reykjavik
        arrival_port: port_bergen
-       first_waypoint: transect_north
-       last_waypoint: transect_north
+       first_activity: transect_north
+       last_activity: transect_north
        activities: ["transect_north"]
 
 Operation Types and Actions
