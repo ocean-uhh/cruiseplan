@@ -39,8 +39,8 @@ Workflow 1: Basic Planning
 
    cruiseplan bathymetry
    cruiseplan stations --lat 50 60 --lon -40 -20
-   cruiseplan process -c data/stations.yaml
-   cruiseplan schedule -c data/{cruise_name}_enriched.yaml
+   cruiseplan process data/stations.yaml
+   cruiseplan schedule data/{cruise_name}_enriched.yaml
 
 Workflow 2: With Historical Data
 --------------------------------
@@ -51,11 +51,11 @@ Workflow 2: With Historical Data
 
    # Search for historical stations
    cruiseplan pangaea "CTD" --lat 50 60 --lon -40 -20 --output historic
-   
+
    # Plan with historical context
-   cruiseplan stations -p data/historic.pkl --lat 50 60 --lon -40 -20
-   cruiseplan process -c data/historic_stations.yaml
-   cruiseplan schedule -c data/{cruise_name}_enriched.yaml
+   cruiseplan stations -p data/historic_stations.pkl --lat 50 60 --lon -40 -20
+   cruiseplan process data/historic_stations.yaml
+   cruiseplan schedule data/{cruise_name}_enriched.yaml
 
 Workflow 3: Manual Control
 --------------------------
@@ -64,15 +64,15 @@ Workflow 3: Manual Control
 
 .. code-block:: bash
 
-   cruiseplan stations --lat 50 60 --lon -40 -20 --output survey
-   
+   cruiseplan stations --lat 50 60 --lon -40 -20
+
    # Edit YAML manually to add custom operations, timing, etc.
-   # nano data/survey_stations.yaml
-   
-   cruiseplan enrich -c data/survey_stations.yaml      # Add depths
-   cruiseplan validate -c data/{cruise_name}_enriched.yaml    # Check config
-   cruiseplan map -c data/{cruise_name}_enriched.yaml         # Preview map
-   cruiseplan schedule -c data/{cruise_name}_enriched.yaml    # Generate outputs
+   # nano data/{cruise_name}_stations.yaml
+
+   cruiseplan enrich data/{cruise_name}_stations.yaml      # Add depths
+   cruiseplan validate data/{cruise_name}_enriched.yaml    # Check config
+   cruiseplan map data/{cruise_name}_enriched.yaml         # Preview map
+   cruiseplan schedule data/{cruise_name}_enriched.yaml    # Generate outputs
 
 Interactive Station Picker
 ===========================

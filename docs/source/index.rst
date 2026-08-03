@@ -31,8 +31,7 @@ CruisePlan: Oceanographic Planning Hub
    advanced/developer_guide.md
    advanced/manual_testing.rst
    API Reference <api/modules.rst>
-
-**Legacy Documentation**: For detailed technical documentation from previous versions, see :doc:`legacy/index`.
+   Legacy Documentation <legacy/index>
 
 Indices and tables
 ==================

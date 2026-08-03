@@ -1,6 +1,6 @@
-==================
+====================
 Legacy Documentation
-==================
+====================
 
 This section contains detailed technical documentation preserved from previous versions of CruisePlan.
 

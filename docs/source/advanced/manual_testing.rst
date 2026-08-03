@@ -49,7 +49,7 @@ Test Case 1: Single Station (tc1_single.yaml)
 
 
 **TC1_Single_Test_enriched.yaml**
-.................................
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. |uncheck| raw:: html
 
@@ -81,7 +81,7 @@ Test Case 1: Single Station (tc1_single.yaml)
 
 
 **TC1_Single_Test_schedule.html**
-..................................
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 4. |uncheck| Verify that the CTD takes **2.1 hours**, based on a 30 minute "turnaround_time" (the default from `cruiseplan/config/values.py`) and a 2850m CTD (using mocked bathymetry) from `DEFAULT_CTD_RATE_M_S` in `cruiseplan/config/values.py`, which is 47.5 minutes down and 47.5 minutes up, plus 30 minutes turnaround = 125 minutes or 2.1 hours.
 
@@ -90,7 +90,7 @@ Test Case 1: Single Station (tc1_single.yaml)
 6. |uncheck| Compare with the `HTML schedule output <../_static/fixtures/TC1_Single_Test_schedule.html>`_ to verify CTD timing calculations.
 
 **TC1_Single_Test_schedule.csv**
-.................................
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 7. |uncheck| Verify that the first row, second to last entry is **-34.51** (Longitude minutes for -63.5752 degrees)
 
@@ -105,7 +105,7 @@ Test Case 1: Single Station (tc1_single.yaml)
 
 
 **TC1_Single_Test_stations.tex**
-.................................
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 8. |uncheck| Verify that the LaTeX station table includes water depth **2850** 
 9. |uncheck| Verify the Latex-formated coordinate includes **45$^\circ$00.00'N**:
@@ -115,7 +115,7 @@ Test Case 1: Single Station (tc1_single.yaml)
    Station & STN-001 & 45$^\circ$00.00'N, 045$^\circ$00.00'W & 2850 \\
 
 **TC1_Single_Test_work_days.tex**
-.................................
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 10. |uncheck| Verify that the LaTeX work days table includes total cruise duration of **2.1** operation hours and **260.3** transit hours:
 
@@ -124,13 +124,13 @@ Test Case 1: Single Station (tc1_single.yaml)
    \textbf{Total duration} & & \textbf{2.1} & \textbf{260.3} \\
 
 **Figures _map.png and _schedule.png**
-..........................................
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 11. |uncheck| Verify that the map PNG shows no ports `TC1_Single_Test_map.png <../_static/fixtures/TC1_Single_Test_map.png>`_
 12. |uncheck| Verify that the schedule PNG shows ports `TC1_Single_Test_schedule.png <../_static/fixtures/TC1_Single_Test_schedule.png>`_
 
 **KML: TC1_Single_Test_catalog.kml**
-........................................
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 13. |uncheck| Verify that the KML file includes the station details
 
@@ -336,7 +336,7 @@ Here, I am currently manually checking against offline calculations, especially 
    cruiseplan process -c tests/fixtures/tc1_single.yaml --verbose
 
 Development Workflow Integration
-=================================
+--------------------------------
 
 Pre-Commit Testing
 ~~~~~~~~~~~~~~~~~~
@@ -410,10 +410,10 @@ Test Results Interpretation
 - Test individual commands to isolate problems
 
 Extending the Test Suite
------------------------
+------------------------
 
 Adding New Test Cases
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 To add new manual test scenarios:
 

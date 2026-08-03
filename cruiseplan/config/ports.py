@@ -11,7 +11,8 @@ Features:
 - Extensible system allowing user-defined port overrides
 - Support for both string references and PointDefinition objects
 
-Usage:
+Usage::
+
     # In YAML configuration
     departure_port: "port_reykjavik"  # Reference to global port
 
@@ -588,7 +589,7 @@ def add_custom_port(port_id: str, port_data: dict[str, Any]) -> None:
     Parameters
     ----------
     port_id : str
-        Port identifier (should start with 'port_').
+        Port identifier (should start with ``port_``).
     port_data : dict
         Port data dictionary with required fields (name, latitude, longitude).
 
