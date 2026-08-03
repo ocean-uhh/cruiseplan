@@ -1,8 +1,8 @@
 """
-Station plan generation command.
+Real-time cruise forecast command.
 
-This module implements the 'cruiseplan stationplan' command for listing
-activities and generating station plan forecasts from NetCDF schedule files.
+This module implements the 'cruiseplan forecast' command for generating
+rolling station plan forecasts from NetCDF schedule files during a cruise.
 
 Thin CLI layer that delegates all business logic to the API layer.
 """
@@ -16,10 +16,10 @@ from cruiseplan.api.stationplan_api import (
     stationplan_forecast_kml,
     stationplan_forecast_png,
     stationplan_forecast_tex,
-    stationplan_list,
     stationplan_tex,
     stationplan_waypoints,
 )
+from cruiseplan.cli import handle_cli_errors
 from cruiseplan.config.values import (
     BATHY_SOURCES,
     DEFAULT_BATHY_DIR,
@@ -29,7 +29,7 @@ from cruiseplan.config.values import (
 
 def run(args: argparse.Namespace) -> None:
     """
-    Thin CLI wrapper for stationplan command.
+    Thin CLI wrapper for forecast command.
 
     Delegates all business logic to the cruiseplan.api.stationplan_api functions.
 
@@ -38,26 +38,37 @@ def run(args: argparse.Namespace) -> None:
     args : argparse.Namespace
         Parsed command-line arguments containing schedule file and operation mode.
     """
-    try:
+    with handle_cli_errors("forecast", getattr(args, "verbose", False)):
         schedule_file = Path(args.schedule_file)
         if not schedule_file.exists():
             print(f"ERROR: Schedule file not found: {schedule_file}", file=sys.stderr)
             sys.exit(1)
+            return
 
-        # List mode
-        if args.list:
-            result = stationplan_list(schedule_file)
+        if args.output and Path(args.output).is_absolute():
+            print(
+                "ERROR: --output must be a relative filename; use --output-dir for the directory",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+            return
 
-            if result.success:
-                print(result.output)
-            else:
-                print(f"ERROR: {result.message}", file=sys.stderr)
-                sys.exit(1)
+        has_index = args.start_index is not None
+        has_time = args.start_time is not None
+        if has_index != has_time:
+            missing = "--start-time" if has_index else "--start-index"
+            given = "--start-index" if has_index else "--start-time"
+            print(
+                f"ERROR: {given} requires {missing} — both must be provided together",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+            return
 
-        # Forecast mode with optional format
-        elif args.start_index is not None and args.start_time is not None:
-            format_type = getattr(args, "format", None)
+        format_type = getattr(args, "format", "text")
 
+        # Forecast mode: both start_index and start_time provided
+        if has_index and has_time:
             if format_type == "tex":
                 output_path = None
                 if args.output:
@@ -81,21 +92,7 @@ def run(args: argparse.Namespace) -> None:
                     sys.exit(1)
 
             elif format_type == "waypoints":
-                current_position = None
-                if hasattr(args, "current_position") and args.current_position:
-                    try:
-                        lat_str, lon_str = args.current_position.split(",")
-                        current_position = (
-                            float(lat_str.strip()),
-                            float(lon_str.strip()),
-                        )
-                    except (ValueError, AttributeError) as e:
-                        print(
-                            f"ERROR: Invalid current position format. Use 'lat,lon' like '65.123,-30.456': {e}",
-                            file=sys.stderr,
-                        )
-                        sys.exit(1)
-
+                current_position = _parse_current_position(args)
                 output_path = None
                 if args.output:
                     output_path = args.output_dir / args.output
@@ -122,7 +119,7 @@ def run(args: argparse.Namespace) -> None:
                 output_path = None
                 if args.output:
                     output_file = Path(args.output)
-                    if output_file.suffix.lower() in [".txt", ".tex"]:
+                    if output_file.suffix.lower() in [".txt", ".tex", ".png"]:
                         output_path = (
                             args.output_dir / output_file.with_suffix(".kml").name
                         )
@@ -154,12 +151,8 @@ def run(args: argparse.Namespace) -> None:
                     else:
                         output_path = args.output_dir / args.output
 
-                lat_bounds = None
-                lon_bounds = None
-                if hasattr(args, "lat") and args.lat:
-                    lat_bounds = args.lat
-                if hasattr(args, "lon") and args.lon:
-                    lon_bounds = args.lon
+                lat_bounds = args.lat if getattr(args, "lat", None) else None
+                lon_bounds = args.lon if getattr(args, "lon", None) else None
 
                 result = stationplan_forecast_png(
                     schedule_file=schedule_file,
@@ -187,6 +180,7 @@ def run(args: argparse.Namespace) -> None:
                     sys.exit(1)
 
             else:
+                # Default text forecast
                 result = stationplan_forecast(
                     schedule_file=schedule_file,
                     start_index=args.start_index,
@@ -215,128 +209,105 @@ def run(args: argparse.Namespace) -> None:
                     print(f"ERROR: {result.message}", file=sys.stderr)
                     sys.exit(1)
 
-        # Format mode without forecast parameters
-        elif getattr(args, "format", None) in ["tex", "waypoints", "kml", "png"]:
-            format_type = getattr(args, "format", None)
+        # Static format mode: no start params, generate document from full schedule
+        elif format_type == "tex":
+            output_path = None
+            if args.output:
+                output_path = args.output_dir / args.output
 
-            if format_type == "tex":
-                output_path = None
-                if args.output:
-                    output_path = args.output_dir / args.output
-
-                result = stationplan_tex(
-                    schedule_file,
-                    output_path,
-                    getattr(args, "logo", None),
-                    getattr(args, "number", None),
-                    getattr(args, "title", None),
-                )
-
-                if result.success:
-                    print(f"Generated TeX station table: {result.output}")
-                else:
-                    print(f"ERROR: {result.message}", file=sys.stderr)
-                    sys.exit(1)
-
-            elif format_type == "waypoints":
-                current_position = None
-                if hasattr(args, "current_position") and args.current_position:
-                    try:
-                        lat_str, lon_str = args.current_position.split(",")
-                        current_position = (
-                            float(lat_str.strip()),
-                            float(lon_str.strip()),
-                        )
-                    except (ValueError, AttributeError) as e:
-                        print(
-                            f"ERROR: Invalid current position format. Use 'lat,lon' like '65.123,-30.456': {e}",
-                            file=sys.stderr,
-                        )
-                        sys.exit(1)
-
-                output_path = None
-                if args.output:
-                    output_path = args.output_dir / args.output
-
-                result = stationplan_waypoints(
-                    schedule_file=schedule_file,
-                    start_index=None,
-                    start_time=None,
-                    duration_hours=None,
-                    current_position=current_position,
-                    output_path=output_path,
-                )
-
-                if result.success:
-                    if output_path:
-                        print(f"Generated bridge waypoints: {result.output}")
-                    else:
-                        print(result.output)
-                else:
-                    print(f"ERROR: {result.message}", file=sys.stderr)
-                    sys.exit(1)
-
-            elif format_type == "kml":
-                print(
-                    "ERROR: KML format requires forecast parameters: --start-index and --start-time",
-                    file=sys.stderr,
-                )
-                print(
-                    "   Use 'cruiseplan stationplan --help' for usage information",
-                    file=sys.stderr,
-                )
-                sys.exit(1)
-
-            elif format_type == "png":
-                print(
-                    "ERROR: PNG format requires forecast parameters: --start-index and --start-time",
-                    file=sys.stderr,
-                )
-                print(
-                    "   Use 'cruiseplan stationplan --help' for usage information",
-                    file=sys.stderr,
-                )
-                sys.exit(1)
-
-        # No valid mode specified
-        else:
-            print(
-                "ERROR: Must specify either --list or both --start-index and --start-time",
-                file=sys.stderr,
+            result = stationplan_tex(
+                schedule_file,
+                output_path,
+                getattr(args, "logo", None),
+                getattr(args, "number", None),
+                getattr(args, "title", None),
             )
+
+            if result.success:
+                print(f"Generated TeX station table: {result.output}")
+            else:
+                print(f"ERROR: {result.message}", file=sys.stderr)
+                sys.exit(1)
+
+        elif format_type == "waypoints":
+            current_position = _parse_current_position(args)
+            output_path = None
+            if args.output:
+                output_path = args.output_dir / args.output
+
+            result = stationplan_waypoints(
+                schedule_file=schedule_file,
+                start_index=None,
+                start_time=None,
+                duration_hours=None,
+                current_position=current_position,
+                output_path=output_path,
+            )
+
+            if result.success:
+                if output_path:
+                    print(f"Generated bridge waypoints: {result.output}")
+                else:
+                    print(result.output)
+            else:
+                print(f"ERROR: {result.message}", file=sys.stderr)
+                sys.exit(1)
+
+        elif format_type in ("kml", "png"):
             print(
-                "   Use 'cruiseplan stationplan --help' for usage information",
+                f"ERROR: {format_type.upper()} format requires --start-index and --start-time",
                 file=sys.stderr,
             )
             sys.exit(1)
 
-    except KeyboardInterrupt:
-        print("\nOperation cancelled by user.", file=sys.stderr)
-        sys.exit(1)
-    except Exception as e:
-        print(f"ERROR: Unexpected error: {e}", file=sys.stderr)
+        else:
+            print(
+                "ERROR: Must specify --start-index and --start-time, or --format tex/waypoints",
+                file=sys.stderr,
+            )
+            print(
+                "   Use 'cruiseplan forecast --help' for usage information",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
+
+def _parse_current_position(
+    args: argparse.Namespace,
+) -> tuple[float, float] | None:
+    """Parse --current-position 'lat,lon' string into a (lat, lon) float tuple."""
+    if not getattr(args, "current_position", None):
+        return None
+    try:
+        lat_str, lon_str = args.current_position.split(",")
+        return (float(lat_str.strip()), float(lon_str.strip()))
+    except (ValueError, AttributeError) as e:
+        print(
+            f"ERROR: Invalid current position format. Use 'lat,lon' like '65.123,-30.456': {e}",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
 
 def build_parser(subparsers: argparse._SubParsersAction) -> argparse.ArgumentParser:
-    """Add the stationplan subparser and return it."""
+    """Add the forecast subparser and return it."""
     p = subparsers.add_parser(
-        "stationplan",
-        help="Generate station plan forecasts from NetCDF schedules",
-        description="Generate simple text-based station plans for real-time cruise operations",
+        "forecast",
+        help="Generate real-time station plan forecasts from NetCDF schedules",
+        description="Generate rolling station plan forecasts for real-time cruise operations.",
         epilog="""
-This command generates station plans from processed cruise schedules for real-time
-cruise operations. It can list all activities with indices or generate rolling
-forecasts starting from any activity with updated timing.
+Run 'cruiseplan list SCHEDULE_FILE' first to see activity indices.
 
-Examples:
-  cruiseplan stationplan MSM142_leg_2_schedule.nc --list
-  cruiseplan stationplan data/cruise_schedule.nc --start-index 18 --start-time "2026-08-30T14:00:00"
-  cruiseplan stationplan data/cruise_schedule.nc --start-index 5 --start-time "2026-08-29T08:00:00" --duration 36 --output forecast.txt
-  cruiseplan stationplan data/cruise_schedule.nc --start-index 5 --start-time "2026-08-29T08:00:00" --current-position "65.123,-30.456"
-  cruiseplan stationplan data/cruise_schedule.nc --format tex --output station_plan.tex
-  cruiseplan stationplan data/cruise_schedule.nc --start-index 5 --duration 48 --format waypoints --output bridge_waypoints.txt
-  cruiseplan stationplan data/cruise_schedule.nc --start-index 2 --start-time "2026-05-05 08:00" --duration 24 --format png --output forecast_map.png
+Forecast mode (--start-index and --start-time required together):
+  cruiseplan forecast MSM142_schedule.nc --start-index 18 --start-time "2026-08-30T14:00:00"
+  cruiseplan forecast MSM142_schedule.nc --start-index 5 --start-time "2026-08-29T08:00:00" --duration 36 --output forecast.txt
+  cruiseplan forecast MSM142_schedule.nc --start-index 5 --start-time "2026-08-29T08:00:00" --current-position "65.123,-30.456"
+  cruiseplan forecast MSM142_schedule.nc --start-index 5 --start-time "2026-08-29T08:00:00" --duration 48 --format waypoints
+  cruiseplan forecast MSM142_schedule.nc --start-index 2 --start-time "2026-05-05 08:00" --duration 24 --format png
+
+Static format mode (no start params):
+  cruiseplan forecast MSM142_schedule.nc --format tex --output station_plan.tex
+  cruiseplan forecast MSM142_schedule.nc --format waypoints
         """,
     )
     p.add_argument(
@@ -346,18 +317,13 @@ Examples:
         help="NetCDF schedule file (e.g., 'MSM142_leg_2_schedule.nc')",
     )
     p.add_argument(
-        "--list",
-        action="store_true",
-        help="Display all activities with indices and exit",
-    )
-    p.add_argument(
         "--start-index",
         type=int,
-        help="Starting activity index for forecast mode (0-based)",
+        help="Starting activity index (0-based); required with --start-time",
     )
     p.add_argument(
         "--start-time",
-        help="New start time for first activity (ISO format: '2026-08-30T14:00:00')",
+        help="New start time for first activity (ISO format: '2026-08-30T14:00:00'); required with --start-index",
     )
     p.add_argument(
         "--duration",
@@ -369,7 +335,7 @@ Examples:
         "--transit-speed",
         type=float,
         default=10.0,
-        help="Ship transit speed in knots (default: 10)",
+        help="Ship transit speed in knots for text forecast (default: 10)",
     )
     p.add_argument(
         "--current-position",
@@ -379,7 +345,7 @@ Examples:
         "--format",
         choices=["text", "tex", "waypoints", "kml", "png"],
         default="text",
-        help="Output format: 'text' for console/file output, 'tex' for LaTeX tables, 'waypoints' for bridge navigation, 'kml' for Google Earth, 'png' for map visualisation (default: text)",
+        help="Output format: text (default), tex, waypoints, kml, png",
     )
     p.add_argument(
         "-o",
@@ -390,20 +356,21 @@ Examples:
     )
     p.add_argument(
         "--output",
-        help="Output filename (default: stdout)",
+        type=Path,
+        help="Output filename, relative to --output-dir (default: stdout)",
     )
     p.add_argument(
         "--logo",
         type=Path,
-        help="Path to logo image file (PNG, JPG, PDF). If not specified, uses default logo from images/ folder",
+        help="Path to logo image file (PNG, JPG, PDF) for TeX output",
     )
     p.add_argument(
         "--number",
-        help="Workplan number for TeX output (e.g., '28'). Used in title as 'TITLE - Workplan XX'",
+        help="Workplan number for TeX output (e.g., '28')",
     )
     p.add_argument(
         "--title",
-        help="Cruise title for TeX output (e.g., 'MSM142'). Used in title as 'TITLE - Workplan XX'",
+        help="Cruise title for TeX output (e.g., 'MSM142')",
     )
     p.add_argument(
         "--bathy-source",
@@ -421,7 +388,7 @@ Examples:
         "--bathy-stride",
         type=int,
         default=10,
-        help="Bathymetry grid downsampling factor: 1 = full resolution, higher = faster but less detail (default: 10)",
+        help="Bathymetry grid downsampling factor for PNG maps (default: 10)",
     )
     p.add_argument(
         "--figsize",
@@ -436,7 +403,7 @@ Examples:
         type=int,
         default=None,
         metavar="METRES",
-        help="Maximum water depth (m) for the bathymetry colour scale. Example: --max-depth 1000",
+        help="Maximum water depth in meters for bathymetry colour scale",
     )
     p.add_argument(
         "--bathy-contours",
@@ -444,7 +411,7 @@ Examples:
         type=float,
         default=None,
         metavar="DEPTH",
-        help="Bathymetry contour depths in metres (e.g. --bathy-contours 200 500 1000 2000). Replaces defaults.",
+        help="Bathymetry contour depths in meters (e.g. --bathy-contours 200 500 1000)",
     )
     p.add_argument(
         "--no-title",
@@ -466,14 +433,14 @@ Examples:
         nargs=2,
         type=float,
         metavar=("MIN", "MAX"),
-        help="Latitude bounds for map extent (e.g., --lat 60 70)",
+        help="Latitude bounds for PNG map extent (e.g., --lat 60 70)",
     )
     p.add_argument(
         "--lon",
         nargs=2,
         type=float,
         metavar=("MIN", "MAX"),
-        help="Longitude bounds for map extent (e.g., --lon -40 -20)",
+        help="Longitude bounds for PNG map extent (e.g., --lon -40 -20)",
     )
     p.add_argument(
         "--verbose", "-v", action="store_true", help="Enable verbose logging"

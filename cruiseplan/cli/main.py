@@ -24,7 +24,8 @@ _SUBCOMMAND_MODULES = {
     "process": "cruiseplan.cli.process",
     "map": "cruiseplan.cli.map",
     "pangaea": "cruiseplan.cli.pangaea",
-    "stationplan": "cruiseplan.cli.stationplan",
+    "forecast": "cruiseplan.cli.forecast",
+    "list": "cruiseplan.cli.list",
 }
 
 
@@ -43,6 +44,8 @@ Examples:
   cruiseplan validate cruise.yaml
   cruiseplan schedule cruise.yaml -o results/
   cruiseplan map cruise.yaml --figsize 14 10
+  cruiseplan list MSM142_schedule.nc
+  cruiseplan forecast MSM142_schedule.nc --start-index 5 --start-time "2026-08-29T08:00:00"
 
 For detailed help on a subcommand:
   cruiseplan <subcommand> --help

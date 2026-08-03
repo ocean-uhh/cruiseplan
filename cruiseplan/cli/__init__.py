@@ -4,16 +4,16 @@ cruiseplan.cli package.
 This package contains command-line interface modules for cruiseplan:
 
 - :mod:`main`: Primary CLI entry point and command dispatcher
-- :mod:`stations`: Commands for managing and validating station definitions
-- :mod:`schedule`: Commands for generating and displaying cruise schedules
-- :mod:`download`: Commands for downloading external data sources
-- :mod:`enrich`: Commands for enriching cruise data with additional information
-- :mod:`pangaea`: Commands for interacting with Pangaea data repository
-- :mod:`validate`: Commands for validating cruise configuration files
-- :mod:`utils`: Shared utility functions for CLI operations
-
-These modules provide the user interface for interacting with cruiseplan functionality
-through the command line, supporting the full workflow from configuration to output generation.
+- :mod:`bathymetry`: Download bathymetry data
+- :mod:`enrich`: Enrich cruise YAML with computed fields
+- :mod:`forecast`: Generate real-time rolling station plan forecasts
+- :mod:`list`: List activities in a schedule with indices
+- :mod:`map`: Generate cruise track maps
+- :mod:`pangaea`: Export data to Pangaea
+- :mod:`process`: Process cruise YAML into enriched output
+- :mod:`schedule`: Generate cruise schedules
+- :mod:`stations`: Validate and display station definitions
+- :mod:`validate`: Validate cruise configuration files
 """
 
 import sys
