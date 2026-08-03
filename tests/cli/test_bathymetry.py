@@ -232,7 +232,7 @@ class TestBathymetryThinCLI:
 
             mock_bathymetry.assert_called_once_with(
                 bathy_source="gebco2025",
-                output_dir="data/bathymetry",
+                output_dir=str(Path("data/bathymetry")),
                 citation=False,
             )
 
