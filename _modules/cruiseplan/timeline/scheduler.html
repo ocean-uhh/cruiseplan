@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.timeline.scheduler &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev57</title>
+  <title>cruiseplan.timeline.scheduler &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev58</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=d3117286"></script>
+      <script src="../../../_static/documentation_options.js?v=3b0bd144"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -101,7 +101,6 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
@@ -812,24 +811,12 @@
         <span class="k">if</span> <span class="n">leg_delay</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">current_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_time</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">leg_delay</span><span class="p">)</span>
 
-        <span class="c1"># buffer_time is validated and stored but not yet applied to the schedule.</span>
-        <span class="c1"># TODO: insert a contingency block after the last scientific station,</span>
-        <span class="c1"># before the return transit, so buffer time appears in the timeline.</span>
-        <span class="n">buffer_time</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">leg</span><span class="p">,</span> <span class="s2">&quot;buffer_time&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">buffer_time</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Leg &#39;</span><span class="si">{</span><span class="n">leg</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; has buffer_time=</span><span class="si">{</span><span class="n">buffer_time</span><span class="si">}</span><span class="s2"> min, but buffer time &quot;</span>
-                <span class="s2">&quot;is not yet applied to the schedule. Set it to 0 to suppress this warning.&quot;</span><span class="p">,</span>
-                <span class="ne">UserWarning</span><span class="p">,</span>
-                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-            <span class="p">)</span>
-
         <span class="n">activities</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="c1"># Build complete activities sequence: departure_port + leg_activities + arrival_port</span>
+        <span class="c1"># Build scientific sequence: departure_port + leg_activities (arrival_port handled separately)</span>
         <span class="c1"># Validation ensures departure_port and arrival_port are required fields</span>
         <span class="c1"># Use full port objects (which may contain enriched action info) instead of just names</span>
-        <span class="n">complete_activities</span> <span class="o">=</span> <span class="p">[</span><span class="n">leg</span><span class="o">.</span><span class="n">departure_port</span><span class="p">]</span>
+        <span class="n">scientific_activities</span> <span class="o">=</span> <span class="p">[</span><span class="n">leg</span><span class="o">.</span><span class="n">departure_port</span><span class="p">]</span>
 
         <span class="c1"># Get leg activities - check both runtime leg and config leg</span>
         <span class="n">leg_activities</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_activities_from_leg</span><span class="p">(</span><span class="n">leg</span><span class="p">)</span>
@@ -839,16 +826,12 @@
                     <span class="n">leg_activities</span> <span class="o">=</span> <span class="n">config_leg</span><span class="o">.</span><span class="n">activities</span>
                     <span class="k">break</span>
 
-        <span class="c1"># Add leg activities to sequence</span>
-        <span class="n">complete_activities</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">leg_activities</span> <span class="ow">or</span> <span class="p">[])</span>
-
-        <span class="c1"># Add arrival port to sequence (validation ensures it exists)</span>
-        <span class="n">complete_activities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">leg</span><span class="o">.</span><span class="n">arrival_port</span><span class="p">)</span>
+        <span class="n">scientific_activities</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">leg_activities</span> <span class="ow">or</span> <span class="p">[])</span>
 
         <span class="n">previous_operation</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="c1"># Process complete activities sequence (ports are treated as regular operations)</span>
-        <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">complete_activities</span><span class="p">:</span>
+        <span class="c1"># Process departure port and all scientific activities</span>
+        <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">scientific_activities</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">operation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_operation_from_activity</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="n">leg</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_add_transit_and_operation</span><span class="p">(</span>
@@ -860,7 +843,72 @@
                 <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to process activity &#39;</span><span class="si">{</span><span class="n">activity_name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
                 <span class="k">continue</span>
 
+        <span class="c1"># Insert buffer time contingency block after last scientific station,</span>
+        <span class="c1"># before the return transit to arrival port</span>
+        <span class="n">buffer_time</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">leg</span><span class="p">,</span> <span class="s2">&quot;buffer_time&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">buffer_time</span> <span class="ow">and</span> <span class="n">previous_operation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">buffer_activity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_buffer_activity</span><span class="p">(</span>
+                <span class="n">leg</span><span class="p">,</span> <span class="n">previous_operation</span><span class="p">,</span> <span class="n">buffer_time</span>
+            <span class="p">)</span>
+            <span class="n">activities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">buffer_activity</span><span class="p">)</span>
+
+        <span class="c1"># Process arrival port (transit computed from current_time, which includes buffer)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">operation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_operation_from_activity</span><span class="p">(</span><span class="n">leg</span><span class="o">.</span><span class="n">arrival_port</span><span class="p">,</span> <span class="n">leg</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_transit_and_operation</span><span class="p">(</span>
+                <span class="n">operation</span><span class="p">,</span> <span class="n">activities</span><span class="p">,</span> <span class="n">leg</span><span class="p">,</span> <span class="n">previous_operation</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Failed to process arrival port&quot;</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">activities</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_buffer_activity</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">leg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">last_operation</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">duration_minutes</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActivityRecord</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a contingency buffer block at the position of the last operation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        leg : Any</span>
+<span class="sd">            The current leg (provides name for labelling).</span>
+<span class="sd">        last_operation : Any</span>
+<span class="sd">            The last scientific operation; the buffer is placed at its exit position.</span>
+<span class="sd">        duration_minutes : float</span>
+<span class="sd">            Buffer duration in minutes.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ActivityRecord</span>
+<span class="sd">            A stationary buffer record; advances ``self.current_time`` by duration.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">exit_pt</span> <span class="o">=</span> <span class="n">last_operation</span><span class="o">.</span><span class="n">get_coordinates</span><span class="p">()</span>
+
+        <span class="n">buffer_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_time</span>
+        <span class="n">buffer_end</span> <span class="o">=</span> <span class="n">buffer_start</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">duration_minutes</span><span class="p">)</span>
+
+        <span class="n">activity</span> <span class="o">=</span> <span class="n">ActivityRecord</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="s2">&quot;Buffer&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Contingency (</span><span class="si">{</span><span class="n">duration_minutes</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> min)&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;entry_lat&quot;</span><span class="p">:</span> <span class="n">exit_pt</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                <span class="s2">&quot;entry_lon&quot;</span><span class="p">:</span> <span class="n">exit_pt</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                <span class="s2">&quot;exit_lat&quot;</span><span class="p">:</span> <span class="n">exit_pt</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                <span class="s2">&quot;exit_lon&quot;</span><span class="p">:</span> <span class="n">exit_pt</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="n">buffer_start</span><span class="p">,</span>
+                <span class="s2">&quot;end_time&quot;</span><span class="p">:</span> <span class="n">buffer_end</span><span class="p">,</span>
+                <span class="s2">&quot;duration_minutes&quot;</span><span class="p">:</span> <span class="n">duration_minutes</span><span class="p">,</span>
+                <span class="s2">&quot;dist_nm&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                <span class="s2">&quot;vessel_speed_kt&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                <span class="s2">&quot;leg_name&quot;</span><span class="p">:</span> <span class="n">leg</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s2">&quot;op_type&quot;</span><span class="p">:</span> <span class="s2">&quot;buffer&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;operation_class&quot;</span><span class="p">:</span> <span class="s2">&quot;Buffer&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;Weather/operational contingency buffer&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_time</span> <span class="o">=</span> <span class="n">buffer_end</span>
+        <span class="k">return</span> <span class="n">activity</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_create_operation_from_activity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activity</span><span class="p">,</span> <span class="n">leg</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create operation object from activity definition.&quot;&quot;&quot;</span>
