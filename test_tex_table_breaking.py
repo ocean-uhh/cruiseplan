@@ -106,7 +106,9 @@ def test_table_breaking():  # noqa: C901
                 print("⚠️ No page breaks found between tables")
 
         else:
-            print("ℹ️ Only one table generated (may be expected if < 36 lines total)")
+            print(
+                "NOTE: Only one table generated (may be expected if < 36 lines total)"
+            )
 
         # Count actual lines to verify logic
         lines_in_first_table = []

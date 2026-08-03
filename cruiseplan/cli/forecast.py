@@ -39,13 +39,13 @@ def run(args: argparse.Namespace) -> None:
         Parsed command-line arguments containing schedule file and operation mode.
     """
     with handle_cli_errors("forecast", getattr(args, "verbose", False)):
-        schedule_file = Path(args.schedule_file)
+        schedule_file = args.schedule_file
         if not schedule_file.exists():
             print(f"ERROR: Schedule file not found: {schedule_file}", file=sys.stderr)
             sys.exit(1)
             return
 
-        if args.output and Path(args.output).is_absolute():
+        if args.output and args.output.is_absolute():
             print(
                 "ERROR: --output must be a relative filename; use --output-dir for the directory",
                 file=sys.stderr,
@@ -65,211 +65,304 @@ def run(args: argparse.Namespace) -> None:
             sys.exit(1)
             return
 
-        format_type = getattr(args, "format", "text")
-
-        # Forecast mode: both start_index and start_time provided
+        format_type = args.format
         if has_index and has_time:
-            if format_type == "tex":
-                output_path = None
-                if args.output:
-                    output_path = args.output_dir / args.output
-
-                result = stationplan_forecast_tex(
-                    schedule_file=schedule_file,
-                    start_index=args.start_index,
-                    start_time=args.start_time,
-                    duration_hours=args.duration,
-                    output_path=output_path,
-                    logo_path=getattr(args, "logo", None),
-                    workplan_number=getattr(args, "number", None),
-                    cruise_title=getattr(args, "title", None),
-                )
-
-                if result.success:
-                    print(f"Generated TeX forecast: {result.output}")
-                else:
-                    print(f"ERROR: {result.message}", file=sys.stderr)
-                    sys.exit(1)
-
-            elif format_type == "waypoints":
-                current_position = _parse_current_position(args)
-                output_path = None
-                if args.output:
-                    output_path = args.output_dir / args.output
-
-                result = stationplan_waypoints(
-                    schedule_file=schedule_file,
-                    start_index=args.start_index,
-                    start_time=args.start_time,
-                    duration_hours=args.duration,
-                    current_position=current_position,
-                    output_path=output_path,
-                )
-
-                if result.success:
-                    if output_path:
-                        print(f"Generated bridge waypoints: {result.output}")
-                    else:
-                        print(result.output)
-                else:
-                    print(f"ERROR: {result.message}", file=sys.stderr)
-                    sys.exit(1)
-
-            elif format_type == "kml":
-                output_path = None
-                if args.output:
-                    output_file = Path(args.output)
-                    if output_file.suffix.lower() in [".txt", ".tex", ".png"]:
-                        output_path = (
-                            args.output_dir / output_file.with_suffix(".kml").name
-                        )
-                    else:
-                        output_path = args.output_dir / args.output
-
-                result = stationplan_forecast_kml(
-                    schedule_file=schedule_file,
-                    start_index=args.start_index,
-                    start_time=args.start_time,
-                    duration_hours=args.duration,
-                    output_path=output_path,
-                )
-
-                if result.success:
-                    print(f"Generated KML forecast: {result.output}")
-                else:
-                    print(f"ERROR: {result.message}", file=sys.stderr)
-                    sys.exit(1)
-
-            elif format_type == "png":
-                output_path = None
-                if args.output:
-                    output_file = Path(args.output)
-                    if output_file.suffix.lower() in [".txt", ".tex", ".kml"]:
-                        output_path = (
-                            args.output_dir / output_file.with_suffix(".png").name
-                        )
-                    else:
-                        output_path = args.output_dir / args.output
-
-                lat_bounds = args.lat if getattr(args, "lat", None) else None
-                lon_bounds = args.lon if getattr(args, "lon", None) else None
-
-                result = stationplan_forecast_png(
-                    schedule_file=schedule_file,
-                    start_index=args.start_index,
-                    start_time=args.start_time,
-                    duration_hours=args.duration,
-                    output_path=output_path,
-                    bathy_source=getattr(args, "bathy_source", "gebco2025"),
-                    bathy_dir=getattr(args, "bathy_dir", "data/bathymetry"),
-                    bathy_stride=getattr(args, "bathy_stride", 10),
-                    figsize=tuple(getattr(args, "figsize", [10.0, 8.1])),
-                    lat_bounds=lat_bounds,
-                    lon_bounds=lon_bounds,
-                    max_depth=getattr(args, "max_depth", None),
-                    bathy_contours=getattr(args, "bathy_contours", None),
-                    no_title=getattr(args, "no_title", False),
-                    no_labels=getattr(args, "no_labels", False),
-                    no_legend=getattr(args, "no_legend", False),
-                )
-
-                if result.success:
-                    print(f"Generated PNG forecast map: {result.output}")
-                else:
-                    print(f"ERROR: {result.message}", file=sys.stderr)
-                    sys.exit(1)
-
-            else:
-                # Default text forecast
-                result = stationplan_forecast(
-                    schedule_file=schedule_file,
-                    start_index=args.start_index,
-                    start_time=args.start_time,
-                    duration_hours=args.duration,
-                    transit_speed=args.transit_speed,
-                )
-
-                if result.success:
-                    if args.output:
-                        output_path = args.output_dir / args.output
-                        try:
-                            output_path.parent.mkdir(parents=True, exist_ok=True)
-                            with open(output_path, "w") as f:
-                                f.write(result.output)
-                            print(f"Forecast written to: {output_path}")
-                        except Exception as e:
-                            print(
-                                f"ERROR: Error writing to {output_path}: {e}",
-                                file=sys.stderr,
-                            )
-                            sys.exit(1)
-                    else:
-                        print(result.output)
-                else:
-                    print(f"ERROR: {result.message}", file=sys.stderr)
-                    sys.exit(1)
-
-        # Static format mode: no start params, generate document from full schedule
-        elif format_type == "tex":
-            output_path = None
-            if args.output:
-                output_path = args.output_dir / args.output
-
-            result = stationplan_tex(
-                schedule_file,
-                output_path,
-                getattr(args, "logo", None),
-                getattr(args, "number", None),
-                getattr(args, "title", None),
-            )
-
-            if result.success:
-                print(f"Generated TeX station table: {result.output}")
-            else:
-                print(f"ERROR: {result.message}", file=sys.stderr)
-                sys.exit(1)
-
-        elif format_type == "waypoints":
-            current_position = _parse_current_position(args)
-            output_path = None
-            if args.output:
-                output_path = args.output_dir / args.output
-
-            result = stationplan_waypoints(
-                schedule_file=schedule_file,
-                start_index=None,
-                start_time=None,
-                duration_hours=None,
-                current_position=current_position,
-                output_path=output_path,
-            )
-
-            if result.success:
-                if output_path:
-                    print(f"Generated bridge waypoints: {result.output}")
-                else:
-                    print(result.output)
-            else:
-                print(f"ERROR: {result.message}", file=sys.stderr)
-                sys.exit(1)
-
-        elif format_type in ("kml", "png"):
-            print(
-                f"ERROR: {format_type.upper()} format requires --start-index and --start-time",
-                file=sys.stderr,
-            )
-            sys.exit(1)
-
+            _run_forecast_mode(args, schedule_file, format_type)
         else:
+            _run_static_mode(args, schedule_file, format_type)
+
+
+def _resolve_output_path(
+    args: argparse.Namespace,
+    target_suffix: str,
+    bad_suffixes: set[str] | None = None,
+) -> Path | None:
+    """
+    Build the output path from args, optionally correcting a wrong file extension.
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+        Parsed CLI args; reads ``args.output`` (Path | None) and ``args.output_dir`` (Path).
+    target_suffix : str
+        Expected extension including dot (e.g. ``".kml"``).
+    bad_suffixes : set[str] | None
+        Extensions to swap out for ``target_suffix`` (e.g. ``{".txt", ".tex", ".png"}``).
+        If None, or the file's suffix is not in the set, the filename is used as-is.
+
+    Returns
+    -------
+    Path | None
+        Full output path, or None if ``args.output`` is not set.
+    """
+    if not args.output:
+        return None
+    if bad_suffixes and args.output.suffix.lower() in bad_suffixes:
+        return args.output_dir / args.output.with_suffix(target_suffix).name
+    return args.output_dir / args.output
+
+
+def _run_forecast_mode(
+    args: argparse.Namespace, schedule_file: Path, format_type: str
+) -> None:
+    """
+    Dispatch to the correct format handler for forecast mode.
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+        Parsed CLI args; ``args.start_index`` and ``args.start_time`` must be set.
+    schedule_file : Path
+        NetCDF schedule file.
+    format_type : str
+        One of ``"tex"``, ``"waypoints"``, ``"kml"``, ``"png"``, or ``"text"``.
+    """
+    if format_type == "tex":
+        _forecast_tex(args, schedule_file)
+    elif format_type == "waypoints":
+        _forecast_waypoints(args, schedule_file)
+    elif format_type == "kml":
+        _forecast_kml(args, schedule_file)
+    elif format_type == "png":
+        _forecast_png(args, schedule_file)
+    else:
+        _forecast_text(args, schedule_file)
+
+
+def _forecast_tex(args: argparse.Namespace, schedule_file: Path) -> None:
+    """
+    Generate a TeX workplan for the forecast window.
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+        Parsed CLI args; reads output, logo, number, title, start_index,
+        start_time, duration.
+    schedule_file : Path
+        NetCDF schedule file.
+    """
+    output_path = _resolve_output_path(args, ".tex")
+    result = stationplan_forecast_tex(
+        schedule_file=schedule_file,
+        start_index=args.start_index,
+        start_time=args.start_time,
+        duration_hours=args.duration,
+        output_path=output_path,
+        logo_path=args.logo,
+        workplan_number=args.number,
+        cruise_title=args.title,
+    )
+    if result.success:
+        print(f"Generated TeX forecast: {result.output}")
+    else:
+        print(f"ERROR: {result.message}", file=sys.stderr)
+        sys.exit(1)
+
+
+def _forecast_waypoints(args: argparse.Namespace, schedule_file: Path) -> None:
+    """
+    Generate bridge waypoints for the forecast window.
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+        Parsed CLI args; reads output, current_position, start_index,
+        start_time, duration.
+    schedule_file : Path
+        NetCDF schedule file.
+    """
+    current_position = _parse_current_position(args)
+    output_path = _resolve_output_path(args, ".txt")
+    result = stationplan_waypoints(
+        schedule_file=schedule_file,
+        start_index=args.start_index,
+        start_time=args.start_time,
+        duration_hours=args.duration,
+        current_position=current_position,
+        output_path=output_path,
+    )
+    if result.success:
+        if output_path:
+            print(f"Generated bridge waypoints: {result.output}")
+        else:
+            print(result.output)
+    else:
+        print(f"ERROR: {result.message}", file=sys.stderr)
+        sys.exit(1)
+
+
+def _forecast_kml(args: argparse.Namespace, schedule_file: Path) -> None:
+    """
+    Generate a KML forecast track.
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+        Parsed CLI args; reads output, start_index, start_time, duration.
+    schedule_file : Path
+        NetCDF schedule file.
+    """
+    output_path = _resolve_output_path(args, ".kml", {".txt", ".tex", ".png"})
+    result = stationplan_forecast_kml(
+        schedule_file=schedule_file,
+        start_index=args.start_index,
+        start_time=args.start_time,
+        duration_hours=args.duration,
+        output_path=output_path,
+    )
+    if result.success:
+        print(f"Generated KML forecast: {result.output}")
+    else:
+        print(f"ERROR: {result.message}", file=sys.stderr)
+        sys.exit(1)
+
+
+def _forecast_png(args: argparse.Namespace, schedule_file: Path) -> None:
+    """
+    Generate a PNG map for the forecast window.
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+        Parsed CLI args; reads output, bathy_source, bathy_dir, bathy_stride,
+        figsize, lat, lon, max_depth, bathy_contours, no_title, no_labels,
+        no_legend, start_index, start_time, duration.
+    schedule_file : Path
+        NetCDF schedule file.
+    """
+    output_path = _resolve_output_path(args, ".png", {".txt", ".tex", ".kml"})
+    result = stationplan_forecast_png(
+        schedule_file=schedule_file,
+        start_index=args.start_index,
+        start_time=args.start_time,
+        duration_hours=args.duration,
+        output_path=output_path,
+        bathy_source=args.bathy_source,
+        bathy_dir=args.bathy_dir,
+        bathy_stride=args.bathy_stride,
+        figsize=tuple(args.figsize),
+        lat_bounds=args.lat,
+        lon_bounds=args.lon,
+        max_depth=args.max_depth,
+        bathy_contours=args.bathy_contours,
+        no_title=args.no_title,
+        no_labels=args.no_labels,
+        no_legend=args.no_legend,
+    )
+    if result.success:
+        print(f"Generated PNG forecast map: {result.output}")
+    else:
+        print(f"ERROR: {result.message}", file=sys.stderr)
+        sys.exit(1)
+
+
+def _forecast_text(args: argparse.Namespace, schedule_file: Path) -> None:
+    """
+    Generate a plain-text rolling forecast.
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+        Parsed CLI args; reads output, transit_speed, start_index,
+        start_time, duration.
+    schedule_file : Path
+        NetCDF schedule file.
+    """
+    result = stationplan_forecast(
+        schedule_file=schedule_file,
+        start_index=args.start_index,
+        start_time=args.start_time,
+        duration_hours=args.duration,
+        transit_speed=args.transit_speed,
+    )
+    if not result.success:
+        print(f"ERROR: {result.message}", file=sys.stderr)
+        sys.exit(1)
+        return
+    output_path = _resolve_output_path(args, ".txt")
+    if output_path:
+        try:
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(output_path, "w") as f:
+                f.write(result.output)
+            print(f"Forecast written to: {output_path}")
+        except Exception as e:
             print(
-                "ERROR: Must specify --start-index and --start-time, or --format tex/waypoints",
-                file=sys.stderr,
-            )
-            print(
-                "   Use 'cruiseplan forecast --help' for usage information",
+                f"ERROR: Error writing to {output_path}: {e}",
                 file=sys.stderr,
             )
             sys.exit(1)
+    else:
+        print(result.output)
+
+
+def _run_static_mode(
+    args: argparse.Namespace, schedule_file: Path, format_type: str
+) -> None:
+    """
+    Handle static format mode (no start params): tex, waypoints, or error.
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+        Parsed CLI args.
+    schedule_file : Path
+        NetCDF schedule file.
+    format_type : str
+        One of ``"tex"``, ``"waypoints"``, ``"kml"``, ``"png"``, or ``"text"``.
+    """
+    if format_type == "tex":
+        output_path = _resolve_output_path(args, ".tex")
+        result = stationplan_tex(
+            schedule_file,
+            output_path,
+            args.logo,
+            args.number,
+            args.title,
+        )
+        if result.success:
+            print(f"Generated TeX station table: {result.output}")
+        else:
+            print(f"ERROR: {result.message}", file=sys.stderr)
+            sys.exit(1)
+
+    elif format_type == "waypoints":
+        current_position = _parse_current_position(args)
+        output_path = _resolve_output_path(args, ".txt")
+        result = stationplan_waypoints(
+            schedule_file=schedule_file,
+            start_index=None,
+            start_time=None,
+            duration_hours=None,
+            current_position=current_position,
+            output_path=output_path,
+        )
+        if result.success:
+            if output_path:
+                print(f"Generated bridge waypoints: {result.output}")
+            else:
+                print(result.output)
+        else:
+            print(f"ERROR: {result.message}", file=sys.stderr)
+            sys.exit(1)
+
+    elif format_type in ("kml", "png"):
+        print(
+            f"ERROR: {format_type.upper()} format requires --start-index and --start-time",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    else:
+        print(
+            "ERROR: Must specify --start-index and --start-time, or --format tex/waypoints",
+            file=sys.stderr,
+        )
+        print(
+            "   Use 'cruiseplan forecast --help' for usage information",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
 
 def _parse_current_position(
@@ -281,7 +374,7 @@ def _parse_current_position(
     try:
         lat_str, lon_str = args.current_position.split(",")
         return (float(lat_str.strip()), float(lon_str.strip()))
-    except (ValueError, AttributeError) as e:
+    except ValueError as e:
         print(
             f"ERROR: Invalid current position format. Use 'lat,lon' like '65.123,-30.456': {e}",
             file=sys.stderr,
