@@ -14,6 +14,7 @@ cruiseplan.config.activities module
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 cruiseplan.config.cruise_config module
 ---------------------------------------
@@ -22,6 +23,7 @@ cruiseplan.config.cruise_config module
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 cruiseplan.config.exceptions module
 ------------------------------------

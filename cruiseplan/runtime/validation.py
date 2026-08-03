@@ -461,8 +461,8 @@ def check_cruise_metadata(cruise_instance: "CruiseInstance") -> list[str]:
     Check cruise metadata for placeholder values and default coordinates.
 
     Uses specific placeholder patterns defined in cruiseplan.config.values:
-    - UPDATE- prefix for placeholder values
-    - port_update_ prefix for port placeholders
+    - ``UPDATE-`` prefix for placeholder values
+    - ``port_update_`` prefix for port placeholders
     - Default cruise name placeholder
 
     Parameters

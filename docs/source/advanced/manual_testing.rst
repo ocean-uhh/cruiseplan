@@ -410,10 +410,10 @@ Test Results Interpretation
 - Test individual commands to isolate problems
 
 Extending the Test Suite
------------------------
+------------------------
 
 Adding New Test Cases
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 To add new manual test scenarios:
 
