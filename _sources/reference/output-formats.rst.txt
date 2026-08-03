@@ -84,19 +84,15 @@ Google Earth format with:
 Document Formats
 ================
 
-LaTeX/PDF Report
-----------------
+LaTeX Station Table
+-------------------
 
-**Files**: 
-- ``{cruise_name}_cruise_plan.tex`` - LaTeX source
-- ``{cruise_name}_cruise_plan.pdf`` - Compiled PDF
+**File**: ``{cruise_name}_schedule.tex``
 
-Professional cruise planning document with:
+LaTeX source file (not compiled — run ``pdflatex`` yourself to produce PDF):
 
-- Executive summary and metadata
-- Detailed station tables
-- Maps and bathymetry profiles
-- Timeline and logistics summary
+- Station table with coordinates, depths, timing
+- Suitable for inclusion in cruise reports or proposals
 
 **Best for**: Formal proposals, ship time applications
 
@@ -140,19 +136,22 @@ Output Selection
 Choose formats based on your needs:
 
 **For Proposals**:
+
 .. code-block:: bash
 
-   cruiseplan schedule cruise.yaml --formats latex,html
+   cruiseplan schedule cruise.yaml --format latex html
 
-**For Analysis**:  
+**For Analysis**:
+
 .. code-block:: bash
 
-   cruiseplan schedule cruise.yaml --formats netcdf,csv
+   cruiseplan schedule cruise.yaml --format netcdf csv
 
 **For Visualization**:
+
 .. code-block:: bash
 
-   cruiseplan schedule cruise.yaml --formats html,kml
+   cruiseplan schedule cruise.yaml --format html kml
 
 **Everything**:
 .. code-block:: bash
@@ -171,7 +170,7 @@ All outputs use consistent naming:
 
 Example for ``cruise_name: "North Atlantic Survey 2025"``:
 
-- ``North_Atlantic_Survey_2025_timeline.html``
+- ``North_Atlantic_Survey_2025_schedule.html``
 - ``North_Atlantic_Survey_2025.nc``
 - ``North_Atlantic_Survey_2025_map.png``
 

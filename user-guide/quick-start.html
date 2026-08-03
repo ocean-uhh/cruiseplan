@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quick Start &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev58</title>
+  <title>Quick Start &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev59</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=3b0bd144"></script>
+      <script src="../_static/documentation_options.js?v=9f73555d"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -70,8 +70,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../demo-output.html">CruisePlan Demo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced/developer_guide.html">CruisePlan Developer Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced/manual_testing.html">Manual Testing and Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../advanced/manual_testing.html#development-workflow-integration">Development Workflow Integration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../legacy/index.html">Legacy Documentation</a></li>
 </ul>
 
         </div>
@@ -112,17 +112,17 @@ pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com
 <section id="your-first-cruise">
 <h2>Your First Cruise<a class="headerlink" href="#your-first-cruise" title="Link to this heading"></a></h2>
 <p>Create a simple 3-station CTD cruise in the North Atlantic:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Download bathymetry data (one-time setup, ~500MB)</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Download bathymetry data (one-time setup, ~7.5 GB for default GEBCO 2025)</span>
 cruiseplan<span class="w"> </span>bathymetry
 
 <span class="c1"># 2. Create stations interactively (saves to data/ directory)</span>
 cruiseplan<span class="w"> </span>stations<span class="w"> </span>--lat<span class="w"> </span><span class="m">60</span><span class="w"> </span><span class="m">62</span><span class="w"> </span>--lon<span class="w"> </span>-30<span class="w"> </span>-25
 
 <span class="c1"># 3. Process the configuration (enriches and validates)</span>
-cruiseplan<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>data/stations.yaml
+cruiseplan<span class="w"> </span>process<span class="w"> </span>data/stations.yaml
 
 <span class="c1"># 4. Generate timeline and outputs</span>
-cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class="w"> </span>data/<span class="o">{</span>cruise_name<span class="o">}</span>_enriched.yaml
+cruiseplan<span class="w"> </span>schedule<span class="w"> </span>data/<span class="o">{</span>cruise_name<span class="o">}</span>_enriched.yaml
 </pre></div>
 </div>
 <p>That’s it! You now have:</p>

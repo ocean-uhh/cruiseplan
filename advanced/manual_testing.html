@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Manual Testing and Verification &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev58</title>
+  <title>Manual Testing and Verification &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev59</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=3b0bd144"></script>
+      <script src="../_static/documentation_options.js?v=9f73555d"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -77,16 +77,35 @@
 <li class="toctree-l2"><a class="reference internal" href="#test-case-2-two-legs-tc2-two-legs-yaml">Test Case 2: Two Legs (tc2_two_legs.yaml)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-case-3-clusters-tc3-clusters-yaml">Test Case 3: Clusters (tc3_clusters.yaml)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-case-4-mixed-operations-tc4-mixed-ops-yaml">Test Case 4: Mixed Operations (tc4_mixed_ops.yaml)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#test-case-5-sections-tc5-sections-yaml">Test Case 5: Sections (tc5_sections.yaml)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#running-manual-tests">Running Manual Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#test-case-5-sections-tc5-sections-yaml">Test Case 5: Sections (tc5_sections.yaml)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#additional-test-files">Additional Test Files</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#development-workflow-integration">Development Workflow Integration</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#extending-the-test-suite">Extending the Test Suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-manual-tests">Running Manual Tests</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#automated-testing">Automated Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#individual-test-execution">Individual Test Execution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#manual-verification-steps">Manual Verification Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#development-workflow-integration">Development Workflow Integration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pre-commit-testing">Pre-Commit Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-testing">Release Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#common-issues">Common Issues</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#test-results-interpretation">Test Results Interpretation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#extending-the-test-suite">Extending the Test Suite</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#adding-new-test-cases">Adding New Test Cases</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#test-case-design-guidelines">Test Case Design Guidelines</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../api/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../legacy/index.html">Legacy Documentation</a></li>
 </ul>
 
         </div>
@@ -343,12 +362,17 @@ Area (None) <span class="nb">&amp;</span> Area-01 <span class="nb">&amp;</span> 
 <li><p><input type="checkbox"> Verify that the <cite>_map.png</cite> shows all 14 stations from the section <a class="reference external" href="../_static/fixtures/TC5_Sections_Test_map.png">TC5_Sections_Test_map.png</a></p></li>
 <li><p><input type="checkbox"> Verify that the <cite>_schedule.html</cite> shows a station spacing of <strong>11.2 nm</strong>.</p></li>
 </ol>
+<section id="additional-test-files">
+<h3>Additional Test Files<a class="headerlink" href="#additional-test-files" title="Link to this heading"></a></h3>
 <p><strong>Mooring-focused</strong>: <code class="docutils literal notranslate"><span class="pre">tc1_mooring.yaml</span></code>
 - Mooring-specific operation testing
 - Extended duration operations</p>
 </section>
+</section>
 <section id="running-manual-tests">
 <h2>Running Manual Tests<a class="headerlink" href="#running-manual-tests" title="Link to this heading"></a></h2>
+<section id="automated-testing">
+<h3>Automated Testing<a class="headerlink" href="#automated-testing" title="Link to this heading"></a></h3>
 <p>The primary method for running all tests:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># From repository root</span>
 python<span class="w"> </span>test_all_fixtures.py
@@ -362,6 +386,9 @@ python<span class="w"> </span>test_all_fixtures.py
 <li><p><strong>Validates outputs</strong>: Checks that expected files are created</p></li>
 <li><p><strong>Reports results</strong>: Provides summary of successes and failures</p></li>
 </ol>
+</section>
+<section id="individual-test-execution">
+<h3>Individual Test Execution<a class="headerlink" href="#individual-test-execution" title="Link to this heading"></a></h3>
 <p>For detailed testing of specific scenarios:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test a specific fixture</span>
 cruiseplan<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>tests/fixtures/tc1_single.yaml<span class="w"> </span>--output-dir<span class="w"> </span>tests_output/manual
@@ -371,6 +398,9 @@ cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class=
 ls<span class="w"> </span>tests_output/manual/
 </pre></div>
 </div>
+</section>
+<section id="manual-verification-steps">
+<h3>Manual Verification Steps<a class="headerlink" href="#manual-verification-steps" title="Link to this heading"></a></h3>
 <p>After running automated tests, manually verify:</p>
 <p><strong>1. File Generation</strong>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ls<span class="w"> </span>tests_output/fixtures/
@@ -391,7 +421,9 @@ cruiseplan<span class="w"> </span>process<span class="w"> </span>-c<span class="
 </section>
 </section>
 <section id="development-workflow-integration">
-<h1>Development Workflow Integration<a class="headerlink" href="#development-workflow-integration" title="Link to this heading"></a></h1>
+<h2>Development Workflow Integration<a class="headerlink" href="#development-workflow-integration" title="Link to this heading"></a></h2>
+<section id="pre-commit-testing">
+<h3>Pre-Commit Testing<a class="headerlink" href="#pre-commit-testing" title="Link to this heading"></a></h3>
 <p>Before committing changes that affect core functionality:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run full test suite</span>
 python<span class="w"> </span>test_all_fixtures.py
@@ -400,6 +432,9 @@ python<span class="w"> </span>test_all_fixtures.py
 cruiseplan<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>tests/fixtures/tc3_clusters.yaml<span class="w"> </span>--verbose
 </pre></div>
 </div>
+</section>
+<section id="release-testing">
+<h3>Release Testing<a class="headerlink" href="#release-testing" title="Link to this heading"></a></h3>
 <p>Before creating releases:</p>
 <ol class="arabic simple">
 <li><p><strong>Run all automated tests</strong>: <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">test_all_fixtures.py</span></code></p></li>
@@ -407,8 +442,12 @@ cruiseplan<span class="w"> </span>process<span class="w"> </span>-c<span class="
 <li><p><strong>Performance testing</strong>: Time execution of large configurations</p></li>
 <li><p><strong>Documentation sync</strong>: Ensure test results match documented behavior</p></li>
 </ol>
+</section>
+</section>
 <section id="troubleshooting">
 <h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<section id="common-issues">
+<h3>Common Issues<a class="headerlink" href="#common-issues" title="Link to this heading"></a></h3>
 <p><strong>Missing Bathymetry Data</strong>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Download required bathymetry</span>
 cruiseplan<span class="w"> </span>bathymetry<span class="w"> </span>--bathy-source<span class="w"> </span>etopo2022
@@ -425,6 +464,9 @@ chmod<span class="w"> </span><span class="m">755</span><span class="w"> </span>t
 python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import yaml; yaml.safe_load(open(&#39;tests/fixtures/tc1_single.yaml&#39;))&quot;</span>
 </pre></div>
 </div>
+</section>
+<section id="test-results-interpretation">
+<h3>Test Results Interpretation<a class="headerlink" href="#test-results-interpretation" title="Link to this heading"></a></h3>
 <p><strong>Success Criteria</strong>:
 - All <code class="docutils literal notranslate"><span class="pre">tc*.yaml</span></code> files process without errors
 - Enriched YAML files are created with expected structure
@@ -440,8 +482,11 @@ python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;i
 - Review error messages for specific issues
 - Test individual commands to isolate problems</p>
 </section>
+</section>
 <section id="extending-the-test-suite">
 <h2>Extending the Test Suite<a class="headerlink" href="#extending-the-test-suite" title="Link to this heading"></a></h2>
+<section id="adding-new-test-cases">
+<h3>Adding New Test Cases<a class="headerlink" href="#adding-new-test-cases" title="Link to this heading"></a></h3>
 <p>To add new manual test scenarios:</p>
 <ol class="arabic simple">
 <li><p><strong>Create fixture file</strong>: <code class="docutils literal notranslate"><span class="pre">tests/fixtures/tcX_description.yaml</span></code></p></li>
@@ -449,6 +494,9 @@ python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;i
 <li><p><strong>Test automatically</strong>: New files are included in <code class="docutils literal notranslate"><span class="pre">test_all_fixtures.py</span></code> automatically</p></li>
 <li><p><strong>Document purpose</strong>: Add description to this document</p></li>
 </ol>
+</section>
+<section id="test-case-design-guidelines">
+<h3>Test Case Design Guidelines<a class="headerlink" href="#test-case-design-guidelines" title="Link to this heading"></a></h3>
 <p><strong>Progressive Complexity</strong>:
 - Start with simple scenarios
 - Add one complexity dimension per test case
@@ -462,6 +510,7 @@ python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;i
 - Include comments explaining test purpose
 - Keep configurations as simple as possible while testing target features</p>
 <p>This manual testing framework ensures that CruisePlan maintains reliability and functionality across development cycles while providing clear procedures for validation and troubleshooting.</p>
+</section>
 </section>
 </section>
 

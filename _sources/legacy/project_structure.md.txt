@@ -1,6 +1,6 @@
-## Project Architecture
+# Project Architecture
 
-### Directory Structure
+## Directory Structure
 ```
 cruiseplan/
 ├── cli/              # Command-line interface modules
@@ -49,7 +49,7 @@ cruiseplan/
     └── constants.py  # Project-wide constants and defaults
 ```
 
-### Key Design Principles
+## Key Design Principles
 1. **Separation of Concerns**: Clear boundaries between UI, business logic, and data
 2. **Modular Architecture**: Independent components that can be used separately
 3. **Scientific Rigor**: Traceable calculations with proper error propagation

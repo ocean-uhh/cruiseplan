@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Output Formats &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev58</title>
+  <title>Output Formats &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev59</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=3b0bd144"></script>
+      <script src="../_static/documentation_options.js?v=9f73555d"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -68,7 +68,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#document-formats">Document Formats</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#latex-pdf-report">LaTeX/PDF Report</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#latex-station-table">LaTeX Station Table</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#working-files">Working Files</a><ul>
@@ -95,8 +95,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../demo-output.html">CruisePlan Demo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced/developer_guide.html">CruisePlan Developer Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced/manual_testing.html">Manual Testing and Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../advanced/manual_testing.html#development-workflow-integration">Development Workflow Integration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../legacy/index.html">Legacy Documentation</a></li>
 </ul>
 
         </div>
@@ -194,17 +194,13 @@
 </section>
 <section id="document-formats">
 <h2>Document Formats<a class="headerlink" href="#document-formats" title="Link to this heading"></a></h2>
-<section id="latex-pdf-report">
-<h3>LaTeX/PDF Report<a class="headerlink" href="#latex-pdf-report" title="Link to this heading"></a></h3>
-<p><strong>Files</strong>:
-- <code class="docutils literal notranslate"><span class="pre">{cruise_name}_cruise_plan.tex</span></code> - LaTeX source
-- <code class="docutils literal notranslate"><span class="pre">{cruise_name}_cruise_plan.pdf</span></code> - Compiled PDF</p>
-<p>Professional cruise planning document with:</p>
+<section id="latex-station-table">
+<h3>LaTeX Station Table<a class="headerlink" href="#latex-station-table" title="Link to this heading"></a></h3>
+<p><strong>File</strong>: <code class="docutils literal notranslate"><span class="pre">{cruise_name}_schedule.tex</span></code></p>
+<p>LaTeX source file (not compiled — run <code class="docutils literal notranslate"><span class="pre">pdflatex</span></code> yourself to produce PDF):</p>
 <ul class="simple">
-<li><p>Executive summary and metadata</p></li>
-<li><p>Detailed station tables</p></li>
-<li><p>Maps and bathymetry profiles</p></li>
-<li><p>Timeline and logistics summary</p></li>
+<li><p>Station table with coordinates, depths, timing</p></li>
+<li><p>Suitable for inclusion in cruise reports or proposals</p></li>
 </ul>
 <p><strong>Best for</strong>: Formal proposals, ship time applications</p>
 </section>
@@ -242,21 +238,18 @@
 <section id="output-selection">
 <h2>Output Selection<a class="headerlink" href="#output-selection" title="Link to this heading"></a></h2>
 <p>Choose formats based on your needs:</p>
-<p><strong>For Proposals</strong>:
-.. code-block:: bash</p>
-<blockquote>
-<div><p>cruiseplan schedule cruise.yaml –formats latex,html</p>
-</div></blockquote>
-<p><strong>For Analysis</strong>:
-.. code-block:: bash</p>
-<blockquote>
-<div><p>cruiseplan schedule cruise.yaml –formats netcdf,csv</p>
-</div></blockquote>
-<p><strong>For Visualization</strong>:
-.. code-block:: bash</p>
-<blockquote>
-<div><p>cruiseplan schedule cruise.yaml –formats html,kml</p>
-</div></blockquote>
+<p><strong>For Proposals</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>schedule<span class="w"> </span>cruise.yaml<span class="w"> </span>--format<span class="w"> </span>latex<span class="w"> </span>html
+</pre></div>
+</div>
+<p><strong>For Analysis</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>schedule<span class="w"> </span>cruise.yaml<span class="w"> </span>--format<span class="w"> </span>netcdf<span class="w"> </span>csv
+</pre></div>
+</div>
+<p><strong>For Visualization</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>schedule<span class="w"> </span>cruise.yaml<span class="w"> </span>--format<span class="w"> </span>html<span class="w"> </span>kml
+</pre></div>
+</div>
 <p><strong>Everything</strong>:
 .. code-block:: bash</p>
 <blockquote>
@@ -274,7 +267,7 @@
 </ul>
 <p>Example for <code class="docutils literal notranslate"><span class="pre">cruise_name:</span> <span class="pre">&quot;North</span> <span class="pre">Atlantic</span> <span class="pre">Survey</span> <span class="pre">2025&quot;</span></code>:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">North_Atlantic_Survey_2025_timeline.html</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">North_Atlantic_Survey_2025_schedule.html</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">North_Atlantic_Survey_2025.nc</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">North_Atlantic_Survey_2025_map.png</span></code></p></li>
 </ul>

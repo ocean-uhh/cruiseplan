@@ -63,7 +63,7 @@ CruisePlan generates PNG maps through two commands with distinct characteristics
 Schedule PNG Output (Timeline-Based)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Generated via: ``cruiseplan schedule -c cruise.yaml --format png``
+Generated via: ``cruiseplan schedule cruise.yaml --format png``
 
 **Characteristics**:
 
@@ -76,13 +76,13 @@ Generated via: ``cruiseplan schedule -c cruise.yaml --format png``
 .. code-block:: bash
 
    # Basic schedule PNG generation
-   cruiseplan schedule -c cruise.yaml --format png
-   
+   cruiseplan schedule cruise.yaml --format png
+
    # High-resolution output with custom bathymetry
-   cruiseplan schedule -c cruise.yaml --format png --bathy-source gebco2025
-   
+   cruiseplan schedule cruise.yaml --format png --bathy-source gebco2025
+
    # Combined outputs for complete documentation
-   cruiseplan schedule -c cruise.yaml --format png,html,latex
+   cruiseplan schedule cruise.yaml --format png html latex
 
 **Output File**: ``{cruise_name}_schedule.png``
 
@@ -97,7 +97,7 @@ Generated via: ``cruiseplan schedule -c cruise.yaml --format png``
 Map PNG Output (Configuration-Based)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Generated via: ``cruiseplan map -c cruise.yaml --format png``
+Generated via: ``cruiseplan map cruise.yaml --format png``
 
 **Characteristics**:
 
@@ -110,16 +110,16 @@ Generated via: ``cruiseplan map -c cruise.yaml --format png``
 .. code-block:: bash
 
    # Basic configuration map
-   cruiseplan map -c cruise.yaml --format png
-   
+   cruiseplan map cruise.yaml --format png
+
    # Custom figure size and bathymetry
-   cruiseplan map -c cruise.yaml --figsize 14 10 --bathy-source etopo2022
-   
+   cruiseplan map cruise.yaml --figsize 14 10 --bathy-source etopo2022
+
    # Specific output file and directory
-   cruiseplan map -c cruise.yaml --output-dir maps/ --output planning_map
-   
+   cruiseplan map cruise.yaml --output-dir maps/ --output planning_map
+
    # Interactive preview before saving
-   cruiseplan map -c cruise.yaml --show-plot
+   cruiseplan map cruise.yaml --show-plot
 
 **Output File**: ``{cruise_name}_map.png``
 
@@ -136,9 +136,9 @@ Integration and workflows
 =================================
 
 Visualisation and Customization
--------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Both PNG outputs include bathymetric background visualization.  For ``cruiseplan map``, the bathymetry source can be selected, while for ``cruiseplan schedule``, GEBCO 2025 is always used.
+Both PNG outputs include bathymetric background visualization.  The bathymetry source can be selected with ``--bathy-source`` on both ``cruiseplan map`` and ``cruiseplan schedule``.
 
 **Bathymetry Sources**:
   - **GEBCO 2025**: High-resolution global bathymetry (default)
@@ -159,7 +159,7 @@ Both PNG outputs include bathymetric background visualization.  For ``cruiseplan
    --bathy-source etopo2022 --bathy-stride 10
 
 Default Operation Markers
------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Station Markers** (Red Circles):
   - Labels with station names
@@ -177,14 +177,14 @@ Default Operation Markers
 These are not user-configurable unless you clone the repository and edit ``cruiseplan/utils/plot_config.py``. See the file on GitHub: `cruiseplan/utils/plot_config.py on GitHub <https://github.com/ocean-uhh/cruiseplan/blob/main/cruiseplan/utils/plot_config.py>`_.
 
 Figure Customization
---------------------
+~~~~~~~~~~~~~~~~~~~~
 
 **Figure Size Options** for ``cruiseplan map`` only:
 
 .. code-block:: bash
 
    # Standard size (default)
-   --figsize 12 10
+   --figsize 10 8.1
 
 Note that making the figure size smaller will increase the relative size of the fonts, so if you want fonts to be more legible, make the figure size smaller.
 
@@ -195,7 +195,7 @@ Note that making the figure size smaller will increase the relative size of the 
 
 
 Workflow Integration
---------------------
+~~~~~~~~~~~~~~~~~~~~
 
 **Initial Planning Phase** (use ``cruiseplan map``):
   1. Create initial YAML configuration
@@ -212,7 +212,7 @@ Workflow Integration
 
 
 File-Naming Conventions
-------------------------
+~~~~~~~~~~~~~~~~~~~~~~~
 
 **Schedule PNG Files**:
   - Format: ``{cruise_name}_schedule_map.png`` 
@@ -228,10 +228,10 @@ File-Naming Conventions
 .. code-block:: bash
 
    # Planning phase outputs
-   cruiseplan map -c cruise.yaml --output-dir planning/ --output initial_config
-   
-   # Final schedule outputs
-   cruiseplan schedule -c cruise.yaml -o schedules/ --format all
+   cruiseplan map cruise.yaml --output-dir planning/ --output initial_config
+
+   # Final schedule outputs (all formats)
+   cruiseplan schedule cruise.yaml -o schedules/
    
 
 

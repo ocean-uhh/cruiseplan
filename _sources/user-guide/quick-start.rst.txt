@@ -21,17 +21,17 @@ Create a simple 3-station CTD cruise in the North Atlantic:
 
 .. code-block:: bash
 
-   # 1. Download bathymetry data (one-time setup, ~500MB)
+   # 1. Download bathymetry data (one-time setup, ~7.5 GB for default GEBCO 2025)
    cruiseplan bathymetry
-   
+
    # 2. Create stations interactively (saves to data/ directory)
    cruiseplan stations --lat 60 62 --lon -30 -25
-   
+
    # 3. Process the configuration (enriches and validates)
-   cruiseplan process -c data/stations.yaml
-   
+   cruiseplan process data/stations.yaml
+
    # 4. Generate timeline and outputs
-   cruiseplan schedule -c data/{cruise_name}_enriched.yaml
+   cruiseplan schedule data/{cruise_name}_enriched.yaml
 
 That's it! You now have:
 

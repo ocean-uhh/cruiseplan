@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PNG Output &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev58</title>
+  <title>PNG Output &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev59</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=3b0bd144"></script>
+      <script src="../_static/documentation_options.js?v=9f73555d"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -85,8 +85,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../demo-output.html">CruisePlan Demo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced/developer_guide.html">CruisePlan Developer Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced/manual_testing.html">Manual Testing and Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../advanced/manual_testing.html#development-workflow-integration">Development Workflow Integration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../legacy/index.html">Legacy Documentation</a></li>
 </ul>
 
         </div>
@@ -189,7 +189,7 @@
 <hr class="docutils" />
 <section id="schedule-png-output-timeline-based">
 <h3>Schedule PNG Output (Timeline-Based)<a class="headerlink" href="#schedule-png-output-timeline-based" title="Link to this heading"></a></h3>
-<p>Generated via: <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">schedule</span> <span class="pre">-c</span> <span class="pre">cruise.yaml</span> <span class="pre">--format</span> <span class="pre">png</span></code></p>
+<p>Generated via: <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">schedule</span> <span class="pre">cruise.yaml</span> <span class="pre">--format</span> <span class="pre">png</span></code></p>
 <p><strong>Characteristics</strong>:</p>
 <blockquote>
 <div><ul class="simple">
@@ -200,13 +200,13 @@
 </div></blockquote>
 <p><strong>Example Command Usage</strong>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Basic schedule PNG generation</span>
-cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--format<span class="w"> </span>png
+cruiseplan<span class="w"> </span>schedule<span class="w"> </span>cruise.yaml<span class="w"> </span>--format<span class="w"> </span>png
 
 <span class="c1"># High-resolution output with custom bathymetry</span>
-cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--format<span class="w"> </span>png<span class="w"> </span>--bathy-source<span class="w"> </span>gebco2025
+cruiseplan<span class="w"> </span>schedule<span class="w"> </span>cruise.yaml<span class="w"> </span>--format<span class="w"> </span>png<span class="w"> </span>--bathy-source<span class="w"> </span>gebco2025
 
 <span class="c1"># Combined outputs for complete documentation</span>
-cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--format<span class="w"> </span>png,html,latex
+cruiseplan<span class="w"> </span>schedule<span class="w"> </span>cruise.yaml<span class="w"> </span>--format<span class="w"> </span>png<span class="w"> </span>html<span class="w"> </span>latex
 </pre></div>
 </div>
 <p><strong>Output File</strong>: <code class="docutils literal notranslate"><span class="pre">{cruise_name}_schedule.png</span></code></p>
@@ -221,7 +221,7 @@ cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class=
 <hr class="docutils" />
 <section id="map-png-output-configuration-based">
 <h3>Map PNG Output (Configuration-Based)<a class="headerlink" href="#map-png-output-configuration-based" title="Link to this heading"></a></h3>
-<p>Generated via: <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">map</span> <span class="pre">-c</span> <span class="pre">cruise.yaml</span> <span class="pre">--format</span> <span class="pre">png</span></code></p>
+<p>Generated via: <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">map</span> <span class="pre">cruise.yaml</span> <span class="pre">--format</span> <span class="pre">png</span></code></p>
 <p><strong>Characteristics</strong>:</p>
 <blockquote>
 <div><ul class="simple">
@@ -232,16 +232,16 @@ cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class=
 </div></blockquote>
 <p><strong>Example Command Usage</strong>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Basic configuration map</span>
-cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--format<span class="w"> </span>png
+cruiseplan<span class="w"> </span>map<span class="w"> </span>cruise.yaml<span class="w"> </span>--format<span class="w"> </span>png
 
 <span class="c1"># Custom figure size and bathymetry</span>
-cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--figsize<span class="w"> </span><span class="m">14</span><span class="w"> </span><span class="m">10</span><span class="w"> </span>--bathy-source<span class="w"> </span>etopo2022
+cruiseplan<span class="w"> </span>map<span class="w"> </span>cruise.yaml<span class="w"> </span>--figsize<span class="w"> </span><span class="m">14</span><span class="w"> </span><span class="m">10</span><span class="w"> </span>--bathy-source<span class="w"> </span>etopo2022
 
 <span class="c1"># Specific output file and directory</span>
-cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--output-dir<span class="w"> </span>maps/<span class="w"> </span>--output<span class="w"> </span>planning_map
+cruiseplan<span class="w"> </span>map<span class="w"> </span>cruise.yaml<span class="w"> </span>--output-dir<span class="w"> </span>maps/<span class="w"> </span>--output<span class="w"> </span>planning_map
 
 <span class="c1"># Interactive preview before saving</span>
-cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--show-plot
+cruiseplan<span class="w"> </span>map<span class="w"> </span>cruise.yaml<span class="w"> </span>--show-plot
 </pre></div>
 </div>
 <p><strong>Output File</strong>: <code class="docutils literal notranslate"><span class="pre">{cruise_name}_map.png</span></code></p>
@@ -257,7 +257,9 @@ cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> 
 <hr class="docutils" />
 <section id="integration-and-workflows">
 <h2>Integration and workflows<a class="headerlink" href="#integration-and-workflows" title="Link to this heading"></a></h2>
-<p>Both PNG outputs include bathymetric background visualization.  For <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">map</span></code>, the bathymetry source can be selected, while for <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">schedule</span></code>, GEBCO 2025 is always used.</p>
+<section id="visualisation-and-customization">
+<h3>Visualisation and Customization<a class="headerlink" href="#visualisation-and-customization" title="Link to this heading"></a></h3>
+<p>Both PNG outputs include bathymetric background visualization.  The bathymetry source can be selected with <code class="docutils literal notranslate"><span class="pre">--bathy-source</span></code> on both <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">map</span></code> and <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">schedule</span></code>.</p>
 <dl class="simple">
 <dt><strong>Bathymetry Sources</strong>:</dt><dd><ul class="simple">
 <li><p><strong>GEBCO 2025</strong>: High-resolution global bathymetry (default)</p></li>
@@ -278,6 +280,9 @@ cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> 
 --bathy-source<span class="w"> </span>etopo2022<span class="w"> </span>--bathy-stride<span class="w"> </span><span class="m">10</span>
 </pre></div>
 </div>
+</section>
+<section id="default-operation-markers">
+<h3>Default Operation Markers<a class="headerlink" href="#default-operation-markers" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt><strong>Station Markers</strong> (Red Circles):</dt><dd><ul class="simple">
 <li><p>Labels with station names</p></li>
@@ -298,9 +303,12 @@ cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> 
 </dd>
 </dl>
 <p>These are not user-configurable unless you clone the repository and edit <code class="docutils literal notranslate"><span class="pre">cruiseplan/utils/plot_config.py</span></code>. See the file on GitHub: <a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/cruiseplan/utils/plot_config.py">cruiseplan/utils/plot_config.py on GitHub</a>.</p>
+</section>
+<section id="figure-customization">
+<h3>Figure Customization<a class="headerlink" href="#figure-customization" title="Link to this heading"></a></h3>
 <p><strong>Figure Size Options</strong> for <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">map</span></code> only:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Standard size (default)</span>
---figsize<span class="w"> </span><span class="m">12</span><span class="w"> </span><span class="m">10</span>
+--figsize<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="m">8</span>.1
 </pre></div>
 </div>
 <p>Note that making the figure size smaller will increase the relative size of the fonts, so if you want fonts to be more legible, make the figure size smaller.</p>
@@ -311,6 +319,9 @@ cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> 
 </ul>
 </dd>
 </dl>
+</section>
+<section id="workflow-integration">
+<h3>Workflow Integration<a class="headerlink" href="#workflow-integration" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt><strong>Initial Planning Phase</strong> (use <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">map</span></code>):</dt><dd><ol class="arabic simple">
 <li><p>Create initial YAML configuration</p></li>
@@ -327,6 +338,9 @@ cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> 
 </ol>
 </dd>
 </dl>
+</section>
+<section id="file-naming-conventions">
+<h3>File-Naming Conventions<a class="headerlink" href="#file-naming-conventions" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt><strong>Schedule PNG Files</strong>:</dt><dd><ul class="simple">
 <li><p>Format: <code class="docutils literal notranslate"><span class="pre">{cruise_name}_schedule_map.png</span></code></p></li>
@@ -341,12 +355,13 @@ cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> 
 </dl>
 <p><strong>Command Examples for Organization</strong>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Planning phase outputs</span>
-cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--output-dir<span class="w"> </span>planning/<span class="w"> </span>--output<span class="w"> </span>initial_config
+cruiseplan<span class="w"> </span>map<span class="w"> </span>cruise.yaml<span class="w"> </span>--output-dir<span class="w"> </span>planning/<span class="w"> </span>--output<span class="w"> </span>initial_config
 
-<span class="c1"># Final schedule outputs</span>
-cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>-o<span class="w"> </span>schedules/<span class="w"> </span>--format<span class="w"> </span>all
+<span class="c1"># Final schedule outputs (all formats)</span>
+cruiseplan<span class="w"> </span>schedule<span class="w"> </span>cruise.yaml<span class="w"> </span>-o<span class="w"> </span>schedules/
 </pre></div>
 </div>
+</section>
 </section>
 <section id="visual-quality-checks">
 <h2>Visual Quality Checks<a class="headerlink" href="#visual-quality-checks" title="Link to this heading"></a></h2>
