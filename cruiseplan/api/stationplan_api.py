@@ -497,7 +497,7 @@ def _activity_to_waypoint_lines(
     schedule: object,
     use_decimal_degrees: bool,
 ) -> list[str]:
-    """Convert one forecast activity tuple to 1–2 bridge waypoint lines.
+    """Convert one forecast activity tuple to 1-2 bridge waypoint lines.
 
     Returns an empty list for transit activities or malformed tuples.
     """
