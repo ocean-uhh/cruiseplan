@@ -74,10 +74,9 @@ KML/KMZ Files
 
 Google Earth format with:
 
-- 3D visualization of stations
-- Bathymetry-draped seafloor
-- Interactive station information
-- Cruise track animation
+- Station locations and labels
+- Cruise track as a path
+- Station metadata in pop-up descriptions
 
 **Best for**: 3D visualization, Google Earth
 

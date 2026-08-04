@@ -1,8 +1,8 @@
-=======================================
-CruisePlan: Oceanographic Planning Hub
-=======================================
+==========
+CruisePlan
+==========
 
-**CruisePlan** is a comprehensive tool for planning oceanographic research cruises. Design optimal station layouts, calculate operational timings, and generate professional outputs in minutes.
+**CruisePlan** is a Python tool for planning oceanographic research cruises. It takes a YAML cruise description and produces enriched configurations, cruise schedules, maps (PNG/KML), LaTeX station tables, and real-time workplans.
 
 **Quick Start**: :doc:`user-guide/quick-start` | **GitHub** `<https://github.com/ocean-uhh/cruiseplan>`_
 
@@ -31,7 +31,6 @@ CruisePlan: Oceanographic Planning Hub
    advanced/developer_guide.md
    advanced/manual_testing.rst
    API Reference <api/modules.rst>
-   Legacy Documentation <legacy/index>
 
 Indices and tables
 ==================
