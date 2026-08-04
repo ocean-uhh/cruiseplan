@@ -76,7 +76,7 @@ Enrich
         add_coords=True,
         expand_sections=True,
     )
-    print(f"Enriched config: {result.config}")
+    print(f"Enriched config: {result.output_file}")
 
 Validate
 --------
@@ -86,7 +86,7 @@ Validate
     import cruiseplan
 
     result = cruiseplan.validate("cruise_enriched.yaml")
-    if result.is_valid:
+    if result.success:
         print("Configuration is valid")
     else:
         print(f"Errors: {result.errors}")
@@ -159,15 +159,15 @@ Each API function returns a typed result object:
 
     from cruiseplan.api.types import ProcessResult, ScheduleResult, EnrichResult
 
-    result: ProcessResult = cruiseplan.process("cruise.yaml")
-    result.config          # Path to enriched YAML, or None if process failed
-    result.files_created   # list[Path]
-    result.summary         # dict with run metadata
+    process_result: ProcessResult = cruiseplan.process("cruise.yaml")
+    process_result.config          # Path to enriched YAML, or None if process failed
+    process_result.files_created   # list[Path]
+    process_result.summary         # dict with run metadata
 
-    result: ScheduleResult = cruiseplan.schedule("cruise_enriched.yaml")
-    result.timeline        # list[dict] — one entry per activity
-    result.files_created   # list[Path]
-    result.summary         # dict with run metadata
+    schedule_result: ScheduleResult = cruiseplan.schedule("cruise_enriched.yaml")
+    schedule_result.timeline        # list[dict] — one entry per activity
+    schedule_result.files_created   # list[Path]
+    schedule_result.summary         # dict with run metadata
 
 Advanced: CruiseInstance
 ========================
@@ -216,7 +216,7 @@ Distance Calculations
     from cruiseplan.timeline.distance import haversine_distance
 
     # Distance between two points in kilometres
-    distance_km = haversine_distance(60.0, -30.0, 61.0, -29.0)
+    distance_km = haversine_distance((60.0, -30.0), (61.0, -29.0))
     print(f"Distance: {distance_km:.1f} km")
 
 Working with PANGAEA Data

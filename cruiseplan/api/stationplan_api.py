@@ -432,7 +432,7 @@ def stationplan_forecast_tex(
     output_path : str or Path, optional
         Output path for .tex file
     logo_path : str or Path, optional
-        Path to logo image file (PNG, JPG, or PDF). If None, checks for default logos in images/ folder
+        Path to logo image file (PNG, JPG, or PDF). If None, checks for default logos in config/images/ folder
 
     Returns
     -------
