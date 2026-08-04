@@ -2,7 +2,7 @@
 Quick Start
 ===========
 
-Get started with CruisePlan in under 5 minutes.
+A short walkthrough of a basic cruise planning workflow.
 
 Installation
 ============
@@ -55,11 +55,11 @@ Step 2 opens an interactive map. Use these controls:
 What You Get
 ============
 
-CruisePlan generates comprehensive outputs:
+CruisePlan generates the following output files:
 
 - **Maps**: PNG maps and KML files for Google Earth
 - **Timelines**: HTML/LaTeX summaries or NetCDF/CSV complete schedules
-- **LaTeX**: Professional proposal documents
+- **LaTeX**: Station tables and workplan documents
 
 Next Steps
 ==========
