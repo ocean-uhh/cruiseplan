@@ -126,9 +126,14 @@ def ensure_eez_data() -> Path:
         zip_path.unlink()
         logger.info(f"EEZ data extracted to: {eez_file_path}")
 
+    except FileNotFoundError:
+        # Expected failures (ToS redirect, schema mismatch) — clean up zip and
+        # re-raise without adding a redundant traceback on top of the message.
+        if zip_path.exists():
+            zip_path.unlink()
+        raise
     except Exception:
         logger.exception("Failed to download or extract EEZ data")
-        # Clean up partial files
         if zip_path.exists():
             zip_path.unlink()
         raise
@@ -168,7 +173,14 @@ def _extract_and_validate_eez_data(zip_path: Path, eez_file_path: Path) -> bool:
                     temp_path = eez_file_path.parent / f"temp_{gpkg_basename}"
                     zip_ref.extract(gpkg_name, eez_file_path.parent)
                     extracted_path = eez_file_path.parent / gpkg_name
+                    extracted_dir = extracted_path.parent
                     extracted_path.rename(temp_path)
+                    # Remove any subdirectory created by extract() (e.g. World_EEZ_v12_20231025/)
+                    if extracted_dir != eez_file_path.parent:
+                        try:
+                            extracted_dir.rmdir()
+                        except OSError:
+                            pass
 
                     # Validate the GeoPackage contains expected EEZ schema
                     if _validate_eez_schema(temp_path):

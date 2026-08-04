@@ -1114,8 +1114,10 @@ def generate_map(
     if include_eez:
         try:
             _add_eez_to_static_map(ax, display_bounds)
-        except Exception as e:
+        except FileNotFoundError as e:
             logger.warning(f"Could not add EEZ boundaries: {e}")
+        except Exception:
+            logger.exception("Unexpected error adding EEZ boundaries")
 
     # Plot cruise elements using new structured data (this applies the final aspect ratio)
     plot_cruise_elements(
