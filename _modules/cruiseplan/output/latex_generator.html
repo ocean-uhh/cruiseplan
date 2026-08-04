@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.output.latex_generator &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev68</title>
+  <title>cruiseplan.output.latex_generator &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev69</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=965ba188"></script>
+      <script src="../../../_static/documentation_options.js?v=32232591"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -662,14 +662,26 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        records : list[ActivityRecord]</span>
-<span class="sd">            ActivityRecord objects (typically from NetCDF reader)</span>
+<span class="sd">            ActivityRecord objects (typically from NetCDF reader).</span>
 <span class="sd">        cruise_name : str</span>
-<span class="sd">            Name of cruise for table header</span>
+<span class="sd">            Name of cruise for table header. Default is ``&quot;Cruise&quot;``.</span>
+<span class="sd">        config : Any, optional</span>
+<span class="sd">            Cruise configuration object; used to extract cruise name and date</span>
+<span class="sd">            range when provided.</span>
+<span class="sd">        logo_path : str or Path, optional</span>
+<span class="sd">            Path to a logo image file (PNG, JPG, PDF). If None, the generator</span>
+<span class="sd">            searches ``config/images/`` for ``project_logo.*`` or</span>
+<span class="sd">            ``institution_logo.*``. If no logo is found, a plain-text title is</span>
+<span class="sd">            used instead.</span>
+<span class="sd">        workplan_number : str, optional</span>
+<span class="sd">            Workplan number printed in the TeX header (e.g. ``&quot;28&quot;``).</span>
+<span class="sd">        cruise_title : str, optional</span>
+<span class="sd">            Cruise title printed in the TeX header (e.g. ``&quot;MSM142&quot;``).</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        str</span>
-<span class="sd">            TeX table content in letsgo.m format</span>
+<span class="sd">            TeX table content in letsgo.m format.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Filter out transits for cleaner output (like MATLAB version)</span>
         <span class="n">station_records</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">records</span> <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">activity</span> <span class="o">!=</span> <span class="s2">&quot;Transit&quot;</span><span class="p">]</span>
@@ -896,13 +908,14 @@
         <span class="n">logo_packages</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">logo_path</span><span class="p">:</span>
-            <span class="c1"># Convert to Path object for easier handling</span>
-            <span class="n">logo_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">logo_path</span><span class="p">)</span>
+            <span class="c1"># Resolve to absolute path so \includegraphics works regardless of</span>
+            <span class="c1"># where pdflatex is invoked (output dir differs from CWD at compile time).</span>
+            <span class="n">logo_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">logo_path</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">logo_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
                 <span class="n">logo_packages</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">usepackage</span><span class="si">{graphicx}</span><span class="se">\n</span><span class="s2">&quot;</span>
                 <span class="c1"># Create header with logo and new title format</span>
                 <span class="n">logo_header</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\\</span><span class="s2">begin</span><span class="se">{{</span><span class="s2">center</span><span class="se">}}</span>
-<span class="se">\\</span><span class="s2">includegraphics[width=0.3</span><span class="se">\\</span><span class="s2">textwidth]</span><span class="se">{{</span><span class="si">{</span><span class="n">logo_file</span><span class="si">!s}</span><span class="se">}}\\\\</span><span class="s2">[0.5cm]</span>
+<span class="se">\\</span><span class="s2">includegraphics[width=0.3</span><span class="se">\\</span><span class="s2">textwidth]</span><span class="se">{{</span><span class="si">{</span><span class="n">logo_file</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span><span class="si">}</span><span class="se">}}\\\\</span><span class="s2">[0.5cm]</span>
 <span class="se">\\</span><span class="s2">Large </span><span class="se">\\</span><span class="s2">textbf</span><span class="se">{{</span><span class="si">{</span><span class="n">main_cruise_name</span><span class="si">}</span><span class="s2"> - Workplan </span><span class="si">{</span><span class="n">workplan_num</span><span class="si">}</span><span class="se">}}\\\\</span>
 <span class="se">\\</span><span class="s2">textbf</span><span class="se">{{</span><span class="si">{</span><span class="n">date_range</span><span class="si">}</span><span class="se">}}</span>
 <span class="se">\\</span><span class="s2">end</span><span class="se">{{</span><span class="s2">center</span><span class="se">}}</span>
@@ -918,20 +931,20 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Try to find default logo</span>
             <span class="n">default_logos</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="s2">&quot;images/project_logo.png&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;images/project_logo.pdf&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;images/project_logo.jpg&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;images/institution_logo.png&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;images/institution_logo.pdf&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;images/institution_logo.jpg&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;config/images/project_logo.png&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;config/images/project_logo.pdf&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;config/images/project_logo.jpg&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;config/images/institution_logo.png&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;config/images/institution_logo.pdf&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;config/images/institution_logo.jpg&quot;</span><span class="p">,</span>
             <span class="p">]</span>
 
             <span class="k">for</span> <span class="n">default_logo</span> <span class="ow">in</span> <span class="n">default_logos</span><span class="p">:</span>
-                <span class="n">logo_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">default_logo</span><span class="p">)</span>
+                <span class="n">logo_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">default_logo</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
                 <span class="k">if</span> <span class="n">logo_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
                     <span class="n">logo_packages</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">usepackage</span><span class="si">{graphicx}</span><span class="se">\n</span><span class="s2">&quot;</span>
                     <span class="n">logo_header</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\\</span><span class="s2">begin</span><span class="se">{{</span><span class="s2">center</span><span class="se">}}</span>
-<span class="se">\\</span><span class="s2">includegraphics[width=0.3</span><span class="se">\\</span><span class="s2">textwidth]</span><span class="se">{{</span><span class="si">{</span><span class="n">logo_file</span><span class="si">!s}</span><span class="se">}}\\\\</span><span class="s2">[0.5cm]</span>
+<span class="se">\\</span><span class="s2">includegraphics[width=0.3</span><span class="se">\\</span><span class="s2">textwidth]</span><span class="se">{{</span><span class="si">{</span><span class="n">logo_file</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span><span class="si">}</span><span class="se">}}\\\\</span><span class="s2">[0.5cm]</span>
 <span class="se">\\</span><span class="s2">Large </span><span class="se">\\</span><span class="s2">textbf</span><span class="se">{{</span><span class="si">{</span><span class="n">main_cruise_name</span><span class="si">}</span><span class="s2"> - Workplan </span><span class="si">{</span><span class="n">workplan_num</span><span class="si">}</span><span class="se">}}\\\\</span>
 <span class="se">\\</span><span class="s2">textbf</span><span class="se">{{</span><span class="si">{</span><span class="n">date_range</span><span class="si">}</span><span class="se">}}</span>
 <span class="se">\\</span><span class="s2">end</span><span class="se">{{</span><span class="s2">center</span><span class="se">}}</span>

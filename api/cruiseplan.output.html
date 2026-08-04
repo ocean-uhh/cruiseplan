@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Output formats &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev68</title>
+  <title>Output formats &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev69</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=965ba188"></script>
+      <script src="../_static/documentation_options.js?v=32232591"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -443,12 +443,20 @@ pagination of large tables.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>records</strong> (<em>list</em><em>[</em><a class="reference internal" href="cruiseplan.timeline.html#cruiseplan.timeline.scheduler.ActivityRecord" title="cruiseplan.timeline.scheduler.ActivityRecord"><em>ActivityRecord</em></a><em>]</em>) – ActivityRecord objects (typically from NetCDF reader)</p></li>
-<li><p><strong>cruise_name</strong> (<em>str</em>) – Name of cruise for table header</p></li>
+<li><p><strong>records</strong> (<em>list</em><em>[</em><a class="reference internal" href="cruiseplan.timeline.html#cruiseplan.timeline.scheduler.ActivityRecord" title="cruiseplan.timeline.scheduler.ActivityRecord"><em>ActivityRecord</em></a><em>]</em>) – ActivityRecord objects (typically from NetCDF reader).</p></li>
+<li><p><strong>cruise_name</strong> (<em>str</em>) – Name of cruise for table header. Default is <code class="docutils literal notranslate"><span class="pre">&quot;Cruise&quot;</span></code>.</p></li>
+<li><p><strong>config</strong> (<em>Any</em><em>, </em><em>optional</em>) – Cruise configuration object; used to extract cruise name and date
+range when provided.</p></li>
+<li><p><strong>logo_path</strong> (<em>str</em><em> or </em><em>Path</em><em>, </em><em>optional</em>) – Path to a logo image file (PNG, JPG, PDF). If None, the generator
+searches <code class="docutils literal notranslate"><span class="pre">config/images/</span></code> for <code class="docutils literal notranslate"><span class="pre">project_logo.*</span></code> or
+<code class="docutils literal notranslate"><span class="pre">institution_logo.*</span></code>. If no logo is found, a plain-text title is
+used instead.</p></li>
+<li><p><strong>workplan_number</strong> (<em>str</em><em>, </em><em>optional</em>) – Workplan number printed in the TeX header (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;28&quot;</span></code>).</p></li>
+<li><p><strong>cruise_title</strong> (<em>str</em><em>, </em><em>optional</em>) – Cruise title printed in the TeX header (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;MSM142&quot;</span></code>).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>TeX table content in letsgo.m format</p>
+<dd class="field-even"><p>TeX table content in letsgo.m format.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
