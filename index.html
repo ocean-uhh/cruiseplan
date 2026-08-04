@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CruisePlan: Oceanographic Planning Hub &mdash; CruisePlan v0.4.0 v0.4.0</title>
+  <title>CruisePlan &mdash; CruisePlan v0.4.0 v0.4.0.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=6c02275b"></script>
+      <script src="_static/documentation_options.js?v=1eafcedf"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -63,7 +63,6 @@
 <li class="toctree-l1"><a class="reference internal" href="advanced/developer_guide.html">CruisePlan Developer Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced/manual_testing.html">Manual Testing and Verification</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/modules.html">API Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="legacy/index.html">Legacy Documentation</a></li>
 </ul>
 
         </div>
@@ -80,7 +79,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">CruisePlan: Oceanographic Planning Hub</li>
+      <li class="breadcrumb-item active">CruisePlan</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -89,9 +88,9 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="cruiseplan-oceanographic-planning-hub">
-<h1>CruisePlan: Oceanographic Planning Hub<a class="headerlink" href="#cruiseplan-oceanographic-planning-hub" title="Link to this heading"></a></h1>
-<p><strong>CruisePlan</strong> is a comprehensive tool for planning oceanographic research cruises. Design optimal station layouts, calculate operational timings, and generate professional outputs in minutes.</p>
+  <section id="cruiseplan">
+<h1>CruisePlan<a class="headerlink" href="#cruiseplan" title="Link to this heading"></a></h1>
+<p><strong>CruisePlan</strong> is a Python tool for planning oceanographic research cruises. It takes a YAML cruise description and produces enriched configurations, cruise schedules, maps (PNG/KML), LaTeX station tables, and real-time workplans.</p>
 <p><strong>Quick Start</strong>: <a class="reference internal" href="user-guide/quick-start.html"><span class="doc">Quick Start</span></a> | <strong>GitHub</strong> <a class="reference external" href="https://github.com/ocean-uhh/cruiseplan">https://github.com/ocean-uhh/cruiseplan</a></p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
@@ -105,7 +104,6 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="user-guide/workflows.html">Workflows</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="user-guide/workflows.html#core-commands">Core Commands</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user-guide/workflows.html#three-common-workflows">Three Common Workflows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user-guide/workflows.html#interactive-station-picker">Interactive Station Picker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user-guide/workflows.html#tips">Tips</a></li>
@@ -184,16 +182,15 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="advanced/developer_guide.html">CruisePlan Developer Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="advanced/developer_guide.html#introduction-architecture-overview">Introduction &amp; Architecture Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="advanced/developer_guide.html#two-layer-architecture-system">Two-Layer Architecture System</a></li>
-<li class="toctree-l2"><a class="reference internal" href="advanced/developer_guide.html#organizational-hierarchy">Organizational Hierarchy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="advanced/developer_guide.html#operation-type-abstractions">Operation Type Abstractions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="advanced/developer_guide.html#entry-exit-point-abstraction-system">Entry/Exit Point Abstraction System</a></li>
-<li class="toctree-l2"><a class="reference internal" href="advanced/developer_guide.html#flexiblelocationmodel-system">FlexibleLocationModel System</a></li>
-<li class="toctree-l2"><a class="reference internal" href="advanced/developer_guide.html#distance-duration-calculation-architecture">Distance &amp; Duration Calculation Architecture</a></li>
-<li class="toctree-l2"><a class="reference internal" href="advanced/developer_guide.html#validation-architecture">Validation Architecture</a></li>
-<li class="toctree-l2"><a class="reference internal" href="advanced/developer_guide.html#development-patterns-best-practices">Development Patterns &amp; Best Practices</a></li>
-<li class="toctree-l2"><a class="reference internal" href="advanced/developer_guide.html#code-organization">Code Organization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/developer_guide.html#module-structure">Module structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/developer_guide.html#two-layer-architecture">Two-layer architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/developer_guide.html#entry-exit-point-interface">Entry/exit point interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/developer_guide.html#adding-a-new-operation-type">Adding a new operation type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/developer_guide.html#coordinate-input-formats">Coordinate input formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/developer_guide.html#exceptions">Exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/developer_guide.html#flexiblelocationmodel">FlexibleLocationModel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/developer_guide.html#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/developer_guide.html#dependencies">Dependencies</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="advanced/manual_testing.html">Manual Testing and Verification</a><ul>
@@ -219,17 +216,6 @@
 <li class="toctree-l2"><a class="reference internal" href="api/cruiseplan.runtime.html">Runtime Classes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/cruiseplan.timeline.html">Timeline &amp; Scheduling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/cruiseplan.utils.html">General Utilities</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="legacy/index.html">Legacy Documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="legacy/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="legacy/usage.html">Usage Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="legacy/calculations.html">Calculation Methods</a></li>
-<li class="toctree-l2"><a class="reference internal" href="legacy/units_and_defaults.html">Units and Defaults</a></li>
-<li class="toctree-l2"><a class="reference internal" href="legacy/global_ports.html">Global Ports Reference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="legacy/example_yaml.html">Example CruisePlan YAML Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="legacy/cruise_architecture.html">Cruise Architecture</a></li>
-<li class="toctree-l2"><a class="reference internal" href="legacy/project_structure.html">Project Structure</a></li>
 </ul>
 </li>
 </ul>

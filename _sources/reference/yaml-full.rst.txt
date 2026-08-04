@@ -72,7 +72,16 @@ All numeric fields use the units shown below. Units are fixed and not configurab
      - Gap between consecutive operations
    * - ``delay_start``
      - minutes
-     - Hold time at departure port before a leg begins
+     - Hold before an operation or leg begins
+   * - ``delay_end``
+     - minutes
+     - Hold after an operation completes
+   * - ``buffer_time``
+     - minutes
+     - Contingency reserve on a leg (stored but not applied to schedule)
+   * - ``default_distance_between_stations``
+     - km
+     - Default station spacing for section expansion (cruise level)
    * - ``tolerance`` (validate)
      - percent
      - Allowable depth difference between planned and bathymetric depth
@@ -85,13 +94,42 @@ Root-level cruise configuration fields:
 .. code-block:: yaml
 
    cruise_name: "North Atlantic Survey 2025"
-   start_date: "2025-06-15"           # ISO format
-   day_start_hour: 6                  # Start of working day (0-23)
-   day_end_hour: 22                   # End of working day (0-23)
-   default_vessel_speed: 10.0         # Transit speed in knots
-   turnaround_time: 15                # Time between operations in minutes
-   ctd_descent_rate: 1.0              # CTD descent speed in m/s
-   ctd_ascent_rate: 1.0               # CTD ascent speed in m/s
+   description: "Overflow monitoring survey"        # Optional free-text description
+   start_date: "2025-06-15"                         # ISO format YYYY-MM-DD
+   start_time: "08:00"                              # Cruise start time (default: "08:00")
+   day_start_hour: 8                                # Start of working day (0-23); default: 8
+   day_end_hour: 20                                 # End of working day (0-23); default: 20
+   default_vessel_speed: 10.0                       # Transit speed in knots; default: 10.0
+   default_distance_between_stations: 15.0          # Station spacing in km; default: 15.0
+   turnaround_time: 30                              # Time between operations in minutes; default: 30
+   ctd_descent_rate: 1.0                            # CTD descent speed in m/s; default: 1.0
+   ctd_ascent_rate: 1.0                             # CTD ascent speed in m/s; default: 1.0
+
+Ports
+-----
+
+Ports are used as departure and arrival points for legs. They can be defined inline
+or as named entries in a global ``ports`` catalog and referenced by name:
+
+.. code-block:: yaml
+
+   # Named port catalog (referenced by name in legs)
+   ports:
+     - name: "port_reykjavik"
+       latitude: 64.15
+       longitude: -21.95
+       display_name: "Reykjavik"
+     - name: "port_bergen"
+       latitude: 60.39
+       longitude: 5.32
+       display_name: "Bergen"
+
+   # For single-leg cruises, departure/arrival may be set at cruise level
+   departure_port: port_reykjavik     # Named reference or inline PointDefinition
+   arrival_port: port_bergen          # Required for single-leg cruises; forbidden for multi-leg
+
+For multi-leg cruises, ``departure_port`` and ``arrival_port`` are set on each leg
+(see :ref:`schedule-organization` below).
 
 Point Operations
 ================
@@ -108,7 +146,7 @@ Required Fields
        latitude: 60.0               # Decimal degrees
        longitude: -30.0             # Decimal degrees
 
-Optional Fields  
+Optional Fields
 ---------------
 
 .. code-block:: yaml
@@ -119,9 +157,35 @@ Optional Fields
        longitude: -30.0
        operation_type: CTD          # Operation category
        action: profile              # Specific action
-       water_depth: 3500            # Water depth (auto-filled by 'process')
+       water_depth: 3500            # Water depth at seafloor in metres (auto-filled by 'process')
+       operation_depth: 2000        # Target cast depth in metres (default: full water column)
        duration: 45                 # Override cast time in minutes (suppresses depth-based calculation)
+       delay_start: 60              # Wait before starting in minutes (e.g., daylight constraint)
+       delay_end: 30                # Wait after completing in minutes (e.g., equipment recovery)
+       equipment: "SBE911plus"      # Equipment note (informational only, not used in scheduling)
        comment: "Deep water station"
+
+Coordinate Formats
+------------------
+
+Coordinates may be given in decimal degrees (preferred) or degrees decimal minutes:
+
+.. code-block:: yaml
+
+   # Decimal degrees (preferred)
+   points:
+     - name: "STN_001"
+       latitude: 60.2440
+       longitude: -31.3177
+
+   # Degrees decimal minutes (DDM) — both formats accepted
+   points:
+     - name: "STN_001"
+       latitude_decmin: "60 14.640 N"
+       longitude_decmin: "031 19.062 W"
+
+Both formats produce identical internal representations. ``latitude`` and
+``longitude_decmin`` cannot be mixed within the same definition.
 
 Line Operations
 ===============
@@ -156,7 +220,9 @@ Optional Fields
          - latitude: 60.0
            longitude: -20.0
        comment: "Cross-slope section"
-       vessel_speed: 8.0            # Speed during transect
+       vessel_speed: 8.0               # Speed during transect in knots
+       distance_between_stations: 10.0 # Station spacing for CTD section expansion (km)
+       max_depth: 2000                 # Maximum cast depth for expanded stations (metres)
 
 Area Operations
 ===============
@@ -201,6 +267,8 @@ Optional Fields
        duration: 120               # Total survey time in minutes
        comment: "High-priority mapping area"
 
+.. _schedule-organization:
+
 Schedule Organization
 =====================
 
@@ -213,6 +281,8 @@ Basic Leg
 
    legs:
      - name: "leg1"
+       departure_port: port_reykjavik   # Required
+       arrival_port: port_bergen        # Required
        activities: ["STN_001", "STN_002", "transect_A"]
 
 Advanced Leg Options
@@ -223,13 +293,20 @@ Advanced Leg Options
    legs:
      - name: "leg1"
        description: "Main science leg"
-       departure_port: port_reykjavik     # Departure port
-       arrival_port: port_bergen          # Arrival port
-       first_activity: STN_001
-       last_activity: transect_A
-       activities: ["STN_001", "STN_002", "transect_A"] 
-       
-       # Leg-level parameter overrides
+       departure_port: port_reykjavik     # Required: departure port name or inline definition
+       arrival_port: port_bergen          # Required: arrival port name or inline definition
+       first_activity: STN_001            # Routing hint: first activity (not executed separately)
+       last_activity: transect_A          # Routing hint: last activity (not executed separately)
+       activities: ["STN_001", "STN_002", "transect_A"]
+
+       # Timing
+       delay_start: 120             # Hold at departure port in minutes (e.g., port clearance)
+       buffer_time: 60              # Contingency reserve for weather delays (minutes; stored, not applied)
+
+       # Ordering
+       ordered: true                # Whether activities must run in listed order
+
+       # Leg-level parameter overrides (cascade from cruise defaults)
        vessel_speed: 12.0
        turnaround_time: 20
        distance_between_stations: 25.0
@@ -246,10 +323,10 @@ Group activities within legs for advanced scheduling:
        clusters:
          - name: "northern_stations"
            activities: ["CTD_001", "CTD_002"]
-           strategy: "optimize_distance"    # Reorder for efficiency
-         - name: "southern_stations" 
+           strategy: "sequential"           # Only implemented strategy
+         - name: "southern_stations"
            activities: ["CTD_003", "CTD_004"]
-           strategy: "preserve_order"       # Keep original order
+           strategy: "sequential"
 
 Operation Types
 ===============

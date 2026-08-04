@@ -2,30 +2,58 @@
 Workflows
 =========
 
-CruisePlan supports three different workflows depending on your needs and experience level.
+CruisePlan has 11 subcommands. Most users need only a handful:
 
-Core Commands
-=============
-
-.. list-table:: 
+.. list-table::
    :header-rows: 1
-   :widths: 20 40 40
+   :widths: 18 42 40
 
    * - **Command**
      - **Purpose**
      - **Output**
    * - ``bathymetry``
-     - Download depth data (one-time)
-     - NetCDF files in ``data/``
+     - Download depth data (one-time setup)
+     - NetCDF files in ``data/bathymetry/``
    * - ``stations``
-     - Interactive station placement
+     - Interactive station placement on a map
      - ``data/stations.yaml``
    * - ``process``
-     - Add depths, validate config
-     - ``*_enriched.yaml`` + map
+     - Enrich YAML: add depths, validate, generate map
+     - ``*_enriched.yaml`` + PNG map
    * - ``schedule``
-     - Generate timeline & outputs
-     - Multiple formats
+     - Generate timeline and output files
+     - HTML, NetCDF, CSV, LaTeX, KML
+   * - ``run``
+     - ``process`` + ``schedule`` in one step
+     - All of the above
+   * - ``map``
+     - Generate a map without scheduling
+     - PNG map
+   * - ``enrich``
+     - Add depths and coordinates only
+     - ``*_enriched.yaml``
+   * - ``validate``
+     - Check configuration only
+     - Validation report
+   * - ``forecast``
+     - Generate a real-time workplan from a schedule
+     - Waypoints file or LaTeX table
+   * - ``list``
+     - List operations in a schedule file
+     - Terminal output
+   * - ``pangaea``
+     - Search PANGAEA for historical station data
+     - Pickle file + map
+
+.. note::
+   ``cruiseplan run`` is the recommended starting point for most workflows —
+   it chains ``process`` and ``schedule`` in a single enrichment pass.
+   Use ``process`` and ``schedule`` separately only when you need to inspect
+   or edit the enriched YAML between steps.
+
+.. note::
+   The 11-subcommand structure is under review. A future version may consolidate
+   these into fewer commands with options to select specific outputs.
 
 Three Common Workflows
 ======================

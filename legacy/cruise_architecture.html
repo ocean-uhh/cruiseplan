@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CruisePlan Architecture &mdash; CruisePlan v0.4.0 v0.4.0</title>
+  <title>CruisePlan Architecture &mdash; CruisePlan v0.4.0 v0.4.0.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,15 +14,13 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=6c02275b"></script>
+      <script src="../_static/documentation_options.js?v=1eafcedf"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Project Architecture" href="project_structure.html" />
-    <link rel="prev" title="Example CruisePlan YAML Configuration" href="example_yaml.html" /> 
+    <link rel="search" title="Search" href="../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -58,85 +56,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../reference/output-formats.html">Output Formats</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Advanced</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../advanced/api-examples.html">API Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../demo-output.html">CruisePlan Demo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced/developer_guide.html">CruisePlan Developer Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced/manual_testing.html">Manual Testing and Verification</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api/modules.html">API Reference</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">Legacy Documentation</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage.html">Usage Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="calculations.html">Calculation Methods</a></li>
-<li class="toctree-l2"><a class="reference internal" href="units_and_defaults.html">Units and Defaults</a></li>
-<li class="toctree-l2"><a class="reference internal" href="global_ports.html">Global Ports Reference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="example_yaml.html">Example CruisePlan YAML Configuration</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Cruise Architecture</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#hierarchical-grouping-system">Hierarchical Grouping System</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#design-principles">Design Principles</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#hierarchical-organization">1. Hierarchical Organization</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#activities-only-architecture">2. Activities-Only Architecture</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#parameter-inheritance">3. Parameter Inheritance</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cluster-boundaries">4. Cluster Boundaries</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#default-behavior">5. Default Behavior</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#data-models">Data Models</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#legdefinition-yaml-configuration">LegDefinition (YAML Configuration)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#clusterdefinition-yaml-configuration">ClusterDefinition (YAML Configuration)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#portdefinition-yaml-configuration">PortDefinition (YAML Configuration)</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#runtime-objects">Runtime Objects</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#leg-class">Leg Class</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cluster-class">Cluster Class</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#port-system">Port System</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#global-port-registry">Global Port Registry</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#port-resolution">Port Resolution</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#port-expansion">Port Expansion</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#scheduling-logic">Scheduling Logic</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#port-to-port-routing">Port-to-Port Routing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id1">Parameter Inheritance</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cluster-processing">Cluster Processing</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#configuration-examples">Configuration Examples</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#simple-single-leg-cruise-auto-created-leg">Simple Single-Leg Cruise (Auto-Created Leg)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#explicit-single-leg-cruise">Explicit Single-Leg Cruise</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#multi-leg-expedition">Multi-Leg Expedition</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#advanced-cluster-organization">Advanced Cluster Organization</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#development-guidelines">Development Guidelines</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#adding-new-ports">Adding New Ports</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#extending-operation-types">Extending Operation Types</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#custom-scheduling-strategies">Custom Scheduling Strategies</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#entry-exit-point-abstraction">Entry/Exit Point Abstraction</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#migration-from-legacy-architecture">Migration from Legacy Architecture</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#deprecated-fields">Deprecated Fields</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#migration-strategy">Migration Strategy</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#backward-compatibility">Backward Compatibility</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#architecture-benefits">Architecture Benefits</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#performance-considerations">Performance Considerations</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#memory-usage">Memory Usage</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#scheduling-performance">Scheduling Performance</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#large-expeditions">Large Expeditions</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="project_structure.html">Project Structure</a></li>
-</ul>
-</li>
 </ul>
 
         </div>
@@ -153,7 +78,6 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="index.html">Legacy Documentation</a></li>
       <li class="breadcrumb-item active">CruisePlan Architecture</li>
       <li class="wy-breadcrumbs-aside">
       </li>
@@ -725,10 +649,7 @@ Scheduling creates a continuous expedition path by connecting exit points to ent
 
            </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="example_yaml.html" class="btn btn-neutral float-left" title="Example CruisePlan YAML Configuration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="project_structure.html" class="btn btn-neutral float-right" title="Project Architecture" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
+          <footer>
 
   <hr/>
 
