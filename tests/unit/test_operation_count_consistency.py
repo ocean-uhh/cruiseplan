@@ -19,7 +19,7 @@ class TestOperationCountConsistency:
     @pytest.fixture
     def tc1_cruise(self):
         """Load TC1 single leg test cruise."""
-        yaml_file = Path("tests_output/fixtures/TC1_Single_Test_enriched.yaml")
+        yaml_file = Path("data/fixtures/tc1_single_enriched.yaml")
         if yaml_file.exists():
             return CruiseInstance(yaml_file)
         pytest.skip(f"Test file not found: {yaml_file}")
@@ -27,7 +27,7 @@ class TestOperationCountConsistency:
     @pytest.fixture
     def tc2_cruise(self):
         """Load TC2 two legs test cruise."""
-        yaml_file = Path("tests_output/fixtures/TC2_TwoLegs_Test_enriched.yaml")
+        yaml_file = Path("data/fixtures/tc2_two_legs_enriched.yaml")
         if yaml_file.exists():
             return CruiseInstance(yaml_file)
         pytest.skip(f"Test file not found: {yaml_file}")

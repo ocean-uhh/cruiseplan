@@ -3,29 +3,12 @@ Global test configuration and fixtures.
 
 This file contains pytest fixtures and configuration that apply to all tests
 in the test suite.
+
+# Test outputs are written to pytest's tmp_path.
+# To inspect output: run pytest --basetemp=./test_debug_output
 """
 
-from pathlib import Path
-
 import pytest
-
-
-@pytest.fixture(autouse=True)
-def setup_test_environment():
-    """
-    Automatically applied fixture that sets up the test environment.
-
-    This fixture:
-    - Ensures tests_output directory exists
-    - Prevents tests from writing to the main data/ directory by default
-    """
-    # Ensure tests_output directory exists
-    tests_output = Path("tests_output")
-    tests_output.mkdir(exist_ok=True)
-
-    yield
-
-    # Cleanup could go here if needed
 
 
 @pytest.fixture

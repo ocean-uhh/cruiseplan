@@ -1,6 +1,5 @@
 import logging
 import os
-from pathlib import Path
 
 import pytest
 
@@ -17,7 +16,7 @@ logger = logging.getLogger(__name__)
     "CI" in os.environ,
     reason="Skip external API tests in CI due to network unreliability",
 )
-def test_geo_search_and_map_generation(caplog):
+def test_geo_search_and_map_generation(caplog, tmp_path):
     """
     End-to-End Test:
     1. Search Pangaea for CTD data in a specific box (Iceland/Greenland Sea).
@@ -29,7 +28,8 @@ def test_geo_search_and_map_generation(caplog):
 
     manager = PangaeaManager()
 
-    output_dir = Path("tests_output")
+    # Output written to tmp_path; run with --basetemp=./debug_output to inspect
+    output_dir = tmp_path / "output"
     output_dir.mkdir(parents=True, exist_ok=True)
     map_filename = output_dir / "test_map_geo_search.html"
 

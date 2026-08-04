@@ -1,4 +1,3 @@
-from pathlib import Path
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
@@ -10,7 +9,7 @@ BATHY_MOCK_PATH = "cruiseplan.interactive.station_picker.bathymetry.get_depth_at
 
 
 @pytest.fixture
-def picker():
+def picker(tmp_path):
     """
     Creates a StationPicker instance with all Matplotlib backend calls mocked out.
     """
@@ -62,7 +61,8 @@ def picker():
         MockCampaignSelector.return_value.campaign_artists = {}
 
         # 5. Instantiate
-        output_dir = Path("tests_output")
+        # Output written to tmp_path; run with --basetemp=./debug_output to inspect
+        output_dir = tmp_path / "output"
         output_dir.mkdir(parents=True, exist_ok=True)
         sp = StationPicker(output_file=str(output_dir / "test_output.yaml"))
 

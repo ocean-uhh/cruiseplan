@@ -817,8 +817,12 @@ class LaTeXGenerator:
         else:
             # Try to find default logo
             default_logos = [
-                "images/mixsed_logo_coarse.png",
-                "images/Logo_UHH_rgb.pdf",
+                "images/project_logo.png",
+                "images/project_logo.pdf",
+                "images/project_logo.jpg",
+                "images/institution_logo.png",
+                "images/institution_logo.pdf",
+                "images/institution_logo.jpg",
             ]
 
             for default_logo in default_logos:

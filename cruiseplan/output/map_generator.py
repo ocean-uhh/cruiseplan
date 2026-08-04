@@ -961,16 +961,40 @@ def generate_map(
     bathy_source : str, optional
         Bathymetry dataset to use ("etopo2022" or "gebco2025"). Default is "gebco2025".
     bathy_stride : int, optional
-        Downsampling factor for bathymetry (higher = faster but less detailed). Default is 5.
+        Downsampling stride for bathymetry contours (higher = faster, less detail).
+        Default is 5.
+    bathy_dir : str, optional
+        Path to the directory containing bathymetry netCDF files.
+        Default is ``"data/bathymetry"``.
+    bathy_contours : list, optional
+        Explicit depth contour levels (m). If None, contours are derived from
+        *bathy_stride* automatically. Default is None.
+    lat_bounds : list, optional
+        ``[min_lat, max_lat]`` in decimal degrees. If None, bounds are calculated
+        from the cruise track with automatic padding. Default is None.
+    lon_bounds : list, optional
+        ``[min_lon, max_lon]`` in decimal degrees. If None, bounds are calculated
+        from the cruise track with automatic padding. Default is None.
     show_plot : bool, optional
         Whether to display the plot inline (useful for notebooks). Default is False.
     figsize : tuple of float, optional
         Figure size as (width, height) in inches. Default is (10, 8.1).
     include_ports : bool, optional
         Whether to include departure/arrival ports in the map. Default is True.
+    no_title : bool, optional
+        If True, the cruise title is omitted from the map. Default is False.
+    no_labels : bool, optional
+        If True, station name annotations are omitted. Default is False.
+    no_legend : bool, optional
+        If True, the legend is omitted. Default is False.
+    max_depth : int, optional
+        Maximum water depth (m) for the bathymetry colour scale. When provided,
+        clips the deep end so shallow-water structure uses the full colour range.
+        Example: ``max_depth=1000`` spans -1000 to +200 m. Default is None
+        (full -8000 to +200 m range).
     include_eez : bool, optional
-        Overlay EEZ boundaries from Marine Regions v12 (visualization only). Data is
-        downloaded and cached on first use (~500 MB). Default is False.
+        If True, EEZ boundaries from Marine Regions v12 are overlaid
+        (visualization only; data downloaded and cached on first use). Default is False.
 
     Returns
     -------
@@ -1186,33 +1210,54 @@ def generate_map_from_yaml(
     no_title: bool = False,
     no_labels: bool = False,
     no_legend: bool = False,
+    include_eez: bool = False,
 ) -> Path | None:
     """
     Generate a static PNG map directly from a Cruise configuration object.
 
-    This is a high-level function that combines the individual plotting functions.
-
     Parameters
     ----------
-    cruise : Cruise
-        Cruise object with station registry and configuration
+    cruise : CruiseInstance
+        Loaded cruise object with station registry and configuration.
     output_file : str or Path, optional
-        Path or string for the output PNG file. Default is "cruise_map.png".
+        Output PNG file path. Default is ``"cruise_map.png"``.
     bathy_source : str, optional
-        Bathymetry dataset to use ("etopo2022" or "gebco2025"). Default is "gebco2025".
+        Bathymetry dataset identifier (e.g. ``"gebco2025"``). Default is ``"gebco2025"``.
     bathy_stride : int, optional
-        Downsampling factor for bathymetry (higher = faster but less detailed). Default is 5.
+        Downsampling stride for bathymetry contours (higher = faster, less detail).
+        Default is 5.
+    bathy_dir : str, optional
+        Path to the directory containing bathymetry netCDF files.
+        Default is ``"data/bathymetry"``.
+    bathy_contours : list, optional
+        Explicit depth contour levels (m). If None, derived from *bathy_stride*.
+        Default is None.
+    lat_bounds : list, optional
+        ``[min_lat, max_lat]`` in decimal degrees. If None, derived from cruise track.
+        Default is None.
+    lon_bounds : list, optional
+        ``[min_lon, max_lon]`` in decimal degrees. If None, derived from cruise track.
+        Default is None.
     show_plot : bool, optional
-        Whether to display the plot inline (useful for notebooks). Default is False.
+        Display the plot inline (useful for notebooks). Default is False.
     figsize : tuple of float, optional
-        Figure size as (width, height) in inches. Default is (10, 8.1).
+        Figure size as ``(width, height)`` in inches. Default is ``(10, 8.1)``.
     include_ports : bool, optional
-        Whether to include departure/arrival ports in the map. Default is True.
+        Include departure and arrival ports on the map. Default is True.
+    no_title : bool, optional
+        If True, the cruise title is omitted. Default is False.
+    no_labels : bool, optional
+        If True, station name annotations are omitted. Default is False.
+    no_legend : bool, optional
+        If True, the legend is omitted. Default is False.
+    include_eez : bool, optional
+        If True, EEZ boundaries from Marine Regions v12 are overlaid
+        (visualization only; data downloaded and cached on first use). Default is False.
 
     Returns
     -------
     Path or None
-        The absolute path to the generated PNG map file, or None if failed.
+        Absolute path to the generated PNG file, or None if generation failed.
     """
     return generate_map(
         data_source=cruise,
@@ -1230,6 +1275,7 @@ def generate_map_from_yaml(
         no_title=no_title,
         no_labels=no_labels,
         no_legend=no_legend,
+        include_eez=include_eez,
     )
 
 
@@ -1268,18 +1314,36 @@ def generate_map_from_timeline(
     bathy_dir : str, optional
         Directory containing bathymetry data. Default is "data/bathymetry".
     bathy_stride : int, optional
-        Downsampling factor for bathymetry (higher = faster but less detailed). Default is 5.
+        Downsampling stride for bathymetry contours (higher = faster, less detail).
+        Default is 5.
+    bathy_contours : list, optional
+        Explicit depth contour levels (m). If None, derived from *bathy_stride*.
+        Default is None.
+    lat_bounds : list, optional
+        ``[min_lat, max_lat]`` in decimal degrees. If None, derived from timeline.
+        Default is None.
+    lon_bounds : list, optional
+        ``[min_lon, max_lon]`` in decimal degrees. If None, derived from timeline.
+        Default is None.
     figsize : tuple of float, optional
-        Figure size as (width, height) in inches. Default is (10, 8.1).
+        Figure size as ``(width, height)`` in inches. Default is ``(10, 8.1)``.
     no_ports : bool, optional
-        If True, exclude departure and arrival ports from the map. Default is False.
-    config : CruiseConfig, optional
-        Cruise configuration object to extract port information
+        If True, departure and arrival ports are excluded from the map. Default is False.
+    no_title : bool, optional
+        If True, the cruise title is omitted. Default is False.
+    no_labels : bool, optional
+        If True, station name annotations are omitted. Default is False.
+    no_legend : bool, optional
+        If True, the legend is omitted. Default is False.
+    config : CruiseInstance, optional
+        Cruise object used to extract port information. Default is None.
     max_depth : int, optional
-        Maximum water depth (m) for the colour scale. See ``generate_map``.
+        Maximum water depth (m) for the bathymetry colour scale. When provided,
+        clips the deep end so shallow-water structure uses the full colour range.
+        Default is None (full -8000 to +200 m range).
     include_eez : bool, optional
-        If True, overlay EEZ boundaries from Marine Regions v12 (visualization only).
-        Data is downloaded and cached on first use. Default is False.
+        If True, EEZ boundaries from Marine Regions v12 are overlaid
+        (visualization only; data downloaded and cached on first use). Default is False.
 
     Returns
     -------

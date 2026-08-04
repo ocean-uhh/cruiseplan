@@ -779,6 +779,36 @@ def _format_decimal_degrees(decimal_degrees: float, coord_type: str) -> str:
         return f"{decimal_degrees:9.5f}"
 
 
+def _add_depth_data_to_timeline_record(
+    record: dict, schedule: object, index: int
+) -> None:
+    """Populate water_depth and operation_depth on *record* from *schedule* if available."""
+    try:
+        if "water_depth" in schedule.variables:
+            depth_val = schedule.water_depth[index].values
+            if not np.isnan(float(depth_val)):
+                record["water_depth"] = float(depth_val)
+        if "operation_depth" in schedule.variables:
+            op_depth_val = schedule.operation_depth[index].values
+            if not np.isnan(float(op_depth_val)):
+                record["operation_depth"] = float(op_depth_val)
+    except Exception:
+        pass
+
+
+_WORK_CODE_BY_TYPE: dict[str, int] = {
+    "ctd": 2,
+    "station": 2,
+    "mooring": 3,
+    "pies": 4,
+    "float": 5,
+    "drifter": 5,
+    "survey": 6,
+    "navigation": 1,
+    "transit": 1,
+}
+
+
 def _map_activity_to_work_code(
     category: str, activity_type: str, name: str = ""
 ) -> int:
@@ -787,28 +817,17 @@ def _map_activity_to_work_code(
 
     Work codes: 1=Transit, 2=CTD, 3=Mooring, 4=PIES, 5=Float/Drifter, 6=Survey
     """
-    # Normalize inputs to lowercase for case-insensitive comparison
     activity_type_lower = activity_type.lower()
     name_lower = name.lower()
 
-    if activity_type_lower in ["ctd", "station"]:
-        return 2  # CTD
-    elif activity_type_lower in ["mooring"]:
-        return 3  # Mooring
-    elif activity_type_lower in ["pies"]:
-        return 4  # PIES
-    elif activity_type_lower in ["float", "drifter"]:
-        return 5  # Float/Drifter
-    elif activity_type_lower in ["survey"]:
-        return 6  # Survey
-    elif activity_type_lower in ["navigation", "transit"]:
-        return 1  # Transit
-    elif activity_type_lower in ["unknown"] and "transit_" in name_lower:
-        return 6  # Survey lines (Transit_X_Y pattern)
-    elif activity_type_lower in ["underway"] or "bathy_" in name_lower:
-        return 6  # Survey lines (underway operations or Bathy_X_Y pattern)
-    else:
-        return 2  # Default to CTD for unknown types
+    code = _WORK_CODE_BY_TYPE.get(activity_type_lower)
+    if code is not None:
+        return code
+    if activity_type_lower == "unknown" and "transit_" in name_lower:
+        return 6
+    if activity_type_lower == "underway" or "bathy_" in name_lower:
+        return 6
+    return 2
 
 
 def stationplan_forecast_kml(
@@ -1093,19 +1112,7 @@ def stationplan_forecast_png(
                 "op_type": activity_type,
             }
 
-            # Add operation depth and water depth if available from schedule
-            try:
-                if "water_depth" in schedule.variables:
-                    depth_val = schedule.water_depth[index].values
-                    if not np.isnan(float(depth_val)):
-                        timeline_record["water_depth"] = float(depth_val)
-
-                if "operation_depth" in schedule.variables:
-                    op_depth_val = schedule.operation_depth[index].values
-                    if not np.isnan(float(op_depth_val)):
-                        timeline_record["operation_depth"] = float(op_depth_val)
-            except Exception:
-                pass  # Skip if depth data unavailable
+            _add_depth_data_to_timeline_record(timeline_record, schedule, index)
 
             timeline_for_map.append(timeline_record)
 

@@ -15,6 +15,36 @@ import xarray as xr
 logger = logging.getLogger(__name__)
 
 
+def _extract_activity_depths(
+    schedule: xr.Dataset, i: int
+) -> tuple[float | None, float | None, float | None]:
+    """Return (water_depth, operation_depth, distance_to_next) for activity i."""
+    water_depth = None
+    operation_depth = None
+    distance = None
+
+    if "water_depth" in schedule.variables:
+        depth_val = float(schedule.water_depth[i].values)
+        if not np.isnan(depth_val) and depth_val != -9999.0:
+            water_depth = depth_val
+
+    if "operation_depth" in schedule.variables:
+        op_depth_val = float(schedule.operation_depth[i].values)
+        if not np.isnan(op_depth_val) and op_depth_val != -9999.0:
+            operation_depth = op_depth_val
+
+    if "distance_to_next" in schedule.variables:
+        dist_val = float(schedule.distance_to_next[i].values)
+        if not np.isnan(dist_val) and dist_val != -9999.0:
+            distance = dist_val
+    if distance is None and "dist_nm" in schedule.variables:
+        dist_val = float(schedule.dist_nm[i].values)
+        if not np.isnan(dist_val) and dist_val != -9999.0:
+            distance = dist_val
+
+    return water_depth, operation_depth, distance
+
+
 def list_activities(
     schedule: xr.Dataset,
 ) -> list[tuple[int, str, str, str, float, str, float, float, float]]:
@@ -85,33 +115,7 @@ def list_activities(
         duration_hours = float(duration)
         duration_str = f"{duration_hours:.1f}h"
 
-        # Get water depth and operation depth (if available)
-        water_depth = None  # Use None instead of 0 to distinguish between 0 and missing
-        operation_depth = None
-
-        # Check for water depth (seafloor depth)
-        if "water_depth" in schedule.variables:
-            depth_val = float(schedule.water_depth[i].values)
-            if not np.isnan(depth_val) and depth_val != -9999.0:
-                water_depth = depth_val
-
-        # Check for operation depth (target depth for operations like CTD)
-        if "operation_depth" in schedule.variables:
-            op_depth_val = float(schedule.operation_depth[i].values)
-            if not np.isnan(op_depth_val) and op_depth_val != -9999.0:
-                operation_depth = op_depth_val
-
-        # Get distance to next activity/station (if available), falling back to
-        # the current activity distance for compatibility with older datasets.
-        distance = None  # Use None instead of 0 to distinguish between 0 and missing
-        if "distance_to_next" in schedule.variables:
-            dist_val = float(schedule.distance_to_next[i].values)
-            if not np.isnan(dist_val) and dist_val != -9999.0:
-                distance = dist_val
-        if distance is None and "dist_nm" in schedule.variables:
-            dist_val = float(schedule.dist_nm[i].values)
-            if not np.isnan(dist_val) and dist_val != -9999.0:
-                distance = dist_val
+        water_depth, operation_depth, distance = _extract_activity_depths(schedule, i)
 
         # Clean up string values (remove numpy string artifacts)
         category_str = str(category).strip()
