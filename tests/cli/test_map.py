@@ -72,6 +72,7 @@ class TestMapThinCLI:
                 no_legend=False,
                 verbose=False,
                 max_depth=None,
+                include_eez=False,
             )
 
     def test_map_with_custom_options(self):
@@ -126,6 +127,7 @@ class TestMapThinCLI:
                 no_legend=False,
                 verbose=True,
                 max_depth=None,
+                include_eez=False,
             )
 
     def test_map_failure(self):
@@ -299,6 +301,7 @@ class TestMapThinCLI:
                 no_legend=False,  # default
                 verbose=False,  # default
                 max_depth=None,  # default
+                include_eez=False,  # default
             )
 
 

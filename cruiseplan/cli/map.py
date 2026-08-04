@@ -49,6 +49,7 @@ def run(args: argparse.Namespace) -> None:
             no_legend=getattr(args, "no_legend", False),
             verbose=verbose,
             max_depth=getattr(args, "max_depth", None),
+            include_eez=getattr(args, "eez", False),
         )
 
         print("")
@@ -196,6 +197,12 @@ Examples:
         default=None,
         metavar="METRES",
         help="Maximum water depth (m) for the bathymetry colour scale. Example: --max-depth 1000",
+    )
+    p.add_argument(
+        "--eez",
+        action="store_true",
+        default=False,
+        help="Overlay EEZ boundaries on the PNG map (visualization only; data downloaded on first use)",
     )
     p.add_argument(
         "--verbose", "-v", action="store_true", help="Enable verbose logging"

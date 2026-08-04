@@ -9,6 +9,12 @@ Notes
 Uses Marine Regions (marineregions.org) EEZ v12 dataset as the authoritative
 source for global EEZ boundaries. Data is cached locally to minimize repeated
 downloads.
+
+Data citation
+-------------
+Flanders Marine Institute (2023). Maritime Boundaries Geodatabase: Maritime
+Boundaries and Exclusive Economic Zones (200NM), version 12. Available online
+at https://www.marineregions.org/. https://doi.org/10.14284/632
 """
 
 import logging
@@ -22,11 +28,18 @@ from shapely.geometry import Point
 logger = logging.getLogger(__name__)
 
 # Marine Regions EEZ v12 (2023) - Global EEZ boundaries
-# URLs prioritized by data quality and expected schema
+# Note: marineregions.org requires accepting a terms-of-service form for download.
+# Automated download is attempted but may fail; see ensure_eez_data() for manual
+# placement instructions.
 EEZ_DOWNLOAD_URLS = [
-    "https://www.marineregions.org/download_file.php?name=World_EEZ_v12_20231025_gpkg.zip",  # Authoritative source (try first)
-    "https://github.com/nvkelso/natural-earth-vector/raw/master/packages/natural_earth_vector.gpkg.zip",  # Fallback (may have different schema)
+    "https://www.marineregions.org/download_file.php?name=World_EEZ_v12_20231025_gpkg.zip",
 ]
+
+EEZ_CITATION = (
+    "Flanders Marine Institute (2023). Maritime Boundaries Geodatabase: Maritime "
+    "Boundaries and Exclusive Economic Zones (200NM), version 12. Available online "
+    "at https://www.marineregions.org/. https://doi.org/10.14284/632"
+)
 
 # Expected fields in EEZ GeoPackage for validation
 EXPECTED_EEZ_FIELDS = ["SOVEREIGN1", "GEONAME", "AREA_KM2", "geometry"]
@@ -68,27 +81,59 @@ def ensure_eez_data() -> Path:
             try:
                 logger.info(f"Attempting download from: {url}")
                 urlretrieve(url, zip_path)
+                # Marine Regions redirects unauthenticated requests to an HTML
+                # acceptance page (HTTP 200, not a network error).  Check that we
+                # actually got a zip before accepting it.
+                if not zipfile.is_zipfile(zip_path):
+                    logger.warning(
+                        f"Download from {url} returned non-zip content "
+                        "(likely a terms-of-service page requiring browser interaction)"
+                    )
+                    zip_path.unlink(missing_ok=True)
+                    continue
                 break
             except Exception as e:
                 logger.warning(f"Download failed from {url}: {e}")
+                zip_path.unlink(missing_ok=True)
                 continue
         else:
-            raise FileNotFoundError("All EEZ download URLs failed")
+            raise FileNotFoundError(
+                "Automated EEZ data download failed. "
+                "Marine Regions requires accepting a terms-of-service form in a browser.\n"
+                "To install manually:\n"
+                "  1. Go to https://www.marineregions.org/eez.php\n"
+                "  2. Under 'World EEZ v12', click [GeoPackage], fill in the form, "
+                "and download.\n"
+                "  3. Extract the .gpkg file from the zip and copy it to:\n"
+                f"     {EEZ_CACHE_DIR / EEZ_FILENAME}\n"
+                "Alternatively, if you downloaded the Shapefile version:\n"
+                '  python -c "import geopandas as gpd; '
+                f"gpd.read_file('eez_v12.shp').to_file('{EEZ_CACHE_DIR / EEZ_FILENAME}', driver='GPKG')\""
+            )
         logger.info(f"Downloaded EEZ data to: {zip_path}")
 
         # Extract and validate the GeoPackage file
         if not _extract_and_validate_eez_data(zip_path, eez_file_path):
             raise FileNotFoundError(
-                "Downloaded EEZ data does not contain valid EEZ boundaries with expected schema"
+                "Downloaded EEZ data does not contain valid EEZ boundaries "
+                "with expected schema (SOVEREIGN1, GEONAME, AREA_KM2).\n"
+                f"If you downloaded manually, ensure the file is the Marine Regions "
+                f"World EEZ v12 GeoPackage placed at:\n"
+                f"  {EEZ_CACHE_DIR / EEZ_FILENAME}"
             )
 
         # Clean up zip file
         zip_path.unlink()
         logger.info(f"EEZ data extracted to: {eez_file_path}")
 
+    except FileNotFoundError:
+        # Expected failures (ToS redirect, schema mismatch) — clean up zip and
+        # re-raise without adding a redundant traceback on top of the message.
+        if zip_path.exists():
+            zip_path.unlink()
+        raise
     except Exception:
         logger.exception("Failed to download or extract EEZ data")
-        # Clean up partial files
         if zip_path.exists():
             zip_path.unlink()
         raise
@@ -128,7 +173,14 @@ def _extract_and_validate_eez_data(zip_path: Path, eez_file_path: Path) -> bool:
                     temp_path = eez_file_path.parent / f"temp_{gpkg_basename}"
                     zip_ref.extract(gpkg_name, eez_file_path.parent)
                     extracted_path = eez_file_path.parent / gpkg_name
+                    extracted_dir = extracted_path.parent
                     extracted_path.rename(temp_path)
+                    # Remove any subdirectory created by extract() (e.g. World_EEZ_v12_20231025/)
+                    if extracted_dir != eez_file_path.parent:
+                        try:
+                            extracted_dir.rmdir()
+                        except OSError:
+                            pass
 
                     # Validate the GeoPackage contains expected EEZ schema
                     if _validate_eez_schema(temp_path):

@@ -1,8 +1,8 @@
 
-cruiseplan process config/stations/msm142_cruise_v2.yaml --bathy-dir ../cruiseplan/data/bathymetry --bathy-source gebco2025 --bathy-stride 1 --output-dir schedule/ --no-ports --bathy-contours 700 800 900 1000
+cruiseplan process config/stations/msm142_cruise_v2.yaml --bathy-dir ../cruiseplan/data/bathymetry --bathy-source gebco2025 --bathy-stride 1 --output-dir schedule/ --no-ports --bathy-contours 700 800 900 1000 --eez
 
 
-cruiseplan schedule schedule/MSM142_StJohns_enriched.yaml --bathy-dir ../cruiseplan/data/bathymetry --bathy-source gebco2025 -o schedule/ --lat 64 67 --lon -32 -26
+cruiseplan schedule schedule/MSM142_StJohns_enriched.yaml --bathy-dir ../cruiseplan/data/bathymetry --bathy-source gebco2025 -o schedule/ --lat 64 67 --lon -32 -26 --eez
 
 cruiseplan list schedule/MSM142_StJohns_schedule.nc
 

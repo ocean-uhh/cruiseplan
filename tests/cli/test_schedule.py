@@ -71,6 +71,7 @@ class TestScheduleThinCLI:
                 no_legend=False,
                 verbose=False,
                 max_depth=None,
+                include_eez=False,
             )
 
     def test_schedule_with_custom_options(self):
@@ -121,6 +122,7 @@ class TestScheduleThinCLI:
                 no_legend=False,
                 verbose=True,
                 max_depth=None,
+                include_eez=False,
             )
 
     def test_schedule_derive_netcdf_compatibility_warning(self):
@@ -298,6 +300,7 @@ class TestScheduleThinCLI:
                 no_legend=False,  # default
                 verbose=False,  # default
                 max_depth=None,  # default
+                include_eez=False,  # default
             )
 
     def test_schedule_empty_timeline_handling(self):

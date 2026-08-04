@@ -94,6 +94,7 @@ def schedule(  # noqa: C901, PLR0915
     no_legend: bool = False,
     verbose: bool = False,
     max_depth: int | None = None,
+    include_eez: bool = False,
 ) -> ScheduleResult:
     """
     Generate cruise schedule (mirrors: cruiseplan schedule).
@@ -114,13 +115,23 @@ def schedule(  # noqa: C901, PLR0915
     derive_netcdf : bool
         Generate specialized NetCDF files (_points.nc, _lines.nc, _areas.nc) (default: False)
     bathy_source : str
-        Bathymetry dataset (default: "etopo2022")
+        Bathymetry dataset (default: "gebco2025")
     bathy_dir : str
-        Directory containing bathymetry data (default: "data")
+        Directory containing bathymetry data (default: "data/bathymetry")
     bathy_stride : int
         Bathymetry contour stride for PNG maps (default: 10)
-    figsize : list
-        Figure size for PNG maps [width, height] (default: [12, 8])
+    bathy_contours : list, optional
+        Explicit list of depth contours (m) to draw on PNG maps. If None, contours
+        are generated automatically from the bathymetry stride (default: None).
+    lat_bounds : list, optional
+        Latitude bounds [min_lat, max_lat] for PNG map extent. If None, bounds are
+        derived from the cruise track (default: None).
+    lon_bounds : list, optional
+        Longitude bounds [min_lon, max_lon] for PNG map extent. If None, bounds are
+        derived from the cruise track (default: None).
+    figsize : list, optional
+        Figure size for PNG maps [width, height] in inches. If None, [10, 8.1]
+        is used (default: None).
     no_ports : bool
         Exclude ports from PNG schedule maps (default: False)
     no_title : bool
@@ -134,6 +145,9 @@ def schedule(  # noqa: C901, PLR0915
         provided, clips the deep end so shallow-water structure uses the full colour
         range. Example: ``max_depth=1000`` spans -1000 to +200 m. Default is None
         (full -8000 to +200 m range).
+    include_eez : bool
+        Overlay EEZ boundaries on PNG maps (visualization only; data downloaded on
+        first use). Default is False.
     verbose : bool
         Enable verbose logging (default: False)
 
@@ -304,6 +318,7 @@ def schedule(  # noqa: C901, PLR0915
                     no_legend=no_legend,
                     suffix="schedule",
                     max_depth=max_depth,
+                    include_eez=include_eez,
                 )
                 if output_file:
                     generated_files.append(output_file)

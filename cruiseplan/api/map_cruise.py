@@ -91,6 +91,7 @@ def map(
     no_legend: bool = False,
     verbose: bool = False,
     max_depth: int | None = None,
+    include_eez: bool = False,
 ) -> MapResult:
     """
     Generate cruise track map (mirrors: cruiseplan map).
@@ -111,8 +112,18 @@ def map(
         Directory containing bathymetry data (default: "data/bathymetry")
     bathy_stride : int
         Bathymetry contour stride for map background (default: 5)
-    figsize : list
-        Figure size for PNG maps [width, height] (default: [10, 8.1])
+    bathy_contours : list, optional
+        Explicit list of depth contours (m) to draw on PNG maps. If None, contours
+        are generated automatically from the bathymetry stride (default: None).
+    lat_bounds : list, optional
+        Latitude bounds [min_lat, max_lat] for PNG map extent. If None, bounds are
+        derived from the cruise track (default: None).
+    lon_bounds : list, optional
+        Longitude bounds [min_lon, max_lon] for PNG map extent. If None, bounds are
+        derived from the cruise track (default: None).
+    figsize : list, optional
+        Figure size for PNG maps [width, height] in inches. If None, [10, 8.1]
+        is used (default: None).
     show_plot : bool
         Display plot interactively (default: False)
     no_ports : bool
@@ -125,6 +136,8 @@ def map(
         Omit the legend from PNG output (default: False)
     verbose : bool
         Enable verbose logging (default: False)
+    include_eez : bool
+        Overlay EEZ boundaries (visualization only; data downloaded on first use). Default is False.
 
     Returns
     -------
@@ -184,6 +197,7 @@ def map(
                 no_labels=no_labels,
                 no_legend=no_legend,
                 max_depth=max_depth,
+                include_eez=include_eez,
             )
             if result:
                 generated_files.append(result)

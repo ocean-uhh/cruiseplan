@@ -942,6 +942,7 @@ def generate_map(
     no_labels: bool = False,
     no_legend: bool = False,
     max_depth: int | None = None,
+    include_eez: bool = False,
 ) -> Path | None:
     """
     Generate a static PNG map from either cruise config or timeline data.
@@ -967,6 +968,9 @@ def generate_map(
         Figure size as (width, height) in inches. Default is (10, 8.1).
     include_ports : bool, optional
         Whether to include departure/arrival ports in the map. Default is True.
+    include_eez : bool, optional
+        Overlay EEZ boundaries from Marine Regions v12 (visualization only). Data is
+        downloaded and cached on first use (~500 MB). Default is False.
 
     Returns
     -------
@@ -1106,6 +1110,15 @@ def generate_map(
         max_depth=max_depth,
     )
 
+    # Overlay EEZ boundaries if requested (drawn before cruise elements so tracks/labels sit on top)
+    if include_eez:
+        try:
+            _add_eez_to_static_map(ax, display_bounds)
+        except FileNotFoundError as e:
+            logger.warning(f"Could not add EEZ boundaries: {e}")
+        except Exception:
+            logger.exception("Unexpected error adding EEZ boundaries")
+
     # Plot cruise elements using new structured data (this applies the final aspect ratio)
     plot_cruise_elements(
         ax,
@@ -1236,6 +1249,7 @@ def generate_map_from_timeline(
     no_legend: bool = False,
     config=None,
     max_depth: int | None = None,
+    include_eez: bool = False,
 ) -> Path | None:
     """
     Generate a static PNG map from timeline data showing scheduled sequence.
@@ -1263,6 +1277,9 @@ def generate_map_from_timeline(
         Cruise configuration object to extract port information
     max_depth : int, optional
         Maximum water depth (m) for the colour scale. See ``generate_map``.
+    include_eez : bool, optional
+        If True, overlay EEZ boundaries from Marine Regions v12 (visualization only).
+        Data is downloaded and cached on first use. Default is False.
 
     Returns
     -------
@@ -1289,6 +1306,7 @@ def generate_map_from_timeline(
         no_labels=no_labels,
         no_legend=no_legend,
         max_depth=max_depth,
+        include_eez=include_eez,
     )
 
 
@@ -1416,6 +1434,59 @@ def generate_folium_map(
     return output_path.resolve()
 
 
+def _add_eez_to_static_map(
+    ax, display_bounds: tuple[float, float, float, float]
+) -> None:
+    """
+    Add EEZ boundary overlay to a static matplotlib axis.
+
+    **IMPORTANT WARNING**: EEZ boundaries shown are from Marine Regions database
+    and are for visualization purposes only. These may NOT represent officially
+    agreed boundaries. Always consult official maritime authorities for legal
+    boundary information.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        The matplotlib axis to draw EEZ boundaries on.
+    display_bounds : tuple of float
+        Map extent as (min_lon, max_lon, min_lat, max_lat).
+    """
+    try:
+        from cruiseplan.data.eez_boundaries import load_eez_data
+    except ImportError as e:
+        logger.warning(f"Cannot add EEZ boundaries - missing dependencies: {e}")
+        return
+
+    min_lon, max_lon, min_lat, max_lat = display_bounds
+    bbox = (min_lon, min_lat, max_lon, max_lat)
+
+    logger.debug("Loading EEZ boundary data for static map...")
+    eez_gdf = load_eez_data(bbox=bbox)
+
+    if eez_gdf.empty:
+        logger.info("No EEZ boundaries found in cruise area")
+        return
+
+    logger.info(f"Adding {len(eez_gdf)} EEZ boundaries to static map")
+    logger.warning(
+        "EEZ boundaries are for visualization only - consult official maritime "
+        "authorities for legal boundaries"
+    )
+
+    # Plot EEZ polygon boundaries on the matplotlib axis.
+    # GeoDataFrame is in WGS84 (lat/lon), matching the plain matplotlib axes.
+    eez_gdf.boundary.plot(
+        ax=ax,
+        color="#E67E22",
+        linewidth=0.8,
+        linestyle="--",
+        alpha=0.65,
+        label="EEZ (visualization only)",
+        zorder=2,
+    )
+
+
 def _add_eez_boundaries(folium_map, tracks: list[dict[str, Any]]) -> None:
     """
     Add EEZ boundary overlay to a Folium map.
@@ -1433,8 +1504,6 @@ def _add_eez_boundaries(folium_map, tracks: list[dict[str, Any]]) -> None:
         Track data to determine appropriate bounding box.
     """
     try:
-        import geopandas as gpd
-
         from cruiseplan.data.eez_boundaries import load_eez_data
     except ImportError as e:
         logger.warning(f"Cannot add EEZ boundaries - missing dependencies: {e}")
