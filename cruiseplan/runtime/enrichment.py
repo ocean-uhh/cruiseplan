@@ -10,6 +10,7 @@ import logging
 from typing import TYPE_CHECKING
 
 from cruiseplan.config.activities import PointDefinition
+from cruiseplan.config.values import DEFAULT_STATION_SPACING_KM
 from cruiseplan.data.bathymetry import BathymetryManager
 from cruiseplan.timeline.distance import haversine_distance
 from cruiseplan.utils.plot_config import interpolate_great_circle_position
@@ -145,6 +146,43 @@ def _update_leg_activities_for_expanded_section(
                 leg.last_activity = cruise_instance.point_registry[station_names[-1]]
 
 
+def _validate_section_waypoints(
+    route: list, section_name: str
+) -> list[tuple[float, float]] | None:
+    """Validate and extract (lat, lon) tuples from a section route.
+
+    Returns the list of waypoints, or None if any coordinate is missing.
+    """
+    waypoints = []
+    for wp in route:
+        if any(coord is None for coord in [wp.latitude, wp.longitude]):
+            logger.warning(f"Invalid coordinates for section {section_name}")
+            return None
+        waypoints.append((wp.latitude, wp.longitude))
+    return waypoints
+
+
+def _build_station_attrs(
+    section: dict, station_name: str, lat: float, lon: float
+) -> dict:
+    """Build the PointDefinition attribute dict for a single expanded station."""
+    attrs: dict = {
+        "name": station_name,
+        "latitude": round(lat, 7),
+        "longitude": round(lon, 7),
+        "operation_type": "CTD",
+        "action": "profile",
+        "history": f"expanded from line operation: {section['name']};",
+    }
+    if section["max_depth"] is not None:
+        attrs["water_depth"] = section["max_depth"]
+    if section["duration"] is not None:
+        attrs["duration"] = section["duration"]
+    elif section["planned_duration_hours"] is not None:
+        attrs["duration"] = f"{section['planned_duration_hours']}h"
+    return attrs
+
+
 def expand_sections(
     cruise_instance: "CruiseInstance", default_depth: float = -9999.0
 ) -> dict[str, int]:
@@ -171,9 +209,6 @@ def expand_sections(
     """
     sections_expanded = 0
     total_stations_created = 0
-
-    # Cruise-level default spacing, falling back to module-level constant
-    from cruiseplan.config.values import DEFAULT_STATION_SPACING_KM
 
     cruise_default_spacing = getattr(
         cruise_instance.config,
@@ -227,16 +262,8 @@ def expand_sections(
             )
             continue
 
-        # Validate all waypoint coordinates
-        waypoints = []
-        coords_valid = True
-        for wp in route:
-            if any(coord is None for coord in [wp.latitude, wp.longitude]):
-                logger.warning(f"Invalid coordinates for section {section_name}")
-                coords_valid = False
-                break
-            waypoints.append((wp.latitude, wp.longitude))
-        if not coords_valid:
+        waypoints = _validate_section_waypoints(route, section_name)
+        if waypoints is None:
             continue
 
         # Compute per-segment distances
@@ -273,27 +300,7 @@ def expand_sections(
                 base_station_name, cruise_instance.point_registry
             )
 
-            station_attrs = {
-                "name": station_name,
-                "latitude": round(lat, 7),
-                "longitude": round(lon, 7),
-                "operation_type": "CTD",
-                "action": "profile",
-                "history": f"expanded from line operation: {section_name};",
-            }
-
-            # Add depth information
-            if section["max_depth"] is not None:
-                station_attrs["water_depth"] = section["max_depth"]
-            # Skip setting water_depth if using default sentinel value
-
-            # Add duration information
-            if section["duration"] is not None:
-                station_attrs["duration"] = section["duration"]
-            elif section["planned_duration_hours"] is not None:
-                station_attrs["duration"] = f"{section['planned_duration_hours']}h"
-
-            # Create and register the station
+            station_attrs = _build_station_attrs(section, station_name, lat, lon)
             station = PointDefinition(**station_attrs)
             cruise_instance.point_registry[station_name] = station
             station_names_created.append(station_name)

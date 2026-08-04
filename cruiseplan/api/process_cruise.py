@@ -1106,6 +1106,7 @@ def process_with_config(
         bathy_stride=config.bathymetry.stride,
         figsize=config.visualization.figsize,
         no_ports=not config.visualization.include_ports,
+        include_eez=config.visualization.include_eez,
         verbose=config.output.verbose,
     )
 

@@ -67,6 +67,9 @@ class VisualizationConfig:
     include_ports: bool = True
     """Whether to include ports on the map"""
 
+    include_eez: bool = False
+    """Whether to overlay EEZ boundaries on maps"""
+
 
 @dataclass
 class ProcessConfig:
