@@ -100,26 +100,6 @@ Examples:
         help="YAML cruise configuration file",
     )
     p.add_argument(
-        "--no-ports",
-        action="store_true",
-        help="Suppress plotting of departure and arrival ports in both PNG and KML outputs",
-    )
-    p.add_argument(
-        "--no-title",
-        action="store_true",
-        help="Omit title from PNG map",
-    )
-    p.add_argument(
-        "--no-labels",
-        action="store_true",
-        help="Omit station name labels from PNG map",
-    )
-    p.add_argument(
-        "--no-legend",
-        action="store_true",
-        help="Omit legend from PNG map",
-    )
-    p.add_argument(
         "-o",
         "--output-dir",
         type=Path,
@@ -158,17 +138,18 @@ Examples:
         help="Bathymetry grid downsampling factor: 1 = full resolution, higher = faster but less detail (default: 5)",
     )
     p.add_argument(
-        "--figsize",
-        nargs=2,
+        "--bathy-contours",
         type=float,
-        metavar=("WIDTH", "HEIGHT"),
-        default=[10, 8.1],
-        help="Figure size in inches (default: 10 8.1)",
+        nargs="+",
+        metavar="DEPTH",
+        help="Bathymetry contour depths in metres (e.g. --bathy-contours 200 500 1000 2000). Replaces defaults.",
     )
     p.add_argument(
-        "--show-plot",
-        action="store_true",
-        help="Display plot interactively instead of saving to file",
+        "--max-depth",
+        type=int,
+        default=None,
+        metavar="METRES",
+        help="Maximum water depth (m) for the bathymetry colour scale. Example: --max-depth 1000",
     )
     p.add_argument(
         "--lat",
@@ -185,18 +166,37 @@ Examples:
         help="Longitude bounds for map extent (e.g., --lon 170 175)",
     )
     p.add_argument(
-        "--bathy-contours",
+        "--figsize",
+        nargs=2,
         type=float,
-        nargs="+",
-        metavar="DEPTH",
-        help="Bathymetry contour depths in metres (e.g. --bathy-contours 200 500 1000 2000). Replaces defaults.",
+        metavar=("WIDTH", "HEIGHT"),
+        default=[10, 8.1],
+        help="Figure size in inches (default: 10 8.1)",
     )
     p.add_argument(
-        "--max-depth",
-        type=int,
-        default=None,
-        metavar="METRES",
-        help="Maximum water depth (m) for the bathymetry colour scale. Example: --max-depth 1000",
+        "--show-plot",
+        action="store_true",
+        help="Display plot interactively instead of saving to file",
+    )
+    p.add_argument(
+        "--no-ports",
+        action="store_true",
+        help="Suppress plotting of departure and arrival ports in both PNG and KML outputs",
+    )
+    p.add_argument(
+        "--no-title",
+        action="store_true",
+        help="Omit title from PNG map",
+    )
+    p.add_argument(
+        "--no-labels",
+        action="store_true",
+        help="Omit station name labels from PNG map",
+    )
+    p.add_argument(
+        "--no-legend",
+        action="store_true",
+        help="Omit legend from PNG map",
     )
     p.add_argument(
         "--eez",

@@ -561,14 +561,26 @@ class LaTeXGenerator:
         Parameters
         ----------
         records : list[ActivityRecord]
-            ActivityRecord objects (typically from NetCDF reader)
+            ActivityRecord objects (typically from NetCDF reader).
         cruise_name : str
-            Name of cruise for table header
+            Name of cruise for table header. Default is ``"Cruise"``.
+        config : Any, optional
+            Cruise configuration object; used to extract cruise name and date
+            range when provided.
+        logo_path : str or Path, optional
+            Path to a logo image file (PNG, JPG, PDF). If None, the generator
+            searches ``config/images/`` for ``project_logo.*`` or
+            ``institution_logo.*``. If no logo is found, a plain-text title is
+            used instead.
+        workplan_number : str, optional
+            Workplan number printed in the TeX header (e.g. ``"28"``).
+        cruise_title : str, optional
+            Cruise title printed in the TeX header (e.g. ``"MSM142"``).
 
         Returns
         -------
         str
-            TeX table content in letsgo.m format
+            TeX table content in letsgo.m format.
         """
         # Filter out transits for cleaner output (like MATLAB version)
         station_records = [r for r in records if r.activity != "Transit"]
@@ -795,13 +807,14 @@ class LaTeXGenerator:
         logo_packages = ""
 
         if logo_path:
-            # Convert to Path object for easier handling
-            logo_file = Path(logo_path)
+            # Resolve to absolute path so \includegraphics works regardless of
+            # where pdflatex is invoked (output dir differs from CWD at compile time).
+            logo_file = Path(logo_path).resolve()
             if logo_file.exists():
                 logo_packages = "\\usepackage{graphicx}\n"
                 # Create header with logo and new title format
                 logo_header = f"""\\begin{{center}}
-\\includegraphics[width=0.3\\textwidth]{{{logo_file!s}}}\\\\[0.5cm]
+\\includegraphics[width=0.3\\textwidth]{{{logo_file.as_posix()}}}\\\\[0.5cm]
 \\Large \\textbf{{{main_cruise_name} - Workplan {workplan_num}}}\\\\
 \\textbf{{{date_range}}}
 \\end{{center}}
@@ -817,20 +830,20 @@ class LaTeXGenerator:
         else:
             # Try to find default logo
             default_logos = [
-                "images/project_logo.png",
-                "images/project_logo.pdf",
-                "images/project_logo.jpg",
-                "images/institution_logo.png",
-                "images/institution_logo.pdf",
-                "images/institution_logo.jpg",
+                "config/images/project_logo.png",
+                "config/images/project_logo.pdf",
+                "config/images/project_logo.jpg",
+                "config/images/institution_logo.png",
+                "config/images/institution_logo.pdf",
+                "config/images/institution_logo.jpg",
             ]
 
             for default_logo in default_logos:
-                logo_file = Path(default_logo)
+                logo_file = Path(default_logo).resolve()
                 if logo_file.exists():
                     logo_packages = "\\usepackage{graphicx}\n"
                     logo_header = f"""\\begin{{center}}
-\\includegraphics[width=0.3\\textwidth]{{{logo_file!s}}}\\\\[0.5cm]
+\\includegraphics[width=0.3\\textwidth]{{{logo_file.as_posix()}}}\\\\[0.5cm]
 \\Large \\textbf{{{main_cruise_name} - Workplan {workplan_num}}}\\\\
 \\textbf{{{date_range}}}
 \\end{{center}}

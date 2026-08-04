@@ -13,22 +13,28 @@ that mirror the CLI commands:
     import cruiseplan
 
     # Download bathymetry data (mirrors: cruiseplan bathymetry)
-    bathy_file = cruiseplan.bathymetry(bathy_source="gebco2025", output_dir="data/bathymetry")
+    result = cruiseplan.bathymetry(bathy_source="gebco2025", output_dir="data/bathymetry")
 
     # Search PANGAEA database (mirrors: cruiseplan pangaea)
-    stations, files = cruiseplan.pangaea("CTD", lat_bounds=[70, 80], lon_bounds=[-10, 10])
+    result = cruiseplan.pangaea("CTD", lat_bounds=[70, 80], lon_bounds=[-10, 10])
+
+    # Enrich configuration (mirrors: cruiseplan enrich)
+    result = cruiseplan.enrich(config_file="cruise.yaml", add_depths=True, add_coords=True)
 
     # Process configuration workflow (mirrors: cruiseplan process)
-    config, files = cruiseplan.process(config_file="cruise.yaml", add_depths=True, add_coords=True)
+    result = cruiseplan.process(config_file="cruise.yaml")
 
     # Validate configuration (mirrors: cruiseplan validate)
-    is_valid = cruiseplan.validate(config_file="cruise.yaml")
+    result = cruiseplan.validate(config_file="cruise.yaml")
 
     # Interactive station placement (mirrors: cruiseplan stations)
     result = cruiseplan.stations(lat_bounds=[70, 80], lon_bounds=[-10, 10], pangaea_file="campaign.pkl")
 
     # Generate schedule (mirrors: cruiseplan schedule)
-    timeline, files = cruiseplan.schedule(config_file="cruise.yaml", format="html")
+    result = cruiseplan.schedule(config_file="cruise_enriched.yaml")
+
+    # Process + schedule in one step (mirrors: cruiseplan run)
+    process_result, schedule_result = cruiseplan.run(config_file="cruise.yaml")
 
 Architecture Overview
 ====================

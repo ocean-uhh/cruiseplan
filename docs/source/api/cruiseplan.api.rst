@@ -39,6 +39,14 @@ cruiseplan.api.process_cruise module
    :undoc-members:
    :show-inheritance:
 
+cruiseplan.api.run_cruise module
+---------------------------------
+
+.. automodule:: cruiseplan.api.run_cruise
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 cruiseplan.api.schedule_cruise module
 -------------------------------------
 
