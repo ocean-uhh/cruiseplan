@@ -484,12 +484,12 @@ Static format mode (no start params):
         help="Bathymetry grid downsampling factor for PNG maps (default: 10)",
     )
     p.add_argument(
-        "--figsize",
-        nargs=2,
+        "--bathy-contours",
+        nargs="+",
         type=float,
-        metavar=("WIDTH", "HEIGHT"),
-        default=[10, 8.1],
-        help="Figure size for PNG maps in inches (default: 10 8.1)",
+        default=None,
+        metavar="DEPTH",
+        help="Bathymetry contour depths in meters (e.g. --bathy-contours 200 500 1000)",
     )
     p.add_argument(
         "--max-depth",
@@ -499,12 +499,26 @@ Static format mode (no start params):
         help="Maximum water depth in meters for bathymetry colour scale",
     )
     p.add_argument(
-        "--bathy-contours",
-        nargs="+",
+        "--lat",
+        nargs=2,
         type=float,
-        default=None,
-        metavar="DEPTH",
-        help="Bathymetry contour depths in meters (e.g. --bathy-contours 200 500 1000)",
+        metavar=("MIN", "MAX"),
+        help="Latitude bounds for PNG map extent (e.g., --lat 60 70)",
+    )
+    p.add_argument(
+        "--lon",
+        nargs=2,
+        type=float,
+        metavar=("MIN", "MAX"),
+        help="Longitude bounds for PNG map extent (e.g., --lon -40 -20)",
+    )
+    p.add_argument(
+        "--figsize",
+        nargs=2,
+        type=float,
+        metavar=("WIDTH", "HEIGHT"),
+        default=[10, 8.1],
+        help="Figure size for PNG maps in inches (default: 10 8.1)",
     )
     p.add_argument(
         "--no-title",
@@ -520,20 +534,6 @@ Static format mode (no start params):
         "--no-legend",
         action="store_true",
         help="Suppress the map legend",
-    )
-    p.add_argument(
-        "--lat",
-        nargs=2,
-        type=float,
-        metavar=("MIN", "MAX"),
-        help="Latitude bounds for PNG map extent (e.g., --lat 60 70)",
-    )
-    p.add_argument(
-        "--lon",
-        nargs=2,
-        type=float,
-        metavar=("MIN", "MAX"),
-        help="Longitude bounds for PNG map extent (e.g., --lon -40 -20)",
     )
     p.add_argument(
         "--verbose", "-v", action="store_true", help="Enable verbose logging"

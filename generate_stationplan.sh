@@ -9,4 +9,4 @@ cruiseplan list schedule/MSM142_StJohns_schedule.nc
 #cruiseplan forecast schedule/MSM142_StJohns_schedule.nc --start-index 1 --start-time "2026-04-30 12:00" --duration 180 --format waypoints --current-position 47.5615,-52.7126 --output route/Stationsplan28.txt
 cruiseplan forecast schedule/MSM142_StJohns_schedule.nc --start-index 2 --start-time "2026-05-05 08:00" --duration 24 --current-position 65.0268,-31.3702 --format waypoints --output-dir route --output Stationsplan28.txt
 
-cruiseplan forecast schedule/MSM142_StJohns_schedule.nc --start-index 2 --start-time "2026-05-05 08:00" --duration 24 --current-position 65.0268,-31.3702 --format tex --logo config/images/mixsed_logo_coarse.png --title "MSM142" --number "28" --output-dir route --output Stationsplan28.tex
+cruiseplan forecast schedule/MSM142_StJohns_schedule.nc --start-index 2 --start-time "2026-05-05 08:00" --duration 24 --current-position 65.0268,-31.3702 --format tex --title "MSM142" --number "28" --output-dir route --output Stationsplan28.tex
