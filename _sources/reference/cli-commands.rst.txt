@@ -180,6 +180,7 @@ errors, and produce a preview map.
                       [--lat MIN MAX] [--lon MIN MAX]
                       [--figsize WIDTH HEIGHT]
                       [--no-ports] [--no-title] [--no-labels] [--no-legend]
+                      [--eez]
                       [--verbose] [--quiet]
                       CONFIG_FILE
 
@@ -218,6 +219,7 @@ errors, and produce a preview map.
 - ``--max-depth METRES``: Depth ceiling for bathymetry colour scale
 - ``--bathy-contours DEPTH [DEPTH ...]``: Contour depths in metres
 - ``--no-ports``, ``--no-title``, ``--no-labels``, ``--no-legend``: Suppress map elements
+- ``--eez``: Overlay EEZ boundaries on PNG map (visualization only; data downloaded on first use)
 
 **What it produces:**
 
@@ -263,6 +265,7 @@ Run ``cruiseplan process`` first to produce the enriched YAML input.
                        [--lat MIN MAX] [--lon MIN MAX]
                        [--figsize WIDTH HEIGHT]
                        [--no-ports] [--no-title] [--no-labels] [--no-legend]
+                       [--eez]
                        [--verbose]
                        CONFIG_FILE
 
@@ -286,6 +289,7 @@ Run ``cruiseplan process`` first to produce the enriched YAML input.
 - ``--lat MIN MAX``, ``--lon MIN MAX``: Map extent
 - ``--max-depth METRES``, ``--bathy-contours DEPTH [DEPTH ...]``
 - ``--no-ports``, ``--no-title``, ``--no-labels``, ``--no-legend``
+- ``--eez``: Overlay EEZ boundaries on PNG map
 
 **What it produces** (all formats):
 
@@ -394,6 +398,7 @@ Generate a PNG map and/or KML file from a cruise YAML configuration.
                   [--figsize WIDTH HEIGHT] [--show-plot]
                   [--lat MIN MAX] [--lon MIN MAX]
                   [--bathy-contours DEPTH [DEPTH ...]] [--max-depth METRES]
+                  [--eez]
                   [--verbose]
                   CONFIG_FILE
 
@@ -413,6 +418,7 @@ Generate a PNG map and/or KML file from a cruise YAML configuration.
 - ``--bathy-contours DEPTH [DEPTH ...]``: Contour depths in metres; replaces defaults
 - ``--bathy-stride N``: Bathymetry downsampling factor; higher is faster (default: 5)
 - ``--no-ports``, ``--no-title``, ``--no-labels``, ``--no-legend``: Suppress map elements
+- ``--eez``: Overlay EEZ boundaries on PNG map (visualization only; data downloaded on first use)
 - ``--show-plot``: Display the figure interactively instead of saving to file
 
 **Examples:**

@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.runtime.enrichment &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev66</title>
+  <title>cruiseplan.runtime.enrichment &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev67</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=da398653"></script>
+      <script src="../../../_static/documentation_options.js?v=7e41024a"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -101,6 +101,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.config.activities</span><span class="w"> </span><span class="kn">import</span> <span class="n">PointDefinition</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.config.values</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_STATION_SPACING_KM</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.data.bathymetry</span><span class="w"> </span><span class="kn">import</span> <span class="n">BathymetryManager</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.timeline.distance</span><span class="w"> </span><span class="kn">import</span> <span class="n">haversine_distance</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.plot_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">interpolate_great_circle_position</span>
@@ -236,6 +237,43 @@
                 <span class="n">leg</span><span class="o">.</span><span class="n">last_activity</span> <span class="o">=</span> <span class="n">cruise_instance</span><span class="o">.</span><span class="n">point_registry</span><span class="p">[</span><span class="n">station_names</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_section_waypoints</span><span class="p">(</span>
+    <span class="n">route</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">section_name</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate and extract (lat, lon) tuples from a section route.</span>
+
+<span class="sd">    Returns the list of waypoints, or None if any coordinate is missing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">waypoints</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">wp</span> <span class="ow">in</span> <span class="n">route</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">coord</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="p">[</span><span class="n">wp</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">wp</span><span class="o">.</span><span class="n">longitude</span><span class="p">]):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid coordinates for section </span><span class="si">{</span><span class="n">section_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">waypoints</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">wp</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">wp</span><span class="o">.</span><span class="n">longitude</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">waypoints</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_station_attrs</span><span class="p">(</span>
+    <span class="n">section</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">station_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lon</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the PointDefinition attribute dict for a single expanded station.&quot;&quot;&quot;</span>
+    <span class="n">attrs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">station_name</span><span class="p">,</span>
+        <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span>
+        <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span>
+        <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;CTD&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;profile&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;history&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;expanded from line operation: </span><span class="si">{</span><span class="n">section</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">;&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">section</span><span class="p">[</span><span class="s2">&quot;max_depth&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;water_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">section</span><span class="p">[</span><span class="s2">&quot;max_depth&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">section</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">section</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">section</span><span class="p">[</span><span class="s2">&quot;planned_duration_hours&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">section</span><span class="p">[</span><span class="s1">&#39;planned_duration_hours&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">h&quot;</span>
+    <span class="k">return</span> <span class="n">attrs</span>
+
+
 <div class="viewcode-block" id="expand_sections">
 <a class="viewcode-back" href="../../../api/cruiseplan.runtime.html#cruiseplan.runtime.enrichment.expand_sections">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">expand_sections</span><span class="p">(</span>
@@ -264,9 +302,6 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">sections_expanded</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">total_stations_created</span> <span class="o">=</span> <span class="mi">0</span>
-
-    <span class="c1"># Cruise-level default spacing, falling back to module-level constant</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.config.values</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_STATION_SPACING_KM</span>
 
     <span class="n">cruise_default_spacing</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
         <span class="n">cruise_instance</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
@@ -320,16 +355,8 @@
             <span class="p">)</span>
             <span class="k">continue</span>
 
-        <span class="c1"># Validate all waypoint coordinates</span>
-        <span class="n">waypoints</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">coords_valid</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">for</span> <span class="n">wp</span> <span class="ow">in</span> <span class="n">route</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">coord</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="p">[</span><span class="n">wp</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">wp</span><span class="o">.</span><span class="n">longitude</span><span class="p">]):</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid coordinates for section </span><span class="si">{</span><span class="n">section_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">coords_valid</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="k">break</span>
-            <span class="n">waypoints</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">wp</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">wp</span><span class="o">.</span><span class="n">longitude</span><span class="p">))</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">coords_valid</span><span class="p">:</span>
+        <span class="n">waypoints</span> <span class="o">=</span> <span class="n">_validate_section_waypoints</span><span class="p">(</span><span class="n">route</span><span class="p">,</span> <span class="n">section_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">waypoints</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">continue</span>
 
         <span class="c1"># Compute per-segment distances</span>
@@ -366,27 +393,7 @@
                 <span class="n">base_station_name</span><span class="p">,</span> <span class="n">cruise_instance</span><span class="o">.</span><span class="n">point_registry</span>
             <span class="p">)</span>
 
-            <span class="n">station_attrs</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">station_name</span><span class="p">,</span>
-                <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span>
-                <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span>
-                <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;CTD&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;profile&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;history&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;expanded from line operation: </span><span class="si">{</span><span class="n">section_name</span><span class="si">}</span><span class="s2">;&quot;</span><span class="p">,</span>
-            <span class="p">}</span>
-
-            <span class="c1"># Add depth information</span>
-            <span class="k">if</span> <span class="n">section</span><span class="p">[</span><span class="s2">&quot;max_depth&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">station_attrs</span><span class="p">[</span><span class="s2">&quot;water_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">section</span><span class="p">[</span><span class="s2">&quot;max_depth&quot;</span><span class="p">]</span>
-            <span class="c1"># Skip setting water_depth if using default sentinel value</span>
-
-            <span class="c1"># Add duration information</span>
-            <span class="k">if</span> <span class="n">section</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">station_attrs</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">section</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">]</span>
-            <span class="k">elif</span> <span class="n">section</span><span class="p">[</span><span class="s2">&quot;planned_duration_hours&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">station_attrs</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">section</span><span class="p">[</span><span class="s1">&#39;planned_duration_hours&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">h&quot;</span>
-
-            <span class="c1"># Create and register the station</span>
+            <span class="n">station_attrs</span> <span class="o">=</span> <span class="n">_build_station_attrs</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">station_name</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">)</span>
             <span class="n">station</span> <span class="o">=</span> <span class="n">PointDefinition</span><span class="p">(</span><span class="o">**</span><span class="n">station_attrs</span><span class="p">)</span>
             <span class="n">cruise_instance</span><span class="o">.</span><span class="n">point_registry</span><span class="p">[</span><span class="n">station_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">station</span>
             <span class="n">station_names_created</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">station_name</span><span class="p">)</span>

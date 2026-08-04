@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CLI Commands &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev66</title>
+  <title>CLI Commands &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev67</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=da398653"></script>
+      <script src="../_static/documentation_options.js?v=7e41024a"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -275,6 +275,7 @@ errors, and produce a preview map.</p>
 <span class="w">                   </span><span class="o">[</span>--lat<span class="w"> </span>MIN<span class="w"> </span>MAX<span class="o">]</span><span class="w"> </span><span class="o">[</span>--lon<span class="w"> </span>MIN<span class="w"> </span>MAX<span class="o">]</span>
 <span class="w">                   </span><span class="o">[</span>--figsize<span class="w"> </span>WIDTH<span class="w"> </span>HEIGHT<span class="o">]</span>
 <span class="w">                   </span><span class="o">[</span>--no-ports<span class="o">]</span><span class="w"> </span><span class="o">[</span>--no-title<span class="o">]</span><span class="w"> </span><span class="o">[</span>--no-labels<span class="o">]</span><span class="w"> </span><span class="o">[</span>--no-legend<span class="o">]</span>
+<span class="w">                   </span><span class="o">[</span>--eez<span class="o">]</span>
 <span class="w">                   </span><span class="o">[</span>--verbose<span class="o">]</span><span class="w"> </span><span class="o">[</span>--quiet<span class="o">]</span>
 <span class="w">                   </span>CONFIG_FILE
 </pre></div>
@@ -314,6 +315,7 @@ errors, and produce a preview map.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">--max-depth</span> <span class="pre">METRES</span></code>: Depth ceiling for bathymetry colour scale</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--bathy-contours</span> <span class="pre">DEPTH</span> <span class="pre">[DEPTH</span> <span class="pre">...]</span></code>: Contour depths in metres</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--no-ports</span></code>, <code class="docutils literal notranslate"><span class="pre">--no-title</span></code>, <code class="docutils literal notranslate"><span class="pre">--no-labels</span></code>, <code class="docutils literal notranslate"><span class="pre">--no-legend</span></code>: Suppress map elements</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--eez</span></code>: Overlay EEZ boundaries on PNG map (visualization only; data downloaded on first use)</p></li>
 </ul>
 <p><strong>What it produces:</strong></p>
 <ul class="simple">
@@ -353,6 +355,7 @@ plus optional HTML, LaTeX, CSV, and PNG outputs.</p>
 <span class="w">                    </span><span class="o">[</span>--lat<span class="w"> </span>MIN<span class="w"> </span>MAX<span class="o">]</span><span class="w"> </span><span class="o">[</span>--lon<span class="w"> </span>MIN<span class="w"> </span>MAX<span class="o">]</span>
 <span class="w">                    </span><span class="o">[</span>--figsize<span class="w"> </span>WIDTH<span class="w"> </span>HEIGHT<span class="o">]</span>
 <span class="w">                    </span><span class="o">[</span>--no-ports<span class="o">]</span><span class="w"> </span><span class="o">[</span>--no-title<span class="o">]</span><span class="w"> </span><span class="o">[</span>--no-labels<span class="o">]</span><span class="w"> </span><span class="o">[</span>--no-legend<span class="o">]</span>
+<span class="w">                    </span><span class="o">[</span>--eez<span class="o">]</span>
 <span class="w">                    </span><span class="o">[</span>--verbose<span class="o">]</span>
 <span class="w">                    </span>CONFIG_FILE
 </pre></div>
@@ -377,6 +380,7 @@ plus optional HTML, LaTeX, CSV, and PNG outputs.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">--lat</span> <span class="pre">MIN</span> <span class="pre">MAX</span></code>, <code class="docutils literal notranslate"><span class="pre">--lon</span> <span class="pre">MIN</span> <span class="pre">MAX</span></code>: Map extent</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--max-depth</span> <span class="pre">METRES</span></code>, <code class="docutils literal notranslate"><span class="pre">--bathy-contours</span> <span class="pre">DEPTH</span> <span class="pre">[DEPTH</span> <span class="pre">...]</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--no-ports</span></code>, <code class="docutils literal notranslate"><span class="pre">--no-title</span></code>, <code class="docutils literal notranslate"><span class="pre">--no-labels</span></code>, <code class="docutils literal notranslate"><span class="pre">--no-legend</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--eez</span></code>: Overlay EEZ boundaries on PNG map</p></li>
 </ul>
 <p><strong>What it produces</strong> (all formats):</p>
 <ul class="simple">
@@ -470,6 +474,7 @@ does not modify any files.</p>
 <span class="w">               </span><span class="o">[</span>--figsize<span class="w"> </span>WIDTH<span class="w"> </span>HEIGHT<span class="o">]</span><span class="w"> </span><span class="o">[</span>--show-plot<span class="o">]</span>
 <span class="w">               </span><span class="o">[</span>--lat<span class="w"> </span>MIN<span class="w"> </span>MAX<span class="o">]</span><span class="w"> </span><span class="o">[</span>--lon<span class="w"> </span>MIN<span class="w"> </span>MAX<span class="o">]</span>
 <span class="w">               </span><span class="o">[</span>--bathy-contours<span class="w"> </span>DEPTH<span class="w"> </span><span class="o">[</span>DEPTH<span class="w"> </span>...<span class="o">]]</span><span class="w"> </span><span class="o">[</span>--max-depth<span class="w"> </span>METRES<span class="o">]</span>
+<span class="w">               </span><span class="o">[</span>--eez<span class="o">]</span>
 <span class="w">               </span><span class="o">[</span>--verbose<span class="o">]</span>
 <span class="w">               </span>CONFIG_FILE
 </pre></div>
@@ -490,6 +495,7 @@ does not modify any files.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">--bathy-contours</span> <span class="pre">DEPTH</span> <span class="pre">[DEPTH</span> <span class="pre">...]</span></code>: Contour depths in metres; replaces defaults</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--bathy-stride</span> <span class="pre">N</span></code>: Bathymetry downsampling factor; higher is faster (default: 5)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--no-ports</span></code>, <code class="docutils literal notranslate"><span class="pre">--no-title</span></code>, <code class="docutils literal notranslate"><span class="pre">--no-labels</span></code>, <code class="docutils literal notranslate"><span class="pre">--no-legend</span></code>: Suppress map elements</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--eez</span></code>: Overlay EEZ boundaries on PNG map (visualization only; data downloaded on first use)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--show-plot</span></code>: Display the figure interactively instead of saving to file</p></li>
 </ul>
 <p><strong>Examples:</strong></p>
