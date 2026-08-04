@@ -7,6 +7,7 @@ and generating station plan outputs for real-time cruise operations.
 
 import logging
 from dataclasses import dataclass
+from datetime import timedelta
 from pathlib import Path
 
 import numpy as np
@@ -280,6 +281,128 @@ def stationplan_tex(
         return StationplanResult(success=False, message=error_msg, output="")
 
 
+class _ForecastRecord:
+    """Lightweight record holding processed forecast activity data for TeX output."""
+
+    def __init__(self, data: dict) -> None:
+        for key, value in data.items():
+            setattr(self, key, value)
+
+
+def _lookup_schedule_depth_data(schedule, index: int) -> tuple:
+    """Look up water_depth, operation_depth, and comment from a NetCDF schedule.
+
+    Returns (water_depth, operation_depth, comment) with None/empty defaults.
+    """
+    water_depth = None
+    operation_depth = None
+    comment = ""
+
+    if "water_depth" in schedule.variables:
+        try:
+            depth_val = schedule.water_depth[index].values
+            if depth_val is not None and not np.isnan(float(depth_val)):
+                water_depth = float(depth_val)
+        except (TypeError, ValueError):
+            pass
+
+    if "operation_depth" in schedule.variables:
+        try:
+            op_depth_val = schedule.operation_depth[index].values
+            if op_depth_val is not None and not np.isnan(float(op_depth_val)):
+                operation_depth = float(op_depth_val)
+        except (TypeError, ValueError):
+            pass
+
+    if "comment" in schedule.variables:
+        comment_val = str(schedule.comment[index].values)
+        if comment_val and comment_val not in {"nan", "_"}:
+            comment = comment_val
+
+    return water_depth, operation_depth, comment
+
+
+def _lookup_tex_exit_coords(
+    schedule, index: int, latitude: float, longitude: float
+) -> tuple[float, float]:
+    """Return exit (lat, lon) from schedule variables, falling back to entry coords."""
+    try:
+        if (
+            "exit_latitude" in schedule.variables
+            and "exit_longitude" in schedule.variables
+        ):
+            exit_lat_val = float(schedule.exit_latitude[index].values)
+            exit_lon_val = float(schedule.exit_longitude[index].values)
+            if not (np.isnan(exit_lat_val) or np.isnan(exit_lon_val)):
+                return exit_lat_val, exit_lon_val
+    except Exception:
+        pass
+    return latitude, longitude
+
+
+def _build_tex_forecast_record(
+    schedule, index: int, activity_tuple: tuple
+) -> "_ForecastRecord | None":
+    """Convert one forecast activity tuple to a _ForecastRecord for TeX output.
+
+    Returns None for transit activities.
+    """
+    (
+        _idx,
+        time,
+        category,
+        activity_type,
+        action,
+        duration,
+        latitude,
+        longitude,
+        name,
+    ) = activity_tuple
+
+    if category == "transit":
+        return None
+
+    water_depth, operation_depth, comment = _lookup_schedule_depth_data(schedule, index)
+    exit_lat, exit_lon = _lookup_tex_exit_coords(schedule, index, latitude, longitude)
+    end_time = time + timedelta(hours=duration)
+
+    operation_distance = (
+        float(schedule.dist_nm[index].values)
+        if "dist_nm" in schedule.variables
+        else 0.0
+    )
+    next_transit_distance = (
+        float(schedule.distance_to_next[index].values)
+        if "distance_to_next" in schedule.variables
+        else 0.0
+    )
+
+    record_data = {
+        "activity": category,
+        "label": name,
+        "entry_lat": float(latitude),
+        "entry_lon": float(longitude),
+        "exit_lat": float(exit_lat),
+        "exit_lon": float(exit_lon),
+        "start_time": time,
+        "end_time": end_time,
+        "duration_minutes": float(duration) * 60.0,
+        "water_depth": water_depth,
+        "operation_depth": operation_depth,
+        "dist_nm": operation_distance,
+        "transit_dist_nm": next_transit_distance,
+        "vessel_speed_kt": 10.0,
+        "leg_name": "forecast",
+        "op_type": activity_type,
+        "operation_class": (
+            "LineOperation" if operation_distance > 0.1 else "PointOperation"
+        ),
+        "action": action if action else None,
+        "comment": comment,
+    }
+    return _ForecastRecord(record_data)
+
+
 def stationplan_forecast_tex(
     schedule_file: str | Path,
     start_index: int,
@@ -317,10 +440,6 @@ def stationplan_forecast_tex(
         Result object with success status and generated file path
     """
     try:
-        import numpy as np
-
-        from cruiseplan.forecast.generator import generate_forecast
-        from cruiseplan.forecast.reader import read_schedule
         from cruiseplan.output.latex_generator import LaTeXGenerator
 
         schedule_path = Path(schedule_file)
@@ -341,121 +460,16 @@ def stationplan_forecast_tex(
                 output="",
             )
 
-        # Convert forecast activities to ActivityRecord objects for TeX generation
-        # generate_forecast returns tuples: (index, time, category, type, action, duration, lat, lon, name)
-
-        # No longer need to manually compute transit distances - they're now in distance_to_next field
-
-        activity_records = []
-        for activity_tuple in forecast_activities:
-            (
-                index,
-                time,
-                category,
-                activity_type,
-                action,
-                duration,
-                latitude,
-                longitude,
-                name,
-            ) = activity_tuple
-
-            # Look up additional data from original schedule using the index
-            water_depth = None
-            operation_depth = None
-            comment = ""
-
-            if "water_depth" in schedule.variables:
-                try:
-                    depth_val = schedule.water_depth[index].values
-                    if depth_val is not None and not np.isnan(float(depth_val)):
-                        water_depth = float(depth_val)
-                except (TypeError, ValueError):
-                    pass  # Keep water_depth as None
-
-            if "operation_depth" in schedule.variables:
-                try:
-                    op_depth_val = schedule.operation_depth[index].values
-                    if op_depth_val is not None and not np.isnan(float(op_depth_val)):
-                        operation_depth = float(op_depth_val)
-                except (TypeError, ValueError):
-                    pass  # Keep operation_depth as None
-
-            if "comment" in schedule.variables:
-                comment_val = str(schedule.comment[index].values)
-                if comment_val and comment_val not in {"nan", "_"}:
-                    comment = comment_val
-
-            # Look up exit coordinates if available
-            exit_lat, exit_lon = latitude, longitude  # Default to same position
-            try:
-                if (
-                    "exit_latitude" in schedule.variables
-                    and "exit_longitude" in schedule.variables
-                ):
-                    exit_lat_val = float(schedule.exit_latitude[index].values)
-                    exit_lon_val = float(schedule.exit_longitude[index].values)
-                    if not (np.isnan(exit_lat_val) or np.isnan(exit_lon_val)):
-                        exit_lat, exit_lon = exit_lat_val, exit_lon_val
-            except Exception:
-                pass  # Use entry coordinates as fallback
-
-            # Skip transit activities for TeX output (like waypoints)
-            if category == "transit":
-                continue
-
-            # Create single record for all operations (including line operations)
-            # Calculate end time
-            from datetime import timedelta
-
-            end_time = time + timedelta(hours=duration)
-
-            # Get operation distance from NetCDF (for line operations)
-            operation_distance = (
-                float(schedule.dist_nm[index].values)
-                if "dist_nm" in schedule.variables
-                else 0.0
+        activity_records = [
+            record
+            for activity_tuple in forecast_activities
+            if (
+                record := _build_tex_forecast_record(
+                    schedule, activity_tuple[0], activity_tuple
+                )
             )
-
-            # Get transit distance to next operation from NetCDF distance_to_next field
-            next_transit_distance = (
-                float(schedule.distance_to_next[index].values)
-                if "distance_to_next" in schedule.variables
-                else 0.0
-            )
-
-            # Single record for operation
-            record_data = {
-                "activity": category,
-                "label": name,  # Use original name without "Start"/"End"
-                "entry_lat": float(latitude),
-                "entry_lon": float(longitude),
-                "exit_lat": float(exit_lat),
-                "exit_lon": float(exit_lon),
-                "start_time": time,
-                "end_time": end_time,
-                "duration_minutes": float(duration) * 60.0,
-                "water_depth": water_depth,
-                "operation_depth": operation_depth,
-                "dist_nm": operation_distance,  # Distance of the operation itself
-                "transit_dist_nm": next_transit_distance,  # Distance to next operation
-                "vessel_speed_kt": 10.0,
-                "leg_name": "forecast",
-                "op_type": activity_type,
-                "operation_class": (
-                    "LineOperation" if operation_distance > 0.1 else "PointOperation"
-                ),
-                "action": action if action else None,
-                "comment": comment,
-            }
-
-            # Create ActivityRecord-like objects
-            class ForecastRecord:
-                def __init__(self, data):
-                    for key, value in data.items():
-                        setattr(self, key, value)
-
-            activity_records.append(ForecastRecord(record_data))
+            is not None
+        ]
 
         # Determine output path
         if output_path is None:

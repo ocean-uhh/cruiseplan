@@ -17,6 +17,7 @@ except ImportError:
 
 _SUBCOMMAND_MODULES = {
     "bathymetry": "cruiseplan.cli.bathymetry",
+    "run": "cruiseplan.cli.run",
     "schedule": "cruiseplan.cli.schedule",
     "stations": "cruiseplan.cli.stations",
     "enrich": "cruiseplan.cli.enrich",
@@ -40,6 +41,7 @@ Examples:
   cruiseplan bathymetry --bathy-source gebco2025
   cruiseplan pangaea "CTD temperature" --lat 50 60 --lon -50 -30
   cruiseplan stations --lat 50 65 --lon -60 -30
+  cruiseplan run cruise.yaml
   cruiseplan enrich cruise.yaml --add-depths --add-coords
   cruiseplan validate cruise.yaml
   cruiseplan schedule cruise.yaml -o results/

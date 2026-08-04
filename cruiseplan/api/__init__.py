@@ -15,6 +15,7 @@ from .process_cruise import (
     validate,
     validate_with_config,
 )
+from .run_cruise import run
 from .schedule_cruise import schedule, schedule_with_config
 from .stationplan_api import (
     StationplanResult,
@@ -40,6 +41,7 @@ __all__ = [
     "pangaea_with_config",
     "process",
     "process_with_config",
+    "run",
     "schedule",
     "schedule_with_config",
     "stationplan_forecast",

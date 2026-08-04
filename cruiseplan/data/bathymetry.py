@@ -575,6 +575,128 @@ class BathymetryManager:
             self._dataset.close()
 
 
+def _check_local_bathy_file(target_dir: str, filename: str, label: str) -> str | bool:
+    """Check whether a local-only bathymetry file exists and print its size.
+
+    Returns the file path string if found, False otherwise.
+    """
+    output_dir = Path(target_dir).resolve()
+    file_path = output_dir / filename
+    if file_path.exists():
+        file_size_kb = file_path.stat().st_size / 1024
+        print(f"{label} bathymetry available at {file_path} ({file_size_kb:.1f} KB)")
+        return str(file_path)
+    print(f"ERROR: {label} bathymetry file not found at {file_path}")
+    print(
+        "   This is a local dataset that should be manually placed in the data/bathymetry directory."
+    )
+    return False
+
+
+def _download_gebco2025(target_dir: str) -> str | bool:
+    """Download GEBCO 2025 bathymetry, or return the existing file path if already present.
+
+    Returns the file path on success, False if cancelled or download failed.
+    """
+    output_dir = Path(target_dir).resolve()
+    output_dir.mkdir(parents=True, exist_ok=True)
+    gebco_path = output_dir / GEBCO_NC_FILENAME
+
+    if gebco_path.exists():
+        file_size_gb = gebco_path.stat().st_size / (1024**3)
+        if file_size_gb >= 6.9:
+            print(f"File already exists at {gebco_path} ({file_size_gb:.1f} GB)")
+            return str(gebco_path)
+        print(f"Existing file at {gebco_path} is incomplete ({file_size_gb:.1f} GB)")
+        try:
+            response = (
+                input("Delete incomplete file and redownload? (y/N): ").lower().strip()
+            )
+            if response in ("y", "yes"):
+                gebco_path.unlink()
+                print("Deleted incomplete file. Starting download...")
+            else:
+                print("Keeping incomplete file. Download cancelled.")
+                return False
+        except (EOFError, KeyboardInterrupt):
+            print("Non-interactive environment. Keeping incomplete file.")
+            return False
+
+    manager = BathymetryManager(source="gebco2025", data_dir=target_dir)
+    if not manager.ensure_gebco_2025(silent_if_exists=True):
+        print("ERROR: GEBCO 2025 download failed.")
+        return False
+    return str(gebco_path)
+
+
+def _download_etopo2022(target_dir: str) -> str | bool | None:
+    """Download ETOPO 2022 bathymetry.
+
+    Returns the file path on success, the path string if incomplete and kept,
+    False if cancelled, None if all download URLs failed.
+    """
+    output_dir = Path(target_dir).resolve()
+    output_dir.mkdir(parents=True, exist_ok=True)
+    local_path = output_dir / ETOPO_FILENAME
+
+    if local_path.exists():
+        file_size_mb = local_path.stat().st_size / (1024 * 1024)
+        if file_size_mb >= 450:
+            print(f"File already exists at {local_path} ({file_size_mb:.1f} MB)")
+            return str(local_path)
+        print(f"Existing file at {local_path} is incomplete ({file_size_mb:.1f} MB)")
+        try:
+            response = (
+                input("Delete incomplete file and redownload? (y/N): ").lower().strip()
+            )
+            if response in ("y", "yes"):
+                local_path.unlink()
+                print("Deleted incomplete file. Starting download...")
+            else:
+                print("Keeping incomplete file. Download cancelled.")
+                return str(local_path)
+        except (EOFError, KeyboardInterrupt):
+            print("Non-interactive environment. Keeping incomplete file.")
+            return str(local_path)
+
+    print(f"Downloading ETOPO dataset to {local_path}...")
+    for url in ETOPO_URLS:
+        try:
+            print(f"Attempting download from: {url}")
+            resp = requests.get(url, stream=True, timeout=10)
+            resp.raise_for_status()
+            total_size = int(resp.headers.get("Content-Length", 0))
+            with (
+                open(local_path, "wb") as file,
+                tqdm(
+                    desc="Downloading ETOPO",
+                    total=total_size,
+                    unit="B",
+                    unit_scale=True,
+                    unit_divisor=1024,
+                ) as bar,
+            ):
+                for chunk in resp.iter_content(chunk_size=8192):
+                    file.write(chunk)
+                    bar.update(len(chunk))
+            print("\nDownload complete!")
+            return str(local_path)
+        except Exception as e:
+            print(f"Failed to download from {url}")
+            print(f"   Error: {e}")
+            if local_path.exists():
+                local_path.unlink()
+
+    print("\n" + "=" * 60)
+    print("⛔ AUTOMATIC DOWNLOAD FAILED")
+    print("=" * 60)
+    print("Please download the file manually using your browser:")
+    print(f"URL: {ETOPO_URLS[0]}")
+    print(f"Save to: {local_path}")
+    print("=" * 60 + "\n")
+    return None
+
+
 def download_bathymetry(
     target_dir: str = "data/bathymetry", source: str = "gebco2025"
 ) -> str | bool | None:
@@ -600,181 +722,16 @@ def download_bathymetry(
         None if download failed completely.
     """
     if source == "gebco2025":
-        # Handle GEBCO 2025 download
-        output_dir = Path(target_dir).resolve()
-        output_dir.mkdir(parents=True, exist_ok=True)
-
-        gebco_path = output_dir / GEBCO_NC_FILENAME
-
-        # Check if file already exists and is complete
-        if gebco_path.exists():
-            file_size_gb = gebco_path.stat().st_size / (1024**3)
-            if file_size_gb >= 6.9:  # 6.9GB threshold for ~7.5GB file
-                print(f"File already exists at {gebco_path} ({file_size_gb:.1f} GB)")
-                return str(gebco_path)
-            else:
-                print(
-                    f"Existing file at {gebco_path} is incomplete ({file_size_gb:.1f} GB)"
-                )
-                try:
-                    response = (
-                        input("Delete incomplete file and redownload? (y/N): ")
-                        .lower()
-                        .strip()
-                    )
-                    if response in ("y", "yes"):
-                        gebco_path.unlink()
-                        print("Deleted incomplete file. Starting download...")
-                    else:
-                        print("Keeping incomplete file. Download cancelled.")
-                        return False
-                except (EOFError, KeyboardInterrupt):
-                    print("Non-interactive environment. Keeping incomplete file.")
-                    return False
-
-        # File doesn't exist or is incomplete, need to download
-        # Use a fresh BathymetryManager instance for downloading
-        # Pass only the directory relative to the project root (e.g., "data") as data_dir.
-        # BathymetryManager will append "/bathymetry" itself.
-        manager = BathymetryManager(source="gebco2025", data_dir=target_dir)
-        success = manager.ensure_gebco_2025(silent_if_exists=True)
-        if not success:
-            print("❌ GEBCO 2025 download failed.")
-            return False
-        # Return file path on success
-        return str(gebco_path)
-
-    elif source == "msm142":
-        # Handle legacy MSM142 bathymetry (already local, just check availability)
-        output_dir = Path(target_dir).resolve()
-        msm142_legacy_path = output_dir / MSM142_LEGACY_NC_FILENAME
-
-        if msm142_legacy_path.exists():
-            file_size_kb = msm142_legacy_path.stat().st_size / 1024
-            print(
-                f"MSM142 (legacy) bathymetry available at {msm142_legacy_path} ({file_size_kb:.1f} KB)"
-            )
-            return str(msm142_legacy_path)
-        else:
-            print(
-                f"❌ MSM142 (legacy) bathymetry file not found at {msm142_legacy_path}"
-            )
-            print(
-                "   This is a local dataset that should be manually placed in the data/bathymetry directory."
-            )
-            return False
-
-    elif source == "msm142_jj":
-        # Handle MSM142_JJ bathymetry (already local, just check availability)
-        output_dir = Path(target_dir).resolve()
-        msm142_jj_path = output_dir / MSM142_JJ_NC_FILENAME
-
-        if msm142_jj_path.exists():
-            file_size_kb = msm142_jj_path.stat().st_size / 1024
-            print(
-                f"MSM142_JJ bathymetry available at {msm142_jj_path} ({file_size_kb:.1f} KB)"
-            )
-            return str(msm142_jj_path)
-        else:
-            print(f"❌ MSM142_JJ bathymetry file not found at {msm142_jj_path}")
-            print(
-                "   This is a local dataset that should be manually placed in the data/bathymetry directory."
-            )
-            return False
-
-    elif source == "msm142_dt":
-        # Handle MSM142_DT bathymetry (already local, just check availability)
-        output_dir = Path(target_dir).resolve()
-        msm142_dt_path = output_dir / MSM142_DT_NC_FILENAME
-
-        if msm142_dt_path.exists():
-            file_size_kb = msm142_dt_path.stat().st_size / 1024
-            print(
-                f"MSM142_DT bathymetry available at {msm142_dt_path} ({file_size_kb:.1f} KB)"
-            )
-            return str(msm142_dt_path)
-        else:
-            print(f"❌ MSM142_DT bathymetry file not found at {msm142_dt_path}")
-            print(
-                "   This is a local dataset that should be manually placed in the data/bathymetry directory."
-            )
-            return False
-
-    # Handle ETOPO 2022 download (existing logic)
-    output_dir = Path(target_dir).resolve()
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    local_path = output_dir / ETOPO_FILENAME
-
-    if local_path.exists():
-        # Check if existing file is complete (actual file is ~491 MB)
-        file_size_mb = local_path.stat().st_size / (1024 * 1024)
-        if file_size_mb >= 450:
-            print(f"File already exists at {local_path} ({file_size_mb:.1f} MB)")
-            return str(local_path)
-        else:
-            print(
-                f"Existing file at {local_path} is incomplete ({file_size_mb:.1f} MB)"
-            )
-            try:
-                response = (
-                    input("Delete incomplete file and redownload? (y/N): ")
-                    .lower()
-                    .strip()
-                )
-                if response in ("y", "yes"):
-                    local_path.unlink()
-                    print("Deleted incomplete file. Starting download...")
-                else:
-                    print("Keeping incomplete file. Download cancelled.")
-                    return str(local_path)  # Return path even if incomplete
-            except (EOFError, KeyboardInterrupt):
-                print("Non-interactive environment. Keeping incomplete file.")
-                return str(local_path)  # Return path even if incomplete
-
-    print(f"Downloading ETOPO dataset to {local_path}...")
-
-    for url in ETOPO_URLS:
-        try:
-            print(f"Attempting download from: {url}")
-            response = requests.get(
-                url, stream=True, timeout=10
-            )  # 10s timeout for connect
-            response.raise_for_status()
-
-            total_size = int(response.headers.get("Content-Length", 0))
-
-            with (
-                open(local_path, "wb") as file,
-                tqdm(
-                    desc="Downloading ETOPO",
-                    total=total_size,
-                    unit="B",
-                    unit_scale=True,
-                    unit_divisor=1024,
-                ) as bar,
-            ):
-                for chunk in response.iter_content(chunk_size=8192):
-                    file.write(chunk)
-                    bar.update(len(chunk))
-
-            print("\nDownload complete!")
-            return str(local_path)  # Success, return file path
-        except Exception as e:
-            print(f"Failed to download from {url}")
-            print(f"   Error: {e}")
-            if local_path.exists():
-                local_path.unlink()  # Cleanup partial download
-
-    # If we reach here, all URLs failed
-    print("\n" + "=" * 60)
-    print("⛔ AUTOMATIC DOWNLOAD FAILED")
-    print("=" * 60)
-    print("Please download the file manually using your browser:")
-    print(f"URL: {ETOPO_URLS[0]}")
-    print(f"Save to: {local_path}")
-    print("=" * 60 + "\n")
-    return None  # Download failed
+        return _download_gebco2025(target_dir)
+    if source == "msm142":
+        return _check_local_bathy_file(
+            target_dir, MSM142_LEGACY_NC_FILENAME, "MSM142 (legacy)"
+        )
+    if source == "msm142_jj":
+        return _check_local_bathy_file(target_dir, MSM142_JJ_NC_FILENAME, "MSM142_JJ")
+    if source == "msm142_dt":
+        return _check_local_bathy_file(target_dir, MSM142_DT_NC_FILENAME, "MSM142_DT")
+    return _download_etopo2022(target_dir)
 
 
 def check_bathymetry_availability(source: str) -> bool:

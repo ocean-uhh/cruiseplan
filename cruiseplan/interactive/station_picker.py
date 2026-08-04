@@ -41,6 +41,33 @@ from cruiseplan.utils.plot_config import get_colormap
 logger = logging.getLogger(__name__)
 
 
+def _parse_picker_operation_type(operation_type_str: str) -> OperationTypeEnum:
+    """Map a raw operation type string to an OperationTypeEnum value."""
+    _map = {
+        "mooring": OperationTypeEnum.MOORING,
+        "CTD": OperationTypeEnum.CTD,
+        "water_sampling": OperationTypeEnum.WATER_SAMPLING,
+        "calibration": OperationTypeEnum.CALIBRATION,
+        "port": OperationTypeEnum.PORT,
+        "waypoint": OperationTypeEnum.WAYPOINT,
+    }
+    return _map.get(operation_type_str, OperationTypeEnum.DEFAULT)
+
+
+def _parse_picker_action(action_str: str | None) -> ActionEnum:
+    """Map a raw action string to an ActionEnum value."""
+    _map = {
+        "deployment": ActionEnum.DEPLOYMENT,
+        "recovery": ActionEnum.RECOVERY,
+        "profile": ActionEnum.PROFILE,
+        "sampling": ActionEnum.SAMPLING,
+        "calibration": ActionEnum.CALIBRATION,
+        "mob": ActionEnum.MOB,
+        "demob": ActionEnum.DEMOB,
+    }
+    return _map.get(action_str, ActionEnum.DEFAULT_POINT)
+
+
 class StationPicker:
     """
     Interactive matplotlib-based tool for oceanographic cruise planning.
@@ -1019,62 +1046,24 @@ class StationPicker:
     # --- Helper Functions for Pydantic Model Creation ---
     def _create_point_definition(self, point_data: dict, index: int) -> PointDefinition:
         """Create a PointDefinition from raw station picker data."""
-        # Calculate water depth from bathymetry if available
         water_depth = point_data.get("depth")
         if water_depth is not None and water_depth != -9999:
             water_depth = round(abs(float(water_depth)), 1)
         else:
             water_depth = None
 
-        # Use original name if available (from pre-existing stations), otherwise generate new name
         original_name = point_data.get("name")
         station_name = original_name if original_name else f"STN_{index:03d}"
-
-        # Use original fields if available, otherwise use defaults
-        from cruiseplan.config.values import ActionEnum
-
-        operation_type = point_data.get("operation_type", "station")
-        # Convert string back to enum value if needed
-        if operation_type == "mooring":
-            operation_type = OperationTypeEnum.MOORING
-        elif operation_type == "CTD":
-            operation_type = OperationTypeEnum.CTD
-        elif operation_type == "water_sampling":
-            operation_type = OperationTypeEnum.WATER_SAMPLING
-        elif operation_type == "calibration":
-            operation_type = OperationTypeEnum.CALIBRATION
-        elif operation_type == "port":
-            operation_type = OperationTypeEnum.PORT
-        elif operation_type == "waypoint":
-            operation_type = OperationTypeEnum.WAYPOINT
-        else:
-            operation_type = OperationTypeEnum.DEFAULT  # fallback for unknown types
-
-        action = point_data.get("action")
-        if action == "deployment":
-            action = ActionEnum.DEPLOYMENT
-        elif action == "recovery":
-            action = ActionEnum.RECOVERY
-        elif action == "profile":
-            action = ActionEnum.PROFILE
-        elif action == "sampling":
-            action = ActionEnum.SAMPLING
-        elif action == "calibration":
-            action = ActionEnum.CALIBRATION
-        elif action == "mob":
-            action = ActionEnum.MOB
-        elif action == "demob":
-            action = ActionEnum.DEMOB
-        else:
-            action = ActionEnum.DEFAULT_POINT  # fallback
-
+        operation_type = _parse_picker_operation_type(
+            point_data.get("operation_type", "station")
+        )
+        action = _parse_picker_action(point_data.get("action"))
         comment = (
             point_data.get("comment")
             or "Interactive selection - Review coordinates and update operation details"
         )
         duration = point_data.get("duration")
 
-        # Build the PointDefinition with all available fields
         point_attrs = {
             "name": station_name,
             "latitude": round(float(point_data["lat"]), 5),
@@ -1083,8 +1072,6 @@ class StationPicker:
             "operation_type": operation_type,
             "action": action,
         }
-
-        # Add optional fields if they exist
         if water_depth is not None:
             point_attrs["water_depth"] = water_depth
         if duration is not None:
