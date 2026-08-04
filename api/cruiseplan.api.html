@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>API Functions &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev65</title>
+  <title>API Functions &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev66</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=edc10c39"></script>
+      <script src="../_static/documentation_options.js?v=da398653"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1293,7 +1293,49 @@ If None, default configuration is used.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.api.init_utils.generate_png_format">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.api.init_utils.</span></span><span class="sig-name descname"><span class="pre">generate_png_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cruise</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathy_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathy_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathy_stride</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathy_contours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat_bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon_bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_ports</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_legend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'map'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_eez</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/api/init_utils.html#generate_png_format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.api.init_utils.generate_png_format" title="Link to this definition"></a></dt>
-<dd><p>Generate PNG map output.</p>
+<dd><p>Generate a PNG map and write it to disk.</p>
+<p>Thin wrapper around <code class="docutils literal notranslate"><span class="pre">generate_map_from_timeline</span></code> that constructs the
+output path from <em>output_dir_path</em>, <em>base_name</em>, and <em>suffix</em>, then
+delegates all rendering work downstream.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cruise</strong> (<a class="reference internal" href="cruiseplan.runtime.html#cruiseplan.runtime.cruise.CruiseInstance" title="cruiseplan.runtime.cruise.CruiseInstance"><em>CruiseInstance</em></a>) – Loaded cruise object; passed as <code class="docutils literal notranslate"><span class="pre">config</span></code> to the map generator for
+port extraction and cruise metadata.</p></li>
+<li><p><strong>timeline</strong> (<em>list</em>) – Timeline data from the scheduler (list of activity dicts with
+coordinates).</p></li>
+<li><p><strong>output_dir_path</strong> (<em>Path</em>) – Directory where the PNG file will be written.</p></li>
+<li><p><strong>base_name</strong> (<em>str</em>) – Filename stem; the output file is <code class="docutils literal notranslate"><span class="pre">{base_name}_{suffix}.png</span></code>.</p></li>
+<li><p><strong>bathy_source</strong> (<em>str</em>) – Bathymetry dataset identifier (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;gebco2025&quot;</span></code>).</p></li>
+<li><p><strong>bathy_dir</strong> (<em>str</em>) – Path to the directory containing bathymetry netCDF files.</p></li>
+<li><p><strong>bathy_stride</strong> (<em>int</em>) – Downsampling stride for bathymetry contours (higher = faster, less detail).</p></li>
+<li><p><strong>figsize</strong> (<em>tuple</em>) – Figure size as <code class="docutils literal notranslate"><span class="pre">(width,</span> <span class="pre">height)</span></code> in inches.</p></li>
+<li><p><strong>bathy_contours</strong> (<em>list</em><em>, </em><em>optional</em>) – Explicit depth contour levels (m). If None, contours are derived from
+<em>bathy_stride</em> automatically.</p></li>
+<li><p><strong>lat_bounds</strong> (<em>list</em><em>, </em><em>optional</em>) – <code class="docutils literal notranslate"><span class="pre">[min_lat,</span> <span class="pre">max_lat]</span></code> in decimal degrees. If None, bounds are
+calculated from the cruise track.</p></li>
+<li><p><strong>lon_bounds</strong> (<em>list</em><em>, </em><em>optional</em>) – <code class="docutils literal notranslate"><span class="pre">[min_lon,</span> <span class="pre">max_lon]</span></code> in decimal degrees. If None, bounds are
+calculated from the cruise track.</p></li>
+<li><p><strong>no_ports</strong> (<em>bool</em>) – If True, departure and arrival ports are excluded from the map.
+Default is False.</p></li>
+<li><p><strong>no_title</strong> (<em>bool</em>) – If True, the cruise title is omitted from the map. Default is False.</p></li>
+<li><p><strong>no_labels</strong> (<em>bool</em>) – If True, station name annotations are omitted. Default is False.</p></li>
+<li><p><strong>no_legend</strong> (<em>bool</em>) – If True, the legend is omitted. Default is False.</p></li>
+<li><p><strong>suffix</strong> (<em>str</em>) – Filename suffix inserted before <code class="docutils literal notranslate"><span class="pre">.png</span></code> (default: <code class="docutils literal notranslate"><span class="pre">&quot;map&quot;</span></code>).</p></li>
+<li><p><strong>max_depth</strong> (<em>int</em><em>, </em><em>optional</em>) – Maximum water depth (m) for the bathymetry colour scale. If None,
+the full -8000 to +200 m range is used.</p></li>
+<li><p><strong>include_eez</strong> (<em>bool</em>) – If True, EEZ boundaries from Marine Regions v12 are overlaid
+(visualization only; data downloaded and cached on first use).
+Default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Absolute path to the generated PNG file, or None if generation failed.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Path or None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">

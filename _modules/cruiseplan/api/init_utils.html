@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.api.init_utils &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev65</title>
+  <title>cruiseplan.api.init_utils &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev66</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=edc10c39"></script>
+      <script src="../../../_static/documentation_options.js?v=da398653"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -324,7 +324,66 @@
     <span class="n">max_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">include_eez</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate PNG map output.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a PNG map and write it to disk.</span>
+
+<span class="sd">    Thin wrapper around ``generate_map_from_timeline`` that constructs the</span>
+<span class="sd">    output path from *output_dir_path*, *base_name*, and *suffix*, then</span>
+<span class="sd">    delegates all rendering work downstream.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cruise : CruiseInstance</span>
+<span class="sd">        Loaded cruise object; passed as ``config`` to the map generator for</span>
+<span class="sd">        port extraction and cruise metadata.</span>
+<span class="sd">    timeline : list</span>
+<span class="sd">        Timeline data from the scheduler (list of activity dicts with</span>
+<span class="sd">        coordinates).</span>
+<span class="sd">    output_dir_path : Path</span>
+<span class="sd">        Directory where the PNG file will be written.</span>
+<span class="sd">    base_name : str</span>
+<span class="sd">        Filename stem; the output file is ``{base_name}_{suffix}.png``.</span>
+<span class="sd">    bathy_source : str</span>
+<span class="sd">        Bathymetry dataset identifier (e.g. ``&quot;gebco2025&quot;``).</span>
+<span class="sd">    bathy_dir : str</span>
+<span class="sd">        Path to the directory containing bathymetry netCDF files.</span>
+<span class="sd">    bathy_stride : int</span>
+<span class="sd">        Downsampling stride for bathymetry contours (higher = faster, less detail).</span>
+<span class="sd">    figsize : tuple</span>
+<span class="sd">        Figure size as ``(width, height)`` in inches.</span>
+<span class="sd">    bathy_contours : list, optional</span>
+<span class="sd">        Explicit depth contour levels (m). If None, contours are derived from</span>
+<span class="sd">        *bathy_stride* automatically.</span>
+<span class="sd">    lat_bounds : list, optional</span>
+<span class="sd">        ``[min_lat, max_lat]`` in decimal degrees. If None, bounds are</span>
+<span class="sd">        calculated from the cruise track.</span>
+<span class="sd">    lon_bounds : list, optional</span>
+<span class="sd">        ``[min_lon, max_lon]`` in decimal degrees. If None, bounds are</span>
+<span class="sd">        calculated from the cruise track.</span>
+<span class="sd">    no_ports : bool</span>
+<span class="sd">        If True, departure and arrival ports are excluded from the map.</span>
+<span class="sd">        Default is False.</span>
+<span class="sd">    no_title : bool</span>
+<span class="sd">        If True, the cruise title is omitted from the map. Default is False.</span>
+<span class="sd">    no_labels : bool</span>
+<span class="sd">        If True, station name annotations are omitted. Default is False.</span>
+<span class="sd">    no_legend : bool</span>
+<span class="sd">        If True, the legend is omitted. Default is False.</span>
+<span class="sd">    suffix : str</span>
+<span class="sd">        Filename suffix inserted before ``.png`` (default: ``&quot;map&quot;``).</span>
+<span class="sd">    max_depth : int, optional</span>
+<span class="sd">        Maximum water depth (m) for the bathymetry colour scale. If None,</span>
+<span class="sd">        the full -8000 to +200 m range is used.</span>
+<span class="sd">    include_eez : bool</span>
+<span class="sd">        If True, EEZ boundaries from Marine Regions v12 are overlaid</span>
+<span class="sd">        (visualization only; data downloaded and cached on first use).</span>
+<span class="sd">        Default is False.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path or None</span>
+<span class="sd">        Absolute path to the generated PNG file, or None if generation failed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.map_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_map_from_timeline</span>
 
     <span class="n">output_path</span> <span class="o">=</span> <span class="n">output_dir_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">.png&quot;</span>

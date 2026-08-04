@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.api.stationplan_api &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev65</title>
+  <title>cruiseplan.api.stationplan_api &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev66</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=edc10c39"></script>
+      <script src="../../../_static/documentation_options.js?v=da398653"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -888,6 +888,36 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">decimal_degrees</span><span class="si">:</span><span class="s2">9.5f</span><span class="si">}</span><span class="s2">&quot;</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_depth_data_to_timeline_record</span><span class="p">(</span>
+    <span class="n">record</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">schedule</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Populate water_depth and operation_depth on *record* from *schedule* if available.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;water_depth&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+            <span class="n">depth_val</span> <span class="o">=</span> <span class="n">schedule</span><span class="o">.</span><span class="n">water_depth</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">depth_val</span><span class="p">)):</span>
+                <span class="n">record</span><span class="p">[</span><span class="s2">&quot;water_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">depth_val</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;operation_depth&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+            <span class="n">op_depth_val</span> <span class="o">=</span> <span class="n">schedule</span><span class="o">.</span><span class="n">operation_depth</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">op_depth_val</span><span class="p">)):</span>
+                <span class="n">record</span><span class="p">[</span><span class="s2">&quot;operation_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">op_depth_val</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+
+<span class="n">_WORK_CODE_BY_TYPE</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;ctd&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="s2">&quot;station&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="s2">&quot;mooring&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="s2">&quot;pies&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="s2">&quot;float&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="s2">&quot;drifter&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="s2">&quot;survey&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+    <span class="s2">&quot;navigation&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;transit&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+<span class="p">}</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_map_activity_to_work_code</span><span class="p">(</span>
     <span class="n">category</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">activity_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -896,28 +926,17 @@
 
 <span class="sd">    Work codes: 1=Transit, 2=CTD, 3=Mooring, 4=PIES, 5=Float/Drifter, 6=Survey</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Normalize inputs to lowercase for case-insensitive comparison</span>
     <span class="n">activity_type_lower</span> <span class="o">=</span> <span class="n">activity_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
     <span class="n">name_lower</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="n">activity_type_lower</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ctd&quot;</span><span class="p">,</span> <span class="s2">&quot;station&quot;</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="mi">2</span>  <span class="c1"># CTD</span>
-    <span class="k">elif</span> <span class="n">activity_type_lower</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mooring&quot;</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="mi">3</span>  <span class="c1"># Mooring</span>
-    <span class="k">elif</span> <span class="n">activity_type_lower</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;pies&quot;</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="mi">4</span>  <span class="c1"># PIES</span>
-    <span class="k">elif</span> <span class="n">activity_type_lower</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">,</span> <span class="s2">&quot;drifter&quot;</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="mi">5</span>  <span class="c1"># Float/Drifter</span>
-    <span class="k">elif</span> <span class="n">activity_type_lower</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;survey&quot;</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="mi">6</span>  <span class="c1"># Survey</span>
-    <span class="k">elif</span> <span class="n">activity_type_lower</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;navigation&quot;</span><span class="p">,</span> <span class="s2">&quot;transit&quot;</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="mi">1</span>  <span class="c1"># Transit</span>
-    <span class="k">elif</span> <span class="n">activity_type_lower</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;unknown&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="s2">&quot;transit_&quot;</span> <span class="ow">in</span> <span class="n">name_lower</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mi">6</span>  <span class="c1"># Survey lines (Transit_X_Y pattern)</span>
-    <span class="k">elif</span> <span class="n">activity_type_lower</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;underway&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="s2">&quot;bathy_&quot;</span> <span class="ow">in</span> <span class="n">name_lower</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mi">6</span>  <span class="c1"># Survey lines (underway operations or Bathy_X_Y pattern)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mi">2</span>  <span class="c1"># Default to CTD for unknown types</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="n">_WORK_CODE_BY_TYPE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">activity_type_lower</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">code</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">code</span>
+    <span class="k">if</span> <span class="n">activity_type_lower</span> <span class="o">==</span> <span class="s2">&quot;unknown&quot;</span> <span class="ow">and</span> <span class="s2">&quot;transit_&quot;</span> <span class="ow">in</span> <span class="n">name_lower</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">6</span>
+    <span class="k">if</span> <span class="n">activity_type_lower</span> <span class="o">==</span> <span class="s2">&quot;underway&quot;</span> <span class="ow">or</span> <span class="s2">&quot;bathy_&quot;</span> <span class="ow">in</span> <span class="n">name_lower</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">6</span>
+    <span class="k">return</span> <span class="mi">2</span>
 
 
 <div class="viewcode-block" id="stationplan_forecast_kml">
@@ -1207,19 +1226,7 @@
                 <span class="s2">&quot;op_type&quot;</span><span class="p">:</span> <span class="n">activity_type</span><span class="p">,</span>
             <span class="p">}</span>
 
-            <span class="c1"># Add operation depth and water depth if available from schedule</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">if</span> <span class="s2">&quot;water_depth&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
-                    <span class="n">depth_val</span> <span class="o">=</span> <span class="n">schedule</span><span class="o">.</span><span class="n">water_depth</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">depth_val</span><span class="p">)):</span>
-                        <span class="n">timeline_record</span><span class="p">[</span><span class="s2">&quot;water_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">depth_val</span><span class="p">)</span>
-
-                <span class="k">if</span> <span class="s2">&quot;operation_depth&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
-                    <span class="n">op_depth_val</span> <span class="o">=</span> <span class="n">schedule</span><span class="o">.</span><span class="n">operation_depth</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">op_depth_val</span><span class="p">)):</span>
-                        <span class="n">timeline_record</span><span class="p">[</span><span class="s2">&quot;operation_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">op_depth_val</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                <span class="k">pass</span>  <span class="c1"># Skip if depth data unavailable</span>
+            <span class="n">_add_depth_data_to_timeline_record</span><span class="p">(</span><span class="n">timeline_record</span><span class="p">,</span> <span class="n">schedule</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
 
             <span class="n">timeline_for_map</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">timeline_record</span><span class="p">)</span>
 
