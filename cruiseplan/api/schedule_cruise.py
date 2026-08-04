@@ -115,13 +115,23 @@ def schedule(  # noqa: C901, PLR0915
     derive_netcdf : bool
         Generate specialized NetCDF files (_points.nc, _lines.nc, _areas.nc) (default: False)
     bathy_source : str
-        Bathymetry dataset (default: "etopo2022")
+        Bathymetry dataset (default: "gebco2025")
     bathy_dir : str
-        Directory containing bathymetry data (default: "data")
+        Directory containing bathymetry data (default: "data/bathymetry")
     bathy_stride : int
         Bathymetry contour stride for PNG maps (default: 10)
-    figsize : list
-        Figure size for PNG maps [width, height] (default: [12, 8])
+    bathy_contours : list, optional
+        Explicit list of depth contours (m) to draw on PNG maps. If None, contours
+        are generated automatically from the bathymetry stride (default: None).
+    lat_bounds : list, optional
+        Latitude bounds [min_lat, max_lat] for PNG map extent. If None, bounds are
+        derived from the cruise track (default: None).
+    lon_bounds : list, optional
+        Longitude bounds [min_lon, max_lon] for PNG map extent. If None, bounds are
+        derived from the cruise track (default: None).
+    figsize : list, optional
+        Figure size for PNG maps [width, height] in inches. If None, [10, 8.1]
+        is used (default: None).
     no_ports : bool
         Exclude ports from PNG schedule maps (default: False)
     no_title : bool

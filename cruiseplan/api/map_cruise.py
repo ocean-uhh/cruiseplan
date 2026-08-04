@@ -112,8 +112,18 @@ def map(
         Directory containing bathymetry data (default: "data/bathymetry")
     bathy_stride : int
         Bathymetry contour stride for map background (default: 5)
-    figsize : list
-        Figure size for PNG maps [width, height] (default: [10, 8.1])
+    bathy_contours : list, optional
+        Explicit list of depth contours (m) to draw on PNG maps. If None, contours
+        are generated automatically from the bathymetry stride (default: None).
+    lat_bounds : list, optional
+        Latitude bounds [min_lat, max_lat] for PNG map extent. If None, bounds are
+        derived from the cruise track (default: None).
+    lon_bounds : list, optional
+        Longitude bounds [min_lon, max_lon] for PNG map extent. If None, bounds are
+        derived from the cruise track (default: None).
+    figsize : list, optional
+        Figure size for PNG maps [width, height] in inches. If None, [10, 8.1]
+        is used (default: None).
     show_plot : bool
         Display plot interactively (default: False)
     no_ports : bool

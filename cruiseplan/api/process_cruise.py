@@ -1192,6 +1192,11 @@ def process(
     ProcessResult
         Structured result with all files created, validation results, and summary
 
+    Raises
+    ------
+    ValueError
+        If ``format`` is not one of ``"png"``, ``"kml"``, or ``"all"``.
+
     Examples
     --------
     >>> import cruiseplan
