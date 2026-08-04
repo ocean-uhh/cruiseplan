@@ -216,7 +216,66 @@ def generate_png_format(
     max_depth: int | None = None,
     include_eez: bool = False,
 ) -> Path | None:
-    """Generate PNG map output."""
+    """
+    Generate a PNG map and write it to disk.
+
+    Thin wrapper around ``generate_map_from_timeline`` that constructs the
+    output path from *output_dir_path*, *base_name*, and *suffix*, then
+    delegates all rendering work downstream.
+
+    Parameters
+    ----------
+    cruise : CruiseInstance
+        Loaded cruise object; passed as ``config`` to the map generator for
+        port extraction and cruise metadata.
+    timeline : list
+        Timeline data from the scheduler (list of activity dicts with
+        coordinates).
+    output_dir_path : Path
+        Directory where the PNG file will be written.
+    base_name : str
+        Filename stem; the output file is ``{base_name}_{suffix}.png``.
+    bathy_source : str
+        Bathymetry dataset identifier (e.g. ``"gebco2025"``).
+    bathy_dir : str
+        Path to the directory containing bathymetry netCDF files.
+    bathy_stride : int
+        Downsampling stride for bathymetry contours (higher = faster, less detail).
+    figsize : tuple
+        Figure size as ``(width, height)`` in inches.
+    bathy_contours : list, optional
+        Explicit depth contour levels (m). If None, contours are derived from
+        *bathy_stride* automatically.
+    lat_bounds : list, optional
+        ``[min_lat, max_lat]`` in decimal degrees. If None, bounds are
+        calculated from the cruise track.
+    lon_bounds : list, optional
+        ``[min_lon, max_lon]`` in decimal degrees. If None, bounds are
+        calculated from the cruise track.
+    no_ports : bool
+        If True, departure and arrival ports are excluded from the map.
+        Default is False.
+    no_title : bool
+        If True, the cruise title is omitted from the map. Default is False.
+    no_labels : bool
+        If True, station name annotations are omitted. Default is False.
+    no_legend : bool
+        If True, the legend is omitted. Default is False.
+    suffix : str
+        Filename suffix inserted before ``.png`` (default: ``"map"``).
+    max_depth : int, optional
+        Maximum water depth (m) for the bathymetry colour scale. If None,
+        the full -8000 to +200 m range is used.
+    include_eez : bool
+        If True, EEZ boundaries from Marine Regions v12 are overlaid
+        (visualization only; data downloaded and cached on first use).
+        Default is False.
+
+    Returns
+    -------
+    Path or None
+        Absolute path to the generated PNG file, or None if generation failed.
+    """
     from cruiseplan.output.map_generator import generate_map_from_timeline
 
     output_path = output_dir_path / f"{base_name}_{suffix}.png"

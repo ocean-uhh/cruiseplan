@@ -9,7 +9,10 @@ individual stations. These functions operate on CruiseInstance objects.
 import logging
 from typing import TYPE_CHECKING
 
+from cruiseplan.config.activities import PointDefinition
 from cruiseplan.data.bathymetry import BathymetryManager
+from cruiseplan.timeline.distance import haversine_distance
+from cruiseplan.utils.plot_config import interpolate_great_circle_position
 
 if TYPE_CHECKING:
     from cruiseplan.runtime.cruise import CruiseInstance
@@ -213,10 +216,6 @@ def expand_sections(
         # Sanitize section name for station naming
         base_name = _sanitize_name_for_stations(section_name)
 
-        # Calculate stations along the route using original inline logic
-        from cruiseplan.timeline.distance import haversine_distance
-        from cruiseplan.utils.plot_config import interpolate_great_circle_position
-
         if not route or len(route) < 2:
             logger.warning(f"No valid route for section {section_name}")
             continue
@@ -273,9 +272,6 @@ def expand_sections(
             station_name = _generate_unique_name(
                 base_station_name, cruise_instance.point_registry
             )
-
-            # Create PointDefinition
-            from cruiseplan.config.activities import PointDefinition
 
             station_attrs = {
                 "name": station_name,

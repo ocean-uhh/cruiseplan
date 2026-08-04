@@ -50,35 +50,23 @@ def map_work_codes(category: str, activity_type: str, action: str) -> int:
     activity_type = activity_type.lower().strip()
     action = action.lower().strip()
 
-    # Transit activities
     if category == "transit":
         return 1
 
-    # Point operations by type
     if category == "point_operation":
-        if "ctd" in activity_type:
-            return 2
-        elif "mooring" in activity_type:
-            return 3
-        elif "pies" in activity_type:
-            return 4
-        elif "float" in activity_type or "drifter" in activity_type:
-            return 5
-
-    # Survey operations (other category)
-    if category == "other":
-        if any(
-            word in activity_type.lower()
-            for word in ["survey", "multibeam", "bathymetry"]
+        for code, keywords in (
+            (2, ["ctd"]),
+            (3, ["mooring"]),
+            (4, ["pies"]),
+            (5, ["float", "drifter"]),
         ):
-            return 6
-        # Ports and other non-survey activities default to survey code
-        return 6
+            if any(kw in activity_type for kw in keywords):
+                return code
 
-    # Default fallback - log unknown combinations
-    logger.warning(
-        f"Unknown activity combination: category='{category}', type='{activity_type}', action='{action}' - defaulting to code 6"
-    )
+    if category not in {"transit", "point_operation", "other"}:
+        logger.warning(
+            f"Unknown activity combination: category='{category}', type='{activity_type}', action='{action}' - defaulting to code 6"
+        )
     return 6
 
 

@@ -1,4 +1,3 @@
-from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -100,7 +99,7 @@ def test_real_pangaea_workflow_1():
 
 
 @pytest.mark.slow
-def test_real_pangaea_workflow(caplog):
+def test_real_pangaea_workflow(caplog, tmp_path):
     """
     Connects to Pangaea, downloads a known simple dataset, and merges it.
     """
@@ -135,11 +134,9 @@ def test_real_pangaea_workflow(caplog):
     assert "VA176" in track["label"]
 
     # 4. VISUALIZE
-    # Create test_output directory if it doesn't exist
-    output_dir = Path("tests_output")
+    # Output written to tmp_path; run with --basetemp=./debug_output to inspect
+    output_dir = tmp_path / "output"
     output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Save to tests_output/test_map_VA176.html
     output_path = output_dir / "test_map_VA176.html"
 
     # Generate

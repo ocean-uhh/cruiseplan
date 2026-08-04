@@ -2,7 +2,6 @@
 Integration tests for NetCDF generator with real YAML fixture files.
 """
 
-import shutil
 import tempfile
 from pathlib import Path
 
@@ -20,22 +19,12 @@ TEST_FIXTURES = [
     "tests/fixtures/tc4_mixed_ops.yaml",
 ]
 
-# NetCDF output directory
-NETCDF_OUTPUT_DIR = Path("tests_output/netcdf")
-
-
-def clean_netcdf_directory(output_path: Path):
-    """Clean and recreate NetCDF output directory."""
-    if output_path.exists():
-        shutil.rmtree(output_path)
-    output_path.mkdir(parents=True, exist_ok=True)
-
 
 class TestNetCDFIntegration:
     """Integration tests for NetCDF generator with actual YAML configurations."""
 
     @pytest.mark.parametrize("yaml_path", TEST_FIXTURES)
-    def test_netcdf_generation_all_fixtures(self, yaml_path):
+    def test_netcdf_generation_all_fixtures(self, yaml_path, tmp_path):
         """Test NetCDF generation with all available YAML fixtures."""
         # Create temporary enriched file
         with tempfile.NamedTemporaryFile(
@@ -56,10 +45,10 @@ class TestNetCDFIntegration:
             timeline = generate_timeline(cruise)
             assert len(timeline) > 0, f"Timeline should not be empty for {yaml_path}"
 
-            # Generate NetCDF outputs to dedicated directory
+            # Output written to tmp_path; run with --basetemp=./debug_output to inspect
             fixture_name = Path(yaml_path).stem
-            output_path = NETCDF_OUTPUT_DIR / f"all_fixtures/{fixture_name}"
-            clean_netcdf_directory(output_path)
+            output_path = tmp_path / "netcdf" / fixture_name
+            output_path.mkdir(parents=True, exist_ok=True)
             netcdf_files = generate_netcdf_outputs(cruise.config, timeline, output_path)
 
             # Verify files were created
@@ -119,7 +108,7 @@ class TestNetCDFIntegration:
                         f"Variable {var_name} missing 'long_name' attribute"
                     )
 
-    def test_empty_configuration_handling(self):
+    def test_empty_configuration_handling(self, tmp_path):
         """Test NetCDF generation with minimal/empty configuration."""
         # Create a minimal config with no stations
         from cruiseplan.config.activities import PointDefinition
@@ -152,8 +141,9 @@ class TestNetCDFIntegration:
         cruise = CruiseInstance.from_dict(minimal_config.model_dump())
         timeline = generate_timeline(cruise)
 
-        output_path = NETCDF_OUTPUT_DIR / "empty_config"
-        clean_netcdf_directory(output_path)
+        # Output written to tmp_path; run with --basetemp=./debug_output to inspect
+        output_path = tmp_path / "netcdf" / "empty_config"
+        output_path.mkdir(parents=True, exist_ok=True)
         netcdf_files = generate_netcdf_outputs(minimal_config, timeline, output_path)
 
         # Should still create all files, even if empty

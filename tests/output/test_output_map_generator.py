@@ -606,6 +606,7 @@ class TestGenerateMapFromYaml:
             no_title=False,
             no_labels=False,
             no_legend=False,
+            include_eez=False,
         )
 
 

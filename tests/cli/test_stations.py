@@ -117,6 +117,7 @@ class TestMainCommand:
         mock_load_pangaea,
         mock_show,
         mock_picker_class,
+        tmp_path,
     ):
         """Test main command with PANGAEA data."""
         # Setup mocks
@@ -131,12 +132,16 @@ class TestMainCommand:
         mock_picker = MagicMock()
         mock_picker_class.return_value = mock_picker
 
+        # Output written to tmp_path; run with --basetemp=./debug_output to inspect
+        output_dir = tmp_path / "output"
+        output_dir.mkdir(parents=True, exist_ok=True)
+
         # Create args
         args = Namespace(
             pangaea_file=Path("pangaea.pkl"),
             lat=[50.0, 60.0],
             lon=[-20.0, -10.0],
-            output_dir=Path("tests_output"),
+            output_dir=output_dir,
             output_file=None,
             bathy_source="etopo2022",
             bathy_dir=Path("data"),
@@ -158,7 +163,7 @@ class TestMainCommand:
     @patch("matplotlib.pyplot.show")
     @patch("cruiseplan.api.stations_api.validate_output_directory")
     def test_main_without_pangaea(
-        self, mock_validate_output, mock_show, mock_picker_class
+        self, mock_validate_output, mock_show, mock_picker_class, tmp_path
     ):
         """Test main command without PANGAEA data."""
         mock_validate_output.return_value = Path("/test/stations.yaml")
@@ -166,11 +171,15 @@ class TestMainCommand:
         mock_picker = MagicMock()
         mock_picker_class.return_value = mock_picker
 
+        # Output written to tmp_path; run with --basetemp=./debug_output to inspect
+        output_dir = tmp_path / "output"
+        output_dir.mkdir(parents=True, exist_ok=True)
+
         args = Namespace(
             pangaea_file=None,
             lat=[50.0, 60.0],
             lon=[-20.0, -10.0],
-            output_dir=Path("tests_output"),
+            output_dir=output_dir,
             output_file=None,
             bathy_source="etopo2022",
             bathy_dir=Path("data"),
@@ -185,7 +194,7 @@ class TestMainCommand:
         mock_picker_class.assert_called_once()
         mock_picker.show.assert_called_once()
 
-    def test_main_no_matplotlib(self):
+    def test_main_no_matplotlib(self, tmp_path):
         """Test main command fails gracefully without matplotlib."""
 
         def mock_import(*args, **kwargs):
@@ -197,12 +206,15 @@ class TestMainCommand:
 
         original_import = builtins.__import__
 
+        output_dir = tmp_path / "output"
+        output_dir.mkdir(parents=True, exist_ok=True)
+
         with patch("builtins.__import__", side_effect=mock_import):
             args = Namespace(
                 pangaea_file=None,
                 lat=None,
                 lon=None,
-                output_dir=Path("tests_output"),
+                output_dir=output_dir,
                 output_file=None,
                 bathy_source="etopo2022",
                 verbose=False,
@@ -212,13 +224,16 @@ class TestMainCommand:
             with pytest.raises(SystemExit):
                 run(args)
 
-    def test_main_invalid_bounds(self):
+    def test_main_invalid_bounds(self, tmp_path):
         """Test main command with invalid coordinate bounds."""
+        output_dir = tmp_path / "output"
+        output_dir.mkdir(parents=True, exist_ok=True)
+
         args = Namespace(
             pangaea_file=None,
             lat=[90.0, 45.0],  # Invalid: min > max
             lon=[-20.0, -10.0],
-            output_dir=Path("tests_output"),
+            output_dir=output_dir,
             output_file=None,
             bathy_source="etopo2022",
         )
@@ -227,15 +242,18 @@ class TestMainCommand:
             run(args)
 
     @patch("cruiseplan.api.stations_api.validate_input_file")
-    def test_main_pangaea_file_error(self, mock_validate_input):
+    def test_main_pangaea_file_error(self, mock_validate_input, tmp_path):
         """Test main command with PANGAEA file error."""
         mock_validate_input.side_effect = ValueError("File not found")
+
+        output_dir = tmp_path / "output"
+        output_dir.mkdir(parents=True, exist_ok=True)
 
         args = Namespace(
             pangaea_file=Path("nonexistent.pkl"),
             lat=None,
             lon=None,
-            output_dir=Path("tests_output"),
+            output_dir=output_dir,
             output_file=None,
             bathy_source="etopo2022",
         )
@@ -243,13 +261,16 @@ class TestMainCommand:
         with pytest.raises(SystemExit):
             run(args)
 
-    def test_main_keyboard_interrupt(self):
+    def test_main_keyboard_interrupt(self, tmp_path):
         """Test main command handles keyboard interrupt."""
+        output_dir = tmp_path / "output"
+        output_dir.mkdir(parents=True, exist_ok=True)
+
         args = Namespace(
             pangaea_file=None,
             lat=None,
             lon=None,
-            output_dir=Path("tests_output"),
+            output_dir=output_dir,
             output_file=None,
             bathy_source="etopo2022",
         )

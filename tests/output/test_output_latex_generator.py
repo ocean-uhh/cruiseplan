@@ -12,7 +12,7 @@ from cruiseplan.config.cruise_config import CruiseConfig
 from cruiseplan.output.latex_generator import generate_latex_tables
 
 
-def test_latex_generation_basic():
+def test_latex_generation_basic(tmp_path):
     """Test that LaTeX generation works without crashing."""
     # Mock config
     mock_config = MagicMock(spec=CruiseConfig)
@@ -62,8 +62,9 @@ def test_latex_generation_basic():
         },
     ]
 
-    # Test output directory
-    output_dir = Path("tests_output/test_latex")
+    # Output written to tmp_path; run with --basetemp=./debug_output to inspect
+    output_dir = tmp_path / "test_latex"
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     # Generate LaTeX files - should not crash
     generated_files = generate_latex_tables(mock_config, mock_timeline, output_dir)
@@ -90,7 +91,7 @@ def test_latex_generation_basic():
     # Note: no transits in test data, so no transit entries expected
 
 
-def test_latex_generation_no_double_totals():
+def test_latex_generation_no_double_totals(tmp_path):
     """Test that work days table doesn't have duplicate total rows."""
     mock_config = MagicMock(spec=CruiseConfig)
     mock_config.cruise_name = "No_Doubles_Test"
@@ -120,7 +121,9 @@ def test_latex_generation_no_double_totals():
         }
     ]
 
-    output_dir = Path("tests_output/test_no_doubles")
+    # Output written to tmp_path; run with --basetemp=./debug_output to inspect
+    output_dir = tmp_path / "test_no_doubles"
+    output_dir.mkdir(parents=True, exist_ok=True)
     generated_files = generate_latex_tables(mock_config, mock_timeline, output_dir)
 
     work_days_file = output_dir / "No_Doubles_Test_work_days.tex"
@@ -132,7 +135,7 @@ def test_latex_generation_no_double_totals():
     assert len(generated_files) >= 0  # Should complete without crashing
 
 
-def test_latex_generation_empty_operations():
+def test_latex_generation_empty_operations(tmp_path):
     """Test LaTeX generation handles empty operations gracefully."""
     mock_config = MagicMock(spec=CruiseConfig)
     mock_config.cruise_name = "Empty_Test"
@@ -163,7 +166,9 @@ def test_latex_generation_empty_operations():
         }
     ]
 
-    output_dir = Path("tests_output/test_empty")
+    # Output written to tmp_path; run with --basetemp=./debug_output to inspect
+    output_dir = tmp_path / "test_empty"
+    output_dir.mkdir(parents=True, exist_ok=True)
     generated_files = generate_latex_tables(mock_config, mock_timeline, output_dir)
 
     # Should complete without crashing
