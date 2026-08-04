@@ -561,14 +561,26 @@ class LaTeXGenerator:
         Parameters
         ----------
         records : list[ActivityRecord]
-            ActivityRecord objects (typically from NetCDF reader)
+            ActivityRecord objects (typically from NetCDF reader).
         cruise_name : str
-            Name of cruise for table header
+            Name of cruise for table header. Default is ``"Cruise"``.
+        config : Any, optional
+            Cruise configuration object; used to extract cruise name and date
+            range when provided.
+        logo_path : str or Path, optional
+            Path to a logo image file (PNG, JPG, PDF). If None, the generator
+            searches ``config/images/`` for ``project_logo.*`` or
+            ``institution_logo.*``. If no logo is found, a plain-text title is
+            used instead.
+        workplan_number : str, optional
+            Workplan number printed in the TeX header (e.g. ``"28"``).
+        cruise_title : str, optional
+            Cruise title printed in the TeX header (e.g. ``"MSM142"``).
 
         Returns
         -------
         str
-            TeX table content in letsgo.m format
+            TeX table content in letsgo.m format.
         """
         # Filter out transits for cleaner output (like MATLAB version)
         station_records = [r for r in records if r.activity != "Transit"]
