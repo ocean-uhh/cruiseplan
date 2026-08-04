@@ -214,6 +214,7 @@ def generate_png_format(
     no_legend: bool = False,
     suffix: str = "map",
     max_depth: int | None = None,
+    include_eez: bool = False,
 ) -> Path | None:
     """Generate PNG map output."""
     from cruiseplan.output.map_generator import generate_map_from_timeline
@@ -237,6 +238,7 @@ def generate_png_format(
         no_legend=no_legend,
         config=cruise,
         max_depth=max_depth,
+        include_eez=include_eez,
     )
 
     if map_file:

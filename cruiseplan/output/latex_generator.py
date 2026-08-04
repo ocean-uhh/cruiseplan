@@ -19,13 +19,13 @@ from typing import Any
 import numpy as np
 from jinja2 import Environment, FileSystemLoader
 
-logger = logging.getLogger(__name__)
-
 from cruiseplan.config.cruise_config import CruiseConfig
 from cruiseplan.output.output_utils import is_scientific_operation
 from cruiseplan.timeline.scheduler import ActivityRecord
 from cruiseplan.utils.coordinates import format_position_latex
 from cruiseplan.utils.units import hours_to_days
+
+logger = logging.getLogger(__name__)
 
 
 def _format_depth_for_latex(activity: dict) -> str:

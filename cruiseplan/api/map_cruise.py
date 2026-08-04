@@ -91,6 +91,7 @@ def map(
     no_legend: bool = False,
     verbose: bool = False,
     max_depth: int | None = None,
+    include_eez: bool = False,
 ) -> MapResult:
     """
     Generate cruise track map (mirrors: cruiseplan map).
@@ -125,6 +126,8 @@ def map(
         Omit the legend from PNG output (default: False)
     verbose : bool
         Enable verbose logging (default: False)
+    include_eez : bool
+        Overlay EEZ boundaries (visualization only; data downloaded on first use). Default is False.
 
     Returns
     -------
@@ -184,6 +187,7 @@ def map(
                 no_labels=no_labels,
                 no_legend=no_legend,
                 max_depth=max_depth,
+                include_eez=include_eez,
             )
             if result:
                 generated_files.append(result)

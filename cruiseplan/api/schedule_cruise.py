@@ -94,6 +94,7 @@ def schedule(  # noqa: C901, PLR0915
     no_legend: bool = False,
     verbose: bool = False,
     max_depth: int | None = None,
+    include_eez: bool = False,
 ) -> ScheduleResult:
     """
     Generate cruise schedule (mirrors: cruiseplan schedule).
@@ -134,6 +135,9 @@ def schedule(  # noqa: C901, PLR0915
         provided, clips the deep end so shallow-water structure uses the full colour
         range. Example: ``max_depth=1000`` spans -1000 to +200 m. Default is None
         (full -8000 to +200 m range).
+    include_eez : bool
+        Overlay EEZ boundaries on PNG maps (visualization only; data downloaded on
+        first use). Default is False.
     verbose : bool
         Enable verbose logging (default: False)
 
@@ -304,6 +308,7 @@ def schedule(  # noqa: C901, PLR0915
                     no_legend=no_legend,
                     suffix="schedule",
                     max_depth=max_depth,
+                    include_eez=include_eez,
                 )
                 if output_file:
                     generated_files.append(output_file)

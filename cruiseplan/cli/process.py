@@ -61,6 +61,7 @@ def run(args: argparse.Namespace) -> None:
             no_legend=getattr(args, "no_legend", False),
             verbose=getattr(args, "verbose", False),
             max_depth=getattr(args, "max_depth", None),
+            include_eez=getattr(args, "eez", False),
         )
 
         print("")
@@ -237,6 +238,12 @@ Examples:
         "--no-legend",
         action="store_true",
         help="Omit legend from generated PNG maps",
+    )
+    p.add_argument(
+        "--eez",
+        action="store_true",
+        default=False,
+        help="Overlay EEZ boundaries on PNG maps (visualization only; data downloaded on first use)",
     )
     p.add_argument(
         "--verbose", "-v", action="store_true", help="Enable verbose logging"

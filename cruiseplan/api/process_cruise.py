@@ -1135,6 +1135,7 @@ def process(
     no_legend: bool = False,
     verbose: bool = False,
     max_depth: int | None = None,
+    include_eez: bool = False,
 ) -> ProcessResult:
     """
     Process cruise configuration with unified workflow (mirrors: cruiseplan process).
@@ -1183,6 +1184,8 @@ def process(
         Omit the legend from PNG output (default: False)
     verbose : bool
         Enable verbose logging (default: False)
+    include_eez : bool
+        Overlay EEZ boundaries on PNG maps (default: False; data downloaded on first use)
 
     Returns
     -------
@@ -1282,6 +1285,7 @@ def process(
                 no_legend=no_legend,
                 verbose=verbose,
                 max_depth=max_depth,
+                include_eez=include_eez,
             )
             generated_files.extend(map_result.map_files)
 

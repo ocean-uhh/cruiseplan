@@ -64,6 +64,7 @@ def run(args: argparse.Namespace) -> None:
             no_legend=getattr(args, "no_legend", False),
             verbose=verbose,
             max_depth=getattr(args, "max_depth", None),
+            include_eez=getattr(args, "eez", False),
         )
 
         print("")
@@ -198,6 +199,12 @@ def build_parser(subparsers: argparse._SubParsersAction) -> argparse.ArgumentPar
         "--no-legend",
         action="store_true",
         help="Omit legend from PNG schedule maps",
+    )
+    p.add_argument(
+        "--eez",
+        action="store_true",
+        default=False,
+        help="Overlay EEZ boundaries on PNG schedule maps (visualization only; data downloaded on first use)",
     )
     p.add_argument(
         "--verbose", "-v", action="store_true", help="Enable verbose logging"
