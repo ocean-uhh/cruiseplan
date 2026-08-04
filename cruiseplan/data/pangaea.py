@@ -101,6 +101,49 @@ class PangaeaManager:
             logger.exception("Search failed")
             return []
 
+    def _fetch_single_doi(
+        self,
+        doi: str,
+        i: int,
+        doi_list: list[str],
+        progress_callback: Callable[[int, int, str], None] | None,
+        rate_limit: float | None,
+    ) -> "dict[str, Any] | None":
+        """Fetch one DOI with cache lookup, rate limiting, and progress callbacks.
+
+        Returns the dataset dict, or None if the DOI is invalid or not found.
+        Raises KeyboardInterrupt to signal early exit from the caller's loop.
+        """
+        import time
+
+        if progress_callback:
+            progress_callback(i, len(doi_list), f"Fetching {doi}")
+
+        clean_doi = self._clean_doi(doi)
+        if not clean_doi:
+            logger.warning(f"Skipping invalid DOI: {doi}")
+            if progress_callback:
+                progress_callback(i, len(doi_list), f"Skipping invalid DOI: {doi}")
+            return None
+
+        cache_key = f"pangaea_meta_{clean_doi.replace('/', '_')}"
+        data = self.cache.get(cache_key)
+        if data is None:
+            data = self._fetch_from_api(clean_doi)
+            if data is not None:
+                self.cache.set(cache_key, data)
+
+        if data is not None:
+            if progress_callback:
+                progress_callback(i, len(doi_list), "Retrieved dataset")
+        elif progress_callback:
+            progress_callback(i, len(doi_list), f"No data found for {doi}")
+
+        if rate_limit and i < len(doi_list):
+            time.sleep(1.0 / rate_limit)
+
+        return data
+
     def fetch_datasets(
         self,
         doi_list: list[str],
@@ -127,8 +170,6 @@ class PangaeaManager:
         List[Dict[str, Any]]
             List of dataset dictionaries with standardized metadata.
         """
-        import time
-
         results = []
 
         if progress_callback:
@@ -138,39 +179,11 @@ class PangaeaManager:
 
         for i, doi in enumerate(doi_list, 1):
             try:
-                if progress_callback:
-                    progress_callback(i, len(doi_list), f"Fetching {doi}")
-
-                clean_doi = self._clean_doi(doi)
-                if not clean_doi:
-                    logger.warning(f"Skipping invalid DOI: {doi}")
-                    if progress_callback:
-                        progress_callback(
-                            i, len(doi_list), f"⚠ Skipping invalid DOI: {doi}"
-                        )
-                    continue
-
-                cache_key = f"pangaea_meta_{clean_doi.replace('/', '_')}"
-                data = self.cache.get(cache_key)
-
-                if data is None:
-                    # Fetch fresh from API
-                    data = self._fetch_from_api(clean_doi)
-                    if data is not None:
-                        self.cache.set(cache_key, data)
-
+                data = self._fetch_single_doi(
+                    doi, i, doi_list, progress_callback, rate_limit
+                )
                 if data is not None:
                     results.append(data)
-                    if progress_callback:
-                        progress_callback(i, len(doi_list), "✓ Retrieved dataset")
-                elif progress_callback:
-                    progress_callback(i, len(doi_list), f"⚠ No data found for {doi}")
-
-                # Rate limiting between requests
-                if rate_limit and i < len(doi_list):  # Don't sleep after last request
-                    sleep_time = 1.0 / rate_limit
-                    time.sleep(sleep_time)
-
             except KeyboardInterrupt:
                 if progress_callback:
                     progress_callback(
@@ -179,12 +192,10 @@ class PangaeaManager:
                         f"Processing interrupted at {i - 1}/{len(doi_list)} DOIs",
                     )
                 break
-
             except Exception as e:
                 if progress_callback:
-                    progress_callback(i, len(doi_list), f"✗ Error fetching {doi}: {e}")
+                    progress_callback(i, len(doi_list), f"Error fetching {doi}: {e}")
                 logger.exception(f"Error fetching {doi}")
-                continue
 
         # Merge campaigns if requested
         if merge_campaigns and results:

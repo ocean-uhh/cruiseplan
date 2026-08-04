@@ -158,6 +158,61 @@ background context.
    cruiseplan stations --lat 58 65 --lon -35 -15 \
        -p data/north_atlantic_stations.pkl
 
+cruiseplan run
+--------------
+
+Full pipeline in one step: enrich, validate, map, and schedule. Equivalent to
+running ``cruiseplan process`` followed by ``cruiseplan schedule``, but
+enrichment runs once and the enriched YAML is passed directly to the scheduler.
+
+.. code-block:: bash
+
+   cruiseplan run [-h] [-o OUTPUT_DIR] [--leg LEG]
+                  [--bathy-source {etopo2022,gebco2025}]
+                  [--bathy-dir BATHY_DIR] [--bathy-stride N]
+                  [--bathy-contours DEPTH [DEPTH ...]]
+                  [--max-depth METRES] [--lat MIN MAX] [--lon MIN MAX]
+                  [--figsize WIDTH HEIGHT]
+                  [--no-ports] [--no-title] [--no-labels] [--no-legend]
+                  [--eez] [--verbose]
+                  CONFIG_FILE
+
+**Positional arguments:**
+
+- ``CONFIG_FILE``: Raw YAML cruise configuration file
+
+**Output options:**
+
+- ``-o``, ``--output-dir``: Output directory for all files (default: ``data``)
+- ``--leg``: Generate schedule for a specific leg only
+
+**Bathymetry options** (same as ``cruiseplan process``):
+
+- ``--bathy-source``: Dataset for PNG maps — ``etopo2022`` or ``gebco2025`` (default: ``gebco2025``)
+- ``--bathy-dir``: Directory containing bathymetry files (default: ``data/bathymetry``)
+- ``--bathy-stride``: Downsampling factor — 1 = full resolution, higher = faster (default: 10)
+- ``--bathy-contours DEPTH [DEPTH ...]``: Contour depths in metres; replaces defaults
+- ``--max-depth METRES``: Maximum depth for colour scale
+
+**Map display options** (applied to both process and schedule maps):
+
+- ``--lat MIN MAX``, ``--lon MIN MAX``: Map extent bounds
+- ``--figsize WIDTH HEIGHT``: Figure size in inches
+- ``--no-ports``: Exclude port markers
+- ``--no-title``: Omit title
+- ``--no-labels``: Omit station name labels
+- ``--no-legend``: Omit legend
+- ``--eez``: Overlay EEZ boundaries (visualization only; data downloaded on first use)
+
+**Examples:**
+
+.. code-block:: bash
+
+   cruiseplan run cruise.yaml
+   cruiseplan run cruise.yaml -o results/ --eez
+   cruiseplan run cruise.yaml --leg leg1 --bathy-source gebco2025
+
+
 cruiseplan process
 ------------------
 
