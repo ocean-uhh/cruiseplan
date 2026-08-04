@@ -33,22 +33,18 @@ class TestOutputGenerationValidation:
     @pytest.fixture
     def sample_configs(self):
         """Provide various test configurations to validate against."""
-        # Use absolute paths from project root to data directory
         from pathlib import Path
 
         project_root = Path(__file__).parent.parent.parent
         return [
-            str(project_root / "data" / "fixtures" / "tc1_single_enriched.yaml"),
-            str(project_root / "data" / "fixtures" / "tc2_two_legs_enriched.yaml"),
-            str(project_root / "data" / "fixtures" / "tc3_clusters_enriched.yaml"),
+            str(project_root / "tests" / "fixtures" / "tc1_single.yaml"),
+            str(project_root / "tests" / "fixtures" / "tc2_two_legs.yaml"),
+            str(project_root / "tests" / "fixtures" / "tc3_clusters.yaml"),
         ]
 
     def test_latex_output_generation(self, sample_configs):
         """Test that LaTeX tables generate successfully for all configurations."""
         for config_path in sample_configs:
-            if not Path(config_path).exists():
-                pytest.skip(f"Test fixture {config_path} not found")
-
             with tempfile.TemporaryDirectory() as temp_dir:
                 output_path = Path(temp_dir)
 
@@ -92,9 +88,6 @@ class TestOutputGenerationValidation:
     def test_png_output_generation(self, sample_configs):
         """Test that PNG maps generate successfully for all configurations."""
         for config_path in sample_configs:
-            if not Path(config_path).exists():
-                pytest.skip(f"Test fixture {config_path} not found")
-
             with tempfile.TemporaryDirectory() as temp_dir:
                 output_path = Path(temp_dir)
 
@@ -121,15 +114,10 @@ class TestOutputGenerationValidation:
 
     def test_all_formats_generation(self):
         """Test that all output formats generate successfully together."""
-        # Use absolute path from project root to data directory
         from pathlib import Path
 
         project_root = Path(__file__).parent.parent.parent
-        config_path = str(
-            project_root / "data" / "fixtures" / "tc1_single_enriched.yaml"
-        )
-        if not Path(config_path).exists():
-            pytest.skip(f"Test fixture {config_path} not found")
+        config_path = str(project_root / "tests" / "fixtures" / "tc1_single.yaml")
 
         with tempfile.TemporaryDirectory() as temp_dir:
             output_path = Path(temp_dir)
@@ -209,15 +197,10 @@ class TestSpecificOutputFormats:
 
     def test_latex_table_structure(self):
         """Test that LaTeX output has proper table structure."""
-        # Use absolute path from project root to data directory
         from pathlib import Path
 
         project_root = Path(__file__).parent.parent.parent
-        config_path = str(
-            project_root / "data" / "fixtures" / "tc1_single_enriched.yaml"
-        )
-        if not Path(config_path).exists():
-            pytest.skip(f"Test fixture {config_path} not found")
+        config_path = str(project_root / "tests" / "fixtures" / "tc1_single.yaml")
 
         with tempfile.TemporaryDirectory() as temp_dir:
             output_path = Path(temp_dir)
@@ -248,15 +231,10 @@ class TestSpecificOutputFormats:
     @pytest.mark.slow
     def test_png_map_properties(self):
         """Test that PNG maps have proper dimensions and content."""
-        # Use absolute path from project root to data directory
         from pathlib import Path
 
         project_root = Path(__file__).parent.parent.parent
-        config_path = str(
-            project_root / "data" / "fixtures" / "tc1_single_enriched.yaml"
-        )
-        if not Path(config_path).exists():
-            pytest.skip(f"Test fixture {config_path} not found")
+        config_path = str(project_root / "tests" / "fixtures" / "tc1_single.yaml")
 
         with tempfile.TemporaryDirectory() as temp_dir:
             output_path = Path(temp_dir)

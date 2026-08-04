@@ -492,6 +492,92 @@ def stationplan_forecast_tex(
         return StationplanResult(success=False, message=error_msg, output="")
 
 
+def _activity_to_waypoint_lines(
+    activity: tuple,
+    schedule: object,
+    use_decimal_degrees: bool,
+) -> list[str]:
+    """Convert one forecast activity tuple to 1-2 bridge waypoint lines.
+
+    Returns an empty list for transit activities or malformed tuples.
+    """
+    if len(activity) < 9:
+        return []
+
+    (
+        index,
+        _time,
+        category,
+        activity_type,
+        _action,
+        _duration,
+        latitude,
+        longitude,
+        name,
+    ) = activity
+
+    if category == "transit":
+        return []
+
+    work_code = _map_activity_to_work_code(category, activity_type, name)
+    exit_lat, exit_lon = _resolve_exit_coordinates(
+        schedule, index, latitude, longitude, name, activity_type
+    )
+
+    fmt = _format_decimal_degrees if use_decimal_degrees else _format_ddm_coordinate
+    entry_lat = fmt(latitude, "lat")
+    entry_lon = fmt(longitude, "lon")
+    exit_lat_s = fmt(exit_lat, "lat")
+    exit_lon_s = fmt(exit_lon, "lon")
+
+    if abs(latitude - exit_lat) > 0.001 or abs(longitude - exit_lon) > 0.001:
+        return [
+            f"{work_code}\t{entry_lat}\t{entry_lon}\t{name} Start",
+            f"{work_code}\t{exit_lat_s}\t{exit_lon_s}\t{name} End",
+        ]
+    return [f"{work_code}\t{entry_lat}\t{entry_lon}\t{name}"]
+
+
+def _resolve_exit_coordinates(
+    schedule: object,
+    index: int,
+    latitude: float,
+    longitude: float,
+    name: str,
+    activity_type: str,
+) -> tuple[float, float]:
+    """Return (exit_lat, exit_lon) for an activity, falling back to entry coords.
+
+    Checks explicit exit_latitude/exit_longitude variables first, then falls
+    back to the next waypoint for survey/transit line operations.
+    """
+    if index >= len(schedule.latitude) - 1:
+        return latitude, longitude
+
+    try:
+        if (
+            "exit_latitude" in schedule.variables
+            and "exit_longitude" in schedule.variables
+        ):
+            exit_lat_val = float(schedule.exit_latitude[index].values)
+            exit_lon_val = float(schedule.exit_longitude[index].values)
+            if not (np.isnan(exit_lat_val) or np.isnan(exit_lon_val)):
+                return exit_lat_val, exit_lon_val
+        if (
+            "Transit_" in name
+            or "Bathy_" in name
+            or activity_type in ["survey", "unknown", "underway"]
+        ):
+            next_lat = float(schedule.latitude[index + 1].values)
+            next_lon = float(schedule.longitude[index + 1].values)
+            if not (np.isnan(next_lat) or np.isnan(next_lon)):
+                return next_lat, next_lon
+    except Exception:
+        pass
+
+    return latitude, longitude
+
+
 def stationplan_waypoints(
     schedule_file: str | Path,
     start_index: int,
@@ -603,93 +689,9 @@ def stationplan_waypoints(
 
             # Process activities and convert to waypoints
             for activity in activities:
-                if len(activity) >= 9:
-                    (
-                        index,
-                        _time,
-                        category,
-                        activity_type,
-                        _action,
-                        _duration,
-                        latitude,
-                        longitude,
-                        name,
-                    ) = activity
-
-                    # Skip transit activities (we only want operational stations)
-                    if category == "transit":
-                        continue
-
-                    # Map activity types to work codes
-                    work_code = _map_activity_to_work_code(
-                        category, activity_type, name
-                    )
-
-                    # For stations, we need both entry and exit positions
-                    # Check if we have separate exit coordinates in the original schedule
-                    exit_lat, exit_lon = latitude, longitude  # Default to same position
-
-                    if index < len(schedule.latitude) - 1:
-                        # Look up exit coordinates from original schedule if available
-                        try:
-                            if (
-                                "exit_latitude" in schedule.variables
-                                and "exit_longitude" in schedule.variables
-                            ):
-                                exit_lat_val = float(
-                                    schedule.exit_latitude[index].values
-                                )
-                                exit_lon_val = float(
-                                    schedule.exit_longitude[index].values
-                                )
-                                if not (
-                                    np.isnan(exit_lat_val) or np.isnan(exit_lon_val)
-                                ):
-                                    exit_lat, exit_lon = exit_lat_val, exit_lon_val
-                            # For line operations without explicit exit coordinates,
-                            # use the next waypoint as the exit position
-                            elif (
-                                "Transit_" in name
-                                or "Bathy_" in name
-                                or activity_type in ["survey", "unknown", "underway"]
-                            ):
-                                next_lat = float(schedule.latitude[index + 1].values)
-                                next_lon = float(schedule.longitude[index + 1].values)
-                                if not (np.isnan(next_lat) or np.isnan(next_lon)):
-                                    exit_lat, exit_lon = next_lat, next_lon
-                        except Exception:
-                            pass  # Use entry coordinates as fallback
-
-                    # Convert coordinates to appropriate format
-                    if use_decimal_degrees:
-                        entry_lat_formatted = _format_decimal_degrees(latitude, "lat")
-                        entry_lon_formatted = _format_decimal_degrees(longitude, "lon")
-                        exit_lat_formatted = _format_decimal_degrees(exit_lat, "lat")
-                        exit_lon_formatted = _format_decimal_degrees(exit_lon, "lon")
-                    else:
-                        entry_lat_formatted = _format_ddm_coordinate(latitude, "lat")
-                        entry_lon_formatted = _format_ddm_coordinate(longitude, "lon")
-                        exit_lat_formatted = _format_ddm_coordinate(exit_lat, "lat")
-                        exit_lon_formatted = _format_ddm_coordinate(exit_lon, "lon")
-
-                    # Create waypoint lines
-                    # If start and end are the same, just show one waypoint
-                    if (
-                        abs(latitude - exit_lat) > 0.001
-                        or abs(longitude - exit_lon) > 0.001
-                    ):
-                        # Different start/end positions - show both
-                        waypoint_lines.append(
-                            f"{work_code}\t{entry_lat_formatted}\t{entry_lon_formatted}\t{name} Start"
-                        )
-                        waypoint_lines.append(
-                            f"{work_code}\t{exit_lat_formatted}\t{exit_lon_formatted}\t{name} End"
-                        )
-                    else:
-                        # Same position - show single waypoint without suffix
-                        waypoint_lines.append(
-                            f"{work_code}\t{entry_lat_formatted}\t{entry_lon_formatted}\t{name}"
-                        )
+                waypoint_lines.extend(
+                    _activity_to_waypoint_lines(activity, schedule, use_decimal_degrees)
+                )
 
             # Join all lines
             return "\n".join(waypoint_lines) + "\n"
@@ -830,6 +832,46 @@ def _map_activity_to_work_code(
     return 2
 
 
+def _convert_raw_activity_to_kml_record(activity: tuple) -> dict | None:
+    """Convert a raw forecast activity tuple to a KML-compatible record dict.
+
+    Returns None if the activity should be skipped (invalid coordinates or transit).
+    """
+    import pandas as pd
+
+    if len(activity) < 9:
+        return None
+
+    (
+        _index,
+        time,
+        category,
+        activity_type,
+        action,
+        duration,
+        latitude,
+        longitude,
+        name,
+    ) = activity
+
+    if np.isnan(latitude) or np.isnan(longitude):
+        return None
+
+    if category == "transit":
+        return None
+
+    return {
+        "name": name,
+        "latitude": latitude,
+        "longitude": longitude,
+        "time": pd.to_datetime(time),
+        "category": category,
+        "activity_type": activity_type,
+        "action": action,
+        "duration": duration,
+    }
+
+
 def stationplan_forecast_kml(
     schedule_file: str | Path,
     start_index: int,
@@ -862,8 +904,6 @@ def stationplan_forecast_kml(
         Result object with success status, message, and output path
     """
     try:
-        import pandas as pd
-
         schedule_path = Path(schedule_file)
         if not schedule_path.exists():
             return StationplanResult(
@@ -880,43 +920,11 @@ def stationplan_forecast_kml(
         )
 
         # Convert forecast activities to the format expected by KML generation
-        forecast_activities = []
-
-        for activity in forecast_activities_raw:
-            if len(activity) >= 9:
-                (
-                    _index,
-                    time,
-                    category,
-                    activity_type,
-                    action,
-                    duration,
-                    latitude,
-                    longitude,
-                    name,
-                ) = activity
-
-                # Skip invalid coordinates
-                if np.isnan(latitude) or np.isnan(longitude):
-                    continue
-
-                # Skip transit activities - only include scientific operations
-                if category == "transit":
-                    continue
-
-                # Create activity record compatible with KMLGenerator
-                forecast_activities.append(
-                    {
-                        "name": name,
-                        "latitude": latitude,
-                        "longitude": longitude,
-                        "time": pd.to_datetime(time),
-                        "category": category,
-                        "activity_type": activity_type,
-                        "action": action,
-                        "duration": duration,
-                    }
-                )
+        forecast_activities = [
+            record
+            for activity in forecast_activities_raw
+            if (record := _convert_raw_activity_to_kml_record(activity)) is not None
+        ]
 
         if not forecast_activities:
             return StationplanResult(
