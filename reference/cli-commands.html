@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CLI Commands &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev67</title>
+  <title>CLI Commands &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev68</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=7e41024a"></script>
+      <script src="../_static/documentation_options.js?v=965ba188"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -61,6 +61,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#pre-cruise-planning">Pre-cruise Planning</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#cruiseplan-pangaea">cruiseplan pangaea</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cruiseplan-stations">cruiseplan stations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cruiseplan-run">cruiseplan run</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cruiseplan-process">cruiseplan process</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cruiseplan-schedule">cruiseplan schedule</a></li>
 </ul>
@@ -254,6 +255,56 @@ cruiseplan<span class="w"> </span>stations<span class="w"> </span>data/MSM142_dr
 <span class="c1"># With PANGAEA historical context</span>
 cruiseplan<span class="w"> </span>stations<span class="w"> </span>--lat<span class="w"> </span><span class="m">58</span><span class="w"> </span><span class="m">65</span><span class="w"> </span>--lon<span class="w"> </span>-35<span class="w"> </span>-15<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>-p<span class="w"> </span>data/north_atlantic_stations.pkl
+</pre></div>
+</div>
+</section>
+<section id="cruiseplan-run">
+<h3>cruiseplan run<a class="headerlink" href="#cruiseplan-run" title="Link to this heading"></a></h3>
+<p>Full pipeline in one step: enrich, validate, map, and schedule. Equivalent to
+running <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">process</span></code> followed by <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">schedule</span></code>, but
+enrichment runs once and the enriched YAML is passed directly to the scheduler.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>run<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span><span class="o">[</span>-o<span class="w"> </span>OUTPUT_DIR<span class="o">]</span><span class="w"> </span><span class="o">[</span>--leg<span class="w"> </span>LEG<span class="o">]</span>
+<span class="w">               </span><span class="o">[</span>--bathy-source<span class="w"> </span><span class="o">{</span>etopo2022,gebco2025<span class="o">}]</span>
+<span class="w">               </span><span class="o">[</span>--bathy-dir<span class="w"> </span>BATHY_DIR<span class="o">]</span><span class="w"> </span><span class="o">[</span>--bathy-stride<span class="w"> </span>N<span class="o">]</span>
+<span class="w">               </span><span class="o">[</span>--bathy-contours<span class="w"> </span>DEPTH<span class="w"> </span><span class="o">[</span>DEPTH<span class="w"> </span>...<span class="o">]]</span>
+<span class="w">               </span><span class="o">[</span>--max-depth<span class="w"> </span>METRES<span class="o">]</span><span class="w"> </span><span class="o">[</span>--lat<span class="w"> </span>MIN<span class="w"> </span>MAX<span class="o">]</span><span class="w"> </span><span class="o">[</span>--lon<span class="w"> </span>MIN<span class="w"> </span>MAX<span class="o">]</span>
+<span class="w">               </span><span class="o">[</span>--figsize<span class="w"> </span>WIDTH<span class="w"> </span>HEIGHT<span class="o">]</span>
+<span class="w">               </span><span class="o">[</span>--no-ports<span class="o">]</span><span class="w"> </span><span class="o">[</span>--no-title<span class="o">]</span><span class="w"> </span><span class="o">[</span>--no-labels<span class="o">]</span><span class="w"> </span><span class="o">[</span>--no-legend<span class="o">]</span>
+<span class="w">               </span><span class="o">[</span>--eez<span class="o">]</span><span class="w"> </span><span class="o">[</span>--verbose<span class="o">]</span>
+<span class="w">               </span>CONFIG_FILE
+</pre></div>
+</div>
+<p><strong>Positional arguments:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">CONFIG_FILE</span></code>: Raw YAML cruise configuration file</p></li>
+</ul>
+<p><strong>Output options:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-o</span></code>, <code class="docutils literal notranslate"><span class="pre">--output-dir</span></code>: Output directory for all files (default: <code class="docutils literal notranslate"><span class="pre">data</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--leg</span></code>: Generate schedule for a specific leg only</p></li>
+</ul>
+<p><strong>Bathymetry options</strong> (same as <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">process</span></code>):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--bathy-source</span></code>: Dataset for PNG maps — <code class="docutils literal notranslate"><span class="pre">etopo2022</span></code> or <code class="docutils literal notranslate"><span class="pre">gebco2025</span></code> (default: <code class="docutils literal notranslate"><span class="pre">gebco2025</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--bathy-dir</span></code>: Directory containing bathymetry files (default: <code class="docutils literal notranslate"><span class="pre">data/bathymetry</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--bathy-stride</span></code>: Downsampling factor — 1 = full resolution, higher = faster (default: 10)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--bathy-contours</span> <span class="pre">DEPTH</span> <span class="pre">[DEPTH</span> <span class="pre">...]</span></code>: Contour depths in metres; replaces defaults</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--max-depth</span> <span class="pre">METRES</span></code>: Maximum depth for colour scale</p></li>
+</ul>
+<p><strong>Map display options</strong> (applied to both process and schedule maps):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--lat</span> <span class="pre">MIN</span> <span class="pre">MAX</span></code>, <code class="docutils literal notranslate"><span class="pre">--lon</span> <span class="pre">MIN</span> <span class="pre">MAX</span></code>: Map extent bounds</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--figsize</span> <span class="pre">WIDTH</span> <span class="pre">HEIGHT</span></code>: Figure size in inches</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--no-ports</span></code>: Exclude port markers</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--no-title</span></code>: Omit title</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--no-labels</span></code>: Omit station name labels</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--no-legend</span></code>: Omit legend</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--eez</span></code>: Overlay EEZ boundaries (visualization only; data downloaded on first use)</p></li>
+</ul>
+<p><strong>Examples:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>run<span class="w"> </span>cruise.yaml
+cruiseplan<span class="w"> </span>run<span class="w"> </span>cruise.yaml<span class="w"> </span>-o<span class="w"> </span>results/<span class="w"> </span>--eez
+cruiseplan<span class="w"> </span>run<span class="w"> </span>cruise.yaml<span class="w"> </span>--leg<span class="w"> </span>leg1<span class="w"> </span>--bathy-source<span class="w"> </span>gebco2025
 </pre></div>
 </div>
 </section>

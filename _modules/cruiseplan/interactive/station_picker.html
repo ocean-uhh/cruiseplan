@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.interactive.station_picker &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev67</title>
+  <title>cruiseplan.interactive.station_picker &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev68</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=7e41024a"></script>
+      <script src="../../../_static/documentation_options.js?v=965ba188"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -130,6 +130,33 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.plot_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_colormap</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_picker_operation_type</span><span class="p">(</span><span class="n">operation_type_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OperationTypeEnum</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Map a raw operation type string to an OperationTypeEnum value.&quot;&quot;&quot;</span>
+    <span class="n">_map</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;mooring&quot;</span><span class="p">:</span> <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">MOORING</span><span class="p">,</span>
+        <span class="s2">&quot;CTD&quot;</span><span class="p">:</span> <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">CTD</span><span class="p">,</span>
+        <span class="s2">&quot;water_sampling&quot;</span><span class="p">:</span> <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">WATER_SAMPLING</span><span class="p">,</span>
+        <span class="s2">&quot;calibration&quot;</span><span class="p">:</span> <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">CALIBRATION</span><span class="p">,</span>
+        <span class="s2">&quot;port&quot;</span><span class="p">:</span> <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">PORT</span><span class="p">,</span>
+        <span class="s2">&quot;waypoint&quot;</span><span class="p">:</span> <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">WAYPOINT</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">operation_type_str</span><span class="p">,</span> <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_picker_action</span><span class="p">(</span><span class="n">action_str</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActionEnum</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Map a raw action string to an ActionEnum value.&quot;&quot;&quot;</span>
+    <span class="n">_map</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;deployment&quot;</span><span class="p">:</span> <span class="n">ActionEnum</span><span class="o">.</span><span class="n">DEPLOYMENT</span><span class="p">,</span>
+        <span class="s2">&quot;recovery&quot;</span><span class="p">:</span> <span class="n">ActionEnum</span><span class="o">.</span><span class="n">RECOVERY</span><span class="p">,</span>
+        <span class="s2">&quot;profile&quot;</span><span class="p">:</span> <span class="n">ActionEnum</span><span class="o">.</span><span class="n">PROFILE</span><span class="p">,</span>
+        <span class="s2">&quot;sampling&quot;</span><span class="p">:</span> <span class="n">ActionEnum</span><span class="o">.</span><span class="n">SAMPLING</span><span class="p">,</span>
+        <span class="s2">&quot;calibration&quot;</span><span class="p">:</span> <span class="n">ActionEnum</span><span class="o">.</span><span class="n">CALIBRATION</span><span class="p">,</span>
+        <span class="s2">&quot;mob&quot;</span><span class="p">:</span> <span class="n">ActionEnum</span><span class="o">.</span><span class="n">MOB</span><span class="p">,</span>
+        <span class="s2">&quot;demob&quot;</span><span class="p">:</span> <span class="n">ActionEnum</span><span class="o">.</span><span class="n">DEMOB</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">action_str</span><span class="p">,</span> <span class="n">ActionEnum</span><span class="o">.</span><span class="n">DEFAULT_POINT</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="StationPicker">
@@ -1118,62 +1145,24 @@
     <span class="c1"># --- Helper Functions for Pydantic Model Creation ---</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_create_point_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PointDefinition</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a PointDefinition from raw station picker data.&quot;&quot;&quot;</span>
-        <span class="c1"># Calculate water depth from bathymetry if available</span>
         <span class="n">water_depth</span> <span class="o">=</span> <span class="n">point_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;depth&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">water_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">water_depth</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">9999</span><span class="p">:</span>
             <span class="n">water_depth</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">water_depth</span><span class="p">)),</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">water_depth</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="c1"># Use original name if available (from pre-existing stations), otherwise generate new name</span>
         <span class="n">original_name</span> <span class="o">=</span> <span class="n">point_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
         <span class="n">station_name</span> <span class="o">=</span> <span class="n">original_name</span> <span class="k">if</span> <span class="n">original_name</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;STN_</span><span class="si">{</span><span class="n">index</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">&quot;</span>
-
-        <span class="c1"># Use original fields if available, otherwise use defaults</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.config.values</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActionEnum</span>
-
-        <span class="n">operation_type</span> <span class="o">=</span> <span class="n">point_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;operation_type&quot;</span><span class="p">,</span> <span class="s2">&quot;station&quot;</span><span class="p">)</span>
-        <span class="c1"># Convert string back to enum value if needed</span>
-        <span class="k">if</span> <span class="n">operation_type</span> <span class="o">==</span> <span class="s2">&quot;mooring&quot;</span><span class="p">:</span>
-            <span class="n">operation_type</span> <span class="o">=</span> <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">MOORING</span>
-        <span class="k">elif</span> <span class="n">operation_type</span> <span class="o">==</span> <span class="s2">&quot;CTD&quot;</span><span class="p">:</span>
-            <span class="n">operation_type</span> <span class="o">=</span> <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">CTD</span>
-        <span class="k">elif</span> <span class="n">operation_type</span> <span class="o">==</span> <span class="s2">&quot;water_sampling&quot;</span><span class="p">:</span>
-            <span class="n">operation_type</span> <span class="o">=</span> <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">WATER_SAMPLING</span>
-        <span class="k">elif</span> <span class="n">operation_type</span> <span class="o">==</span> <span class="s2">&quot;calibration&quot;</span><span class="p">:</span>
-            <span class="n">operation_type</span> <span class="o">=</span> <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">CALIBRATION</span>
-        <span class="k">elif</span> <span class="n">operation_type</span> <span class="o">==</span> <span class="s2">&quot;port&quot;</span><span class="p">:</span>
-            <span class="n">operation_type</span> <span class="o">=</span> <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">PORT</span>
-        <span class="k">elif</span> <span class="n">operation_type</span> <span class="o">==</span> <span class="s2">&quot;waypoint&quot;</span><span class="p">:</span>
-            <span class="n">operation_type</span> <span class="o">=</span> <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">WAYPOINT</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">operation_type</span> <span class="o">=</span> <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">DEFAULT</span>  <span class="c1"># fallback for unknown types</span>
-
-        <span class="n">action</span> <span class="o">=</span> <span class="n">point_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;deployment&quot;</span><span class="p">:</span>
-            <span class="n">action</span> <span class="o">=</span> <span class="n">ActionEnum</span><span class="o">.</span><span class="n">DEPLOYMENT</span>
-        <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;recovery&quot;</span><span class="p">:</span>
-            <span class="n">action</span> <span class="o">=</span> <span class="n">ActionEnum</span><span class="o">.</span><span class="n">RECOVERY</span>
-        <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;profile&quot;</span><span class="p">:</span>
-            <span class="n">action</span> <span class="o">=</span> <span class="n">ActionEnum</span><span class="o">.</span><span class="n">PROFILE</span>
-        <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;sampling&quot;</span><span class="p">:</span>
-            <span class="n">action</span> <span class="o">=</span> <span class="n">ActionEnum</span><span class="o">.</span><span class="n">SAMPLING</span>
-        <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;calibration&quot;</span><span class="p">:</span>
-            <span class="n">action</span> <span class="o">=</span> <span class="n">ActionEnum</span><span class="o">.</span><span class="n">CALIBRATION</span>
-        <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;mob&quot;</span><span class="p">:</span>
-            <span class="n">action</span> <span class="o">=</span> <span class="n">ActionEnum</span><span class="o">.</span><span class="n">MOB</span>
-        <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;demob&quot;</span><span class="p">:</span>
-            <span class="n">action</span> <span class="o">=</span> <span class="n">ActionEnum</span><span class="o">.</span><span class="n">DEMOB</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">action</span> <span class="o">=</span> <span class="n">ActionEnum</span><span class="o">.</span><span class="n">DEFAULT_POINT</span>  <span class="c1"># fallback</span>
-
+        <span class="n">operation_type</span> <span class="o">=</span> <span class="n">_parse_picker_operation_type</span><span class="p">(</span>
+            <span class="n">point_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;operation_type&quot;</span><span class="p">,</span> <span class="s2">&quot;station&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="n">_parse_picker_action</span><span class="p">(</span><span class="n">point_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">))</span>
         <span class="n">comment</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">point_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;comment&quot;</span><span class="p">)</span>
             <span class="ow">or</span> <span class="s2">&quot;Interactive selection - Review coordinates and update operation details&quot;</span>
         <span class="p">)</span>
         <span class="n">duration</span> <span class="o">=</span> <span class="n">point_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;duration&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Build the PointDefinition with all available fields</span>
         <span class="n">point_attrs</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">station_name</span><span class="p">,</span>
             <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">point_data</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">]),</span> <span class="mi">5</span><span class="p">),</span>
@@ -1182,8 +1171,6 @@
             <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="n">operation_type</span><span class="p">,</span>
             <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="n">action</span><span class="p">,</span>
         <span class="p">}</span>
-
-        <span class="c1"># Add optional fields if they exist</span>
         <span class="k">if</span> <span class="n">water_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">point_attrs</span><span class="p">[</span><span class="s2">&quot;water_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">water_depth</span>
         <span class="k">if</span> <span class="n">duration</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>

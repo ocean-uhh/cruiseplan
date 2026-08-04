@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.api.stationplan_api &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev67</title>
+  <title>cruiseplan.api.stationplan_api &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev68</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=7e41024a"></script>
+      <script src="../../../_static/documentation_options.js?v=965ba188"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -98,6 +98,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -383,6 +384,128 @@
 
 
 
+<span class="k">class</span><span class="w"> </span><span class="nc">_ForecastRecord</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Lightweight record holding processed forecast activity data for TeX output.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_lookup_schedule_depth_data</span><span class="p">(</span><span class="n">schedule</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Look up water_depth, operation_depth, and comment from a NetCDF schedule.</span>
+
+<span class="sd">    Returns (water_depth, operation_depth, comment) with None/empty defaults.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">water_depth</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">operation_depth</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">comment</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="s2">&quot;water_depth&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">depth_val</span> <span class="o">=</span> <span class="n">schedule</span><span class="o">.</span><span class="n">water_depth</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+            <span class="k">if</span> <span class="n">depth_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">depth_val</span><span class="p">)):</span>
+                <span class="n">water_depth</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">depth_val</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="k">pass</span>
+
+    <span class="k">if</span> <span class="s2">&quot;operation_depth&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">op_depth_val</span> <span class="o">=</span> <span class="n">schedule</span><span class="o">.</span><span class="n">operation_depth</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+            <span class="k">if</span> <span class="n">op_depth_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">op_depth_val</span><span class="p">)):</span>
+                <span class="n">operation_depth</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">op_depth_val</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="k">pass</span>
+
+    <span class="k">if</span> <span class="s2">&quot;comment&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+        <span class="n">comment_val</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">schedule</span><span class="o">.</span><span class="n">comment</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">comment_val</span> <span class="ow">and</span> <span class="n">comment_val</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;nan&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">}:</span>
+            <span class="n">comment</span> <span class="o">=</span> <span class="n">comment_val</span>
+
+    <span class="k">return</span> <span class="n">water_depth</span><span class="p">,</span> <span class="n">operation_depth</span><span class="p">,</span> <span class="n">comment</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_lookup_tex_exit_coords</span><span class="p">(</span>
+    <span class="n">schedule</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">latitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">longitude</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return exit (lat, lon) from schedule variables, falling back to entry coords.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="s2">&quot;exit_latitude&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span>
+            <span class="ow">and</span> <span class="s2">&quot;exit_longitude&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span>
+        <span class="p">):</span>
+            <span class="n">exit_lat_val</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">schedule</span><span class="o">.</span><span class="n">exit_latitude</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+            <span class="n">exit_lon_val</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">schedule</span><span class="o">.</span><span class="n">exit_longitude</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">exit_lat_val</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">exit_lon_val</span><span class="p">)):</span>
+                <span class="k">return</span> <span class="n">exit_lat_val</span><span class="p">,</span> <span class="n">exit_lon_val</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_tex_forecast_record</span><span class="p">(</span>
+    <span class="n">schedule</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">activity_tuple</span><span class="p">:</span> <span class="nb">tuple</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;_ForecastRecord | None&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert one forecast activity tuple to a _ForecastRecord for TeX output.</span>
+
+<span class="sd">    Returns None for transit activities.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="p">(</span>
+        <span class="n">_idx</span><span class="p">,</span>
+        <span class="n">time</span><span class="p">,</span>
+        <span class="n">category</span><span class="p">,</span>
+        <span class="n">activity_type</span><span class="p">,</span>
+        <span class="n">action</span><span class="p">,</span>
+        <span class="n">duration</span><span class="p">,</span>
+        <span class="n">latitude</span><span class="p">,</span>
+        <span class="n">longitude</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">=</span> <span class="n">activity_tuple</span>
+
+    <span class="k">if</span> <span class="n">category</span> <span class="o">==</span> <span class="s2">&quot;transit&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">water_depth</span><span class="p">,</span> <span class="n">operation_depth</span><span class="p">,</span> <span class="n">comment</span> <span class="o">=</span> <span class="n">_lookup_schedule_depth_data</span><span class="p">(</span><span class="n">schedule</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+    <span class="n">exit_lat</span><span class="p">,</span> <span class="n">exit_lon</span> <span class="o">=</span> <span class="n">_lookup_tex_exit_coords</span><span class="p">(</span><span class="n">schedule</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span><span class="p">)</span>
+    <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="n">duration</span><span class="p">)</span>
+
+    <span class="n">operation_distance</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">float</span><span class="p">(</span><span class="n">schedule</span><span class="o">.</span><span class="n">dist_nm</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;dist_nm&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span>
+        <span class="k">else</span> <span class="mf">0.0</span>
+    <span class="p">)</span>
+    <span class="n">next_transit_distance</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">float</span><span class="p">(</span><span class="n">schedule</span><span class="o">.</span><span class="n">distance_to_next</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;distance_to_next&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span>
+        <span class="k">else</span> <span class="mf">0.0</span>
+    <span class="p">)</span>
+
+    <span class="n">record_data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="n">category</span><span class="p">,</span>
+        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+        <span class="s2">&quot;entry_lat&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">latitude</span><span class="p">),</span>
+        <span class="s2">&quot;entry_lon&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">longitude</span><span class="p">),</span>
+        <span class="s2">&quot;exit_lat&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">exit_lat</span><span class="p">),</span>
+        <span class="s2">&quot;exit_lon&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">exit_lon</span><span class="p">),</span>
+        <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="n">time</span><span class="p">,</span>
+        <span class="s2">&quot;end_time&quot;</span><span class="p">:</span> <span class="n">end_time</span><span class="p">,</span>
+        <span class="s2">&quot;duration_minutes&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span> <span class="o">*</span> <span class="mf">60.0</span><span class="p">,</span>
+        <span class="s2">&quot;water_depth&quot;</span><span class="p">:</span> <span class="n">water_depth</span><span class="p">,</span>
+        <span class="s2">&quot;operation_depth&quot;</span><span class="p">:</span> <span class="n">operation_depth</span><span class="p">,</span>
+        <span class="s2">&quot;dist_nm&quot;</span><span class="p">:</span> <span class="n">operation_distance</span><span class="p">,</span>
+        <span class="s2">&quot;transit_dist_nm&quot;</span><span class="p">:</span> <span class="n">next_transit_distance</span><span class="p">,</span>
+        <span class="s2">&quot;vessel_speed_kt&quot;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>
+        <span class="s2">&quot;leg_name&quot;</span><span class="p">:</span> <span class="s2">&quot;forecast&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;op_type&quot;</span><span class="p">:</span> <span class="n">activity_type</span><span class="p">,</span>
+        <span class="s2">&quot;operation_class&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;LineOperation&quot;</span> <span class="k">if</span> <span class="n">operation_distance</span> <span class="o">&gt;</span> <span class="mf">0.1</span> <span class="k">else</span> <span class="s2">&quot;PointOperation&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="n">action</span> <span class="k">if</span> <span class="n">action</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="n">comment</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">_ForecastRecord</span><span class="p">(</span><span class="n">record_data</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="stationplan_forecast_tex">
 <a class="viewcode-back" href="../../../api/cruiseplan.api.html#cruiseplan.api.stationplan_forecast_tex">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">stationplan_forecast_tex</span><span class="p">(</span>
@@ -422,10 +545,6 @@
 <span class="sd">        Result object with success status and generated file path</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-
-        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.forecast.generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_forecast</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.forecast.reader</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_schedule</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.latex_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">LaTeXGenerator</span>
 
         <span class="n">schedule_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">schedule_file</span><span class="p">)</span>
@@ -446,121 +565,16 @@
                 <span class="n">output</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
             <span class="p">)</span>
 
-        <span class="c1"># Convert forecast activities to ActivityRecord objects for TeX generation</span>
-        <span class="c1"># generate_forecast returns tuples: (index, time, category, type, action, duration, lat, lon, name)</span>
-
-        <span class="c1"># No longer need to manually compute transit distances - they&#39;re now in distance_to_next field</span>
-
-        <span class="n">activity_records</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">activity_tuple</span> <span class="ow">in</span> <span class="n">forecast_activities</span><span class="p">:</span>
-            <span class="p">(</span>
-                <span class="n">index</span><span class="p">,</span>
-                <span class="n">time</span><span class="p">,</span>
-                <span class="n">category</span><span class="p">,</span>
-                <span class="n">activity_type</span><span class="p">,</span>
-                <span class="n">action</span><span class="p">,</span>
-                <span class="n">duration</span><span class="p">,</span>
-                <span class="n">latitude</span><span class="p">,</span>
-                <span class="n">longitude</span><span class="p">,</span>
-                <span class="n">name</span><span class="p">,</span>
-            <span class="p">)</span> <span class="o">=</span> <span class="n">activity_tuple</span>
-
-            <span class="c1"># Look up additional data from original schedule using the index</span>
-            <span class="n">water_depth</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="n">operation_depth</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="n">comment</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-
-            <span class="k">if</span> <span class="s2">&quot;water_depth&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">depth_val</span> <span class="o">=</span> <span class="n">schedule</span><span class="o">.</span><span class="n">water_depth</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-                    <span class="k">if</span> <span class="n">depth_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">depth_val</span><span class="p">)):</span>
-                        <span class="n">water_depth</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">depth_val</span><span class="p">)</span>
-                <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
-                    <span class="k">pass</span>  <span class="c1"># Keep water_depth as None</span>
-
-            <span class="k">if</span> <span class="s2">&quot;operation_depth&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">op_depth_val</span> <span class="o">=</span> <span class="n">schedule</span><span class="o">.</span><span class="n">operation_depth</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-                    <span class="k">if</span> <span class="n">op_depth_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">op_depth_val</span><span class="p">)):</span>
-                        <span class="n">operation_depth</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">op_depth_val</span><span class="p">)</span>
-                <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
-                    <span class="k">pass</span>  <span class="c1"># Keep operation_depth as None</span>
-
-            <span class="k">if</span> <span class="s2">&quot;comment&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
-                <span class="n">comment_val</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">schedule</span><span class="o">.</span><span class="n">comment</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">comment_val</span> <span class="ow">and</span> <span class="n">comment_val</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;nan&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">}:</span>
-                    <span class="n">comment</span> <span class="o">=</span> <span class="n">comment_val</span>
-
-            <span class="c1"># Look up exit coordinates if available</span>
-            <span class="n">exit_lat</span><span class="p">,</span> <span class="n">exit_lon</span> <span class="o">=</span> <span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span>  <span class="c1"># Default to same position</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">if</span> <span class="p">(</span>
-                    <span class="s2">&quot;exit_latitude&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span>
-                    <span class="ow">and</span> <span class="s2">&quot;exit_longitude&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span>
-                <span class="p">):</span>
-                    <span class="n">exit_lat_val</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">schedule</span><span class="o">.</span><span class="n">exit_latitude</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-                    <span class="n">exit_lon_val</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">schedule</span><span class="o">.</span><span class="n">exit_longitude</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">exit_lat_val</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">exit_lon_val</span><span class="p">)):</span>
-                        <span class="n">exit_lat</span><span class="p">,</span> <span class="n">exit_lon</span> <span class="o">=</span> <span class="n">exit_lat_val</span><span class="p">,</span> <span class="n">exit_lon_val</span>
-            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                <span class="k">pass</span>  <span class="c1"># Use entry coordinates as fallback</span>
-
-            <span class="c1"># Skip transit activities for TeX output (like waypoints)</span>
-            <span class="k">if</span> <span class="n">category</span> <span class="o">==</span> <span class="s2">&quot;transit&quot;</span><span class="p">:</span>
-                <span class="k">continue</span>
-
-            <span class="c1"># Create single record for all operations (including line operations)</span>
-            <span class="c1"># Calculate end time</span>
-            <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
-
-            <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="n">duration</span><span class="p">)</span>
-
-            <span class="c1"># Get operation distance from NetCDF (for line operations)</span>
-            <span class="n">operation_distance</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="nb">float</span><span class="p">(</span><span class="n">schedule</span><span class="o">.</span><span class="n">dist_nm</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-                <span class="k">if</span> <span class="s2">&quot;dist_nm&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span>
-                <span class="k">else</span> <span class="mf">0.0</span>
+        <span class="n">activity_records</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">record</span>
+            <span class="k">for</span> <span class="n">activity_tuple</span> <span class="ow">in</span> <span class="n">forecast_activities</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">record</span> <span class="o">:=</span> <span class="n">_build_tex_forecast_record</span><span class="p">(</span>
+                    <span class="n">schedule</span><span class="p">,</span> <span class="n">activity_tuple</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">activity_tuple</span>
+                <span class="p">)</span>
             <span class="p">)</span>
-
-            <span class="c1"># Get transit distance to next operation from NetCDF distance_to_next field</span>
-            <span class="n">next_transit_distance</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="nb">float</span><span class="p">(</span><span class="n">schedule</span><span class="o">.</span><span class="n">distance_to_next</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-                <span class="k">if</span> <span class="s2">&quot;distance_to_next&quot;</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">variables</span>
-                <span class="k">else</span> <span class="mf">0.0</span>
-            <span class="p">)</span>
-
-            <span class="c1"># Single record for operation</span>
-            <span class="n">record_data</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="n">category</span><span class="p">,</span>
-                <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>  <span class="c1"># Use original name without &quot;Start&quot;/&quot;End&quot;</span>
-                <span class="s2">&quot;entry_lat&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">latitude</span><span class="p">),</span>
-                <span class="s2">&quot;entry_lon&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">longitude</span><span class="p">),</span>
-                <span class="s2">&quot;exit_lat&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">exit_lat</span><span class="p">),</span>
-                <span class="s2">&quot;exit_lon&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">exit_lon</span><span class="p">),</span>
-                <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="n">time</span><span class="p">,</span>
-                <span class="s2">&quot;end_time&quot;</span><span class="p">:</span> <span class="n">end_time</span><span class="p">,</span>
-                <span class="s2">&quot;duration_minutes&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span> <span class="o">*</span> <span class="mf">60.0</span><span class="p">,</span>
-                <span class="s2">&quot;water_depth&quot;</span><span class="p">:</span> <span class="n">water_depth</span><span class="p">,</span>
-                <span class="s2">&quot;operation_depth&quot;</span><span class="p">:</span> <span class="n">operation_depth</span><span class="p">,</span>
-                <span class="s2">&quot;dist_nm&quot;</span><span class="p">:</span> <span class="n">operation_distance</span><span class="p">,</span>  <span class="c1"># Distance of the operation itself</span>
-                <span class="s2">&quot;transit_dist_nm&quot;</span><span class="p">:</span> <span class="n">next_transit_distance</span><span class="p">,</span>  <span class="c1"># Distance to next operation</span>
-                <span class="s2">&quot;vessel_speed_kt&quot;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>
-                <span class="s2">&quot;leg_name&quot;</span><span class="p">:</span> <span class="s2">&quot;forecast&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;op_type&quot;</span><span class="p">:</span> <span class="n">activity_type</span><span class="p">,</span>
-                <span class="s2">&quot;operation_class&quot;</span><span class="p">:</span> <span class="p">(</span>
-                    <span class="s2">&quot;LineOperation&quot;</span> <span class="k">if</span> <span class="n">operation_distance</span> <span class="o">&gt;</span> <span class="mf">0.1</span> <span class="k">else</span> <span class="s2">&quot;PointOperation&quot;</span>
-                <span class="p">),</span>
-                <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="n">action</span> <span class="k">if</span> <span class="n">action</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="n">comment</span><span class="p">,</span>
-            <span class="p">}</span>
-
-            <span class="c1"># Create ActivityRecord-like objects</span>
-            <span class="k">class</span><span class="w"> </span><span class="nc">ForecastRecord</span><span class="p">:</span>
-                <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-                    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-
-            <span class="n">activity_records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ForecastRecord</span><span class="p">(</span><span class="n">record_data</span><span class="p">))</span>
+            <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">]</span>
 
         <span class="c1"># Determine output path</span>
         <span class="k">if</span> <span class="n">output_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>

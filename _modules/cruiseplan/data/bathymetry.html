@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.data.bathymetry &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev67</title>
+  <title>cruiseplan.data.bathymetry &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev68</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=7e41024a"></script>
+      <script src="../../../_static/documentation_options.js?v=965ba188"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -684,6 +684,128 @@
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_local_bathy_file</span><span class="p">(</span><span class="n">target_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check whether a local-only bathymetry file exists and print its size.</span>
+
+<span class="sd">    Returns the file path string if found, False otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="n">filename</span>
+    <span class="k">if</span> <span class="n">file_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">file_size_kb</span> <span class="o">=</span> <span class="n">file_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="o">/</span> <span class="mi">1024</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> bathymetry available at </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">file_size_kb</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> KB)&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ERROR: </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> bathymetry file not found at </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="s2">&quot;   This is a local dataset that should be manually placed in the data/bathymetry directory.&quot;</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="kc">False</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_download_gebco2025</span><span class="p">(</span><span class="n">target_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download GEBCO 2025 bathymetry, or return the existing file path if already present.</span>
+
+<span class="sd">    Returns the file path on success, False if cancelled or download failed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+    <span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">gebco_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="n">GEBCO_NC_FILENAME</span>
+
+    <span class="k">if</span> <span class="n">gebco_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">file_size_gb</span> <span class="o">=</span> <span class="n">gebco_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1024</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">file_size_gb</span> <span class="o">&gt;=</span> <span class="mf">6.9</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File already exists at </span><span class="si">{</span><span class="n">gebco_path</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">file_size_gb</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> GB)&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">gebco_path</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Existing file at </span><span class="si">{</span><span class="n">gebco_path</span><span class="si">}</span><span class="s2"> is incomplete (</span><span class="si">{</span><span class="n">file_size_gb</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> GB)&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Delete incomplete file and redownload? (y/N): &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">response</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;yes&quot;</span><span class="p">):</span>
+                <span class="n">gebco_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Deleted incomplete file. Starting download...&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Keeping incomplete file. Download cancelled.&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">EOFError</span><span class="p">,</span> <span class="ne">KeyboardInterrupt</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Non-interactive environment. Keeping incomplete file.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="n">manager</span> <span class="o">=</span> <span class="n">BathymetryManager</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="n">data_dir</span><span class="o">=</span><span class="n">target_dir</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">manager</span><span class="o">.</span><span class="n">ensure_gebco_2025</span><span class="p">(</span><span class="n">silent_if_exists</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR: GEBCO 2025 download failed.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">gebco_path</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_download_etopo2022</span><span class="p">(</span><span class="n">target_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download ETOPO 2022 bathymetry.</span>
+
+<span class="sd">    Returns the file path on success, the path string if incomplete and kept,</span>
+<span class="sd">    False if cancelled, None if all download URLs failed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+    <span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">local_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="n">ETOPO_FILENAME</span>
+
+    <span class="k">if</span> <span class="n">local_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">file_size_mb</span> <span class="o">=</span> <span class="n">local_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">file_size_mb</span> <span class="o">&gt;=</span> <span class="mi">450</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File already exists at </span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">file_size_mb</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> MB)&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Existing file at </span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2"> is incomplete (</span><span class="si">{</span><span class="n">file_size_mb</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> MB)&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Delete incomplete file and redownload? (y/N): &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">response</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;yes&quot;</span><span class="p">):</span>
+                <span class="n">local_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Deleted incomplete file. Starting download...&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Keeping incomplete file. Download cancelled.&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">EOFError</span><span class="p">,</span> <span class="ne">KeyboardInterrupt</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Non-interactive environment. Keeping incomplete file.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Downloading ETOPO dataset to </span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">ETOPO_URLS</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Attempting download from: </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">resp</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+            <span class="n">resp</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+            <span class="n">total_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Content-Length&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="k">with</span> <span class="p">(</span>
+                <span class="nb">open</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">,</span>
+                <span class="n">tqdm</span><span class="p">(</span>
+                    <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Downloading ETOPO&quot;</span><span class="p">,</span>
+                    <span class="n">total</span><span class="o">=</span><span class="n">total_size</span><span class="p">,</span>
+                    <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;B&quot;</span><span class="p">,</span>
+                    <span class="n">unit_scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">unit_divisor</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
+                <span class="p">)</span> <span class="k">as</span> <span class="n">bar</span><span class="p">,</span>
+            <span class="p">):</span>
+                <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">resp</span><span class="o">.</span><span class="n">iter_content</span><span class="p">(</span><span class="n">chunk_size</span><span class="o">=</span><span class="mi">8192</span><span class="p">):</span>
+                    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+                    <span class="n">bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Download complete!&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to download from </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">local_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="n">local_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;⛔ AUTOMATIC DOWNLOAD FAILED&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Please download the file manually using your browser:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;URL: </span><span class="si">{</span><span class="n">ETOPO_URLS</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Save to: </span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
 <div class="viewcode-block" id="download_bathymetry">
 <a class="viewcode-back" href="../../../api/cruiseplan.data.html#cruiseplan.data.bathymetry.download_bathymetry">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">download_bathymetry</span><span class="p">(</span>
@@ -711,181 +833,16 @@
 <span class="sd">        None if download failed completely.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">:</span>
-        <span class="c1"># Handle GEBCO 2025 download</span>
-        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
-        <span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-        <span class="n">gebco_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="n">GEBCO_NC_FILENAME</span>
-
-        <span class="c1"># Check if file already exists and is complete</span>
-        <span class="k">if</span> <span class="n">gebco_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="n">file_size_gb</span> <span class="o">=</span> <span class="n">gebco_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1024</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">file_size_gb</span> <span class="o">&gt;=</span> <span class="mf">6.9</span><span class="p">:</span>  <span class="c1"># 6.9GB threshold for ~7.5GB file</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File already exists at </span><span class="si">{</span><span class="n">gebco_path</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">file_size_gb</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> GB)&quot;</span><span class="p">)</span>
-                <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">gebco_path</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Existing file at </span><span class="si">{</span><span class="n">gebco_path</span><span class="si">}</span><span class="s2"> is incomplete (</span><span class="si">{</span><span class="n">file_size_gb</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> GB)&quot;</span>
-                <span class="p">)</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">response</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Delete incomplete file and redownload? (y/N): &quot;</span><span class="p">)</span>
-                        <span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-                        <span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-                    <span class="p">)</span>
-                    <span class="k">if</span> <span class="n">response</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;yes&quot;</span><span class="p">):</span>
-                        <span class="n">gebco_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Deleted incomplete file. Starting download...&quot;</span><span class="p">)</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Keeping incomplete file. Download cancelled.&quot;</span><span class="p">)</span>
-                        <span class="k">return</span> <span class="kc">False</span>
-                <span class="k">except</span> <span class="p">(</span><span class="ne">EOFError</span><span class="p">,</span> <span class="ne">KeyboardInterrupt</span><span class="p">):</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Non-interactive environment. Keeping incomplete file.&quot;</span><span class="p">)</span>
-                    <span class="k">return</span> <span class="kc">False</span>
-
-        <span class="c1"># File doesn&#39;t exist or is incomplete, need to download</span>
-        <span class="c1"># Use a fresh BathymetryManager instance for downloading</span>
-        <span class="c1"># Pass only the directory relative to the project root (e.g., &quot;data&quot;) as data_dir.</span>
-        <span class="c1"># BathymetryManager will append &quot;/bathymetry&quot; itself.</span>
-        <span class="n">manager</span> <span class="o">=</span> <span class="n">BathymetryManager</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="n">data_dir</span><span class="o">=</span><span class="n">target_dir</span><span class="p">)</span>
-        <span class="n">success</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">ensure_gebco_2025</span><span class="p">(</span><span class="n">silent_if_exists</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;❌ GEBCO 2025 download failed.&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="kc">False</span>
-        <span class="c1"># Return file path on success</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">gebco_path</span><span class="p">)</span>
-
-    <span class="k">elif</span> <span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;msm142&quot;</span><span class="p">:</span>
-        <span class="c1"># Handle legacy MSM142 bathymetry (already local, just check availability)</span>
-        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
-        <span class="n">msm142_legacy_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="n">MSM142_LEGACY_NC_FILENAME</span>
-
-        <span class="k">if</span> <span class="n">msm142_legacy_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="n">file_size_kb</span> <span class="o">=</span> <span class="n">msm142_legacy_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="o">/</span> <span class="mi">1024</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;MSM142 (legacy) bathymetry available at </span><span class="si">{</span><span class="n">msm142_legacy_path</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">file_size_kb</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> KB)&quot;</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">msm142_legacy_path</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;❌ MSM142 (legacy) bathymetry file not found at </span><span class="si">{</span><span class="n">msm142_legacy_path</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="s2">&quot;   This is a local dataset that should be manually placed in the data/bathymetry directory.&quot;</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="k">elif</span> <span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;msm142_jj&quot;</span><span class="p">:</span>
-        <span class="c1"># Handle MSM142_JJ bathymetry (already local, just check availability)</span>
-        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
-        <span class="n">msm142_jj_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="n">MSM142_JJ_NC_FILENAME</span>
-
-        <span class="k">if</span> <span class="n">msm142_jj_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="n">file_size_kb</span> <span class="o">=</span> <span class="n">msm142_jj_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="o">/</span> <span class="mi">1024</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;MSM142_JJ bathymetry available at </span><span class="si">{</span><span class="n">msm142_jj_path</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">file_size_kb</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> KB)&quot;</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">msm142_jj_path</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ MSM142_JJ bathymetry file not found at </span><span class="si">{</span><span class="n">msm142_jj_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="s2">&quot;   This is a local dataset that should be manually placed in the data/bathymetry directory.&quot;</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="k">elif</span> <span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;msm142_dt&quot;</span><span class="p">:</span>
-        <span class="c1"># Handle MSM142_DT bathymetry (already local, just check availability)</span>
-        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
-        <span class="n">msm142_dt_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="n">MSM142_DT_NC_FILENAME</span>
-
-        <span class="k">if</span> <span class="n">msm142_dt_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="n">file_size_kb</span> <span class="o">=</span> <span class="n">msm142_dt_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="o">/</span> <span class="mi">1024</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;MSM142_DT bathymetry available at </span><span class="si">{</span><span class="n">msm142_dt_path</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">file_size_kb</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> KB)&quot;</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">msm142_dt_path</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ MSM142_DT bathymetry file not found at </span><span class="si">{</span><span class="n">msm142_dt_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="s2">&quot;   This is a local dataset that should be manually placed in the data/bathymetry directory.&quot;</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="c1"># Handle ETOPO 2022 download (existing logic)</span>
-    <span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
-    <span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="n">local_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="n">ETOPO_FILENAME</span>
-
-    <span class="k">if</span> <span class="n">local_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-        <span class="c1"># Check if existing file is complete (actual file is ~491 MB)</span>
-        <span class="n">file_size_mb</span> <span class="o">=</span> <span class="n">local_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">file_size_mb</span> <span class="o">&gt;=</span> <span class="mi">450</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File already exists at </span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">file_size_mb</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> MB)&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Existing file at </span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2"> is incomplete (</span><span class="si">{</span><span class="n">file_size_mb</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> MB)&quot;</span>
-            <span class="p">)</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">response</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Delete incomplete file and redownload? (y/N): &quot;</span><span class="p">)</span>
-                    <span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-                    <span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-                <span class="p">)</span>
-                <span class="k">if</span> <span class="n">response</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;yes&quot;</span><span class="p">):</span>
-                    <span class="n">local_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Deleted incomplete file. Starting download...&quot;</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Keeping incomplete file. Download cancelled.&quot;</span><span class="p">)</span>
-                    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span>  <span class="c1"># Return path even if incomplete</span>
-            <span class="k">except</span> <span class="p">(</span><span class="ne">EOFError</span><span class="p">,</span> <span class="ne">KeyboardInterrupt</span><span class="p">):</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Non-interactive environment. Keeping incomplete file.&quot;</span><span class="p">)</span>
-                <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span>  <span class="c1"># Return path even if incomplete</span>
-
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Downloading ETOPO dataset to </span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">ETOPO_URLS</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Attempting download from: </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                <span class="n">url</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span>
-            <span class="p">)</span>  <span class="c1"># 10s timeout for connect</span>
-            <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
-
-            <span class="n">total_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Content-Length&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-
-            <span class="k">with</span> <span class="p">(</span>
-                <span class="nb">open</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">,</span>
-                <span class="n">tqdm</span><span class="p">(</span>
-                    <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Downloading ETOPO&quot;</span><span class="p">,</span>
-                    <span class="n">total</span><span class="o">=</span><span class="n">total_size</span><span class="p">,</span>
-                    <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;B&quot;</span><span class="p">,</span>
-                    <span class="n">unit_scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                    <span class="n">unit_divisor</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
-                <span class="p">)</span> <span class="k">as</span> <span class="n">bar</span><span class="p">,</span>
-            <span class="p">):</span>
-                <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">iter_content</span><span class="p">(</span><span class="n">chunk_size</span><span class="o">=</span><span class="mi">8192</span><span class="p">):</span>
-                    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
-                    <span class="n">bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">))</span>
-
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Download complete!&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span>  <span class="c1"># Success, return file path</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to download from </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">local_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-                <span class="n">local_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>  <span class="c1"># Cleanup partial download</span>
-
-    <span class="c1"># If we reach here, all URLs failed</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;⛔ AUTOMATIC DOWNLOAD FAILED&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Please download the file manually using your browser:&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;URL: </span><span class="si">{</span><span class="n">ETOPO_URLS</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Save to: </span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># Download failed</span></div>
+        <span class="k">return</span> <span class="n">_download_gebco2025</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;msm142&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_check_local_bathy_file</span><span class="p">(</span>
+            <span class="n">target_dir</span><span class="p">,</span> <span class="n">MSM142_LEGACY_NC_FILENAME</span><span class="p">,</span> <span class="s2">&quot;MSM142 (legacy)&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;msm142_jj&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_check_local_bathy_file</span><span class="p">(</span><span class="n">target_dir</span><span class="p">,</span> <span class="n">MSM142_JJ_NC_FILENAME</span><span class="p">,</span> <span class="s2">&quot;MSM142_JJ&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;msm142_dt&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_check_local_bathy_file</span><span class="p">(</span><span class="n">target_dir</span><span class="p">,</span> <span class="n">MSM142_DT_NC_FILENAME</span><span class="p">,</span> <span class="s2">&quot;MSM142_DT&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_download_etopo2022</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span></div>
 
 
 
