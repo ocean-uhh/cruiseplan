@@ -144,7 +144,7 @@ Expected output should show version information and available subcommands withou
 Core Dependencies
 -----------------
 
-Core dependencies are listed in ``requirements.txt``, development tools in ``requirements-dev.txt``. The conda ``environment.yml`` loads from these files automatically.  CruisePlan automatically installs these core dependencies:
+Runtime dependencies are declared in ``pyproject.toml`` under ``[project] dependencies``, development tools under the ``dev`` optional-dependency group. The conda ``environment.yml`` installs the package with ``pip install -e ".[dev]"``.  CruisePlan automatically installs these core dependencies:
 
 **Scientific Computing:**
 

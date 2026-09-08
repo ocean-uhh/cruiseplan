@@ -31,49 +31,53 @@ Pydantic models for parsing and validating YAML input:
 class CruiseConfig(BaseModel):
     cruise_name: str
     description: Optional[str] = None
-    default_vessel_speed: float         # knots
+    default_vessel_speed: float  # knots
     default_distance_between_stations: float  # km
-    turnaround_time: float              # minutes
+    turnaround_time: float  # minutes
     departure_port: Optional[Union[str, PointDefinition]] = None
-    arrival_port:   Optional[Union[str, PointDefinition]] = None
+    arrival_port: Optional[Union[str, PointDefinition]] = None
     points: Optional[List[PointDefinition]] = None
-    legs:   Optional[List[LegDefinition]] = None
+    legs: Optional[List[LegDefinition]] = None
     # ... more fields; see cruise_config.py
+
 
 class LegDefinition(BaseModel):
     name: str
     departure_port: Union[str, PointDefinition]  # required
-    arrival_port:   Union[str, PointDefinition]  # required
+    arrival_port: Union[str, PointDefinition]  # required
     activities: Optional[List[Union[str, dict]]] = None
-    vessel_speed: Optional[float] = None         # knots; inherits from cruise
-    delay_start: Optional[float] = None          # minutes
-    buffer_time: Optional[float] = None          # minutes
+    vessel_speed: Optional[float] = None  # knots; inherits from cruise
+    delay_start: Optional[float] = None  # minutes
+    buffer_time: Optional[float] = None  # minutes
     ordered: Optional[bool] = None
     clusters: Optional[List[ClusterDefinition]] = None
+
 
 # cruiseplan/config/activities.py
 class PointDefinition(FlexibleLocationModel):
     name: str
     operation_type: Optional[OperationTypeEnum] = None
     action: Optional[ActionEnum] = None
-    operation_depth: Optional[float] = None   # metres
-    water_depth: Optional[float] = None       # metres
-    duration: Optional[float] = None          # minutes
-    delay_start: Optional[float] = None       # minutes
-    delay_end: Optional[float] = None         # minutes
+    operation_depth: Optional[float] = None  # metres
+    water_depth: Optional[float] = None  # metres
+    duration: Optional[float] = None  # minutes
+    delay_start: Optional[float] = None  # minutes
+    delay_end: Optional[float] = None  # minutes
     equipment: Optional[str] = None
+
 
 class LineDefinition(BaseModel):
     name: str
     route: List[GeoPoint]
     vessel_speed: Optional[float] = None
     distance_between_stations: Optional[float] = None  # km
-    max_depth: Optional[float] = None                  # metres
+    max_depth: Optional[float] = None  # metres
+
 
 class AreaDefinition(BaseModel):
     name: str
     corners: List[GeoPoint]
-    duration: Optional[float] = None          # minutes; required for area ops
+    duration: Optional[float] = None  # minutes; required for area ops
 ```
 
 ### Runtime layer (`cruiseplan/runtime/`)
@@ -83,8 +87,10 @@ Objects used during scheduling. Built from the config layer via factory methods.
 ```python
 # cruiseplan/runtime/cruise.py
 class CruiseInstance:
-    def __init__(self, config_path: Union[str, Path]):
-        ...  # loads YAML, validates, builds runtime leg/cluster/operation tree
+    def __init__(
+        self, config_path: Union[str, Path]
+    ): ...  # loads YAML, validates, builds runtime leg/cluster/operation tree
+
 
 # cruiseplan/runtime/organizational.py
 class Leg(BaseOrganizationUnit):
@@ -92,21 +98,27 @@ class Leg(BaseOrganizationUnit):
     def from_definition(cls, leg_def: LegDefinition) -> "Leg": ...
 
     def get_effective_speed(self, default_speed: float) -> float: ...
-    def get_entry_point(self) -> tuple[float, float]: ...   # (lat, lon)
+    def get_entry_point(self) -> tuple[float, float]: ...  # (lat, lon)
     def get_exit_point(self) -> tuple[float, float]: ...
+
 
 class Cluster(BaseOrganizationUnit):
     @classmethod
     def from_definition(cls, cluster_def: ClusterDefinition) -> "Cluster": ...
+
 
 # cruiseplan/runtime/operations.py
 class PointOperation(BaseOperation):
     @classmethod
     def from_pydantic(cls, obj: PointDefinition) -> "PointOperation": ...
 
+
 class LineOperation(BaseOperation):
     @classmethod
-    def from_pydantic(cls, obj: LineDefinition, default_speed: float) -> "LineOperation": ...
+    def from_pydantic(
+        cls, obj: LineDefinition, default_speed: float
+    ) -> "LineOperation": ...
+
 
 class AreaOperation(BaseOperation):
     @classmethod
@@ -119,9 +131,9 @@ Distance and duration calculations, schedule generation.
 
 ```python
 # cruiseplan/timeline/distance.py
-def haversine_distance(start: tuple[float, float],
-                       end: tuple[float, float]) -> float:
+def haversine_distance(start: tuple[float, float], end: tuple[float, float]) -> float:
     """Returns distance in kilometres (great circle)."""
+
 
 # cruiseplan/timeline/duration.py
 class DurationCalculator:
@@ -130,6 +142,7 @@ class DurationCalculator:
 
     def calculate_transit_time(self, distance_km: float, speed_knots: float) -> float:
         """Route-based transit timing with unit conversion."""
+
 
 # cruiseplan/timeline/scheduler.py
 def generate_timeline(cruise: CruiseInstance) -> list[dict]: ...
@@ -182,15 +195,21 @@ Both produce the same `latitude`/`longitude` after `model_validator` runs.
 
 ```python
 # cruiseplan/config/exceptions.py
-class ValidationError(Exception): ...    # YAML field validation failures
-class FileError(Exception): ...          # File I/O problems
-class BathymetryError(Exception): ...    # Bathymetry data issues
+class ValidationError(Exception): ...  # YAML field validation failures
+
+
+class FileError(Exception): ...  # File I/O problems
+
+
+class BathymetryError(Exception): ...  # Bathymetry data issues
+
 
 # cruiseplan/config/yaml_io.py
-class YAMLIOError(Exception): ...        # YAML read/write errors
+class YAMLIOError(Exception): ...  # YAML read/write errors
+
 
 # cruiseplan/runtime/organizational.py
-class ReferenceError(Exception): ...     # Unresolved port or activity references
+class ReferenceError(Exception): ...  # Unresolved port or activity references
 ```
 
 ## FlexibleLocationModel
@@ -215,4 +234,4 @@ Test fixtures (realistic YAML configs) live in `tests/fixtures/`.
 - Core: Python 3.10+, Pydantic v2, ruamel.yaml, numpy, xarray, netCDF4, pandas
 - Geospatial: matplotlib, cartopy, geopandas (optional, for EEZ overlays)
 - Interactive: folium
-- Development: pytest, ruff, mypy, sphinx — see `requirements-dev.txt`
+- Development: pytest, ruff, mypy, sphinx — see the `dev` extra in `pyproject.toml` (`pip install -e ".[dev]"`)

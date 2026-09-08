@@ -23,8 +23,50 @@ classifiers = [
   "Topic :: Scientific/Engineering :: GIS",
 ]
 
-# Define which fields are read from files/tools
-dynamic = ["version", "dependencies", "optional-dependencies"]
+# Version is derived from git tags by setuptools-scm.
+dynamic = ["version"]
+
+dependencies = [
+  "numpy>=2.0.2",
+  "pandas>=2.3.3",
+  "xarray>=2024.7.0",
+  "netCDF4>=1.7.2",
+  "scipy>=1.13.1",
+  "requests>=2.32.5",
+  "pangaeapy>=1.0.22",
+  "pydantic>=2.13.4",
+  "ruamel.yaml>=0.19.1,<0.20.0",
+  "matplotlib>=3.9.4",
+  "folium",
+  "branca",
+  "geopandas>=1.0.1",
+  "tqdm>=4.67.3",
+  "jinja2",
+]
+
+[project.optional-dependencies]
+dev = [
+  "jupyterlab>=4.5.8",
+  "nbconvert>=7.17.1",
+  "myst-nb>=1.3.0",
+  "nbsphinx>=0.9.8",
+  "sphinx>=7.4.7",
+  "sphinx-rtd-theme>=3.1.0",
+  "pypandoc>=1.17",
+  "myst-parser>=3.0.1",
+  "pytest>=8.4.2",
+  "pytest-cov>=7.1.0",
+  "mock",
+  "pyyaml>=6.0.3",
+  "black>=26.5.1",
+  "ruff>=0.15.20",
+  "pre-commit>=4.3.0",
+  "codespell",
+  "mypy>=1.19.1",
+  "types-requests",
+  "types-tqdm",
+  "pandas-stubs",
+]
 
 # THIS ENABLES THE 'cruiseplan' TERMINAL COMMAND
 [project.scripts]
@@ -43,13 +85,6 @@ repository = "https://github.com/ocean-uhh/cruiseplan"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["cruiseplan*"]
-
-[tool.setuptools.dynamic]
-dependencies = { file = ["requirements.txt"] }
-
-[tool.setuptools.dynamic.optional-dependencies]
-dev = { file = ["requirements-dev.txt"] }
-# pip install -e ".[dev]"
 
 [tool.setuptools_scm]
 write_to = "cruiseplan/_version.py"

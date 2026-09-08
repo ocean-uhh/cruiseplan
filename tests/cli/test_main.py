@@ -2,6 +2,7 @@
 Tests for main CLI entry point.
 """
 
+import re
 import sys
 from io import StringIO
 from unittest.mock import patch
@@ -205,14 +206,10 @@ class TestVersionAndHelp:
                     main()
                     output = mock_stdout.getvalue()
                     assert "cruiseplan" in output
-                    # Accept various version patterns (dev: 0.0.post1.dev1, release: 0.3.x)
-                    assert (
-                        "0.3." in output
-                        or "0.2." in output
-                        or "0.1." in output
-                        or "0.0.post" in output
-                        or "0.0.dev" in output
-                    )
+                    # Accept any PEP 440-style version (release or setuptools-scm
+                    # dev, e.g. 0.4.0 or 0.4.0.post1.dev1) rather than enumerating
+                    # release-line prefixes, which silently break each new minor.
+                    assert re.search(r"\d+\.\d+", output)
 
     def test_subcommand_help(self):
         """Test subcommand help works."""
