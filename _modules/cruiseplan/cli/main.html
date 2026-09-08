@@ -1,0 +1,215 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cruiseplan.cli.main &mdash; CruisePlan v0.4.0 v0.4.0.post1.dev2</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=295744b5"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            CruisePlan v0.4.0
+              <img src="../../../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/yaml-basics.html">YAML Basics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/cli-commands.html">CLI Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/yaml-full.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/output-formats.html">Output Formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/api-examples.html">API Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../demo-output.html">CruisePlan Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/developer_guide.html">CruisePlan Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/manual_testing.html">Manual Testing and Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">CruisePlan v0.4.0</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../cli.html">cruiseplan.cli</a></li>
+      <li class="breadcrumb-item active">cruiseplan.cli.main</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cruiseplan.cli.main</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""</span>
+<span class="sd">cruiseplan CLI - Subcommand dispatcher for oceanographic cruise planning.</span>
+
+<span class="sd">Each subcommand is defined in its own module (e.g. cruiseplan/cli/schedule.py)</span>
+<span class="sd">via a build_parser(subparsers) function. This module wires them together and</span>
+<span class="sd">dispatches to the appropriate run(args) function.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan._version</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">__version__</span> <span class="o">=</span> <span class="s2">"unknown"</span>
+
+<span class="n">_SUBCOMMAND_MODULES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"bathymetry"</span><span class="p">:</span> <span class="s2">"cruiseplan.cli.bathymetry"</span><span class="p">,</span>
+    <span class="s2">"run"</span><span class="p">:</span> <span class="s2">"cruiseplan.cli.run"</span><span class="p">,</span>
+    <span class="s2">"schedule"</span><span class="p">:</span> <span class="s2">"cruiseplan.cli.schedule"</span><span class="p">,</span>
+    <span class="s2">"stations"</span><span class="p">:</span> <span class="s2">"cruiseplan.cli.stations"</span><span class="p">,</span>
+    <span class="s2">"enrich"</span><span class="p">:</span> <span class="s2">"cruiseplan.cli.enrich"</span><span class="p">,</span>
+    <span class="s2">"validate"</span><span class="p">:</span> <span class="s2">"cruiseplan.cli.validate"</span><span class="p">,</span>
+    <span class="s2">"process"</span><span class="p">:</span> <span class="s2">"cruiseplan.cli.process"</span><span class="p">,</span>
+    <span class="s2">"map"</span><span class="p">:</span> <span class="s2">"cruiseplan.cli.map"</span><span class="p">,</span>
+    <span class="s2">"pangaea"</span><span class="p">:</span> <span class="s2">"cruiseplan.cli.pangaea"</span><span class="p">,</span>
+    <span class="s2">"forecast"</span><span class="p">:</span> <span class="s2">"cruiseplan.cli.forecast"</span><span class="p">,</span>
+    <span class="s2">"list"</span><span class="p">:</span> <span class="s2">"cruiseplan.cli.list"</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../../../api/cruiseplan.cli.html#cruiseplan.cli.main.main">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Main CLI entry point following git-style subcommand pattern."""</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">prog</span><span class="o">=</span><span class="s2">"cruiseplan"</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"Oceanographic Cruise Planning System"</span><span class="p">,</span>
+        <span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">RawDescriptionHelpFormatter</span><span class="p">,</span>
+        <span class="n">epilog</span><span class="o">=</span><span class="s2">"""</span>
+<span class="s2">Examples:</span>
+<span class="s2">  cruiseplan bathymetry --bathy-source gebco2025</span>
+<span class="s2">  cruiseplan pangaea "CTD temperature" --lat 50 60 --lon -50 -30</span>
+<span class="s2">  cruiseplan stations --lat 50 65 --lon -60 -30</span>
+<span class="s2">  cruiseplan run cruise.yaml</span>
+<span class="s2">  cruiseplan enrich cruise.yaml --add-depths --add-coords</span>
+<span class="s2">  cruiseplan validate cruise.yaml</span>
+<span class="s2">  cruiseplan schedule cruise.yaml -o results/</span>
+<span class="s2">  cruiseplan map cruise.yaml --figsize 14 10</span>
+<span class="s2">  cruiseplan list MSM142_schedule.nc</span>
+<span class="s2">  cruiseplan forecast MSM142_schedule.nc --start-index 5 --start-time "2026-08-29T08:00:00"</span>
+
+<span class="s2">For detailed help on a subcommand:</span>
+<span class="s2">  cruiseplan &lt;subcommand&gt; --help</span>
+<span class="s2">        """</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">"-V"</span><span class="p">,</span> <span class="s2">"--version"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"version"</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="sa">f</span><span class="s2">"%(prog)s </span><span class="si">{</span><span class="n">__version__</span><span class="si">}</span><span class="s2">"</span>
+    <span class="p">)</span>
+
+    <span class="n">subparsers</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">"subcommand"</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">"Available commands"</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"Choose a subcommand to run"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Available subcommands"</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Register each subcommand parser (lazy imports keep startup fast)</span>
+    <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">_SUBCOMMAND_MODULES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">mod</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
+        <span class="n">mod</span><span class="o">.</span><span class="n">build_parser</span><span class="p">(</span><span class="n">subparsers</span><span class="p">)</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">subcommand</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">mod</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">_SUBCOMMAND_MODULES</span><span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">subcommand</span><span class="p">])</span>
+        <span class="n">mod</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n\n</span><span class="s2">Operation cancelled by user."</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">ERROR: A critical error occurred during execution: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

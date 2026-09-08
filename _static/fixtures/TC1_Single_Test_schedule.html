@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Schedule for TC1_Single_Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 5px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .number { text-align: right; }
+        h1, h2 { color: #333; }
+        .description { font-style: italic; color: #666; }
+    </style>
+</head>
+<body>
+    <h1>TC1_Single_Test</h1>
+    
+
+    <h2>1. Cruise Schedule</h2>
+    <table cellpadding="5" cellspacing="0" border="1">
+        <tr>
+            <th>Activity</th>
+            <th>Description</th>
+            <th>Hours</th>
+            <th>Days</th>
+        </tr>
+
+        <tr>
+            <td>CTD Profiles</td>
+            <td>1 stations, avg depth 2850 m, avg 2.1 hrs each</td>
+            <td class="number">2.1</td>
+            <td class="number">0.1</td>
+        </tr>
+
+        <tr>
+            <td>Transit to/from working area</td>
+            <td>2602.7 nm, avg 10.0 kts</td>
+            <td class="number">260.3</td>
+            <td class="number">10.8</td>
+        </tr>
+
+        <tr style="font-weight: bold;">
+            <td>Total Cruise</td>
+            <td>1 operations</td>
+            <td class="number">262.4</td>
+            <td class="number">10.9</td>
+        </tr>
+    </table>
+
+    <h2>2. Moorings</h2>
+    <table cellpadding="5" cellspacing="0" border="1">
+        <tr>
+            <th>Name</th>
+            <th>Comment</th>
+            <th>Position (Decimal)</th>
+            <th>Position (DD MM.mmm)</th>
+            <th>Depth (m)</th>
+            <th>Duration (hrs)</th>
+            <th>Action</th>
+        </tr>
+
+        <tr>
+            <td colspan="7">No moorings defined</td>
+        </tr>
+
+    </table>
+
+    <h2>3. Leg Schedules</h2>
+    <p>Individual leg schedules including transit connections between legs.</p>
+
+    <h3>3a. Leg_Single</h3>
+    <table cellpadding="5" cellspacing="0" border="1">
+        <tr>
+            <th>Activity</th>
+            <th>Type</th>
+            <th>Entry Position</th>
+            <th>Exit Position</th>
+            <th>Distance (nm)</th>
+            <th>Duration (hrs)</th>
+            <th>Comments</th>
+        </tr>
+
+        <tr>
+            <td>Halifax</td>
+            <td>Port mob</td>
+            <td>44.6488, -63.5752</td>
+            <td>44.6488, -63.5752</td>
+            <td class="number">-</td>
+            <td class="number">0.0</td>
+            <td></td>
+        </tr>
+
+        <tr>
+            <td>Transit to STN_001</td>
+            <td>Transit</td>
+            <td>44.6488, -63.5752</td>
+            <td>45.0000, -45.0000</td>
+            <td class="number">789.6</td>
+            <td class="number">79.0</td>
+            <td></td>
+        </tr>
+
+        <tr>
+            <td>STN_001</td>
+            <td>CTD profile</td>
+            <td>45.0000, -45.0000</td>
+            <td>45.0000, -45.0000</td>
+            <td class="number">-</td>
+            <td class="number">2.1</td>
+            <td></td>
+        </tr>
+
+        <tr>
+            <td>Transit to Cadiz</td>
+            <td>Transit</td>
+            <td>45.0000, -45.0000</td>
+            <td>36.5298, -6.2923</td>
+            <td class="number">1813.1</td>
+            <td class="number">181.3</td>
+            <td></td>
+        </tr>
+
+        <tr>
+            <td>Cadiz</td>
+            <td>Port demob</td>
+            <td>36.5298, -6.2923</td>
+            <td>36.5298, -6.2923</td>
+            <td class="number">-</td>
+            <td class="number">0.0</td>
+            <td></td>
+        </tr>
+
+        <tr style="font-weight: bold; background-color: #f2f2f2;">
+            <td>Leg Total</td>
+            <td>0 operations</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="number">262.4</td>
+            <td>10.9 days</td>
+        </tr>
+    </table>
+
+    <h2>4. Cruise Track Map</h2>
+    <div style="text-align: center; margin: 20px 0;">
+        <img src="TC1_Single_Test_schedule.png" 
+             alt="Cruise Track Map for TC1_Single_Test" 
+             style="max-width: 100%; height: auto; border: 1px solid #ccc; box-shadow: 2px 2px 8px rgba(0,0,0,0.1);">
+        <p style="font-style: italic; color: #666; margin-top: 10px;">
+            Figure 1: Cruise track map showing station locations, bathymetric context, and planned route.
+        </p>
+    </div>
+
+</body>
+</html>

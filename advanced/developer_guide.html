@@ -1,0 +1,374 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CruisePlan Developer Guide &mdash; CruisePlan v0.4.0 v0.4.0.post1.dev2</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=295744b5"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Manual Testing and Verification" href="manual_testing.html" />
+    <link rel="prev" title="CruisePlan Demo" href="../demo-output.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            CruisePlan v0.4.0
+              <img src="../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide/quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide/workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide/yaml-basics.html">YAML Basics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/cli-commands.html">CLI Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/yaml-full.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/output-formats.html">Output Formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="api-examples.html">API Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demo-output.html">CruisePlan Demo</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">CruisePlan Developer Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-structure">Module structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#two-layer-architecture">Two-layer architecture</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#config-layer-cruiseplan-config">Config layer (<code class="docutils literal notranslate"><span class="pre">cruiseplan/config/</span></code>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#runtime-layer-cruiseplan-runtime">Runtime layer (<code class="docutils literal notranslate"><span class="pre">cruiseplan/runtime/</span></code>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#timeline-layer-cruiseplan-timeline">Timeline layer (<code class="docutils literal notranslate"><span class="pre">cruiseplan/timeline/</span></code>)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#entry-exit-point-interface">Entry/exit point interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#adding-a-new-operation-type">Adding a new operation type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#coordinate-input-formats">Coordinate input formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#exceptions">Exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#flexiblelocationmodel">FlexibleLocationModel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dependencies">Dependencies</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="manual_testing.html">Manual Testing and Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CruisePlan v0.4.0</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">CruisePlan Developer Guide</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cruiseplan-developer-guide">
+<h1>CruisePlan Developer Guide<a class="headerlink" href="#cruiseplan-developer-guide" title="Link to this heading"></a></h1>
+<p>This guide describes the internal architecture for contributors and developers
+integrating directly with CruisePlan internals.</p>
+<section id="module-structure">
+<h2>Module structure<a class="headerlink" href="#module-structure" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cruiseplan/
+├── config/       # Pydantic models, field definitions, constants, exceptions
+├── runtime/      # CruiseInstance, Leg, Cluster, operation classes
+├── timeline/     # Scheduling, distance/duration calculators
+├── api/          # High-level API functions (thin wrappers)
+├── cli/          # Subcommand argument parsers and runners
+├── data/         # Bathymetry and PANGAEA data handling
+├── interactive/  # Interactive station picker
+├── output/       # Output generators (LaTeX, HTML, PNG, KML, NetCDF, CSV)
+└── utils/        # Coordinate conversion and shared utilities
+</pre></div>
+</div>
+<p>Data flow: <code class="docutils literal notranslate"><span class="pre">YAML</span> <span class="pre">→</span> <span class="pre">CruiseInstance</span> <span class="pre">(runtime)</span> <span class="pre">→</span> <span class="pre">scheduler</span> <span class="pre">(timeline)</span> <span class="pre">→</span> <span class="pre">output</span> <span class="pre">files</span></code>.</p>
+</section>
+<section id="two-layer-architecture">
+<h2>Two-layer architecture<a class="headerlink" href="#two-layer-architecture" title="Link to this heading"></a></h2>
+<section id="config-layer-cruiseplan-config">
+<h3>Config layer (<code class="docutils literal notranslate"><span class="pre">cruiseplan/config/</span></code>)<a class="headerlink" href="#config-layer-cruiseplan-config" title="Link to this heading"></a></h3>
+<p>Pydantic models for parsing and validating YAML input:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># cruiseplan/config/cruise_config.py</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CruiseConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">cruise_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">default_vessel_speed</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># knots</span>
+    <span class="n">default_distance_between_stations</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># km</span>
+    <span class="n">turnaround_time</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># minutes</span>
+    <span class="n">departure_port</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PointDefinition</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">arrival_port</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PointDefinition</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">points</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">PointDefinition</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">legs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">LegDefinition</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># ... more fields; see cruise_config.py</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">LegDefinition</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">departure_port</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PointDefinition</span><span class="p">]</span>  <span class="c1"># required</span>
+    <span class="n">arrival_port</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PointDefinition</span><span class="p">]</span>  <span class="c1"># required</span>
+    <span class="n">activities</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">vessel_speed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># knots; inherits from cruise</span>
+    <span class="n">delay_start</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># minutes</span>
+    <span class="n">buffer_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># minutes</span>
+    <span class="n">ordered</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">clusters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">ClusterDefinition</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<span class="c1"># cruiseplan/config/activities.py</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PointDefinition</span><span class="p">(</span><span class="n">FlexibleLocationModel</span><span class="p">):</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">operation_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">OperationTypeEnum</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">action</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ActionEnum</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">operation_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># metres</span>
+    <span class="n">water_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># metres</span>
+    <span class="n">duration</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># minutes</span>
+    <span class="n">delay_start</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># minutes</span>
+    <span class="n">delay_end</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># minutes</span>
+    <span class="n">equipment</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">LineDefinition</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">route</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">GeoPoint</span><span class="p">]</span>
+    <span class="n">vessel_speed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">distance_between_stations</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># km</span>
+    <span class="n">max_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># metres</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">AreaDefinition</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">corners</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">GeoPoint</span><span class="p">]</span>
+    <span class="n">duration</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># minutes; required for area ops</span>
+</pre></div>
+</div>
+</section>
+<section id="runtime-layer-cruiseplan-runtime">
+<h3>Runtime layer (<code class="docutils literal notranslate"><span class="pre">cruiseplan/runtime/</span></code>)<a class="headerlink" href="#runtime-layer-cruiseplan-runtime" title="Link to this heading"></a></h3>
+<p>Objects used during scheduling. Built from the config layer via factory methods.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># cruiseplan/runtime/cruise.py</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CruiseInstance</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">config_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]</span>
+    <span class="p">):</span> <span class="o">...</span>  <span class="c1"># loads YAML, validates, builds runtime leg/cluster/operation tree</span>
+
+
+<span class="c1"># cruiseplan/runtime/organizational.py</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Leg</span><span class="p">(</span><span class="n">BaseOrganizationUnit</span><span class="p">):</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_definition</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">leg_def</span><span class="p">:</span> <span class="n">LegDefinition</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Leg"</span><span class="p">:</span> <span class="o">...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_effective_speed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_speed</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_entry_point</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span> <span class="o">...</span>  <span class="c1"># (lat, lon)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_exit_point</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span> <span class="o">...</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Cluster</span><span class="p">(</span><span class="n">BaseOrganizationUnit</span><span class="p">):</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_definition</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">cluster_def</span><span class="p">:</span> <span class="n">ClusterDefinition</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Cluster"</span><span class="p">:</span> <span class="o">...</span>
+
+
+<span class="c1"># cruiseplan/runtime/operations.py</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PointOperation</span><span class="p">(</span><span class="n">BaseOperation</span><span class="p">):</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_pydantic</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">PointDefinition</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"PointOperation"</span><span class="p">:</span> <span class="o">...</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">LineOperation</span><span class="p">(</span><span class="n">BaseOperation</span><span class="p">):</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_pydantic</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">LineDefinition</span><span class="p">,</span> <span class="n">default_speed</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"LineOperation"</span><span class="p">:</span> <span class="o">...</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">AreaOperation</span><span class="p">(</span><span class="n">BaseOperation</span><span class="p">):</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_pydantic</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">AreaDefinition</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"AreaOperation"</span><span class="p">:</span> <span class="o">...</span>
+</pre></div>
+</div>
+</section>
+<section id="timeline-layer-cruiseplan-timeline">
+<h3>Timeline layer (<code class="docutils literal notranslate"><span class="pre">cruiseplan/timeline/</span></code>)<a class="headerlink" href="#timeline-layer-cruiseplan-timeline" title="Link to this heading"></a></h3>
+<p>Distance and duration calculations, schedule generation.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># cruiseplan/timeline/distance.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">haversine_distance</span><span class="p">(</span><span class="n">start</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">end</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Returns distance in kilometres (great circle)."""</span>
+
+
+<span class="c1"># cruiseplan/timeline/duration.py</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DurationCalculator</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_ctd_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">depth_m</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">operation_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Depth-based CTD timing: descent + ascent + turnaround."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_transit_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">distance_km</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">speed_knots</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Route-based transit timing with unit conversion."""</span>
+
+
+<span class="c1"># cruiseplan/timeline/scheduler.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_timeline</span><span class="p">(</span><span class="n">cruise</span><span class="p">:</span> <span class="n">CruiseInstance</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span> <span class="o">...</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="entry-exit-point-interface">
+<h2>Entry/exit point interface<a class="headerlink" href="#entry-exit-point-interface" title="Link to this heading"></a></h2>
+<p>All operation types and organisational levels implement <code class="docutils literal notranslate"><span class="pre">get_entry_point()</span></code> and
+<code class="docutils literal notranslate"><span class="pre">get_exit_point()</span></code>, returning <code class="docutils literal notranslate"><span class="pre">(latitude,</span> <span class="pre">longitude)</span></code> tuples. This lets the
+scheduler calculate transit distances without knowing the operation type:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">calculate_transit_distance</span><span class="p">(</span><span class="n">from_entity</span><span class="p">,</span> <span class="n">to_entity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">from_entity</span><span class="o">.</span><span class="n">get_exit_point</span><span class="p">()</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="n">to_entity</span><span class="o">.</span><span class="n">get_entry_point</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">haversine_distance</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">PointOperation</span></code>: entry == exit (same location).
+<code class="docutils literal notranslate"><span class="pre">LineOperation</span></code>: entry = first waypoint, exit = last waypoint.
+<code class="docutils literal notranslate"><span class="pre">AreaOperation</span></code>: entry = first corner, exit = last corner.
+<code class="docutils literal notranslate"><span class="pre">Leg</span></code>: entry = departure port, exit = arrival port.</p>
+</section>
+<section id="adding-a-new-operation-type">
+<h2>Adding a new operation type<a class="headerlink" href="#adding-a-new-operation-type" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Add a Pydantic definition class in <code class="docutils literal notranslate"><span class="pre">cruiseplan/config/activities.py</span></code> (inherit <code class="docutils literal notranslate"><span class="pre">BaseModel</span></code>).</p></li>
+<li><p>Add a runtime class in <code class="docutils literal notranslate"><span class="pre">cruiseplan/runtime/operations.py</span></code> (inherit <code class="docutils literal notranslate"><span class="pre">BaseOperation</span></code>).</p></li>
+<li><p>Implement <code class="docutils literal notranslate"><span class="pre">from_pydantic()</span></code>, <code class="docutils literal notranslate"><span class="pre">get_entry_point()</span></code>, <code class="docutils literal notranslate"><span class="pre">get_exit_point()</span></code>, <code class="docutils literal notranslate"><span class="pre">calculate_duration()</span></code>.</p></li>
+<li><p>Add duration logic to <code class="docutils literal notranslate"><span class="pre">DurationCalculator</span></code> in <code class="docutils literal notranslate"><span class="pre">cruiseplan/timeline/duration.py</span></code>.</p></li>
+<li><p>Add the new type to <code class="docutils literal notranslate"><span class="pre">OperationTypeEnum</span></code> in <code class="docutils literal notranslate"><span class="pre">cruiseplan/config/values.py</span></code>.</p></li>
+</ol>
+</section>
+<section id="coordinate-input-formats">
+<h2>Coordinate input formats<a class="headerlink" href="#coordinate-input-formats" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">FlexibleLocationModel</span></code> (in <code class="docutils literal notranslate"><span class="pre">cruiseplan/config/activities.py</span></code>) normalises multiple
+input formats to internal decimal-degree fields:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Decimal degrees (preferred)</span>
+<span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.2440</span>
+<span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-31.3177</span>
+
+<span class="c1"># Degrees decimal minutes</span>
+<span class="nt">latitude_decmin</span><span class="p">:</span><span class="w"> </span><span class="s">"60</span><span class="nv"> </span><span class="s">14.640</span><span class="nv"> </span><span class="s">N"</span>
+<span class="nt">longitude_decmin</span><span class="p">:</span><span class="w"> </span><span class="s">"031</span><span class="nv"> </span><span class="s">19.062</span><span class="nv"> </span><span class="s">W"</span>
+</pre></div>
+</div>
+<p>Both produce the same <code class="docutils literal notranslate"><span class="pre">latitude</span></code>/<code class="docutils literal notranslate"><span class="pre">longitude</span></code> after <code class="docutils literal notranslate"><span class="pre">model_validator</span></code> runs.</p>
+</section>
+<section id="exceptions">
+<h2>Exceptions<a class="headerlink" href="#exceptions" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># cruiseplan/config/exceptions.py</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ValidationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span> <span class="o">...</span>  <span class="c1"># YAML field validation failures</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">FileError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span> <span class="o">...</span>  <span class="c1"># File I/O problems</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BathymetryError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span> <span class="o">...</span>  <span class="c1"># Bathymetry data issues</span>
+
+
+<span class="c1"># cruiseplan/config/yaml_io.py</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">YAMLIOError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span> <span class="o">...</span>  <span class="c1"># YAML read/write errors</span>
+
+
+<span class="c1"># cruiseplan/runtime/organizational.py</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ReferenceError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span> <span class="o">...</span>  <span class="c1"># Unresolved port or activity references</span>
+</pre></div>
+</div>
+</section>
+<section id="flexiblelocationmodel">
+<h2>FlexibleLocationModel<a class="headerlink" href="#flexiblelocationmodel" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">FlexibleLocationModel</span></code> is scheduled for simplification. The current implementation
+stores coordinates internally as a <code class="docutils literal notranslate"><span class="pre">GeoPoint</span></code> object and exposes them via
+<code class="docutils literal notranslate"><span class="pre">station.latitude</span></code> / <code class="docutils literal notranslate"><span class="pre">station.longitude</span></code> properties. Direct field access works
+correctly; the intermediate <code class="docutils literal notranslate"><span class="pre">GeoPoint</span></code> layer is an implementation detail.</p>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pytest<span class="w"> </span>tests/unit/<span class="w">        </span><span class="c1"># fast unit tests</span>
+pytest<span class="w"> </span>tests/integration/<span class="w"> </span><span class="c1"># end-to-end workflow tests</span>
+pytest<span class="w"> </span>--cov<span class="o">=</span>cruiseplan<span class="w"> </span>--cov-report<span class="o">=</span>term
+</pre></div>
+</div>
+<p>Test fixtures (realistic YAML configs) live in <code class="docutils literal notranslate"><span class="pre">tests/fixtures/</span></code>.</p>
+</section>
+<section id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Core: Python 3.10+, Pydantic v2, ruamel.yaml, numpy, xarray, netCDF4, pandas</p></li>
+<li><p>Geospatial: matplotlib, cartopy, geopandas (optional, for EEZ overlays)</p></li>
+<li><p>Interactive: folium</p></li>
+<li><p>Development: pytest, ruff, mypy, sphinx — see the <code class="docutils literal notranslate"><span class="pre">dev</span></code> extra in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> (<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">&quot;.[dev]&quot;</span></code>)</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../demo-output.html" class="btn btn-neutral float-left" title="CruisePlan Demo" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="manual_testing.html" class="btn btn-neutral float-right" title="Manual Testing and Verification" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

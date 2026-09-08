@@ -1,0 +1,196 @@
+cruise_name: "TC5_Sections_Test"
+
+
+
+start_date: '1970-01-01T00:00:00+00:00' #  # default added by cruiseplan enrich
+start_time: 08:00 #  # default added by cruiseplan enrich
+default_vessel_speed: 10.0 #  # default added by cruiseplan enrich
+turnaround_time: 30.0 #  # default added by cruiseplan enrich
+ctd_descent_rate: 1.0 #  # default added by cruiseplan enrich
+ctd_ascent_rate: 1.0 #  # default added by cruiseplan enrich
+calculate_transfer_between_sections: true #  # default added by cruiseplan enrich
+calculate_depth_via_bathymetry: true #  # default added by cruiseplan enrich
+default_distance_between_stations: 15.0 #  # default added by cruiseplan enrich
+legs:
+  - name: "Section_Survey"
+    departure_port:
+      name: port_halifax
+      latitude: 44.6488
+      longitude: -63.5752
+      operation_type: port
+      action: mob
+      display_name: Halifax, Nova Scotia
+    arrival_port:
+      name: port_cadiz
+      latitude: 36.5298
+      longitude: -6.2923
+      operation_type: port
+      action: demob
+      display_name: Cadiz, Spain
+    first_waypoint: SEC_001_Stn001
+    last_waypoint: SEC_001_Stn014
+    activities:
+      - SEC_001_Stn001
+      - SEC_001_Stn002
+      - SEC_001_Stn003
+      - SEC_001_Stn004
+      - SEC_001_Stn005
+      - SEC_001_Stn006
+      - SEC_001_Stn007
+      - SEC_001_Stn008
+      - SEC_001_Stn009
+      - SEC_001_Stn010
+      - SEC_001_Stn011
+      - SEC_001_Stn012
+      - SEC_001_Stn013
+      - SEC_001_Stn014
+stations:
+  -  #  expanded by cruiseplan enrich --expand-sections
+    name: SEC_001_Stn001
+    coordinates_ddm: 45 00.00'N, 050 00.00'W
+    water_depth: 58.0
+    operation_type: CTD
+    action: profile
+    latitude: 45.0
+    longitude: -50.0
+    comment: Station 1/14 on SEC_001 section
+    duration: 120.0
+  - #  expanded by cruiseplan enrich --expand-sections
+    name: SEC_001_Stn002
+    coordinates_ddm: 45 09.30'N, 049 51.07'W
+    water_depth: 58.0
+    operation_type: CTD
+    action: profile
+    latitude: 45.15506
+    longitude: -49.8512
+    comment: Station 2/14 on SEC_001 section
+    duration: 120.0
+  - #  expanded by cruiseplan enrich --expand-sections
+    name: SEC_001_Stn003
+    coordinates_ddm: 45 18.60'N, 049 42.10'W
+    water_depth: 67.0
+    operation_type: CTD
+    action: profile
+    latitude: 45.30993
+    longitude: -49.70159
+    comment: Station 3/14 on SEC_001 section
+    duration: 120.0
+  - #  expanded by cruiseplan enrich --expand-sections
+    name: SEC_001_Stn004
+    coordinates_ddm: 45 27.88'N, 049 33.07'W
+    water_depth: 64.0
+    operation_type: CTD
+    action: profile
+    latitude: 45.46459
+    longitude: -49.55115
+    comment: Station 4/14 on SEC_001 section
+    duration: 120.0
+  - #  expanded by cruiseplan enrich --expand-sections
+    name: SEC_001_Stn005
+    coordinates_ddm: 45 37.14'N, 049 23.99'W
+    water_depth: 63.0
+    operation_type: CTD
+    action: profile
+    latitude: 45.61907
+    longitude: -49.3999
+    comment: Station 5/14 on SEC_001 section
+    duration: 120.0
+  - #  expanded by cruiseplan enrich --expand-sections
+    name: SEC_001_Stn006
+    coordinates_ddm: 45 46.40'N, 049 14.87'W
+    water_depth: 61.0
+    operation_type: CTD
+    action: profile
+    latitude: 45.77334
+    longitude: -49.2478
+    comment: Station 6/14 on SEC_001 section
+    duration: 120.0
+  - #  expanded by cruiseplan enrich --expand-sections
+    name: SEC_001_Stn007
+    coordinates_ddm: 45 55.64'N, 049 05.69'W
+    water_depth: 64.0
+    operation_type: CTD
+    action: profile
+    latitude: 45.9274
+    longitude: -49.09486
+    comment: Station 7/14 on SEC_001 section
+    duration: 120.0
+  - #  expanded by cruiseplan enrich --expand-sections
+    name: SEC_001_Stn008
+    coordinates_ddm: 46 04.88'N, 048 56.46'W
+    water_depth: 66.0
+    operation_type: CTD
+    action: profile
+    latitude: 46.08126
+    longitude: -48.94108
+    comment: Station 8/14 on SEC_001 section
+    duration: 120.0
+  - #  expanded by cruiseplan enrich --expand-sections
+    name: SEC_001_Stn009
+    coordinates_ddm: 46 14.10'N, 048 47.19'W
+    water_depth: 70.0
+    operation_type: CTD
+    action: profile
+    latitude: 46.23492
+    longitude: -48.78643
+    comment: Station 9/14 on SEC_001 section
+    duration: 120.0
+  - #  expanded by cruiseplan enrich --expand-sections
+    name: SEC_001_Stn010
+    coordinates_ddm: 46 23.30'N, 048 37.85'W
+    water_depth: 85.0
+    operation_type: CTD
+    action: profile
+    latitude: 46.38836
+    longitude: -48.63091
+    comment: Station 10/14 on SEC_001 section
+    duration: 120.0
+  - #  expanded by cruiseplan enrich --expand-sections
+    name: SEC_001_Stn011
+    coordinates_ddm: 46 32.50'N, 048 28.47'W
+    water_depth: 95.0
+    operation_type: CTD
+    action: profile
+    latitude: 46.5416
+    longitude: -48.47452
+    comment: Station 11/14 on SEC_001 section
+    duration: 120.0
+  - #  expanded by cruiseplan enrich --expand-sections
+    name: SEC_001_Stn012
+    coordinates_ddm: 46 41.68'N, 048 19.03'W
+    water_depth: 103.0
+    operation_type: CTD
+    action: profile
+    latitude: 46.69462
+    longitude: -48.31724
+    comment: Station 12/14 on SEC_001 section
+    duration: 120.0
+  - #  expanded by cruiseplan enrich --expand-sections
+    name: SEC_001_Stn013
+    coordinates_ddm: 46 50.85'N, 048 09.54'W
+    water_depth: 115.0
+    operation_type: CTD
+    action: profile
+    latitude: 46.84742
+    longitude: -48.15907
+    comment: Station 13/14 on SEC_001 section
+    duration: 120.0
+  - #  expanded by cruiseplan enrich --expand-sections
+    name: SEC_001_Stn014
+    coordinates_ddm: 47 00.00'N, 048 00.00'W
+    water_depth: 142.0
+    operation_type: CTD
+    action: profile
+    latitude: 47.0
+    longitude: -48.0
+    comment: Station 14/14 on SEC_001 section
+    duration: 120.0
+ports:
+  - name: port_cadiz
+    latitude: 36.5298
+    longitude: -6.2923
+    display_name: Cadiz, Spain
+  - name: port_halifax
+    latitude: 44.6488
+    longitude: -63.5752
+    display_name: Halifax, Nova Scotia

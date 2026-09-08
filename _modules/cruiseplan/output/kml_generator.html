@@ -1,0 +1,772 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cruiseplan.output.kml_generator &mdash; CruisePlan v0.4.0 v0.4.0.post1.dev2</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=295744b5"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            CruisePlan v0.4.0
+              <img src="../../../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/yaml-basics.html">YAML Basics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/cli-commands.html">CLI Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/yaml-full.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/output-formats.html">Output Formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/api-examples.html">API Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../demo-output.html">CruisePlan Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/developer_guide.html">CruisePlan Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/manual_testing.html">Manual Testing and Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">CruisePlan v0.4.0</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cruiseplan.output.kml_generator</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cruiseplan.output.kml_generator</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""</span>
+<span class="sd">KML Generation System for Cruise Planning.</span>
+
+<span class="sd">Generates Google Earth compatible KML files from cruise configuration catalogs.</span>
+<span class="sd">Creates geospatial visualizations of all cruise entities (stations, moorings,</span>
+<span class="sd">transits, ports, areas) for geographic analysis and planning.</span>
+
+<span class="sd">This module provides two generation modes:</span>
+<span class="sd">1. Catalog-based: Generate KML from YAML configuration entities (recommended)</span>
+<span class="sd">2. Timeline-based: Generate KML from scheduled timeline activities (legacy)</span>
+
+<span class="sd">Notes</span>
+<span class="sd">-----</span>
+<span class="sd">KML files can be opened directly in Google Earth or other GIS applications.</span>
+<span class="sd">Each entity type is styled differently for visual distinction. Point features</span>
+<span class="sd">include detailed metadata in popups. Catalog-based generation shows each</span>
+<span class="sd">location once regardless of visitation frequency.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.config.cruise_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.output_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_line_operation</span><span class="p">,</span> <span class="n">is_scientific_operation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.timeline.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActivityRecord</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># KML styles for different operation types</span>
+<span class="c1"># TODO: Refactor to use centralized PLOT_STYLES from utils/plot_config.py</span>
+<span class="n">KML_STYLES</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">        &lt;Style id="stationStyle"&gt;</span>
+<span class="s2">            &lt;IconStyle&gt;</span>
+<span class="s2">                &lt;color&gt;ff0000ff&lt;/color&gt;</span>
+<span class="s2">                &lt;scale&gt;1.2&lt;/scale&gt;</span>
+<span class="s2">                &lt;Icon&gt;</span>
+<span class="s2">                    &lt;href&gt;http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png&lt;/href&gt;</span>
+<span class="s2">                &lt;/Icon&gt;</span>
+<span class="s2">            &lt;/IconStyle&gt;</span>
+<span class="s2">        &lt;/Style&gt;</span>
+
+<span class="s2">        &lt;Style id="mooringStyle"&gt;</span>
+<span class="s2">            &lt;IconStyle&gt;</span>
+<span class="s2">                &lt;color&gt;ff00ff00&lt;/color&gt;</span>
+<span class="s2">                &lt;scale&gt;1.2&lt;/scale&gt;</span>
+<span class="s2">                &lt;Icon&gt;</span>
+<span class="s2">                    &lt;href&gt;http://maps.google.com/mapfiles/kml/shapes/placemark_square.png&lt;/href&gt;</span>
+<span class="s2">                &lt;/Icon&gt;</span>
+<span class="s2">            &lt;/IconStyle&gt;</span>
+<span class="s2">        &lt;/Style&gt;</span>
+
+<span class="s2">        &lt;Style id="lineOpStyle"&gt;</span>
+<span class="s2">            &lt;LineStyle&gt;</span>
+<span class="s2">                &lt;color&gt;ff0066FF&lt;/color&gt;</span>
+<span class="s2">                &lt;width&gt;3&lt;/width&gt;</span>
+<span class="s2">            &lt;/LineStyle&gt;</span>
+<span class="s2">        &lt;/Style&gt;</span>
+
+<span class="s2">        &lt;Style id="areaStyle"&gt;</span>
+<span class="s2">            &lt;LineStyle&gt;</span>
+<span class="s2">                &lt;color&gt;ffFFD700&lt;/color&gt;</span>
+<span class="s2">                &lt;width&gt;2&lt;/width&gt;</span>
+<span class="s2">            &lt;/LineStyle&gt;</span>
+<span class="s2">            &lt;PolyStyle&gt;</span>
+<span class="s2">                &lt;color&gt;66FFD700&lt;/color&gt;</span>
+<span class="s2">            &lt;/PolyStyle&gt;</span>
+<span class="s2">        &lt;/Style&gt;</span>
+<span class="s2">"""</span>
+
+
+<div class="viewcode-block" id="KMLGenerator">
+<a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.kml_generator.KMLGenerator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">KMLGenerator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Manages KML generation for cruise schedules showing only scientific operations.</span>
+
+<span class="sd">    This class generates Google Earth compatible KML files containing geospatial</span>
+<span class="sd">    representations of scientific cruise activities. Only scientific operations</span>
+<span class="sd">    are included, with different styling for each operation type.</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="KMLGenerator.__init__">
+<a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.kml_generator.KMLGenerator.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Initialize the KML generator."""</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="KMLGenerator.generate_schedule_kml">
+<a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.kml_generator.KMLGenerator.generate_schedule_kml">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_schedule_kml</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">output_file</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Generate KML schedule output with only scientific operations.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : CruiseConfig</span>
+<span class="sd">            The cruise configuration object</span>
+<span class="sd">        timeline : List[ActivityRecord]</span>
+<span class="sd">            Timeline generated by the scheduler</span>
+<span class="sd">        output_file : Path</span>
+<span class="sd">            Path to output KML file</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Path</span>
+<span class="sd">            Path to generated KML file</span>
+<span class="sd">        """</span>
+        <span class="c1"># Define KML styles for different operation types</span>
+        <span class="n">kml_content</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"""&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+<span class="s2">&lt;kml xmlns="http://www.opengis.net/kml/2.2"&gt;</span>
+<span class="s2">    &lt;Document&gt;</span>
+<span class="s2">        &lt;name&gt;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">cruise_name</span><span class="si">}</span><span class="s2"> - Schedule&lt;/name&gt;</span>
+<span class="s2">        &lt;description&gt;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">description</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s2">"Cruise schedule"</span><span class="si">}</span><span class="s2">&lt;/description&gt;</span>
+
+<span class="s2">        &lt;!-- Styles for different operation types --&gt;</span>
+<span class="s2">        &lt;Style id="stationStyle"&gt;</span>
+<span class="s2">            &lt;IconStyle&gt;</span>
+<span class="s2">                &lt;color&gt;ff0000ff&lt;/color&gt;</span>
+<span class="s2">                &lt;scale&gt;1.2&lt;/scale&gt;</span>
+<span class="s2">                &lt;Icon&gt;</span>
+<span class="s2">                    &lt;href&gt;http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png&lt;/href&gt;</span>
+<span class="s2">                &lt;/Icon&gt;</span>
+<span class="s2">            &lt;/IconStyle&gt;</span>
+<span class="s2">        &lt;/Style&gt;</span>
+
+<span class="s2">        &lt;Style id="mooringStyle"&gt;</span>
+<span class="s2">            &lt;IconStyle&gt;</span>
+<span class="s2">                &lt;color&gt;ff00ff00&lt;/color&gt;</span>
+<span class="s2">                &lt;scale&gt;1.2&lt;/scale&gt;</span>
+<span class="s2">                &lt;Icon&gt;</span>
+<span class="s2">                    &lt;href&gt;http://maps.google.com/mapfiles/kml/shapes/placemark_square.png&lt;/href&gt;</span>
+<span class="s2">                &lt;/Icon&gt;</span>
+<span class="s2">            &lt;/IconStyle&gt;</span>
+<span class="s2">        &lt;/Style&gt;</span>
+
+<span class="s2">        &lt;Style id="lineOpStyle"&gt;</span>
+<span class="s2">            &lt;LineStyle&gt;</span>
+<span class="s2">                &lt;color&gt;ff0066FF&lt;/color&gt;</span>
+<span class="s2">                &lt;width&gt;3&lt;/width&gt;</span>
+<span class="s2">            &lt;/LineStyle&gt;</span>
+<span class="s2">        &lt;/Style&gt;</span>
+
+<span class="s2">        &lt;Style id="areaStyle"&gt;</span>
+<span class="s2">            &lt;LineStyle&gt;</span>
+<span class="s2">                &lt;color&gt;ff00ffff&lt;/color&gt;</span>
+<span class="s2">                &lt;width&gt;2&lt;/width&gt;</span>
+<span class="s2">            &lt;/LineStyle&gt;</span>
+<span class="s2">            &lt;PolyStyle&gt;</span>
+<span class="s2">                &lt;color&gt;4000ffff&lt;/color&gt;</span>
+<span class="s2">                &lt;fill&gt;1&lt;/fill&gt;</span>
+<span class="s2">            &lt;/PolyStyle&gt;</span>
+<span class="s2">        &lt;/Style&gt;</span>
+<span class="s2">"""</span>
+
+        <span class="c1"># Filter timeline to only include scientific operations</span>
+        <span class="n">scientific_activities</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">activity</span> <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">timeline</span> <span class="k">if</span> <span class="n">is_scientific_operation</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">scientific_activities</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">is_line_operation</span><span class="p">(</span><span class="n">activity</span><span class="p">):</span>
+                <span class="c1"># Line operation - create line with label at midpoint</span>
+                <span class="n">start_lat</span> <span class="o">=</span> <span class="n">activity</span><span class="p">[</span><span class="s2">"start_lat"</span><span class="p">]</span>
+                <span class="n">start_lon</span> <span class="o">=</span> <span class="n">activity</span><span class="p">[</span><span class="s2">"start_lon"</span><span class="p">]</span>
+                <span class="n">end_lat</span> <span class="o">=</span> <span class="n">activity</span><span class="p">[</span><span class="s2">"lat"</span><span class="p">]</span>
+                <span class="n">end_lon</span> <span class="o">=</span> <span class="n">activity</span><span class="p">[</span><span class="s2">"lon"</span><span class="p">]</span>
+
+                <span class="c1"># Calculate midpoint for label</span>
+                <span class="n">mid_lat</span> <span class="o">=</span> <span class="p">(</span><span class="n">start_lat</span> <span class="o">+</span> <span class="n">end_lat</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+                <span class="n">mid_lon</span> <span class="o">=</span> <span class="p">(</span><span class="n">start_lon</span> <span class="o">+</span> <span class="n">end_lon</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+
+                <span class="n">action_str</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"action"</span><span class="p">,</span> <span class="s2">"Survey"</span><span class="p">)</span>
+
+                <span class="n">kml_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"""</span>
+<span class="s2">        &lt;Placemark&gt;</span>
+<span class="s2">            &lt;name&gt;</span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">action_str</span><span class="si">}</span><span class="s2">&lt;/name&gt;</span>
+<span class="s2">            &lt;description&gt;</span>
+<span class="s2">                Activity: </span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s2">"activity"</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">action_str</span><span class="si">}</span><span class="s2">)</span>
+<span class="s2">                Start: </span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s2">"start_time"</span><span class="p">]</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M"</span><span class="p">)</span><span class="si">}</span>
+<span class="s2">                Duration: </span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s2">"duration_minutes"</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> min</span>
+<span class="s2">                Operation Distance: </span><span class="si">{</span><span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"dist_nm"</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> nm</span>
+<span class="s2">            &lt;/description&gt;</span>
+<span class="s2">            &lt;styleUrl&gt;#lineOpStyle&lt;/styleUrl&gt;</span>
+<span class="s2">            &lt;LineString&gt;</span>
+<span class="s2">                &lt;coordinates&gt;</span>
+<span class="s2">                    </span><span class="si">{</span><span class="n">start_lon</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">start_lat</span><span class="si">}</span><span class="s2">,0</span>
+<span class="s2">                    </span><span class="si">{</span><span class="n">end_lon</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">end_lat</span><span class="si">}</span><span class="s2">,0</span>
+<span class="s2">                &lt;/coordinates&gt;</span>
+<span class="s2">            &lt;/LineString&gt;</span>
+<span class="s2">        &lt;/Placemark&gt;</span>
+
+<span class="s2">        &lt;Placemark&gt;</span>
+<span class="s2">            &lt;name&gt;</span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]</span><span class="si">}</span><span class="s2">&lt;/name&gt;</span>
+<span class="s2">            &lt;description&gt;Midpoint label for </span><span class="si">{</span><span class="n">action_str</span><span class="si">}</span><span class="s2"> operation&lt;/description&gt;</span>
+<span class="s2">            &lt;Point&gt;</span>
+<span class="s2">                &lt;coordinates&gt;</span><span class="si">{</span><span class="n">mid_lon</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">mid_lat</span><span class="si">}</span><span class="s2">,0&lt;/coordinates&gt;</span>
+<span class="s2">            &lt;/Point&gt;</span>
+<span class="s2">        &lt;/Placemark&gt;</span>
+<span class="s2">"""</span>
+            <span class="k">elif</span> <span class="n">activity</span><span class="p">[</span><span class="s2">"activity"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"Area"</span><span class="p">:</span>
+                <span class="c1"># Area operation - create polygon with corners</span>
+                <span class="n">corners</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"corners"</span><span class="p">,</span> <span class="p">[])</span>
+                <span class="k">if</span> <span class="n">corners</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">corners</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+                    <span class="c1"># Create coordinate list for polygon (close the polygon by repeating first point)</span>
+                    <span class="n">coord_list</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">corner</span><span class="p">[</span><span class="s1">'longitude'</span><span class="p">]</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">corner</span><span class="p">[</span><span class="s1">'latitude'</span><span class="p">]</span><span class="si">}</span><span class="s2">,0"</span>
+                        <span class="k">for</span> <span class="n">corner</span> <span class="ow">in</span> <span class="n">corners</span>
+                    <span class="p">]</span>
+                    <span class="c1"># Close the polygon</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">corners</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">coord_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">corners</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">'longitude'</span><span class="p">]</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">corners</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">'latitude'</span><span class="p">]</span><span class="si">}</span><span class="s2">,0"</span>
+                        <span class="p">)</span>
+
+                    <span class="n">coordinates_str</span> <span class="o">=</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">coord_list</span><span class="p">)</span>
+                    <span class="n">action_str</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"action"</span><span class="p">,</span> <span class="s2">"Survey"</span><span class="p">)</span>
+
+                    <span class="n">kml_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"""</span>
+<span class="s2">        &lt;Placemark&gt;</span>
+<span class="s2">            &lt;name&gt;</span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">action_str</span><span class="si">}</span><span class="s2">&lt;/name&gt;</span>
+<span class="s2">            &lt;description&gt;</span>
+<span class="s2">                Activity: </span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s2">"activity"</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">action_str</span><span class="si">}</span><span class="s2">)</span>
+<span class="s2">                Start: </span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s2">"start_time"</span><span class="p">]</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M"</span><span class="p">)</span><span class="si">}</span>
+<span class="s2">                Duration: </span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s2">"duration_minutes"</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> min</span>
+<span class="s2">                Area: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">corners</span><span class="p">)</span><span class="si">}</span><span class="s2"> corners</span>
+<span class="s2">            &lt;/description&gt;</span>
+<span class="s2">            &lt;styleUrl&gt;#areaStyle&lt;/styleUrl&gt;</span>
+<span class="s2">            &lt;Polygon&gt;</span>
+<span class="s2">                &lt;outerBoundaryIs&gt;</span>
+<span class="s2">                    &lt;LinearRing&gt;</span>
+<span class="s2">                        &lt;coordinates&gt;</span><span class="si">{</span><span class="n">coordinates_str</span><span class="si">}</span><span class="s2">&lt;/coordinates&gt;</span>
+<span class="s2">                    &lt;/LinearRing&gt;</span>
+<span class="s2">                &lt;/outerBoundaryIs&gt;</span>
+<span class="s2">            &lt;/Polygon&gt;</span>
+<span class="s2">        &lt;/Placemark&gt;</span>
+<span class="s2">"""</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Fallback to center point if no corners defined</span>
+                    <span class="n">kml_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"""</span>
+<span class="s2">        &lt;Placemark&gt;</span>
+<span class="s2">            &lt;name&gt;</span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]</span><span class="si">}</span><span class="s2">&lt;/name&gt;</span>
+<span class="s2">            &lt;description&gt;</span>
+<span class="s2">                Activity: </span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s2">"activity"</span><span class="p">]</span><span class="si">}</span><span class="s2"> (Area - no corners defined)</span>
+<span class="s2">                Start: </span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s2">"start_time"</span><span class="p">]</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M"</span><span class="p">)</span><span class="si">}</span>
+<span class="s2">                Duration: </span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s2">"duration_minutes"</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> min</span>
+<span class="s2">            &lt;/description&gt;</span>
+<span class="s2">            &lt;styleUrl&gt;#stationStyle&lt;/styleUrl&gt;</span>
+<span class="s2">            &lt;Point&gt;</span>
+<span class="s2">                &lt;coordinates&gt;</span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s2">"lon"</span><span class="p">]</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s2">"lat"</span><span class="p">]</span><span class="si">}</span><span class="s2">,0&lt;/coordinates&gt;</span>
+<span class="s2">            &lt;/Point&gt;</span>
+<span class="s2">        &lt;/Placemark&gt;</span>
+<span class="s2">"""</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Point operation - Station or Mooring</span>
+                <span class="n">style_id</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">"stationStyle"</span>
+                    <span class="k">if</span> <span class="n">activity</span><span class="p">[</span><span class="s2">"activity"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"Station"</span>
+                    <span class="k">else</span> <span class="s2">"mooringStyle"</span>
+                <span class="p">)</span>
+                <span class="n">depth_str</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"Depth: </span><span class="si">{</span><span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'depth'</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> m"</span>
+                    <span class="k">if</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"depth"</span><span class="p">)</span>
+                    <span class="k">else</span> <span class="s2">""</span>
+                <span class="p">)</span>
+
+                <span class="n">kml_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"""</span>
+<span class="s2">        &lt;Placemark&gt;</span>
+<span class="s2">            &lt;name&gt;</span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]</span><span class="si">}</span><span class="s2">&lt;/name&gt;</span>
+<span class="s2">            &lt;description&gt;</span>
+<span class="s2">                Activity: </span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s2">"activity"</span><span class="p">]</span><span class="si">}</span>
+<span class="s2">                Start: </span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s2">"start_time"</span><span class="p">]</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M"</span><span class="p">)</span><span class="si">}</span>
+<span class="s2">                Duration: </span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s2">"duration_minutes"</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> min</span>
+<span class="s2">                </span><span class="si">{</span><span class="n">depth_str</span><span class="si">}</span>
+<span class="s2">            &lt;/description&gt;</span>
+<span class="s2">            &lt;styleUrl&gt;#</span><span class="si">{</span><span class="n">style_id</span><span class="si">}</span><span class="s2">&lt;/styleUrl&gt;</span>
+<span class="s2">            &lt;Point&gt;</span>
+<span class="s2">                &lt;coordinates&gt;</span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s2">"lon"</span><span class="p">]</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s2">"lat"</span><span class="p">]</span><span class="si">}</span><span class="s2">,0&lt;/coordinates&gt;</span>
+<span class="s2">            &lt;/Point&gt;</span>
+<span class="s2">        &lt;/Placemark&gt;</span>
+<span class="s2">"""</span>
+
+        <span class="n">kml_content</span> <span class="o">+=</span> <span class="s2">"""</span>
+<span class="s2">    &lt;/Document&gt;</span>
+<span class="s2">&lt;/kml&gt;</span>
+<span class="s2">"""</span>
+
+        <span class="c1"># Write to file</span>
+        <span class="n">output_file</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">kml_content</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output_file</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="generate_kml_catalog">
+<a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.kml_generator.generate_kml_catalog">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_kml_catalog</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">output_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Generate KML file from YAML configuration catalog entities.</span>
+
+<span class="sd">    Creates a KML file containing all entities defined in the cruise configuration</span>
+<span class="sd">    (stations, moorings, transits, ports, areas) without timeline duplication.</span>
+<span class="sd">    Each location appears once regardless of how many times it's visited.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : CruiseConfig</span>
+<span class="sd">        The cruise configuration object containing all catalog entities</span>
+<span class="sd">    output_file : Path</span>
+<span class="sd">        Path to output KML file</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path</span>
+<span class="sd">        Path to generated KML file</span>
+<span class="sd">    """</span>
+    <span class="c1"># Define KML styles for different entity types</span>
+    <span class="n">kml_content</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"""&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+<span class="s2">&lt;kml xmlns="http://www.opengis.net/kml/2.2"&gt;</span>
+<span class="s2">    &lt;Document&gt;</span>
+<span class="s2">        &lt;name&gt;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">cruise_name</span><span class="si">}</span><span class="s2"> - Catalog&lt;/name&gt;</span>
+<span class="s2">        &lt;description&gt;Cruise configuration catalog including all stations, moorings, transits, ports, and areas&lt;/description&gt;</span>
+
+<span class="s2">        &lt;!-- Styles for different entity types --&gt;</span>
+<span class="s2">        &lt;Style id="stationStyle"&gt;</span>
+<span class="s2">            &lt;IconStyle&gt;</span>
+<span class="s2">                &lt;color&gt;ff0000ff&lt;/color&gt;</span>
+<span class="s2">                &lt;scale&gt;1.2&lt;/scale&gt;</span>
+<span class="s2">                &lt;Icon&gt;</span>
+<span class="s2">                    &lt;href&gt;http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png&lt;/href&gt;</span>
+<span class="s2">                &lt;/Icon&gt;</span>
+<span class="s2">            &lt;/IconStyle&gt;</span>
+<span class="s2">        &lt;/Style&gt;</span>
+
+<span class="s2">        &lt;Style id="mooringStyle"&gt;</span>
+<span class="s2">            &lt;IconStyle&gt;</span>
+<span class="s2">                &lt;color&gt;ff00ff00&lt;/color&gt;</span>
+<span class="s2">                &lt;scale&gt;1.2&lt;/scale&gt;</span>
+<span class="s2">                &lt;Icon&gt;</span>
+<span class="s2">                    &lt;href&gt;http://maps.google.com/mapfiles/kml/shapes/placemark_square.png&lt;/href&gt;</span>
+<span class="s2">                &lt;/Icon&gt;</span>
+<span class="s2">            &lt;/IconStyle&gt;</span>
+<span class="s2">        &lt;/Style&gt;</span>
+
+<span class="s2">        &lt;Style id="portStyle"&gt;</span>
+<span class="s2">            &lt;IconStyle&gt;</span>
+<span class="s2">                &lt;color&gt;ff0080ff&lt;/color&gt;</span>
+<span class="s2">                &lt;scale&gt;1.5&lt;/scale&gt;</span>
+<span class="s2">                &lt;Icon&gt;</span>
+<span class="s2">                    &lt;href&gt;http://maps.google.com/mapfiles/kml/shapes/marina.png&lt;/href&gt;</span>
+<span class="s2">                &lt;/Icon&gt;</span>
+<span class="s2">            &lt;/IconStyle&gt;</span>
+<span class="s2">        &lt;/Style&gt;</span>
+
+<span class="s2">        &lt;Style id="transitStyle"&gt;</span>
+<span class="s2">            &lt;LineStyle&gt;</span>
+<span class="s2">                &lt;color&gt;800066FF&lt;/color&gt;</span>
+<span class="s2">                &lt;width&gt;3&lt;/width&gt;</span>
+<span class="s2">            &lt;/LineStyle&gt;</span>
+<span class="s2">        &lt;/Style&gt;</span>
+
+<span class="s2">        &lt;Style id="areaStyle"&gt;</span>
+<span class="s2">            &lt;LineStyle&gt;</span>
+<span class="s2">                &lt;color&gt;ff00ffff&lt;/color&gt;</span>
+<span class="s2">                &lt;width&gt;2&lt;/width&gt;</span>
+<span class="s2">            &lt;/LineStyle&gt;</span>
+<span class="s2">            &lt;PolyStyle&gt;</span>
+<span class="s2">                &lt;color&gt;4000ffff&lt;/color&gt;</span>
+<span class="s2">                &lt;fill&gt;1&lt;/fill&gt;</span>
+<span class="s2">            &lt;/PolyStyle&gt;</span>
+<span class="s2">        &lt;/Style&gt;</span>
+
+<span class="s2">        &lt;!-- Ports --&gt;"""</span>
+
+    <span class="c1"># Add ports from cruise configuration</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">"departure_port"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="p">:</span>
+        <span class="n">port</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">departure_port</span>
+        <span class="n">kml_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"""</span>
+<span class="s2">        &lt;Placemark&gt;</span>
+<span class="s2">            &lt;name&gt;Departure: </span><span class="si">{</span><span class="n">port</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&lt;/name&gt;</span>
+<span class="s2">            &lt;description&gt;</span>
+<span class="s2">                Port: </span><span class="si">{</span><span class="n">port</span><span class="o">.</span><span class="n">name</span><span class="si">}</span>
+<span class="s2">                Type: Departure Port</span>
+<span class="s2">                Location: </span><span class="si">{</span><span class="n">port</span><span class="o">.</span><span class="n">latitude</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">°N, </span><span class="si">{</span><span class="n">port</span><span class="o">.</span><span class="n">longitude</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">°W</span>
+<span class="s2">                Timezone: </span><span class="si">{</span><span class="nb">getattr</span><span class="p">(</span><span class="n">port</span><span class="p">,</span><span class="w"> </span><span class="s2">"timezone"</span><span class="p">,</span><span class="w"> </span><span class="s2">"N/A"</span><span class="p">)</span><span class="si">}</span>
+<span class="s2">            &lt;/description&gt;</span>
+<span class="s2">            &lt;styleUrl&gt;#portStyle&lt;/styleUrl&gt;</span>
+<span class="s2">            &lt;Point&gt;</span>
+<span class="s2">                &lt;coordinates&gt;</span><span class="si">{</span><span class="n">port</span><span class="o">.</span><span class="n">longitude</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">port</span><span class="o">.</span><span class="n">latitude</span><span class="si">}</span><span class="s2">,0&lt;/coordinates&gt;</span>
+<span class="s2">            &lt;/Point&gt;</span>
+<span class="s2">        &lt;/Placemark&gt;"""</span>
+
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">"arrival_port"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span><span class="p">:</span>
+        <span class="n">port</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span>
+        <span class="n">kml_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"""</span>
+<span class="s2">        &lt;Placemark&gt;</span>
+<span class="s2">            &lt;name&gt;Arrival: </span><span class="si">{</span><span class="n">port</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&lt;/name&gt;</span>
+<span class="s2">            &lt;description&gt;</span>
+<span class="s2">                Port: </span><span class="si">{</span><span class="n">port</span><span class="o">.</span><span class="n">name</span><span class="si">}</span>
+<span class="s2">                Type: Arrival Port</span>
+<span class="s2">                Location: </span><span class="si">{</span><span class="n">port</span><span class="o">.</span><span class="n">latitude</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">°N, </span><span class="si">{</span><span class="n">port</span><span class="o">.</span><span class="n">longitude</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">°W</span>
+<span class="s2">                Timezone: </span><span class="si">{</span><span class="nb">getattr</span><span class="p">(</span><span class="n">port</span><span class="p">,</span><span class="w"> </span><span class="s2">"timezone"</span><span class="p">,</span><span class="w"> </span><span class="s2">"N/A"</span><span class="p">)</span><span class="si">}</span>
+<span class="s2">            &lt;/description&gt;</span>
+<span class="s2">            &lt;styleUrl&gt;#portStyle&lt;/styleUrl&gt;</span>
+<span class="s2">            &lt;Point&gt;</span>
+<span class="s2">                &lt;coordinates&gt;</span><span class="si">{</span><span class="n">port</span><span class="o">.</span><span class="n">longitude</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">port</span><span class="o">.</span><span class="n">latitude</span><span class="si">}</span><span class="s2">,0&lt;/coordinates&gt;</span>
+<span class="s2">            &lt;/Point&gt;</span>
+<span class="s2">        &lt;/Placemark&gt;"""</span>
+
+    <span class="c1"># Add ports from configuration catalog</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">"ports"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">ports</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">port</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">ports</span><span class="p">:</span>
+            <span class="n">timezone_str</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="s2">"timezone"</span><span class="p">,</span> <span class="s2">"N/A"</span><span class="p">)</span>
+            <span class="n">kml_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"""</span>
+<span class="s2">        &lt;Placemark&gt;</span>
+<span class="s2">            &lt;name&gt;</span><span class="si">{</span><span class="n">port</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&lt;/name&gt;</span>
+<span class="s2">            &lt;description&gt;</span>
+<span class="s2">                Port: </span><span class="si">{</span><span class="n">port</span><span class="o">.</span><span class="n">name</span><span class="si">}</span>
+<span class="s2">                Type: Catalog Port</span>
+<span class="s2">                Location: </span><span class="si">{</span><span class="n">port</span><span class="o">.</span><span class="n">latitude</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">°N, </span><span class="si">{</span><span class="n">port</span><span class="o">.</span><span class="n">longitude</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">°W</span>
+<span class="s2">                Timezone: </span><span class="si">{</span><span class="n">timezone_str</span><span class="si">}</span>
+<span class="s2">            &lt;/description&gt;</span>
+<span class="s2">            &lt;styleUrl&gt;#portStyle&lt;/styleUrl&gt;</span>
+<span class="s2">            &lt;Point&gt;</span>
+<span class="s2">                &lt;coordinates&gt;</span><span class="si">{</span><span class="n">port</span><span class="o">.</span><span class="n">longitude</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">port</span><span class="o">.</span><span class="n">latitude</span><span class="si">}</span><span class="s2">,0&lt;/coordinates&gt;</span>
+<span class="s2">            &lt;/Point&gt;</span>
+<span class="s2">        &lt;/Placemark&gt;"""</span>
+
+    <span class="n">kml_content</span> <span class="o">+=</span> <span class="s2">"""</span>
+
+<span class="s2">        &lt;!-- Stations --&gt;"""</span>
+
+    <span class="c1"># Add stations from configuration</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">"points"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">points</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">points</span><span class="p">:</span>
+            <span class="c1"># Convert enum values to strings</span>
+            <span class="n">operation_type</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">"operation_type"</span><span class="p">,</span> <span class="s2">"station"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">operation_type</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">):</span>
+                <span class="n">operation_type</span> <span class="o">=</span> <span class="n">operation_type</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">if</span> <span class="n">operation_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">operation_type</span> <span class="o">=</span> <span class="s2">"station"</span>
+
+            <span class="n">action</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">"action"</span><span class="p">,</span> <span class="s2">"profile"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">):</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">if</span> <span class="n">action</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="s2">"profile"</span>
+
+            <span class="c1"># Use water_depth field (added by enrichment) with fallback</span>
+            <span class="n">depth</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">"water_depth"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span>
+                <span class="n">station</span><span class="p">,</span> <span class="s2">"depth"</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="p">)</span>
+            <span class="n">depth_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">depth</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">"N/A"</span>
+
+            <span class="n">kml_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"""</span>
+<span class="s2">        &lt;Placemark&gt;</span>
+<span class="s2">            &lt;name&gt;</span><span class="si">{</span><span class="n">station</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&lt;/name&gt;</span>
+<span class="s2">            &lt;description&gt;</span>
+<span class="s2">                Type: </span><span class="si">{</span><span class="n">operation_type</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span>
+<span class="s2">                Action: </span><span class="si">{</span><span class="n">action</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span>
+<span class="s2">                Location: </span><span class="si">{</span><span class="n">station</span><span class="o">.</span><span class="n">latitude</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">°N, </span><span class="si">{</span><span class="n">station</span><span class="o">.</span><span class="n">longitude</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">°W</span>
+<span class="s2">                Depth: </span><span class="si">{</span><span class="n">depth_str</span><span class="si">}</span><span class="s2"> m</span>
+<span class="s2">            &lt;/description&gt;</span>
+<span class="s2">            &lt;styleUrl&gt;#stationStyle&lt;/styleUrl&gt;</span>
+<span class="s2">            &lt;Point&gt;</span>
+<span class="s2">                &lt;coordinates&gt;</span><span class="si">{</span><span class="n">station</span><span class="o">.</span><span class="n">longitude</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">station</span><span class="o">.</span><span class="n">latitude</span><span class="si">}</span><span class="s2">,0&lt;/coordinates&gt;</span>
+<span class="s2">            &lt;/Point&gt;</span>
+<span class="s2">        &lt;/Placemark&gt;"""</span>
+
+    <span class="n">kml_content</span> <span class="o">+=</span> <span class="s2">"""</span>
+
+<span class="s2">        &lt;!-- Moorings --&gt;"""</span>
+
+    <span class="c1"># Add moorings from configuration</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">"moorings"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">moorings</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">mooring</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">moorings</span><span class="p">:</span>
+            <span class="c1"># Convert enum values to strings</span>
+            <span class="n">operation_type</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">mooring</span><span class="p">,</span> <span class="s2">"operation_type"</span><span class="p">,</span> <span class="s2">"mooring"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">operation_type</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">):</span>
+                <span class="n">operation_type</span> <span class="o">=</span> <span class="n">operation_type</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">if</span> <span class="n">operation_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">operation_type</span> <span class="o">=</span> <span class="s2">"mooring"</span>
+
+            <span class="n">action</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">mooring</span><span class="p">,</span> <span class="s2">"action"</span><span class="p">,</span> <span class="s2">"deployment"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">):</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">if</span> <span class="n">action</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="s2">"deployment"</span>
+
+            <span class="c1"># Use water_depth field (added by enrichment) with fallback</span>
+            <span class="n">depth</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">mooring</span><span class="p">,</span> <span class="s2">"water_depth"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span>
+                <span class="n">mooring</span><span class="p">,</span> <span class="s2">"depth"</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="p">)</span>
+            <span class="n">depth_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">depth</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">"N/A"</span>
+
+            <span class="n">kml_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"""</span>
+<span class="s2">        &lt;Placemark&gt;</span>
+<span class="s2">            &lt;name&gt;</span><span class="si">{</span><span class="n">mooring</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&lt;/name&gt;</span>
+<span class="s2">            &lt;description&gt;</span>
+<span class="s2">                Type: </span><span class="si">{</span><span class="n">operation_type</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span>
+<span class="s2">                Action: </span><span class="si">{</span><span class="n">action</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span>
+<span class="s2">                Location: </span><span class="si">{</span><span class="n">mooring</span><span class="o">.</span><span class="n">latitude</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">°N, </span><span class="si">{</span><span class="n">mooring</span><span class="o">.</span><span class="n">longitude</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">°W</span>
+<span class="s2">                Depth: </span><span class="si">{</span><span class="n">depth_str</span><span class="si">}</span><span class="s2"> m</span>
+<span class="s2">            &lt;/description&gt;</span>
+<span class="s2">            &lt;styleUrl&gt;#mooringStyle&lt;/styleUrl&gt;</span>
+<span class="s2">            &lt;Point&gt;</span>
+<span class="s2">                &lt;coordinates&gt;</span><span class="si">{</span><span class="n">mooring</span><span class="o">.</span><span class="n">longitude</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">mooring</span><span class="o">.</span><span class="n">latitude</span><span class="si">}</span><span class="s2">,0&lt;/coordinates&gt;</span>
+<span class="s2">            &lt;/Point&gt;</span>
+<span class="s2">        &lt;/Placemark&gt;"""</span>
+
+    <span class="n">kml_content</span> <span class="o">+=</span> <span class="s2">"""</span>
+
+<span class="s2">        &lt;!-- Transits --&gt;"""</span>
+
+    <span class="c1"># Add lines from configuration</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">"lines"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">lines</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">lines</span><span class="p">:</span>
+            <span class="c1"># Extract start and end coordinates from route waypoints</span>
+            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">route</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">route</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">start_lat</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">latitude</span>
+                <span class="n">start_lon</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">longitude</span>
+                <span class="n">end_lat</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">latitude</span>
+                <span class="n">end_lon</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">longitude</span>
+
+                <span class="c1"># Calculate route distance if available</span>
+                <span class="n">route_distance</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="s2">"distance"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">route_distance</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">route_distance</span> <span class="o">==</span> <span class="s2">"calculated"</span><span class="p">:</span>
+                    <span class="c1"># Calculate distance if not provided</span>
+                    <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+                    <span class="n">lat1</span><span class="p">,</span> <span class="n">lon1</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">start_lat</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">start_lon</span><span class="p">)</span>
+                    <span class="n">lat2</span><span class="p">,</span> <span class="n">lon2</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">end_lat</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">end_lon</span><span class="p">)</span>
+                    <span class="n">dlat</span><span class="p">,</span> <span class="n">dlon</span> <span class="o">=</span> <span class="n">lat2</span> <span class="o">-</span> <span class="n">lat1</span><span class="p">,</span> <span class="n">lon2</span> <span class="o">-</span> <span class="n">lon1</span>
+                    <span class="n">a</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">dlat</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+                        <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat1</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat2</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">dlon</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+                    <span class="p">)</span>
+                    <span class="n">c</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">asin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
+                    <span class="n">route_distance</span> <span class="o">=</span> <span class="mf">3440.065</span> <span class="o">*</span> <span class="n">c</span>  <span class="c1"># Earth radius in nautical miles</span>
+                    <span class="n">route_distance</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">route_distance</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">"</span>
+
+                <span class="c1"># Get the actual operation type from the config</span>
+                <span class="n">operation_type</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="s2">"operation_type"</span><span class="p">,</span> <span class="s2">"line"</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">operation_type</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">):</span>
+                    <span class="n">operation_type</span> <span class="o">=</span> <span class="n">operation_type</span><span class="o">.</span><span class="n">value</span>
+
+                <span class="n">kml_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"""</span>
+<span class="s2">        &lt;Placemark&gt;</span>
+<span class="s2">            &lt;name&gt;</span><span class="si">{</span><span class="n">line</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&lt;/name&gt;</span>
+<span class="s2">            &lt;description&gt;</span>
+<span class="s2">                Type: </span><span class="si">{</span><span class="n">operation_type</span><span class="si">}</span>
+<span class="s2">                Start: </span><span class="si">{</span><span class="n">start_lat</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">°N, </span><span class="si">{</span><span class="n">start_lon</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">°W</span>
+<span class="s2">                End: </span><span class="si">{</span><span class="n">end_lat</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">°N, </span><span class="si">{</span><span class="n">end_lon</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">°W</span>
+<span class="s2">                Distance: </span><span class="si">{</span><span class="n">route_distance</span><span class="si">}</span><span class="s2"> nm</span>
+<span class="s2">            &lt;/description&gt;</span>
+<span class="s2">            &lt;styleUrl&gt;#transitStyle&lt;/styleUrl&gt;</span>
+<span class="s2">            &lt;LineString&gt;</span>
+<span class="s2">                &lt;coordinates&gt;</span>
+<span class="s2">                    </span><span class="si">{</span><span class="n">start_lon</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">start_lat</span><span class="si">}</span><span class="s2">,0</span>
+<span class="s2">                    </span><span class="si">{</span><span class="n">end_lon</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">end_lat</span><span class="si">}</span><span class="s2">,0</span>
+<span class="s2">                &lt;/coordinates&gt;</span>
+<span class="s2">            &lt;/LineString&gt;</span>
+<span class="s2">        &lt;/Placemark&gt;"""</span>
+
+    <span class="n">kml_content</span> <span class="o">+=</span> <span class="s2">"""</span>
+
+<span class="s2">        &lt;!-- Areas --&gt;"""</span>
+
+    <span class="c1"># Add areas from configuration</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">"areas"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">areas</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">area</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">areas</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">area</span><span class="p">,</span> <span class="s2">"corners"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">area</span><span class="o">.</span><span class="n">corners</span><span class="p">:</span>
+                <span class="c1"># Create coordinate list for polygon</span>
+                <span class="n">coord_list</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">corner</span><span class="o">.</span><span class="n">longitude</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">corner</span><span class="o">.</span><span class="n">latitude</span><span class="si">}</span><span class="s2">,0"</span> <span class="k">for</span> <span class="n">corner</span> <span class="ow">in</span> <span class="n">area</span><span class="o">.</span><span class="n">corners</span>
+                <span class="p">]</span>
+                <span class="c1"># Close the polygon</span>
+                <span class="k">if</span> <span class="n">area</span><span class="o">.</span><span class="n">corners</span><span class="p">:</span>
+                    <span class="n">coord_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">area</span><span class="o">.</span><span class="n">corners</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">longitude</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">area</span><span class="o">.</span><span class="n">corners</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">latitude</span><span class="si">}</span><span class="s2">,0"</span>
+                    <span class="p">)</span>
+
+                <span class="n">coordinates_str</span> <span class="o">=</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">coord_list</span><span class="p">)</span>
+
+                <span class="c1"># Convert enum to string for display</span>
+                <span class="n">operation_type</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">area</span><span class="p">,</span> <span class="s2">"operation_type"</span><span class="p">,</span> <span class="s2">"survey"</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">operation_type</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">):</span>
+                    <span class="n">operation_type</span> <span class="o">=</span> <span class="n">operation_type</span><span class="o">.</span><span class="n">value</span>
+
+                <span class="n">kml_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"""</span>
+<span class="s2">        &lt;Placemark&gt;</span>
+<span class="s2">            &lt;name&gt;</span><span class="si">{</span><span class="n">area</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&lt;/name&gt;</span>
+<span class="s2">            &lt;description&gt;</span>
+<span class="s2">                Type: Area</span>
+<span class="s2">                Corners: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">area</span><span class="o">.</span><span class="n">corners</span><span class="p">)</span><span class="si">}</span>
+<span class="s2">                Operation: </span><span class="si">{</span><span class="n">operation_type</span><span class="si">}</span>
+<span class="s2">            &lt;/description&gt;</span>
+<span class="s2">            &lt;styleUrl&gt;#areaStyle&lt;/styleUrl&gt;</span>
+<span class="s2">            &lt;Polygon&gt;</span>
+<span class="s2">                &lt;outerBoundaryIs&gt;</span>
+<span class="s2">                    &lt;LinearRing&gt;</span>
+<span class="s2">                        &lt;coordinates&gt;</span><span class="si">{</span><span class="n">coordinates_str</span><span class="si">}</span><span class="s2">&lt;/coordinates&gt;</span>
+<span class="s2">                    &lt;/LinearRing&gt;</span>
+<span class="s2">                &lt;/outerBoundaryIs&gt;</span>
+<span class="s2">            &lt;/Polygon&gt;</span>
+<span class="s2">        &lt;/Placemark&gt;"""</span>
+
+    <span class="c1"># Close KML document</span>
+    <span class="n">kml_content</span> <span class="o">+=</span> <span class="s2">"""</span>
+<span class="s2">    &lt;/Document&gt;</span>
+<span class="s2">&lt;/kml&gt;</span>
+<span class="s2">"""</span>
+
+    <span class="c1"># Write to file</span>
+    <span class="n">output_file</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">kml_content</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">output_file</span></div>
+
+
+
+<div class="viewcode-block" id="generate_kml_schedule">
+<a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.kml_generator.generate_kml_schedule">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_kml_schedule</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">output_file</span><span class="p">:</span> <span class="n">Path</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Main interface to generate KML schedule from scheduler timeline.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : CruiseConfig</span>
+<span class="sd">        The cruise configuration object</span>
+<span class="sd">    timeline : List[ActivityRecord]</span>
+<span class="sd">        Timeline generated by the scheduler</span>
+<span class="sd">    output_file : Path</span>
+<span class="sd">        Path to output KML file</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path</span>
+<span class="sd">        Path to generated KML file</span>
+<span class="sd">    """</span>
+    <span class="n">generator</span> <span class="o">=</span> <span class="n">KMLGenerator</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">generator</span><span class="o">.</span><span class="n">generate_schedule_kml</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">timeline</span><span class="p">,</span> <span class="n">output_file</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

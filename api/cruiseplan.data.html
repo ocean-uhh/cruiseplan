@@ -1,0 +1,591 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data - Bathymetry &amp; Pangaea &mdash; CruisePlan v0.4.0 v0.4.0.post1.dev2</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=295744b5"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Interactive pickers" href="cruiseplan.interactive.html" />
+    <link rel="prev" title="Configuration &amp; Validation" href="cruiseplan.config.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            CruisePlan v0.4.0
+              <img src="../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide/quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide/workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide/yaml-basics.html">YAML Basics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/cli-commands.html">CLI Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/yaml-full.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/output-formats.html">Output Formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../advanced/api-examples.html">API Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demo-output.html">CruisePlan Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/developer_guide.html">CruisePlan Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/manual_testing.html">Manual Testing and Verification</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="cruiseplan.api.html">API Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cruiseplan.cli.html">Command-line-interface (CLI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cruiseplan.config.html">Configuration &amp; Validation</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Data - Bathymetry &amp; Pangaea</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.data.bathymetry">cruiseplan.data.bathymetry module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.data.bathymetry.BathymetryManager"><code class="docutils literal notranslate"><span class="pre">BathymetryManager</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.data.bathymetry.check_bathymetry_availability"><code class="docutils literal notranslate"><span class="pre">check_bathymetry_availability()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.data.bathymetry.determine_bathymetry_source"><code class="docutils literal notranslate"><span class="pre">determine_bathymetry_source()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.data.bathymetry.download_bathymetry"><code class="docutils literal notranslate"><span class="pre">download_bathymetry()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.data.bathymetry.get_bathymetry_singleton"><code class="docutils literal notranslate"><span class="pre">get_bathymetry_singleton()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.data.pangaea">cruiseplan.data.pangaea module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.data.pangaea.PangaeaManager"><code class="docutils literal notranslate"><span class="pre">PangaeaManager</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.data.pangaea.load_campaign_data"><code class="docutils literal notranslate"><span class="pre">load_campaign_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.data.pangaea.merge_campaign_tracks"><code class="docutils literal notranslate"><span class="pre">merge_campaign_tracks()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.data.pangaea.read_doi_list"><code class="docutils literal notranslate"><span class="pre">read_doi_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.data.pangaea.save_campaign_data"><code class="docutils literal notranslate"><span class="pre">save_campaign_data()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cruiseplan.interactive.html">Interactive pickers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cruiseplan.output.html">Output formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cruiseplan.runtime.html">Runtime Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cruiseplan.timeline.html">Timeline &amp; Scheduling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cruiseplan.utils.html">General Utilities</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CruisePlan v0.4.0</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">CruisePlan API</a></li>
+      <li class="breadcrumb-item active">Data - Bathymetry &amp; Pangaea</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-cruiseplan.data">
+<span id="data-bathymetry-pangaea"></span><h1>Data - Bathymetry &amp; Pangaea<a class="headerlink" href="#module-cruiseplan.data" title="Link to this heading"></a></h1>
+<p>cruiseplan.data package.</p>
+<p>This package contains data management and external data integration modules:</p>
+<ul class="simple">
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">bathymetry</span></code>: Bathymetry data handling using ETOPO datasets with interpolation</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">cache</span></code>: File-based caching system for expensive computations and downloads</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">eez_boundaries</span></code>: EEZ boundary data management and spatial operations</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">pangaea</span></code>: Integration with Pangaea data repository for oceanographic data</p></li>
+</ul>
+<p>These modules handle external data sources, caching strategies, and data processing
+required for cruise planning, including bathymetric information and scientific datasets.</p>
+<section id="module-cruiseplan.data.bathymetry">
+<span id="cruiseplan-data-bathymetry-module"></span><h2>cruiseplan.data.bathymetry module<a class="headerlink" href="#module-cruiseplan.data.bathymetry" title="Link to this heading"></a></h2>
+<p>Bathymetry data download and management.</p>
+<p>This module provides functionality for downloading, caching, and accessing
+bathymetry data from ETOPO datasets for depth lookups.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="cruiseplan.data.bathymetry.BathymetryManager">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">cruiseplan.data.bathymetry.</span></span><span class="sig-name descname"><span class="pre">BathymetryManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'gebco2025'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'data/bathymetry'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/data/bathymetry.html#BathymetryManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.bathymetry.BathymetryManager" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Handles ETOPO bathymetry data with lazy loading and bilinear interpolation.</p>
+<p>Manages bathymetric data from ETOPO datasets, providing depth lookups
+and grid subsets for oceanographic applications. Implements fallback
+to mock data when bathymetry files are unavailable.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.data.bathymetry.BathymetryManager.source">
+<span class="sig-name descname"><span class="pre">source</span></span><a class="headerlink" href="#cruiseplan.data.bathymetry.BathymetryManager.source" title="Link to this definition"></a></dt>
+<dd><p>Bathymetry data source identifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.data.bathymetry.BathymetryManager.data_dir">
+<span class="sig-name descname"><span class="pre">data_dir</span></span><a class="headerlink" href="#cruiseplan.data.bathymetry.BathymetryManager.data_dir" title="Link to this definition"></a></dt>
+<dd><p>Directory containing bathymetry data files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Path</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.data.bathymetry.BathymetryManager._is_mock">
+<span class="sig-name descname"><span class="pre">_is_mock</span></span><a class="headerlink" href="#cruiseplan.data.bathymetry.BathymetryManager._is_mock" title="Link to this definition"></a></dt>
+<dd><p>Whether the manager is operating in mock mode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.data.bathymetry.BathymetryManager._dataset">
+<span class="sig-name descname"><span class="pre">_dataset</span></span><a class="headerlink" href="#cruiseplan.data.bathymetry.BathymetryManager._dataset" title="Link to this definition"></a></dt>
+<dd><p>NetCDF dataset object when loaded.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[nc.Dataset]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.data.bathymetry.BathymetryManager._lats">
+<span class="sig-name descname"><span class="pre">_lats</span></span><a class="headerlink" href="#cruiseplan.data.bathymetry.BathymetryManager._lats" title="Link to this definition"></a></dt>
+<dd><p>Latitude coordinate array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[np.ndarray]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.data.bathymetry.BathymetryManager._lons">
+<span class="sig-name descname"><span class="pre">_lons</span></span><a class="headerlink" href="#cruiseplan.data.bathymetry.BathymetryManager._lons" title="Link to this definition"></a></dt>
+<dd><p>Longitude coordinate array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[np.ndarray]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.data.bathymetry.BathymetryManager.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'gebco2025'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'data/bathymetry'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/data/bathymetry.html#BathymetryManager.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.bathymetry.BathymetryManager.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize the bathymetry manager.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> (<em>str</em><em>, </em><em>optional</em>) – Bathymetry data source (default: “gebco2025”).</p></li>
+<li><p><strong>data_dir</strong> (<em>str</em><em>, </em><em>optional</em>) – Data directory. Can be absolute path or relative to current working directory (default: “data/bathymetry”).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.data.bathymetry.BathymetryManager.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/data/bathymetry.html#BathymetryManager.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.bathymetry.BathymetryManager.close" title="Link to this definition"></a></dt>
+<dd><p>Close the NetCDF dataset if open.</p>
+<p>Should be called when the manager is no longer needed to free resources.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.data.bathymetry.BathymetryManager.ensure_gebco_2025">
+<span class="sig-name descname"><span class="pre">ensure_gebco_2025</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">silent_if_exists</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/data/bathymetry.html#BathymetryManager.ensure_gebco_2025"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.bathymetry.BathymetryManager.ensure_gebco_2025" title="Link to this definition"></a></dt>
+<dd><p>Ensure GEBCO 2025 dataset is available for high-resolution bathymetry.</p>
+<p>Downloads and extracts GEBCO 2025 data if not present or corrupted.
+The full dataset is ~7.5GB uncompressed, downloaded as ~4GB zip.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>silent_if_exists</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, don’t log when file already exists (default: False).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if GEBCO 2025 is available, False if download failed or cancelled.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.data.bathymetry.BathymetryManager.get_depth_at_point">
+<span class="sig-name descname"><span class="pre">get_depth_at_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/data/bathymetry.html#BathymetryManager.get_depth_at_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.bathymetry.BathymetryManager.get_depth_at_point" title="Link to this definition"></a></dt>
+<dd><p>Get depth at a specific geographic point.</p>
+<p>Returns depth in meters (negative values indicate depth below sea level).
+Uses bilinear interpolation on the ETOPO grid for accurate results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lat</strong> (<em>float</em>) – Latitude in decimal degrees.</p></li>
+<li><p><strong>lon</strong> (<em>float</em>) – Longitude in decimal degrees.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Depth in meters (negative for below sea level).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.data.bathymetry.BathymetryManager.get_grid_subset">
+<span class="sig-name descname"><span class="pre">get_grid_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/data/bathymetry.html#BathymetryManager.get_grid_subset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.bathymetry.BathymetryManager.get_grid_subset" title="Link to this definition"></a></dt>
+<dd><p>Get a subset of the bathymetry grid for contour plotting.</p>
+<p>Returns 2D arrays suitable for matplotlib contour plotting.
+Supports downsampling with stride parameter for performance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lat_min</strong> (<em>float</em>) – Minimum latitude of the subset.</p></li>
+<li><p><strong>lat_max</strong> (<em>float</em>) – Maximum latitude of the subset.</p></li>
+<li><p><strong>lon_min</strong> (<em>float</em>) – Minimum longitude of the subset.</p></li>
+<li><p><strong>lon_max</strong> (<em>float</em>) – Maximum longitude of the subset.</p></li>
+<li><p><strong>stride</strong> (<em>int</em><em>, </em><em>optional</em>) – Downsampling factor (default: 1, no downsampling).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tuple of (lons, lats, depths) as 2D numpy arrays for contour plotting.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This method performs expensive NetCDF grid slicing operations. Consider using
+cruiseplan.utils.cache.CacheManager for repeated grid subset requests with
+overlapping geographic bounds, especially in interactive applications like
+station_picker and map generation workflows.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.data.bathymetry.check_bathymetry_availability">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.data.bathymetry.</span></span><span class="sig-name descname"><span class="pre">check_bathymetry_availability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/cruiseplan/data/bathymetry.html#check_bathymetry_availability"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.bathymetry.check_bathymetry_availability" title="Link to this definition"></a></dt>
+<dd><p>Check if bathymetry files are available for the specified source.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>source</strong> (<em>str</em>) – Bathymetry source (“etopo2022” or “gebco2025”)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if bathymetry files are available and valid, False otherwise</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.data.bathymetry.determine_bathymetry_source">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.data.bathymetry.</span></span><span class="sig-name descname"><span class="pre">determine_bathymetry_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">requested_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/cruiseplan/data/bathymetry.html#determine_bathymetry_source"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.bathymetry.determine_bathymetry_source" title="Link to this definition"></a></dt>
+<dd><p>Determine the optimal bathymetry source with automatic fallback.</p>
+<p>If the requested source is not available but an alternative is,
+automatically switch to the available source.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>requested_source</strong> (<em>str</em>) – The user’s requested bathymetry source</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The optimal available bathymetry source</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.data.bathymetry.download_bathymetry">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.data.bathymetry.</span></span><span class="sig-name descname"><span class="pre">download_bathymetry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'data/bathymetry'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'gebco2025'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/data/bathymetry.html#download_bathymetry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.bathymetry.download_bathymetry" title="Link to this definition"></a></dt>
+<dd><p>Download bathymetry dataset with progress bar.</p>
+<p>Downloads either ETOPO 2022 (60s resolution) or GEBCO 2025 (15s resolution)
+bathymetry data based on the source parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_dir</strong> (<em>str</em><em>, </em><em>optional</em>) – Target directory for bathymetry files (default: “data/bathymetry”).
+Files will be saved directly in this directory.</p></li>
+<li><p><strong>source</strong> (<em>str</em><em>, </em><em>optional</em>) – Bathymetry source to download (default: “gebco2025”).
+Options: “etopo2022”, “gebco2025”, “msm142”, “msm142_jj”, “msm142_dt”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns file path (str) if successful or file exists, False if explicitly cancelled,
+None if download failed completely.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str, bool, or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.data.bathymetry.get_bathymetry_singleton">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.data.bathymetry.</span></span><span class="sig-name descname"><span class="pre">get_bathymetry_singleton</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/data/bathymetry.html#get_bathymetry_singleton"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.bathymetry.get_bathymetry_singleton" title="Link to this definition"></a></dt>
+<dd><p>Get the singleton BathymetryManager instance (lazy initialization).</p>
+</dd></dl>
+
+</section>
+<section id="module-cruiseplan.data.pangaea">
+<span id="cruiseplan-data-pangaea-module"></span><h2>cruiseplan.data.pangaea module<a class="headerlink" href="#module-cruiseplan.data.pangaea" title="Link to this heading"></a></h2>
+<p>PANGAEA database integration and data retrieval.</p>
+<p>This module provides functionality for searching, downloading, and processing
+oceanographic datasets from the PANGAEA data repository.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="cruiseplan.data.pangaea.PangaeaManager">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">cruiseplan.data.pangaea.</span></span><span class="sig-name descname"><span class="pre">PangaeaManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cache_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'.cache'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/data/pangaea.html#PangaeaManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.pangaea.PangaeaManager" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Manager for PANGAEA dataset search and retrieval.</p>
+<p>Provides functionality to search PANGAEA datasets using spatial queries,
+fetch metadata and coordinate data, and cache results for performance.
+Integrates with the cruise planning system for incorporating existing
+cruise tracks into planning workflows.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.data.pangaea.PangaeaManager.cache">
+<span class="sig-name descname"><span class="pre">cache</span></span><a class="headerlink" href="#cruiseplan.data.pangaea.PangaeaManager.cache" title="Link to this definition"></a></dt>
+<dd><p>File-based cache for storing fetched dataset metadata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="cruiseplan.utils.html#cruiseplan.utils.cache.CacheManager" title="cruiseplan.utils.cache.CacheManager">CacheManager</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.data.pangaea.PangaeaManager.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cache_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'.cache'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/data/pangaea.html#PangaeaManager.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.pangaea.PangaeaManager.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize PANGAEA manager.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cache_dir</strong> (<em>str</em><em>, </em><em>optional</em>) – Directory for cache storage (default: “.cache”).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.data.pangaea.PangaeaManager.create_map">
+<span class="sig-name descname"><span class="pre">create_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datasets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pangaea_map.html'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_eez</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../_modules/cruiseplan/data/pangaea.html#PangaeaManager.create_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.pangaea.PangaeaManager.create_map" title="Link to this definition"></a></dt>
+<dd><p>Convenience wrapper to visualize datasets fetched by this manager.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datasets</strong> (<em>List</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – List of dataset dictionaries with latitude/longitude data.</p></li>
+<li><p><strong>filename</strong> (<em>str</em><em>, </em><em>optional</em>) – Output filename for the HTML map (default: “pangaea_map.html”).</p></li>
+<li><p><strong>include_eez</strong> (<em>bool</em><em>, </em><em>optional</em>) – Include EEZ boundaries on the map (default: True).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to the generated HTML map file.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Path</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.data.pangaea.PangaeaManager.fetch_datasets">
+<span class="sig-name descname"><span class="pre">fetch_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doi_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">merge_campaigns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/data/pangaea.html#PangaeaManager.fetch_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.pangaea.PangaeaManager.fetch_datasets" title="Link to this definition"></a></dt>
+<dd><p>Process a list of DOIs and return standardized metadata objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>doi_list</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – List of DOI strings to fetch.</p></li>
+<li><p><strong>rate_limit</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em><em>, </em><em>optional</em>) – Optional requests per second limit (None = no rate limiting).</p></li>
+<li><p><strong>merge_campaigns</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to merge campaigns with same name (default: False).</p></li>
+<li><p><strong>progress_callback</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>[</em><em>[</em><em>int</em><em>, </em><em>int</em><em>, </em><em>str</em><em>]</em><em>, </em><em>None</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – Optional function(current, total, message) for progress updates.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of dataset dictionaries with standardized metadata.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Dict[str, Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.data.pangaea.PangaeaManager.search">
+<span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bbox</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/data/pangaea.html#PangaeaManager.search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.pangaea.PangaeaManager.search" title="Link to this definition"></a></dt>
+<dd><p>Search PANGAEA using the native PanQuery bbox support.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>query</strong> (<em>str</em>) – Search query string for PANGAEA datasets.</p></li>
+<li><p><strong>bbox</strong> (<em>tuple</em><em>, </em><em>optional</em>) – Bounding box as (min_lon, min_lat, max_lon, max_lat).</p></li>
+<li><p><strong>limit</strong> (<em>int</em><em>, </em><em>optional</em>) – Maximum number of results to return (default: 10).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of dataset metadata dictionaries.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Dict[str, Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.data.pangaea.load_campaign_data">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.data.pangaea.</span></span><span class="sig-name descname"><span class="pre">load_campaign_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">merge_tracks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/data/pangaea.html#load_campaign_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.pangaea.load_campaign_data" title="Link to this definition"></a></dt>
+<dd><p>Load pre-processed PANGAEA campaign data from pickle file.</p>
+<p>This function is required by the CLI to integrate with the interactive picker.
+If merge_tracks is True, it ensures that all datasets with the same
+label are combined into a single track before being returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_path</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>Path</em><em>]</em>) – Path to the pickled PANGAEA campaign file.</p></li>
+<li><p><strong>merge_tracks</strong> (<em>bool</em>) – If True, runs merge_campaign_tracks on the loaded data. (Default: True)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of campaign datasets (merged if requested).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.data.pangaea.merge_campaign_tracks">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.data.pangaea.</span></span><span class="sig-name descname"><span class="pre">merge_campaign_tracks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datasets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/data/pangaea.html#merge_campaign_tracks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.pangaea.merge_campaign_tracks" title="Link to this definition"></a></dt>
+<dd><p>Merges datasets by their ‘label’ (campaign).</p>
+<p>Aggregates coordinates into single arrays and collects all source DOIs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>datasets</strong> (<em>List</em><em>[</em><em>Dict</em><em>]</em>) – List of dataset dictionaries to merge.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Merged campaign datasets with combined coordinates.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.data.pangaea.read_doi_list">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.data.pangaea.</span></span><span class="sig-name descname"><span class="pre">read_doi_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/data/pangaea.html#read_doi_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.pangaea.read_doi_list" title="Link to this definition"></a></dt>
+<dd><p>Read DOI list from text file, filtering out comments and empty lines.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>file_path</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>Path</em><em>]</em>) – Path to DOI list file</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of DOI strings</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[str]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If file cannot be read or contains no valid DOIs</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.data.pangaea.save_campaign_data">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.data.pangaea.</span></span><span class="sig-name descname"><span class="pre">save_campaign_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datasets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_dataset_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/data/pangaea.html#save_campaign_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.pangaea.save_campaign_data" title="Link to this definition"></a></dt>
+<dd><p>Save PANGAEA datasets to pickle file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datasets</strong> (<em>List</em><em>[</em><em>Dict</em><em>]</em>) – List of dataset dictionaries to save.</p></li>
+<li><p><strong>file_path</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>Path</em><em>]</em>) – Output file path for the pickle file.</p></li>
+<li><p><strong>progress_callback</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>[</em><em>[</em><em>str</em><em>]</em><em>, </em><em>None</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – Optional function(message) for progress updates.</p></li>
+<li><p><strong>original_dataset_count</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em><em>, </em><em>optional</em>) – Optional count of datasets before merging for summary.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If there’s an error saving the file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cruiseplan.config.html" class="btn btn-neutral float-left" title="Configuration &amp; Validation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cruiseplan.interactive.html" class="btn btn-neutral float-right" title="Interactive pickers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
