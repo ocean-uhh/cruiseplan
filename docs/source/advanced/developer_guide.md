@@ -215,4 +215,4 @@ Test fixtures (realistic YAML configs) live in `tests/fixtures/`.
 - Core: Python 3.10+, Pydantic v2, ruamel.yaml, numpy, xarray, netCDF4, pandas
 - Geospatial: matplotlib, cartopy, geopandas (optional, for EEZ overlays)
 - Interactive: folium
-- Development: pytest, ruff, mypy, sphinx — see `requirements-dev.txt`
+- Development: pytest, ruff, mypy, sphinx — see the `dev` extra in `pyproject.toml` (`pip install -e ".[dev]"`)
