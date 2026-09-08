@@ -126,10 +126,12 @@ print(point_def.latitude)  # Validated latitude from YAML
 ```python
 # YAML → Schema (Validation Layer)
 from cruiseplan.schema.activities import PointDefinition
+
 point_schema = PointDefinition(name="STN_001", latitude=60.0, longitude=-30.0)
 
-# Schema → Runtime (Business Logic Layer)  
+# Schema → Runtime (Business Logic Layer)
 from cruiseplan.core.operations import PointOperation
+
 point_runtime = PointOperation.from_definition(point_schema)
 point_runtime.calculate_duration()  # Business logic method
 ```
@@ -168,9 +170,9 @@ from cruiseplan.core.cruise import Cruise
 cruise = Cruise("path/to/config.yaml")
 
 # Access registries (catalogs)
-cruise.point_registry    # Dict of all point operations
-cruise.line_registry     # Dict of all line operations  
-cruise.area_registry     # Dict of all area operations
+cruise.point_registry  # Dict of all point operations
+cruise.line_registry  # Dict of all line operations
+cruise.area_registry  # Dict of all area operations
 
 # Schedule generation
 timeline = cruise.generate_timeline()
@@ -469,7 +471,7 @@ total_distance = survey_line.calculate_route_distance()  # km
 transit_time = survey_line.calculate_duration(vessel_speed=10.0)  # minutes
 
 print(f"Line distance: {total_distance:.1f} km")
-print(f"Transit time: {transit_time/60:.1f} hours")
+print(f"Transit time: {transit_time / 60:.1f} hours")
 ```
 
 #### Creating New Operations Programmatically
@@ -484,7 +486,7 @@ point_def = PointDefinition(
     latitude=65.0,
     longitude=-25.0,
     operation_type="CTD",
-    action="profile"
+    action="profile",
 )
 
 # Convert to runtime operation
@@ -500,10 +502,7 @@ from cruiseplan.processing.validate import validate_configuration
 
 # Enrich with bathymetry data
 enriched_config = enrich_configuration(
-    "input.yaml",
-    add_depths=True,
-    expand_sections=True,
-    output_file="enriched.yaml"
+    "input.yaml", add_depths=True, expand_sections=True, output_file="enriched.yaml"
 )
 
 # Validate configuration
@@ -527,6 +526,7 @@ from cruiseplan.schema.activities import PointDefinition
 # 3. Add business logic in core operations
 from cruiseplan.core.operations import PointOperation
 
+
 class PointOperation:
     def calculate_duration(self) -> float:
         if self.operation_type == "CTD":
@@ -541,19 +541,21 @@ class PointOperation:
 from cruiseplan.output.csv_generator import CSVGenerator
 from cruiseplan.core.cruise import Cruise
 
+
 class CustomReportGenerator:
     def __init__(self, cruise: Cruise):
         self.cruise = cruise
-        
+
     def generate_station_summary(self, output_path: str):
         """Generate custom station summary."""
-        with open(output_path, 'w') as f:
+        with open(output_path, "w") as f:
             for name, point_op in self.cruise.point_registry.items():
                 f.write(f"{name},{point_op.latitude},{point_op.longitude}\n")
 
+
 # Usage
 cruise = Cruise("config.yaml")
-generator = CustomReportGenerator(cruise) 
+generator = CustomReportGenerator(cruise)
 generator.generate_station_summary("stations.csv")
 ```
 
@@ -649,16 +651,15 @@ tests/
 import pytest
 from cruiseplan.schema.activities import PointDefinition
 
+
 def test_point_definition_validation():
     """Test point definition with valid coordinates."""
     point = PointDefinition(
-        name="TEST_STN",
-        latitude=60.0,
-        longitude=-30.0,
-        operation_type="CTD"
+        name="TEST_STN", latitude=60.0, longitude=-30.0, operation_type="CTD"
     )
     assert point.name == "TEST_STN"
     assert point.latitude == 60.0
+
 
 def test_point_definition_invalid_latitude():
     """Test validation fails for invalid latitude."""
@@ -666,7 +667,7 @@ def test_point_definition_invalid_latitude():
         PointDefinition(
             name="BAD_STN",
             latitude=91.0,  # Invalid: outside [-90, 90]
-            longitude=-30.0
+            longitude=-30.0,
         )
 ```
 
@@ -676,6 +677,7 @@ def test_point_definition_invalid_latitude():
 from cruiseplan.core.operations import PointOperation
 from cruiseplan.schema.activities import PointDefinition
 
+
 def test_point_operation_duration_calculation():
     """Test CTD duration calculation."""
     point_def = PointDefinition(
@@ -683,12 +685,12 @@ def test_point_operation_duration_calculation():
         latitude=60.0,
         longitude=-30.0,
         operation_type="CTD",
-        operation_depth=1000.0
+        operation_depth=1000.0,
     )
-    
+
     point_op = PointOperation.from_definition(point_def)
     duration = point_op.calculate_duration()
-    
+
     # CTD duration should be based on depth and descent/ascent rates
     expected_duration = (1000.0 / 1.0) + (1000.0 / 2.0)  # Down + up time
     assert abs(duration - expected_duration) < 1.0  # Within 1 minute
@@ -716,14 +718,14 @@ Always be explicit about coordinate systems and units:
 def calculate_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """
     Calculate great-circle distance between two points.
-    
+
     Parameters
     ----------
     lat1, lat2 : float
         Latitude coordinates in decimal degrees (WGS84).
-    lon1, lon2 : float  
+    lon1, lon2 : float
         Longitude coordinates in decimal degrees (WGS84).
-        
+
     Returns
     -------
     float
@@ -754,6 +756,7 @@ Use specific exceptions with helpful messages:
 ```python
 from cruiseplan.schema.exceptions import ValidationError, ConfigurationError
 
+
 def validate_operation_depth(depth: float, max_depth: float) -> None:
     """Validate operation depth against bathymetry."""
     if depth > max_depth:
@@ -783,13 +786,15 @@ def validate_operation_depth(depth: float, max_depth: float) -> None:
 #### Docstring Format (NumPy Style)
 
 ```python
-def calculate_ctd_duration(depth: float, descent_rate: float, ascent_rate: float) -> float:
+def calculate_ctd_duration(
+    depth: float, descent_rate: float, ascent_rate: float
+) -> float:
     """
     Calculate CTD cast duration based on oceanographic standard practices.
-    
+
     Uses typical CTD operation timing with descent, bottom time, and ascent phases.
     Based on standard oceanographic practices (UNESCO, 1988).
-    
+
     Parameters
     ----------
     depth : float
@@ -798,22 +803,22 @@ def calculate_ctd_duration(depth: float, descent_rate: float, ascent_rate: float
         CTD descent rate in meters per second.
     ascent_rate : float
         CTD ascent rate in meters per second.
-        
+
     Returns
     -------
     float
         Total operation duration in minutes.
-        
+
     Notes
     -----
     Calculation includes:
-    - Descent time: depth / descent_rate  
+    - Descent time: depth / descent_rate
     - Bottom time: 2 minutes (standard sampling time)
     - Ascent time: depth / ascent_rate
-    
+
     References
     ----------
-    UNESCO. 1988. The Acquisition, Calibration and Analysis of CTD Data. 
+    UNESCO. 1988. The Acquisition, Calibration and Analysis of CTD Data.
     UNESCO Technical Papers in Marine Science, No. 54.
     """
 ```
@@ -872,11 +877,13 @@ points:
 ```python
 # ❌ Incorrect: Using schema definition for calculations
 from cruiseplan.schema.activities import PointDefinition
+
 point_def = PointDefinition(name="CTD", latitude=60.0, longitude=-30.0)
 duration = point_def.calculate_duration()  # AttributeError!
 
 # ✅ Correct: Convert to runtime operation
 from cruiseplan.core.operations import PointOperation
+
 point_op = PointOperation.from_definition(point_def)
 duration = point_op.calculate_duration()  # Works!
 ```

@@ -64,8 +64,12 @@ Example:
 ```python
 from cruiseplan.timeline.distance import haversine_distance
 
+
 def test_zero_distance():
-    assert haversine_distance((60.0, -30.0), (60.0, -30.0)) == pytest.approx(0.0, abs=1e-6)
+    assert haversine_distance((60.0, -30.0), (60.0, -30.0)) == pytest.approx(
+        0.0, abs=1e-6
+    )
+
 
 def test_known_distance():
     # Reykjavik to London, approx 1887 km
