@@ -50,15 +50,13 @@ def _convert_decimal_to_deg_min_html(decimal_degrees):
 
     if decimal_degrees >= 0:
         return f"{degrees:02d} {minutes:06.3f}"
-    else:
-        return f"-{degrees:02d} {minutes:06.3f}"
+    return f"-{degrees:02d} {minutes:06.3f}"
     degrees = int(abs(decimal_degrees))
     minutes = abs((abs(decimal_degrees) - degrees) * 60)
 
     if decimal_degrees >= 0:
         return f"{degrees:02d} {minutes:06.3f}"
-    else:
-        return f"-{degrees:02d} {minutes:06.3f}"
+    return f"-{degrees:02d} {minutes:06.3f}"
 
 
 class HTMLGenerator:
@@ -71,7 +69,6 @@ class HTMLGenerator:
 
     def __init__(self):
         """Initialize the HTML generator."""
-        pass
 
     def generate_schedule_report(
         self, config: CruiseConfig, timeline: list[ActivityRecord], output_file: Path

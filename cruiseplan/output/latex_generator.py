@@ -241,11 +241,10 @@ class LaTeXGenerator:
         if len(leg_names) <= 1:
             # Single leg or no legs defined - generate single table
             return self._generate_single_work_days_table(config, timeline)
-        else:
-            # Multiple legs - generate unified table with leg information in Area column
-            return self._generate_unified_multi_leg_work_days_table(
-                config, timeline, leg_names
-            )
+        # Multiple legs - generate unified table with leg information in Area column
+        return self._generate_unified_multi_leg_work_days_table(
+            config, timeline, leg_names
+        )
 
     def _generate_single_work_days_table(
         self, config: CruiseConfig, timeline: list[ActivityRecord]
@@ -988,9 +987,8 @@ Time & Position & Depth & Distance & Station & Comment \\\\
                 f"Timeline: {record.entry_lat:.6f}, {record.entry_lon:.6f}"
             )
             return orig_lat, orig_lon, " (corrected)"
-        else:
-            # Coordinates match - use original
-            return orig_lat, orig_lon, ""
+        # Coordinates match - use original
+        return orig_lat, orig_lon, ""
 
     def _round_time_to_10min(self, dt):
         """Round time to nearest 10 minutes like letsgo.m (rnd = 144)."""

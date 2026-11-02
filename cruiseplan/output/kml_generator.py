@@ -79,7 +79,6 @@ class KMLGenerator:
 
     def __init__(self):
         """Initialize the KML generator."""
-        pass
 
     def generate_schedule_kml(
         self, config: CruiseConfig, timeline: list[ActivityRecord], output_file: Path

@@ -27,7 +27,6 @@ class CSVGenerator:
 
     def __init__(self):
         """Initialize the CSV generator."""
-        pass
 
     def _get_display_label(self, activity: dict) -> str:
         """
