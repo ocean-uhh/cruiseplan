@@ -1,25 +1,22 @@
 cff-version: 1.2.0
-title: "CruisePlan: A Tool for Oceanographic Cruise Planning"
 message: "If you use this software, please cite it as below."
-type: software
 authors:
-  - family-names: Frajka-Williams
-    given-names: Eleanor
-    orcid: "https://orcid.org/0000-0001-8773-7838"
-    affiliation: "University of Hamburg, Institute of Oceanography"
-  - family-names: Sorge
-    given-names: Yves
-    orcid: https://orcid.org/0009-0007-0043-9207
-repository-code: "https://github.com/ocean-uhh/cruiseplan"
-url: "https://ocean-uhh.github.io/cruiseplan"
-abstract: >-
-  CruisePlan is a Python package for planning and scheduling oceanographic
-  research cruises. It provides tools for station distribution calculation,
-  CTD profile timing estimation, mooring operation planning, travel time
-  calculations, and multi-format output generation including HTML schedules,
-  CSV data, KML visualization files, and NetCDF scientific data formats.
-  The package includes interactive station selection tools with PANGAEA
-  database integration for historical oceanographic data analysis.
+- family-names: Frajka-Williams
+  given-names: Eleanor
+  orcid: https://orcid.org/0000-0001-8773-7838
+  affiliation: University of Hamburg, Bundesstrasse 57, 20146 Hamburg, Germany
+- family-names: Sorge
+  given-names: Yves
+  orcid: https://orcid.org/0009-0007-0043-9207
+  affiliation: University of Hamburg, Bundesstrasse 57, 20146 Hamburg, Germany
+title: cruiseplan
+version: 0.5.0
+date-released: 2026-11-02
+url: https://github.com/ocean-uhh/cruiseplan
+repository-code: https://github.com/ocean-uhh/cruiseplan
+license: MIT
+abstract: >
+  Cruise planning for oceanographic research vessels: a YAML cruise description is enriched with depths and distances, validated, and turned into a schedule, maps (PNG with bathymetry and EEZ boundaries, KML), LaTeX station tables, and rolling forecasts at sea.
 keywords:
   - oceanography
   - cruise planning
@@ -27,7 +24,3 @@ keywords:
   - CTD
   - moorings
   - bathymetry
-  - station planning
-license: MIT
-version: "0.4.0"
-date-released: "2026-08-04"
