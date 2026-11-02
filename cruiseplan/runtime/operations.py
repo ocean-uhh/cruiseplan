@@ -84,7 +84,6 @@ class BaseOperation(ABC):
         float
             Duration in minutes.
         """
-        pass
 
     @abstractmethod
     def get_entry_point(self) -> tuple[float, float]:
@@ -99,7 +98,6 @@ class BaseOperation(ABC):
         tuple[float, float]
             (latitude, longitude) of the operation's entry point.
         """
-        pass
 
     @abstractmethod
     def get_exit_point(self) -> tuple[float, float]:
@@ -114,7 +112,6 @@ class BaseOperation(ABC):
         tuple[float, float]
             (latitude, longitude) of the operation's exit point.
         """
-        pass
 
     def get_coordinates(self) -> tuple[GeoPoint, GeoPoint]:
         """
@@ -241,10 +238,9 @@ class PointOperation(BaseOperation):
         """
         if self.operation_depth is not None:
             return self.operation_depth
-        elif self.water_depth is not None:
+        if self.water_depth is not None:
             return self.water_depth
-        else:
-            return 0.0
+        return 0.0
 
     def calculate_duration(self, rules: Any) -> float:
         """
@@ -291,7 +287,7 @@ class PointOperation(BaseOperation):
         ):
             return calc.calculate_ctd_time(self.get_depth())
         # TODO: replace with default
-        elif self.op_type == "mooring" or (
+        if self.op_type == "mooring" or (
             self.op_type == "CTD" and self.action == "yo_yo"
         ):
             # Moorings and yo_yo CTD operations should have manual duration, but fallback to default
@@ -300,9 +296,9 @@ class PointOperation(BaseOperation):
                 if hasattr(rules.config, "default_mooring_duration")
                 else 60.0
             )
-        elif self.op_type == "port":
+        if self.op_type == "port":
             return 0.0
-        elif self.op_type == "waypoint":
+        if self.op_type == "waypoint":
             # Waypoints have no operation duration by default (waiting time is handled separately)
             return 0.0
 
@@ -522,14 +518,13 @@ class LineOperation(BaseOperation):
                 else rules.config.default_vessel_speed
             )
             return calc.calculate_transit_time(route_distance_km, effective_speed)
-        else:
-            # Fallback for cases without config
-            from cruiseplan.utils.units import hours_to_minutes, km_to_nm
+        # Fallback for cases without config
+        from cruiseplan.utils.units import hours_to_minutes, km_to_nm
 
-            vessel_speed = self.speed or 10.0
-            route_distance_nm = km_to_nm(route_distance_km)
-            duration_hours = route_distance_nm / vessel_speed
-            return hours_to_minutes(duration_hours)
+        vessel_speed = self.speed or 10.0
+        route_distance_nm = km_to_nm(route_distance_km)
+        duration_hours = route_distance_nm / vessel_speed
+        return hours_to_minutes(duration_hours)
 
     def get_entry_point(self) -> tuple[float, float]:
         """
@@ -722,11 +717,10 @@ class AreaOperation(BaseOperation):
         """
         if self.duration is not None:
             return self.duration
-        else:
-            raise ValueError(
-                f"Area operation '{self.name}' requires user-specified duration. "
-                "Add 'duration: <minutes>' to the area definition in YAML."
-            )
+        raise ValueError(
+            f"Area operation '{self.name}' requires user-specified duration. "
+            "Add 'duration: <minutes>' to the area definition in YAML."
+        )
 
     def get_entry_point(self) -> tuple[float, float]:
         """

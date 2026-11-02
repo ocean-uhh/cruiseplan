@@ -489,9 +489,8 @@ def resolve_port_reference(
                 raise ValueError(
                     f"Port dictionary missing required fields: {', '.join(missing_fields)}"
                 )
-            else:
-                # Re-raise original validation error for other types of validation issues
-                raise ValueError(str(e)) from e
+            # Re-raise original validation error for other types of validation issues
+            raise ValueError(str(e)) from e
 
     elif isinstance(port_ref, str):
         if port_ref.lower().startswith("port_"):
@@ -509,58 +508,52 @@ def resolve_port_reference(
                 if catalog_port is not None:
                     if isinstance(catalog_port, PointDefinition):
                         return catalog_port
-                    elif isinstance(catalog_port, dict):
+                    if isinstance(catalog_port, dict):
                         return PointDefinition(**catalog_port)
-                    else:
-                        raise ValueError(
-                            f"Unexpected type in port catalog: {type(catalog_port)}"
-                        )
+                    raise ValueError(
+                        f"Unexpected type in port catalog: {type(catalog_port)}"
+                    )
 
             # Fall back to global port registry
             if port_key in GLOBAL_PORTS:
                 port_data = GLOBAL_PORTS[port_key].copy()
                 return PointDefinition(**port_data)
-            else:
-                available_ports = list(GLOBAL_PORTS.keys())
-                if port_catalog:
-                    available_ports.extend(port_catalog.keys())
-                raise ValueError(
-                    f"Port reference '{port_ref}' not found in catalog or global registry. "
-                    f"Available ports: {', '.join(available_ports)}"
+            available_ports = list(GLOBAL_PORTS.keys())
+            if port_catalog:
+                available_ports.extend(port_catalog.keys())
+            raise ValueError(
+                f"Port reference '{port_ref}' not found in catalog or global registry. "
+                f"Available ports: {', '.join(available_ports)}"
+            )
+        # Try reverse lookup: display name -> port reference
+        # Look for port where display name starts with port_ref (before comma)
+        for port_id, port_data in GLOBAL_PORTS.items():
+            display_name = port_data.get("display_name", "")
+            port_name = port_data.get("name", "")
+            # Match if port_ref matches the display name up to comma, or the name field
+            if display_name.split(",")[0].strip() == port_ref or port_name == port_ref:
+                return PointDefinition(
+                    name=port_id,  # Use the port_id (e.g. port_halifax) as the canonical name
+                    latitude=port_data["latitude"],
+                    longitude=port_data["longitude"],
+                    display_name=display_name,
+                    comment=port_data.get("comment", ""),
                 )
-        else:
-            # Try reverse lookup: display name -> port reference
-            # Look for port where display name starts with port_ref (before comma)
-            for port_id, port_data in GLOBAL_PORTS.items():
-                display_name = port_data.get("display_name", "")
-                port_name = port_data.get("name", "")
-                # Match if port_ref matches the display name up to comma, or the name field
-                if (
-                    display_name.split(",")[0].strip() == port_ref
-                    or port_name == port_ref
-                ):
-                    return PointDefinition(
-                        name=port_id,  # Use the port_id (e.g. port_halifax) as the canonical name
-                        latitude=port_data["latitude"],
-                        longitude=port_data["longitude"],
-                        display_name=display_name,
-                        comment=port_data.get("comment", ""),
-                    )
 
-            # Simple string port name (backward compatibility)
-            warnings.warn(
-                f"Port reference '{port_ref}' should use 'port_' prefix for global ports "
-                "or be defined as a complete PointDefinition. "
-                "Creating basic port with name only.",
-                UserWarning,
-                stacklevel=3,
-            )
-            return PointDefinition(
-                name=port_ref,
-                latitude=0.0,  # Placeholder - needs enrichment
-                longitude=0.0,  # Placeholder - needs enrichment
-                comment=f"Basic port '{port_ref}' - coordinates need enrichment",
-            )
+        # Simple string port name (backward compatibility)
+        warnings.warn(
+            f"Port reference '{port_ref}' should use 'port_' prefix for global ports "
+            "or be defined as a complete PointDefinition. "
+            "Creating basic port with name only.",
+            UserWarning,
+            stacklevel=3,
+        )
+        return PointDefinition(
+            name=port_ref,
+            latitude=0.0,  # Placeholder - needs enrichment
+            longitude=0.0,  # Placeholder - needs enrichment
+            comment=f"Basic port '{port_ref}' - coordinates need enrichment",
+        )
     else:
         raise ValueError(f"Invalid port reference type: {type(port_ref)}")
 

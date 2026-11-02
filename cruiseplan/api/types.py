@@ -48,8 +48,7 @@ class BaseResult:
             if self.warnings:
                 parts.append(f"({len(self.warnings)} warnings)")
             return " ".join(parts)
-        else:
-            return f"❌ {self._operation_name} failed ({len(self.errors)} errors, {len(self.warnings)} warnings)"
+        return f"❌ {self._operation_name} failed ({len(self.errors)} errors, {len(self.warnings)} warnings)"
 
     @property
     def _operation_name(self) -> str:

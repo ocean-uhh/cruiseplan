@@ -156,9 +156,8 @@ class DurationCalculator:
                 finish_time = current_dt + timedelta(minutes=duration_minutes)
                 if finish_time <= day_end:
                     return 0.0
-                else:
-                    next_start = day_start + timedelta(days=1)
-                    return (next_start - current_dt).total_seconds() / 60.0
+                next_start = day_start + timedelta(days=1)
+                return (next_start - current_dt).total_seconds() / 60.0
 
         elif required_window == "night":
             # Simplified: If at night, start. If at day, wait for night.

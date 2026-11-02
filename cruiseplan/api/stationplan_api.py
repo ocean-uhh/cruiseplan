@@ -748,20 +748,19 @@ def stationplan_waypoints(
                 message=f"Generated {waypoint_count} waypoints in both coordinate formats",
                 output=f"{ddm_file} and {decdeg_file}",
             )
-        else:
-            # Return DDM content directly (default format)
-            waypoint_count = len(
-                [
-                    line
-                    for line in waypoint_content_ddm.split("\n")
-                    if line and not line.startswith("%")
-                ]
-            )
-            return StationplanResult(
-                success=True,
-                message=f"Generated {waypoint_count} waypoints (DDM format)",
-                output=waypoint_content_ddm,
-            )
+        # Return DDM content directly (default format)
+        waypoint_count = len(
+            [
+                line
+                for line in waypoint_content_ddm.split("\n")
+                if line and not line.startswith("%")
+            ]
+        )
+        return StationplanResult(
+            success=True,
+            message=f"Generated {waypoint_count} waypoints (DDM format)",
+            output=waypoint_content_ddm,
+        )
 
     except Exception as e:
         error_msg = f"Error generating bridge waypoints: {e}"
@@ -779,10 +778,10 @@ def _format_ddm_coordinate(decimal_degrees: float, coord_type: str) -> str:
         # Latitude: 2 digits for degrees, N/S direction with space
         direction = "N" if decimal_degrees >= 0 else "S"
         return f"{int(abs(degrees)):02d} {minutes:05.2f} {direction}"
-    else:  # longitude
-        # Longitude: 3 digits for degrees, E/W direction with space
-        direction = "E" if decimal_degrees >= 0 else "W"
-        return f"{int(abs(degrees)):03d} {minutes:05.2f} {direction}"
+    # longitude
+    # Longitude: 3 digits for degrees, E/W direction with space
+    direction = "E" if decimal_degrees >= 0 else "W"
+    return f"{int(abs(degrees)):03d} {minutes:05.2f} {direction}"
 
 
 def _format_decimal_degrees(decimal_degrees: float, coord_type: str) -> str:
@@ -790,9 +789,9 @@ def _format_decimal_degrees(decimal_degrees: float, coord_type: str) -> str:
     if coord_type == "lat":
         # Latitude: format with 6 decimal places, signed (negative for South)
         return f"{decimal_degrees:8.5f}"
-    else:  # longitude
-        # Longitude: format with 6 decimal places, signed (negative for West)
-        return f"{decimal_degrees:9.5f}"
+    # longitude
+    # Longitude: format with 6 decimal places, signed (negative for West)
+    return f"{decimal_degrees:9.5f}"
 
 
 def _add_depth_data_to_timeline_record(
@@ -1173,12 +1172,11 @@ def stationplan_forecast_png(
                 message=f"Generated PNG forecast map with {activity_count} activities",
                 output=str(map_file),
             )
-        else:
-            return StationplanResult(
-                success=False,
-                message="PNG map generation failed",
-                output="",
-            )
+        return StationplanResult(
+            success=False,
+            message="PNG map generation failed",
+            output="",
+        )
 
     except Exception as e:
         error_msg = f"Error generating PNG forecast: {e}"

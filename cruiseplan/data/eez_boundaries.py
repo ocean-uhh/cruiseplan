@@ -188,12 +188,11 @@ def _extract_and_validate_eez_data(zip_path: Path, eez_file_path: Path) -> bool:
                         temp_path.rename(eez_file_path)
                         logger.info(f"Successfully validated EEZ data from {gpkg_name}")
                         return True
-                    else:
-                        # Invalid schema - clean up and try next file
-                        logger.warning(
-                            f"GeoPackage {gpkg_name} does not contain valid EEZ schema"
-                        )
-                        temp_path.unlink(missing_ok=True)
+                    # Invalid schema - clean up and try next file
+                    logger.warning(
+                        f"GeoPackage {gpkg_name} does not contain valid EEZ schema"
+                    )
+                    temp_path.unlink(missing_ok=True)
 
                 except Exception as e:
                     logger.warning(f"Failed to process {gpkg_name}: {e}")

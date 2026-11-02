@@ -681,8 +681,7 @@ def load_campaign_data(file_path: str | Path, merge_tracks: bool = True) -> list
             # Apply your crucial merging step here before returning to the GUI
             logging.info("Merging campaign tracks by label for unique plotting.")
             return merge_campaign_tracks(campaign_data)
-        else:
-            return campaign_data
+        return campaign_data
 
     except pickle.PickleError as e:
         raise pickle.PickleError(

@@ -1250,12 +1250,11 @@ class StationPicker:
                 choice = input("Enter choice (o/r/c): ").lower().strip()
                 if choice in ["o", "overwrite"]:
                     return "overwrite"
-                elif choice in ["r", "rename"]:
+                if choice in ["r", "rename"]:
                     return "rename"
-                elif choice in ["c", "cancel"]:
+                if choice in ["c", "cancel"]:
                     return "cancel"
-                else:
-                    print("Invalid choice. Please enter 'o', 'r', or 'c'.")
+                print("Invalid choice. Please enter 'o', 'r', or 'c'.")
             except (EOFError, KeyboardInterrupt):
                 print("\nOperation cancelled.")
                 return "cancel"

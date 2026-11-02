@@ -444,7 +444,7 @@ Static format mode (no start params):
         "-o",
         "--output-dir",
         type=Path,
-        default=Path("."),
+        default=Path(),
         help="Output directory (default: current directory)",
     )
     p.add_argument(

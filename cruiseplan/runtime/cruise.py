@@ -306,13 +306,12 @@ class CruiseInstance:
                 if isinstance(catalog_port, PointDefinition):
                     return catalog_port
                 # If it's a dict, convert to PointDefinition
-                elif isinstance(catalog_port, dict):
+                if isinstance(catalog_port, dict):
                     return PointDefinition(**catalog_port)
-                else:
-                    # Handle unexpected type in catalog
-                    raise ReferenceError(
-                        f"Unexpected type in port catalog: {type(catalog_port)}"
-                    )
+                # Handle unexpected type in catalog
+                raise ReferenceError(
+                    f"Unexpected type in port catalog: {type(catalog_port)}"
+                )
 
             # Fall back to global port registry
             try:

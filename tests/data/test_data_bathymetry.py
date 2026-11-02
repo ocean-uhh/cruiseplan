@@ -37,7 +37,7 @@ def mock_netcdf_data():
                     for j, x_idx in enumerate(x_indices):
                         depths[i, j] = -(lats[y_idx] * 10 + lons[x_idx] * 1)
                 return depths
-            elif isinstance(y_indices, slice) and isinstance(x_indices, slice):
+            if isinstance(y_indices, slice) and isinstance(x_indices, slice):
                 # Slice indexing for grid subsets
                 y_start, y_stop, y_step = y_indices.indices(len(lats))
                 x_start, x_stop, x_step = x_indices.indices(len(lons))

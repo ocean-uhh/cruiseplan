@@ -109,8 +109,7 @@ class BathymetryManager:
             "msm142_dt",
         ]:
             return "elevation"
-        else:
-            return "z"  # Default for ETOPO and other sources
+        return "z"  # Default for ETOPO and other sources
 
     def _initialize_data(self):
         """
@@ -392,11 +391,10 @@ class BathymetryManager:
                         f"✅ GEBCO 2025 already available at {gebco_nc_path} ({file_size_gb:.1f} GB)"
                     )
                 return True
-            else:
-                logger.warning(
-                    f"⚠️ GEBCO 2025 file is incomplete ({file_size_gb:.1f} GB). Re-downloading..."
-                )
-                gebco_nc_path.unlink()
+            logger.warning(
+                f"⚠️ GEBCO 2025 file is incomplete ({file_size_gb:.1f} GB). Re-downloading..."
+            )
+            gebco_nc_path.unlink()
 
         # Check disk space (need ~12GB: 4GB zip + 7.5GB extracted + buffer)
         try:

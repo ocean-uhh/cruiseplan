@@ -10,16 +10,10 @@ and bathymetry processing.
 class ValidationError(Exception):
     """Raised when configuration validation fails."""
 
-    pass
-
 
 class FileError(Exception):
     """Raised when file operations fail (reading, writing, permissions)."""
 
-    pass
-
 
 class BathymetryError(Exception):
     """Raised when bathymetry operations fail."""
-
-    pass

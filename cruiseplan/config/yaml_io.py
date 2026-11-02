@@ -32,8 +32,6 @@ logger = logging.getLogger(__name__)
 class YAMLIOError(Exception):
     """Custom exception for YAML I/O operations."""
 
-    pass
-
 
 def _get_yaml_processor(preserve_quotes: bool = True, width: int = 4096) -> YAML:
     """

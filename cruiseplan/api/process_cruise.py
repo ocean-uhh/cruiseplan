@@ -347,7 +347,7 @@ def enrich_with_config(
     )
 
 
-def enrich(  # noqa: C901
+def enrich(
     config_file: str | Path,
     output_dir: str = "data",
     output: str | None = None,
@@ -487,21 +487,20 @@ def enrich(  # noqa: C901
                 or "missing" in error_msg
             ):
                 raise CruisePlanValidationError(f"Configuration validation failed: {e}")
-            elif (
+            if (
                 "bathymetry" in error_msg
                 or "etopo" in error_msg
                 or "gebco" in error_msg
             ):
                 raise BathymetryError(f"Bathymetry processing failed: {e}")
-            elif (
+            if (
                 "file" in error_msg
                 or "directory" in error_msg
                 or "permission" in error_msg
             ):
                 raise FileError(f"File operation failed: {e}")
-            else:
-                # Re-raise as generic error for now
-                raise
+            # Re-raise as generic error for now
+            raise
 
         # Verify output was created successfully
         if not output_path.exists():
@@ -719,7 +718,7 @@ def _check_unexpanded_ctd_sections_raw(config_dict: dict[str, Any]) -> list[str]
     return warnings
 
 
-def _check_cruise_metadata_raw(raw_config: dict) -> list[str]:  # noqa: C901
+def _check_cruise_metadata_raw(raw_config: dict) -> list[str]:
     """
     Check cruise metadata for placeholder values and default coordinates from raw YAML.
 

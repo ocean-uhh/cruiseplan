@@ -47,27 +47,22 @@ class BaseOrganizationUnit(ABC):
     @abstractmethod
     def get_all_operations(self) -> list[BaseOperation]:
         """Get all operations within this organizational unit."""
-        pass
 
     @abstractmethod
     def get_operation_count(self) -> int:
         """Get total number of operations in this unit."""
-        pass
 
     @abstractmethod
     def allows_reordering(self) -> bool:
         """Check if this unit allows operation reordering."""
-        pass
 
     @abstractmethod
     def get_entry_point(self) -> tuple[float, float] | None:
         """Get geographic entry point for this unit."""
-        pass
 
     @abstractmethod
     def get_exit_point(self) -> tuple[float, float] | None:
         """Get geographic exit point for this unit."""
-        pass
 
 
 class Cluster(BaseOrganizationUnit):

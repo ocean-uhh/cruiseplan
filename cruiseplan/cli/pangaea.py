@@ -45,8 +45,7 @@ def determine_workflow_mode(args: argparse.Namespace) -> str:
     """
     if hasattr(args, "doi_file") and args.doi_file:
         return "doi_file"
-    else:
-        return "search"
+    return "search"
 
 
 def run(args: argparse.Namespace) -> None:

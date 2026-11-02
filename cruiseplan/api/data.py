@@ -331,15 +331,14 @@ def _resolve_doi_list(
         # DOI file mode: read DOIs from existing file
         return _process_doi_file(query_terms, dois_file)
 
-    elif query_terms.startswith("10.") and "/" in query_terms:
+    if query_terms.startswith("10.") and "/" in query_terms:
         # Single DOI mode: validate and process single DOI
         return _process_single_doi(query_terms, dois_file, manager)
 
-    else:
-        # Search mode: search PANGAEA database
-        return _process_search_query(
-            query_terms, bbox, lat_bounds, lon_bounds, limit, dois_file, manager
-        )
+    # Search mode: search PANGAEA database
+    return _process_search_query(
+        query_terms, bbox, lat_bounds, lon_bounds, limit, dois_file, manager
+    )
 
 
 def _fetch_and_save_datasets(

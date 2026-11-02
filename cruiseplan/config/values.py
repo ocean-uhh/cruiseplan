@@ -11,7 +11,7 @@ Contains:
 - Enumeration classes for valid field values
 """
 
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime
 from enum import Enum
 
 # =============================================================================

@@ -122,4 +122,3 @@ def test_main_handles_import_error(mock_args):
     """Tests the graceful exit path if core dependencies (matplotlib) are missing."""
     # This test is skipped due to complexity of mocking dynamic imports
     # The import error handling works in practice but is difficult to test
-    pass

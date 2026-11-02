@@ -58,7 +58,7 @@ class TestForecastThinCLI:
             transit_speed=10.0,
             format="text",
             output=None,
-            output_dir=Path("."),
+            output_dir=Path(),
             current_position=None,
         )
 
@@ -77,7 +77,7 @@ class TestForecastThinCLI:
             transit_speed=10.0,
             format="text",
             output=None,
-            output_dir=Path("."),
+            output_dir=Path(),
             current_position=None,
         )
 

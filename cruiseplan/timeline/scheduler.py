@@ -198,13 +198,12 @@ class OperationFactory:
                         # Special handling for ports which use PortDefinition instead of StationDefinition
                         if catalog_name == "ports":
                             return PointOperation.from_port(item)
-                        else:
-                            return PointOperation.from_pydantic(item)
-                    elif operation_type == "line":
+                        return PointOperation.from_pydantic(item)
+                    if operation_type == "line":
                         return LineOperation.from_pydantic(
                             item, self.config.default_vessel_speed
                         )
-                    elif operation_type == "area":
+                    if operation_type == "area":
                         return AreaOperation.from_pydantic(item)
 
         # Fallback: Try to resolve from global ports registry
@@ -772,9 +771,8 @@ class TimelineGenerator:
         if isinstance(activity, str):
             # Regular activity name - use factory
             return self.factory.create_operation(activity, leg.name)
-        else:
-            # Definition object - create directly
-            return self._create_operation_from_definition(activity, leg)
+        # Definition object - create directly
+        return self._create_operation_from_definition(activity, leg)
 
     def _create_operation_from_definition(self, activity, leg: Any):
         """Create operation from Pydantic definition object."""
@@ -796,17 +794,15 @@ class TimelineGenerator:
                 and activity.operation_type.value == "port"
             ):
                 return PointOperation.from_port(activity)
-            else:
-                return PointOperation.from_pydantic(activity)
-        elif isinstance(activity, LineDefinition):
+            return PointOperation.from_pydantic(activity)
+        if isinstance(activity, LineDefinition):
             return LineOperation.from_pydantic(activity, leg.vessel_speed)
-        elif isinstance(activity, AreaDefinition):
+        if isinstance(activity, AreaDefinition):
             return AreaOperation.from_pydantic(activity)
-        else:
-            raise TypeError(
-                f"Unknown activity type: {type(activity)}. "
-                f"Expected PointDefinition, LineDefinition, or AreaDefinition, got {activity}"
-            )
+        raise TypeError(
+            f"Unknown activity type: {type(activity)}. "
+            f"Expected PointDefinition, LineDefinition, or AreaDefinition, got {activity}"
+        )
 
     def _add_transit_and_operation(
         self, operation, activities, leg: Any, previous_operation
@@ -995,9 +991,8 @@ class TimelineGenerator:
             if "T" in start_date:
                 start_date_clean = start_date.replace("Z", "").replace("+00:00", "")
                 return datetime.fromisoformat(start_date_clean)
-            else:
-                start_time = getattr(self.config, "start_time", "08:00")
-                return datetime.strptime(f"{start_date} {start_time}", "%Y-%m-%d %H:%M")
+            start_time = getattr(self.config, "start_time", "08:00")
+            return datetime.strptime(f"{start_date} {start_time}", "%Y-%m-%d %H:%M")
         except (ValueError, AttributeError):
             logger.exception("Invalid start_date or start_time format")
             # Return a default datetime instead of None
