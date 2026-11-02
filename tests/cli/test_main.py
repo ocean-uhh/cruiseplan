@@ -17,10 +17,12 @@ class TestCLIMainFunction:
         """Test help message is displayed when no subcommand given."""
         test_args = ["cruiseplan"]
 
-        with patch.object(sys, "argv", test_args):
-            with patch("sys.exit") as mock_exit:
-                main()
-                mock_exit.assert_called_with(1)
+        with (
+            patch.object(sys, "argv", test_args),
+            patch("sys.exit") as mock_exit,
+        ):
+            main()
+            mock_exit.assert_called_with(1)
 
     @patch("cruiseplan.cli.pangaea.run")
     def test_pangaea_subcommand(self, mock_pangaea_main):
@@ -67,43 +69,51 @@ class TestCLIMainFunction:
             "tests_output",
         ]
 
-        with patch.object(sys, "argv", test_args):
-            with patch("sys.exit") as mock_exit:
-                main()
-                mock_exit.assert_called_with(1)
+        with (
+            patch.object(sys, "argv", test_args),
+            patch("sys.exit") as mock_exit,
+        ):
+            main()
+            mock_exit.assert_called_with(1)
 
     def test_invalid_subcommand(self):
         """Test handling of invalid subcommand."""
         test_args = ["cruiseplan", "invalid-command"]
 
-        with patch.object(sys, "argv", test_args):
-            with patch("sys.exit") as mock_exit:
-                main()
-                mock_exit.assert_called_with(1)
+        with (
+            patch.object(sys, "argv", test_args),
+            patch("sys.exit") as mock_exit,
+        ):
+            main()
+            mock_exit.assert_called_with(1)
 
     def test_keyboard_interrupt(self):
         """Test handling of keyboard interrupt."""
         test_args = ["cruiseplan", "pangaea", "dois.txt"]
 
-        with patch.object(sys, "argv", test_args):
-            with patch("cruiseplan.cli.pangaea.run") as mock_pangaea:
-                mock_pangaea.side_effect = KeyboardInterrupt()
+        with (
+            patch.object(sys, "argv", test_args),
+            patch("cruiseplan.cli.pangaea.run") as mock_pangaea,
+        ):
+            mock_pangaea.side_effect = KeyboardInterrupt()
 
-                with patch("sys.exit") as mock_exit:
-                    main()
-                    mock_exit.assert_called_with(1)
+            with patch("sys.exit") as mock_exit:
+                main()
+                mock_exit.assert_called_with(1)
 
     def test_unexpected_exception(self):
         """Test handling of unexpected exceptions."""
         test_args = ["cruiseplan", "pangaea", "dois.txt"]
 
-        with patch.object(sys, "argv", test_args):
-            with patch("cruiseplan.cli.pangaea.run") as mock_pangaea:
-                mock_pangaea.side_effect = RuntimeError("Unexpected error")
+        with (
+            patch.object(sys, "argv", test_args),
+            patch("cruiseplan.cli.pangaea.run") as mock_pangaea,
+        ):
+            mock_pangaea.side_effect = RuntimeError("Unexpected error")
 
-                with patch("sys.exit") as mock_exit:
-                    main()
-                    mock_exit.assert_called_with(1)
+            with patch("sys.exit") as mock_exit:
+                main()
+                mock_exit.assert_called_with(1)
 
 
 class TestSubcommandArguments:
@@ -124,17 +134,19 @@ class TestSubcommandArguments:
             "--merge-campaigns",
         ]
 
-        with patch.object(sys, "argv", test_args):
-            with patch("cruiseplan.cli.pangaea.run") as mock_main:
-                main()
+        with (
+            patch.object(sys, "argv", test_args),
+            patch("cruiseplan.cli.pangaea.run") as mock_main,
+        ):
+            main()
 
-                # Check that args were parsed correctly
-                args = mock_main.call_args[0][0]
-                assert str(args.query_or_file) == "dois.txt"
-                assert str(args.output_dir) == "output_dir"
-                assert str(args.output) == "specific"
-                assert args.rate_limit == 2.0
-                assert args.merge_campaigns is True
+            # Check that args were parsed correctly
+            args = mock_main.call_args[0][0]
+            assert str(args.query_or_file) == "dois.txt"
+            assert str(args.output_dir) == "output_dir"
+            assert str(args.output) == "specific"
+            assert args.rate_limit == 2.0
+            assert args.merge_campaigns is True
 
     def test_stations_arguments(self):
         """Test stations subcommand argument parsing."""
@@ -155,16 +167,18 @@ class TestSubcommandArguments:
             "gebco2025",
         ]
 
-        with patch.object(sys, "argv", test_args):
-            with patch("cruiseplan.cli.stations.run") as mock_main:
-                main()
+        with (
+            patch.object(sys, "argv", test_args),
+            patch("cruiseplan.cli.stations.run") as mock_main,
+        ):
+            main()
 
-                args = mock_main.call_args[0][0]
-                assert str(args.pangaea_file) == "pangaea.pkl"
-                assert args.lat == [50.0, 60.0]
-                assert args.lon == [-20.0, -10.0]
-                assert str(args.output_dir) == "output_dir"
-                assert args.bathy_source == "gebco2025"
+            args = mock_main.call_args[0][0]
+            assert str(args.pangaea_file) == "pangaea.pkl"
+            assert args.lat == [50.0, 60.0]
+            assert args.lon == [-20.0, -10.0]
+            assert str(args.output_dir) == "output_dir"
+            assert args.bathy_source == "gebco2025"
 
     def test_schedule_arguments_not_implemented(self):
         """Test schedule subcommand exits with error when config file missing."""
@@ -178,19 +192,23 @@ class TestSubcommandArguments:
             "html",
         ]
 
-        with patch.object(sys, "argv", test_args):
-            with patch("sys.exit") as mock_exit:
-                main()
-                mock_exit.assert_called_with(1)
+        with (
+            patch.object(sys, "argv", test_args),
+            patch("sys.exit") as mock_exit,
+        ):
+            main()
+            mock_exit.assert_called_with(1)
 
     def test_depths_arguments_not_implemented(self):
         """Test depths subcommand shows not implemented for now."""
         test_args = ["cruiseplan", "depths", "config.yaml", "-o", "output_dir"]
 
-        with patch.object(sys, "argv", test_args):
-            with patch("sys.exit") as mock_exit:
-                main()
-                mock_exit.assert_called_with(1)
+        with (
+            patch.object(sys, "argv", test_args),
+            patch("sys.exit") as mock_exit,
+        ):
+            main()
+            mock_exit.assert_called_with(1)
 
 
 class TestVersionAndHelp:
@@ -200,16 +218,18 @@ class TestVersionAndHelp:
         """Test version flag displays version."""
         test_args = ["cruiseplan", "--version"]
 
-        with patch.object(sys, "argv", test_args):
-            with patch("sys.exit"):
-                with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
-                    main()
-                    output = mock_stdout.getvalue()
-                    assert "cruiseplan" in output
-                    # Accept any PEP 440-style version (release or setuptools-scm
-                    # dev, e.g. 0.4.0 or 0.4.0.post1.dev1) rather than enumerating
-                    # release-line prefixes, which silently break each new minor.
-                    assert re.search(r"\d+\.\d+", output)
+        with (
+            patch.object(sys, "argv", test_args),
+            patch("sys.exit"),
+            patch("sys.stdout", new_callable=StringIO) as mock_stdout,
+        ):
+            main()
+            output = mock_stdout.getvalue()
+            assert "cruiseplan" in output
+            # Accept any PEP 440-style version (release or setuptools-scm
+            # dev, e.g. 0.4.0 or 0.4.0.post1.dev1) rather than enumerating
+            # release-line prefixes, which silently break each new minor.
+            assert re.search(r"\d+\.\d+", output)
 
     def test_subcommand_help(self):
         """Test subcommand help works."""
@@ -227,13 +247,15 @@ class TestDynamicImports:
         """Test handling of invalid subcommand choices."""
         test_args = ["cruiseplan", "optimize"]  # Not implemented yet
 
-        with patch.object(sys, "argv", test_args):
-            with patch("sys.exit") as mock_exit:
-                # argparse will handle invalid choices and exit with code 2
-                main()
-                # argparse calls sys.exit(2) for invalid choices, but may also trigger our help logic
-                # We just need to verify sys.exit was called
-                mock_exit.assert_called()
+        with (
+            patch.object(sys, "argv", test_args),
+            patch("sys.exit") as mock_exit,
+        ):
+            # argparse will handle invalid choices and exit with code 2
+            main()
+            # argparse calls sys.exit(2) for invalid choices, but may also trigger our help logic
+            # We just need to verify sys.exit was called
+            mock_exit.assert_called()
 
 
 class TestModuleStructure:

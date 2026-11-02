@@ -72,18 +72,20 @@ def real_mode_manager(mock_netcdf_data):
         # 2. Mock file size check to return a valid size
         mock_stat = MagicMock()
         mock_stat.st_size = 500 * 1024 * 1024  # 500 MB (> 450 MB ETOPO threshold)
-        with patch.object(Path, "stat", return_value=mock_stat):
-            # 3. Patch nc.Dataset to return our mock data
-            with patch(
+        # 3. Patch nc.Dataset to return our mock data
+        with (
+            patch.object(Path, "stat", return_value=mock_stat),
+            patch(
                 "cruiseplan.data.bathymetry.nc.Dataset", return_value=mock_netcdf_data
-            ):
-                manager = bathy_module.BathymetryManager(source="etopo2022")
-                # 4. Manually set the internal state to the mock's arrays (since __init__ does this)
-                manager._lats = mock_netcdf_data.variables["lat"]
-                manager._lons = mock_netcdf_data.variables["lon"]
-                manager._is_mock = False
-                yield manager
-                manager.close()
+            ),
+        ):
+            manager = bathy_module.BathymetryManager(source="etopo2022")
+            # 4. Manually set the internal state to the mock's arrays (since __init__ does this)
+            manager._lats = mock_netcdf_data.variables["lat"]
+            manager._lons = mock_netcdf_data.variables["lon"]
+            manager._is_mock = False
+            yield manager
+            manager.close()
 
 
 @pytest.fixture
@@ -205,7 +207,7 @@ def test_close_method(real_mode_manager, mock_netcdf_data):
 @patch("cruiseplan.data.bathymetry.Path.unlink")
 @patch("cruiseplan.data.bathymetry.requests.get")
 @patch("cruiseplan.data.bathymetry.tqdm")
-@patch("builtins.open", new_callable=MagicMock)
+@patch("cruiseplan.data.bathymetry.Path.open", new_callable=MagicMock)
 def test_download_bathymetry_success_path(
     mock_open,
     mock_tqdm,
@@ -655,7 +657,7 @@ class TestGEBCO2025Functionality:
             patch("requests.get") as mock_get,
             patch("zipfile.ZipFile") as mock_zipfile,
             patch.object(Path, "unlink"),
-            patch("builtins.open", mock_open()),
+            patch.object(Path, "open", mock_open()),
             patch("cruiseplan.data.bathymetry.tqdm") as mock_tqdm,
             patch("sys.modules") as mock_modules,
         ):
@@ -702,7 +704,7 @@ class TestGEBCO2025Functionality:
             patch("builtins.input", return_value="y"),
             patch("requests.get") as mock_get,
             patch("zipfile.ZipFile") as mock_zipfile,
-            patch("builtins.open", mock_open()),
+            patch.object(Path, "open", mock_open()),
             patch("cruiseplan.data.bathymetry.tqdm") as mock_tqdm,
             patch("sys.modules") as mock_modules,
         ):

@@ -472,7 +472,7 @@ class BathymetryManager:
             total_size = int(response.headers.get("content-length", 0))
 
             with (
-                open(zip_path, "wb") as file,
+                zip_path.open("wb") as file,
                 tqdm(
                     desc="Downloading GEBCO 2025",
                     total=total_size,
@@ -513,7 +513,7 @@ class BathymetryManager:
                 # Extract with progress (for large files)
                 with (
                     zip_ref.open(nc_file_in_zip) as source,
-                    open(nc_path, "wb") as target,
+                    nc_path.open("wb") as target,
                 ):
                     shutil.copyfileobj(source, target)
 
@@ -674,7 +674,7 @@ def _download_etopo2022(target_dir: str) -> str | bool | None:
             resp.raise_for_status()
             total_size = int(resp.headers.get("Content-Length", 0))
             with (
-                open(local_path, "wb") as file,
+                local_path.open("wb") as file,
                 tqdm(
                     desc="Downloading ETOPO",
                     total=total_size,

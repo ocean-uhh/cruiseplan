@@ -21,7 +21,7 @@ class TestEnrichConfiguration:
     @patch("cruiseplan.api.process_cruise.save_yaml")
     @patch("cruiseplan.data.bathymetry.BathymetryManager")
     @patch("cruiseplan.runtime.cruise.CruiseInstance")
-    @patch("builtins.open")
+    @patch("pathlib.Path.open")
     @patch("cruiseplan.api.process_cruise.load_yaml")
     def test_enrich_depths_only(
         self,
@@ -87,7 +87,7 @@ class TestEnrichConfiguration:
     @patch("cruiseplan.api.process_cruise.save_yaml")
     @patch("cruiseplan.utils.coordinates.format_ddm_comment")
     @patch("cruiseplan.runtime.cruise.CruiseInstance")
-    @patch("builtins.open")
+    @patch("pathlib.Path.open")
     @patch("cruiseplan.api.process_cruise.load_yaml")
     def test_enrich_coords_only(
         self,
@@ -152,7 +152,7 @@ class TestEnrichConfiguration:
         assert mock_save_yaml.call_count == 1
 
     @patch("cruiseplan.runtime.cruise.CruiseInstance")
-    @patch("builtins.open")
+    @patch("pathlib.Path.open")
     @patch("cruiseplan.api.process_cruise.load_yaml")
     def test_enrich_no_changes_needed(
         self, mock_yaml_load, mock_open, mock_cruise_class

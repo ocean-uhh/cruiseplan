@@ -114,7 +114,7 @@ class CSVGenerator:
 
         # Write CSV file
         output_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_file, "w", newline="", encoding="utf-8") as csvfile:
+        with Path(output_file).open("w", newline="", encoding="utf-8") as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
             writer.writeheader()

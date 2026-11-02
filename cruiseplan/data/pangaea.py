@@ -603,7 +603,7 @@ def save_campaign_data(
         file_path.parent.mkdir(parents=True, exist_ok=True)
 
         # Save datasets to pickle
-        with open(file_path, "wb") as f:
+        with file_path.open("wb") as f:
             pickle.dump(datasets, f, protocol=pickle.HIGHEST_PROTOCOL)
 
         if progress_callback:
@@ -658,7 +658,7 @@ def load_campaign_data(file_path: str | Path, merge_tracks: bool = True) -> list
         raise FileNotFoundError(f"Campaign data file not found: {file_path}")
 
     try:
-        with open(file_path, "rb") as f:
+        with file_path.open("rb") as f:
             campaign_data = pickle.load(f)
 
         # Validate the loaded data structure
@@ -715,7 +715,7 @@ def read_doi_list(file_path: str | Path) -> list[str]:
     file_path = Path(file_path)
 
     try:
-        with open(file_path, encoding="utf-8") as f:
+        with file_path.open(encoding="utf-8") as f:
             lines = f.readlines()
 
         dois = []

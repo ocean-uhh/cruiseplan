@@ -243,9 +243,11 @@ class TestCruise:
         ]
         mock_load_yaml.return_value = invalid_config
 
-        with patch("cruiseplan.runtime.cruise.resolve_port_reference"):
-            with pytest.raises(ReferenceError):
-                CruiseInstance("invalid_config.yaml")
+        with (
+            patch("cruiseplan.runtime.cruise.resolve_port_reference"),
+            pytest.raises(ReferenceError),
+        ):
+            CruiseInstance("invalid_config.yaml")
 
     @patch("cruiseplan.runtime.cruise.load_yaml")
     def test_resolve_mixed_list_stations(self, mock_load_yaml):

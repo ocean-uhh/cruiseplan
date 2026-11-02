@@ -222,7 +222,7 @@ def _process_single_doi(
     logger.info(f"✅ Validated DOI: {clean_doi}")
 
     # Save single DOI to file for consistency with header
-    with open(dois_file, "w") as f:
+    with Path(dois_file).open("w") as f:
         f.write("# Single DOI Processing\n")
         f.write(f"# DOI: {query_terms}\n")
         f.write("#\n")
@@ -269,7 +269,7 @@ def _process_search_query(
         logger.info(f"✅ Found {len(clean_dois)} datasets")
 
         # Save DOI list (intermediate file) with query header
-        with open(dois_file, "w") as f:
+        with Path(dois_file).open("w") as f:
             # Add header comment with search information
             f.write("# PANGAEA Search Results\n")
             f.write(f"# Query: {query_terms}\n")

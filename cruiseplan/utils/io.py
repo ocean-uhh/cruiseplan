@@ -204,7 +204,7 @@ def setup_output_paths(
         try:
             import yaml
 
-            with open(config_file) as f:
+            with Path(config_file).open() as f:
                 config_data = yaml.safe_load(f)
                 cruise_name = config_data.get("cruise_name")
                 if cruise_name:

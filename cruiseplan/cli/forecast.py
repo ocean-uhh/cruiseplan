@@ -283,7 +283,7 @@ def _forecast_text(args: argparse.Namespace, schedule_file: Path) -> None:
     if output_path:
         try:
             output_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(output_path, "w") as f:
+            with Path(output_path).open("w") as f:
                 f.write(result.output)
             print(f"Forecast written to: {output_path}")
         except Exception as e:

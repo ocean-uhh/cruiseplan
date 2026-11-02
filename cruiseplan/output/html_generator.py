@@ -298,7 +298,7 @@ class HTMLGenerator:
 
         # Write to file
         output_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_file, "w", encoding="utf-8") as f:
+        with Path(output_file).open("w", encoding="utf-8") as f:
             f.write(html_content)
 
         return output_file

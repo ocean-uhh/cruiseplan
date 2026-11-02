@@ -57,7 +57,7 @@ class CacheManager:
         cache_file = self.cache_dir / f"{key}.pkl"
         if cache_file.exists():
             try:
-                with open(cache_file, "rb") as f:
+                with cache_file.open("rb") as f:
                     data = pickle.load(f)
                     logger.debug(f"Cache hit: {key}")
                     return data
@@ -78,7 +78,7 @@ class CacheManager:
         """
         cache_file = self.cache_dir / f"{key}.pkl"
         try:
-            with open(cache_file, "wb") as f:
+            with cache_file.open("wb") as f:
                 pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
                 logger.debug(f"Cached: {key}")
         except Exception:

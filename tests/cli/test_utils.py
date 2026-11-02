@@ -18,7 +18,7 @@ class TestYamlOperations:
         config = {"cruise_name": "Test Cruise", "waypoints": []}
         yaml_file = tmp_path / "config.yaml"
 
-        with open(yaml_file, "w") as f:
+        with Path(yaml_file).open("w") as f:
             yaml.dump(config, f)
 
         result = load_yaml(yaml_file)

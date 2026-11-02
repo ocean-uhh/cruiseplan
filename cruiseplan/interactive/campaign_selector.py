@@ -2,6 +2,7 @@
 
 import logging
 import pickle
+from pathlib import Path
 from typing import Any
 
 import matplotlib.pyplot as plt
@@ -172,7 +173,7 @@ class CampaignSelector:
         """
         selected_campaigns = self.get_selected_campaigns()
         try:
-            with open(file_path, "wb") as f:
+            with Path(file_path).open("wb") as f:
                 pickle.dump(selected_campaigns, f, protocol=pickle.HIGHEST_PROTOCOL)
             logger.info(
                 f"💾 Saved {len(selected_campaigns)} selected campaigns to {file_path}"

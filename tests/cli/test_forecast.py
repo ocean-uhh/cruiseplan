@@ -30,23 +30,25 @@ class TestForecastThinCLI:
             current_position=None,
         )
 
-        with patch("cruiseplan.cli.forecast.stationplan_forecast") as mock_forecast:
-            with patch("pathlib.Path.exists", return_value=True):
-                mock_forecast.return_value = StationplanResult(
-                    success=True,
-                    message="Generated 24h forecast",
-                    output="% Forecast output\nSTN_001 14:00 15:30\n",
-                )
+        with (
+            patch("cruiseplan.cli.forecast.stationplan_forecast") as mock_forecast,
+            patch("pathlib.Path.exists", return_value=True),
+        ):
+            mock_forecast.return_value = StationplanResult(
+                success=True,
+                message="Generated 24h forecast",
+                output="% Forecast output\nSTN_001 14:00 15:30\n",
+            )
 
-                run(args)
+            run(args)
 
-                mock_forecast.assert_called_once_with(
-                    schedule_file=Path("test_schedule.nc"),
-                    start_index=10,
-                    start_time="2026-08-30T14:00:00",
-                    duration_hours=24.0,
-                    transit_speed=10.0,
-                )
+            mock_forecast.assert_called_once_with(
+                schedule_file=Path("test_schedule.nc"),
+                start_index=10,
+                start_time="2026-08-30T14:00:00",
+                duration_hours=24.0,
+                transit_speed=10.0,
+            )
 
     def test_xor_validation_index_only(self):
         """Test that --start-index without --start-time gives a clean error."""
@@ -62,10 +64,12 @@ class TestForecastThinCLI:
             current_position=None,
         )
 
-        with patch("pathlib.Path.exists", return_value=True):
-            with patch("sys.exit") as mock_exit:
-                run(args)
-                mock_exit.assert_called_once_with(1)
+        with (
+            patch("pathlib.Path.exists", return_value=True),
+            patch("sys.exit") as mock_exit,
+        ):
+            run(args)
+            mock_exit.assert_called_once_with(1)
 
     def test_xor_validation_time_only(self):
         """Test that --start-time without --start-index gives a clean error."""
@@ -81,10 +85,12 @@ class TestForecastThinCLI:
             current_position=None,
         )
 
-        with patch("pathlib.Path.exists", return_value=True):
-            with patch("sys.exit") as mock_exit:
-                run(args)
-                mock_exit.assert_called_once_with(1)
+        with (
+            patch("pathlib.Path.exists", return_value=True),
+            patch("sys.exit") as mock_exit,
+        ):
+            run(args)
+            mock_exit.assert_called_once_with(1)
 
     def test_static_tex_mode(self):
         """Test static TeX mode (no start params) calls stationplan_tex."""
@@ -100,17 +106,19 @@ class TestForecastThinCLI:
             title=None,
         )
 
-        with patch("cruiseplan.cli.forecast.stationplan_tex") as mock_tex:
-            with patch("pathlib.Path.exists", return_value=True):
-                mock_tex.return_value = StationplanResult(
-                    success=True,
-                    message="Generated TeX table",
-                    output="station_plan.tex",
-                )
+        with (
+            patch("cruiseplan.cli.forecast.stationplan_tex") as mock_tex,
+            patch("pathlib.Path.exists", return_value=True),
+        ):
+            mock_tex.return_value = StationplanResult(
+                success=True,
+                message="Generated TeX table",
+                output="station_plan.tex",
+            )
 
-                run(args)
+            run(args)
 
-                mock_tex.assert_called_once()
+            mock_tex.assert_called_once()
 
     def test_api_failure_handling(self):
         """Test handling of API failures."""
@@ -126,14 +134,16 @@ class TestForecastThinCLI:
             current_position=None,
         )
 
-        with patch("cruiseplan.cli.forecast.stationplan_forecast") as mock_forecast:
-            with patch("pathlib.Path.exists", return_value=True):
-                mock_forecast.return_value = StationplanResult(
-                    success=False,
-                    message="Schedule file corrupted",
-                    output="",
-                )
+        with (
+            patch("cruiseplan.cli.forecast.stationplan_forecast") as mock_forecast,
+            patch("pathlib.Path.exists", return_value=True),
+        ):
+            mock_forecast.return_value = StationplanResult(
+                success=False,
+                message="Schedule file corrupted",
+                output="",
+            )
 
-                with patch("sys.exit") as mock_exit:
-                    run(args)
-                    mock_exit.assert_called_once_with(1)
+            with patch("sys.exit") as mock_exit:
+                run(args)
+                mock_exit.assert_called_once_with(1)
