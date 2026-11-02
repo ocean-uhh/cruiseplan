@@ -555,8 +555,8 @@ class LaTeXGenerator:
         cruise_name : str
             Name of cruise for table header. Default is ``"Cruise"``.
         config : CruiseConfig, optional
-            Cruise configuration object; used to extract cruise name and date
-            range when provided.
+            Accepted for compatibility and not used: the header takes the
+            cruise name from ``cruise_name`` and ``cruise_title``.
         logo_path : str or Path, optional
             Path to a logo image file (PNG, JPG, PDF). If None, the generator
             searches ``config/images/`` for ``project_logo.*`` or

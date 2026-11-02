@@ -52,12 +52,6 @@ def _convert_decimal_to_deg_min_html(decimal_degrees: float) -> str:
     if decimal_degrees >= 0:
         return f"{degrees:02d} {minutes:06.3f}"
     return f"-{degrees:02d} {minutes:06.3f}"
-    degrees = int(abs(decimal_degrees))
-    minutes = abs((abs(decimal_degrees) - degrees) * 60)
-
-    if decimal_degrees >= 0:
-        return f"{degrees:02d} {minutes:06.3f}"
-    return f"-{degrees:02d} {minutes:06.3f}"
 
 
 class HTMLGenerator:

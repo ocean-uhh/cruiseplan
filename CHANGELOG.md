@@ -6,6 +6,10 @@ versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Breaking changes
+
+- Python 3.10 is no longer supported; minimum is 3.11. Classifiers list 3.11–3.13.
+
 ### Added
 
 - `CHANGELOG.md`; breaking-change notes moved here from the README.
@@ -17,7 +21,6 @@ versions follow [Semantic Versioning](https://semver.org/).
 - Documentation updates: developer guide, YAML reference, workflows (#159).
 - Dependencies declared in `pyproject.toml` only; CI gates coverage at 70 %; `CITATION.cff` at v0.4.0 (#169).
 - CI: Ubuntu tests Python 3.11–3.13; macOS and Windows test 3.11 only; separate lint (`ruff check`, `ruff format --check`) and coverage jobs.
-- Python 3.10 is no longer supported; minimum is 3.11. Classifiers list 3.11–3.13.
 - Ruff ruleset aligned with the sibling packages (ctdcast): annotations, numpy docstrings with all parameters documented, pathlib, bugbear, blind-except. `cruiseplan/output` is now linted (an unanchored `output/` in `.gitignore` had excluded it).
 - Re-raised errors carry the original exception as `__cause__`. Some broad `except Exception` blocks are narrowed (`OSError` for directory checks; `ValueError`/`TypeError` for NetCDF value and `start_time` parsing); other exception types from those calls now propagate instead of being wrapped or ignored.
 

@@ -346,7 +346,7 @@ def _lookup_tex_exit_coords(
             exit_lon_val = float(schedule.exit_longitude[index].values)
             if not (np.isnan(exit_lat_val) or np.isnan(exit_lon_val)):
                 return exit_lat_val, exit_lon_val
-    except (TypeError, ValueError, IndexError):
+    except (AttributeError, TypeError, ValueError, IndexError):
         pass
     return latitude, longitude
 
@@ -601,7 +601,7 @@ def _resolve_exit_coordinates(
             next_lon = float(schedule.longitude[index + 1].values)
             if not (np.isnan(next_lat) or np.isnan(next_lon)):
                 return next_lat, next_lon
-    except (TypeError, ValueError, IndexError):
+    except (AttributeError, TypeError, ValueError, IndexError):
         pass
 
     return latitude, longitude
@@ -822,7 +822,7 @@ def _add_depth_data_to_timeline_record(
             op_depth_val = schedule.operation_depth[index].values
             if not np.isnan(float(op_depth_val)):
                 record["operation_depth"] = float(op_depth_val)
-    except (TypeError, ValueError, IndexError):
+    except (AttributeError, TypeError, ValueError, IndexError):
         pass
 
 

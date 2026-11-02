@@ -977,7 +977,9 @@ def validate(
     tolerance : float
         Depth difference tolerance in percent (default: 10.0)
     warnings_only : bool
-        Show warnings without failing - warnings don't affect return value (default: False)
+        Accepted to mirror the CLI flag and not used here: the returned
+        ``ValidationResult`` is the same either way. ``cruiseplan validate
+        --warnings-only`` applies it when reporting (default: False).
     verbose : bool
         Enable verbose logging (default: False)
 
