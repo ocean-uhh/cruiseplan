@@ -90,9 +90,8 @@ def format_activity_type(activity: dict[str, Any]) -> str:
     if action:
         # Format as "op_type action" (e.g. "CTD profile", "Port mob")
         return f"{formatted_op_type} {action}"
-    else:
-        # Just use op_type for things like "Transit" without action
-        return formatted_op_type
+    # Just use op_type for things like "Transit" without action
+    return formatted_op_type
 
 
 def round_time_to_minute(dt: datetime) -> datetime:
@@ -194,18 +193,16 @@ def format_operation_action(operation_type: str, action: str) -> str:
     # Handle different operation types
     if operation_type == "ctd" and action_str.lower() == "profile":
         return "CTD profile"
-    elif operation_type == "mooring" and action_str.lower() == "deployment":
+    if operation_type == "mooring" and action_str.lower() == "deployment":
         return "Mooring deployment"
-    elif operation_type == "mooring" and action_str.lower() == "recovery":
+    if operation_type == "mooring" and action_str.lower() == "recovery":
         return "Mooring recovery"
-    elif operation_type == "transit":
+    if operation_type == "transit":
         if action_str:
             return f"Transit ({action_str})"
-        else:
-            return "Transit"
-    elif operation_type and action_str:
+        return "Transit"
+    if operation_type and action_str:
         return f"{operation_type.title()} {action_str}"
-    elif operation_type:
+    if operation_type:
         return operation_type.title()
-    else:
-        return ""
+    return ""

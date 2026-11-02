@@ -8,10 +8,14 @@ PANGAEA oceanographic databases.
 import logging
 import re
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from cruiseplan.api.config import BathymetryDownloadConfig, PangaeaConfig
 from cruiseplan.api.types import BathymetryResult, PangaeaResult
 from cruiseplan.config.exceptions import ValidationError
+
+if TYPE_CHECKING:
+    from cruiseplan.data.pangaea import PangaeaManager
 
 logger = logging.getLogger(__name__)
 
@@ -207,7 +211,7 @@ def _process_doi_file(
 
 
 def _process_single_doi(
-    query_terms: str, dois_file: Path, manager
+    query_terms: str, dois_file: Path, manager: "PangaeaManager"
 ) -> tuple[list[str], list[Path]]:
     """Process single DOI input mode."""
     logger.info(f"📄 Processing single DOI: '{query_terms}'")
@@ -218,7 +222,7 @@ def _process_single_doi(
     logger.info(f"✅ Validated DOI: {clean_doi}")
 
     # Save single DOI to file for consistency with header
-    with open(dois_file, "w") as f:
+    with Path(dois_file).open("w") as f:
         f.write("# Single DOI Processing\n")
         f.write(f"# DOI: {query_terms}\n")
         f.write("#\n")
@@ -231,12 +235,12 @@ def _process_single_doi(
 
 def _process_search_query(
     query_terms: str,
-    bbox,
+    bbox: tuple[float, float, float, float] | None,
     lat_bounds: list[float] | None,
     lon_bounds: list[float] | None,
     limit: int,
     dois_file: Path,
-    manager,
+    manager: "PangaeaManager",
 ) -> tuple[list[str], list[Path]]:
     """Process search query input mode."""
     logger.info(f"🔍 Searching PANGAEA for: '{query_terms}'")
@@ -265,7 +269,7 @@ def _process_search_query(
         logger.info(f"✅ Found {len(clean_dois)} datasets")
 
         # Save DOI list (intermediate file) with query header
-        with open(dois_file, "w") as f:
+        with Path(dois_file).open("w") as f:
             # Add header comment with search information
             f.write("# PANGAEA Search Results\n")
             f.write(f"# Query: {query_terms}\n")
@@ -284,20 +288,20 @@ def _process_search_query(
         logger.info(f"📂 DOI file: {dois_file}")
         return clean_dois, generated_files
 
-    except ImportError:
+    except ImportError as e:
         logger.exception(
             "❌ pangaeapy not available. Please install with: pip install pangaeapy"
         )
         raise RuntimeError(
             "pangaeapy package not available - please install with: pip install pangaeapy"
-        )
+        ) from e
 
 
 def _resolve_doi_list(
     query_terms: str,
     config: dict,
     limit: int,
-    manager,
+    manager: "PangaeaManager",
     lat_bounds: list[float] | None,
     lon_bounds: list[float] | None,
 ) -> tuple[list[str], list[Path]]:
@@ -331,15 +335,14 @@ def _resolve_doi_list(
         # DOI file mode: read DOIs from existing file
         return _process_doi_file(query_terms, dois_file)
 
-    elif query_terms.startswith("10.") and "/" in query_terms:
+    if query_terms.startswith("10.") and "/" in query_terms:
         # Single DOI mode: validate and process single DOI
         return _process_single_doi(query_terms, dois_file, manager)
 
-    else:
-        # Search mode: search PANGAEA database
-        return _process_search_query(
-            query_terms, bbox, lat_bounds, lon_bounds, limit, dois_file, manager
-        )
+    # Search mode: search PANGAEA database
+    return _process_search_query(
+        query_terms, bbox, lat_bounds, lon_bounds, limit, dois_file, manager
+    )
 
 
 def _fetch_and_save_datasets(

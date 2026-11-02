@@ -5,7 +5,6 @@ These tests validate the Phase 3a LaTeX generation works with mock data.
 """
 
 from datetime import datetime
-from pathlib import Path
 from unittest.mock import MagicMock
 
 from cruiseplan.config.cruise_config import CruiseConfig

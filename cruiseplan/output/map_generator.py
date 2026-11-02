@@ -15,10 +15,19 @@ when viewing the generated HTML files.
 import logging
 import math
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import folium
 import matplotlib.pyplot as plt
+from matplotlib.axes import Axes
+
+if TYPE_CHECKING:
+    from cruiseplan.config.activities import PointDefinition
+    from cruiseplan.runtime.cruise import CruiseInstance
+
+    # A data source for map extraction: a cruise, a timeline, or
+    # {"timeline": [...], "cruise": CruiseInstance | None}.
+    MapDataSource = CruiseInstance | list[dict[str, Any]] | dict[str, Any]
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +37,9 @@ logger = logging.getLogger(__name__)
 # ============================================================================
 
 
-def extract_points_from_cruise(cruise, include_ports=True) -> list[dict[str, Any]]:
+def extract_points_from_cruise(
+    cruise: "CruiseInstance", include_ports: bool = True
+) -> list[dict[str, Any]]:
     """
     Extract point features (stations, moorings, optionally ports) from cruise configuration.
 
@@ -53,10 +64,7 @@ def extract_points_from_cruise(cruise, include_ports=True) -> list[dict[str, Any
             lon = station.longitude
             # Determine entity type based on operation type
             operation_type = getattr(station, "operation_type", "station")
-            if operation_type == "mooring":
-                entity_type = "mooring"
-            else:
-                entity_type = "station"
+            entity_type = "mooring" if operation_type == "mooring" else "station"
 
             points.append(
                 {
@@ -94,7 +102,9 @@ def extract_points_from_cruise(cruise, include_ports=True) -> list[dict[str, Any
     # Extract ports (optional)
     if include_ports:
 
-        def _extract_port(port, entity_type):
+        def _extract_port(
+            port: "PointDefinition | str | None", entity_type: str
+        ) -> dict[str, Any] | None:
             if not port or not hasattr(port, "latitude") or port.latitude is None:
                 return None
             port_label = (getattr(port, "display_name", port.name) or port.name).split(
@@ -114,7 +124,7 @@ def extract_points_from_cruise(cruise, include_ports=True) -> list[dict[str, Any
         # deduplicating by (lat, lon) so the same port doesn't appear twice.
         seen_coords: set[tuple[float, float]] = set()
 
-        def _add_port(port, entity_type):
+        def _add_port(port: "PointDefinition | str | None", entity_type: str) -> None:
             entry = _extract_port(port, entity_type)
             if entry is None:
                 return
@@ -135,7 +145,7 @@ def extract_points_from_cruise(cruise, include_ports=True) -> list[dict[str, Any
     return points
 
 
-def extract_lines_from_cruise(cruise) -> list[dict[str, Any]]:
+def extract_lines_from_cruise(cruise: "CruiseInstance") -> list[dict[str, Any]]:
     """
     Extract line features (scientific transits, cruise tracks) from cruise configuration.
 
@@ -178,7 +188,9 @@ def extract_lines_from_cruise(cruise) -> list[dict[str, Any]]:
     return lines
 
 
-def extract_areas_from_timeline(timeline_data) -> list[dict[str, Any]]:
+def extract_areas_from_timeline(
+    timeline_data: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
     """
     Extract area features from timeline data.
 
@@ -224,7 +236,7 @@ def extract_areas_from_timeline(timeline_data) -> list[dict[str, Any]]:
     return areas
 
 
-def extract_areas_from_cruise(cruise) -> list[dict[str, Any]]:
+def extract_areas_from_cruise(cruise: "CruiseInstance") -> list[dict[str, Any]]:
     """
     Extract area features (survey areas, polygons) from cruise configuration.
 
@@ -332,7 +344,9 @@ def calculate_optimal_figsize(
     return (width, height)
 
 
-def extract_points_from_timeline(timeline, include_ports=True) -> list[dict[str, Any]]:
+def extract_points_from_timeline(
+    timeline: list[dict[str, Any]], include_ports: bool = True
+) -> list[dict[str, Any]]:
     """
     Extract point features (stations, ports) from timeline activities.
 
@@ -427,7 +441,7 @@ def extract_points_from_timeline(timeline, include_ports=True) -> list[dict[str,
     return points
 
 
-def extract_lines_from_timeline(timeline) -> list[dict[str, Any]]:
+def extract_lines_from_timeline(timeline: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """
     Extract line features (cruise tracks) from timeline activities by connecting sequential positions.
 
@@ -472,7 +486,11 @@ def extract_lines_from_timeline(timeline) -> list[dict[str, Any]]:
     return lines
 
 
-def extract_map_data(data_source, source_type="cruise", include_ports=True):
+def extract_map_data(
+    data_source: "MapDataSource",
+    source_type: str = "cruise",
+    include_ports: bool = True,
+) -> dict[str, Any]:
     """
     Extract all map features (points, lines, areas) from cruise config or timeline.
 
@@ -569,7 +587,7 @@ def extract_map_data(data_source, source_type="cruise", include_ports=True):
 
 
 def plot_bathymetry(
-    ax,
+    ax: Axes,
     bathy_min_lon: float,
     bathy_max_lon: float,
     bathy_min_lat: float,
@@ -595,6 +613,10 @@ def plot_bathymetry(
         Bathymetry dataset to use (default "gebco2025")
     bathy_stride : int, optional
         Downsampling factor for bathymetry (default 5)
+    bathy_dir : str, optional
+        Directory containing bathymetry data (default "data/bathymetry")
+    custom_contours : list, optional
+        Extra depth contours (m, positive down) drawn over the bathymetry.
     max_depth : int, optional
         Maximum water depth (m) for the colour scale. When provided, the colour
         scale spans -max_depth to +200 m instead of the default -8000 to +200 m.
@@ -724,13 +746,13 @@ def plot_bathymetry(
         logger.info("Added bathymetry contours covering full region")
         return cs_filled  # Return contour object for colorbar creation later
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - optional bathymetry layer; map is drawn without it
         logger.warning(f"Bathymetry plotting failed: {e}")
         return False
 
 
 def plot_cruise_elements(
-    ax,
+    ax: Axes,
     map_data: dict[str, Any],
     display_bounds: tuple[float, float, float, float],
     no_title: bool = False,
@@ -748,6 +770,12 @@ def plot_cruise_elements(
         Structured map data with 'points', 'lines', 'areas', 'title', and 'bounds'
     display_bounds : tuple
         (min_lon, max_lon, min_lat, max_lat) for display area
+    no_title : bool, optional
+        Omit the map title (default False).
+    no_labels : bool, optional
+        Omit station name annotations (default False).
+    no_legend : bool, optional
+        Omit the legend (default False).
     """
     from cruiseplan.utils.plot_config import get_plot_style
 
@@ -926,7 +954,7 @@ def plot_cruise_elements(
 
 
 def generate_map(
-    data_source,
+    data_source: "MapDataSource",
     source_type: str = "cruise",
     output_file: str | Path = "cruise_map.png",
     bathy_source: str = "gebco2025",
@@ -1196,7 +1224,7 @@ def generate_map(
 
 
 def generate_map_from_yaml(
-    cruise,
+    cruise: "CruiseInstance",
     output_file: str | Path = "cruise_map.png",
     bathy_source: str = "gebco2025",
     bathy_stride: int = 5,
@@ -1280,7 +1308,7 @@ def generate_map_from_yaml(
 
 
 def generate_map_from_timeline(
-    timeline,
+    timeline: list[dict[str, Any]],
     output_file: str | Path = "timeline_map.png",
     bathy_source: str = "gebco2025",
     bathy_dir: str = "data/bathymetry",
@@ -1293,7 +1321,7 @@ def generate_map_from_timeline(
     no_title: bool = False,
     no_labels: bool = False,
     no_legend: bool = False,
-    config=None,
+    config: "CruiseInstance | None" = None,
     max_depth: int | None = None,
     include_eez: bool = False,
 ) -> Path | None:
@@ -1380,7 +1408,7 @@ def generate_folium_map(
     include_eez: bool = True,
 ) -> Path | None:
     """
-    Generates an interactive Leaflet map from merged cruise tracks.
+    Generate an interactive Leaflet map from merged cruise tracks.
 
     Parameters
     ----------
@@ -1429,7 +1457,7 @@ def generate_folium_map(
     if include_eez:
         try:
             _add_eez_boundaries(m, tracks)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - optional EEZ overlay; map is drawn without it
             logger.warning(f"Could not add EEZ boundaries: {e}")
 
     # 3. Draw Each Track
@@ -1499,7 +1527,7 @@ def generate_folium_map(
 
 
 def _add_eez_to_static_map(
-    ax, display_bounds: tuple[float, float, float, float]
+    ax: Axes, display_bounds: tuple[float, float, float, float]
 ) -> None:
     """
     Add EEZ boundary overlay to a static matplotlib axis.
@@ -1551,7 +1579,7 @@ def _add_eez_to_static_map(
     )
 
 
-def _add_eez_boundaries(folium_map, tracks: list[dict[str, Any]]) -> None:
+def _add_eez_boundaries(folium_map: folium.Map, tracks: list[dict[str, Any]]) -> None:
     """
     Add EEZ boundary overlay to a Folium map.
 
@@ -1633,7 +1661,7 @@ def _add_eez_boundaries(folium_map, tracks: list[dict[str, Any]]) -> None:
         # Add boundary to map
         folium.GeoJson(
             eez.geometry,
-            style_function=lambda x: {
+            style_function=lambda _feature: {
                 "fillColor": "lightblue",
                 "color": "navy",
                 "weight": 2,

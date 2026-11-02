@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -112,8 +112,8 @@ def test_get_selected_campaigns_filtering(mock_campaign_data):
 
 
 @patch("cruiseplan.interactive.campaign_selector.pickle.dump")
-@patch("builtins.open", new_callable=mock_open)
-def test_save_selection_success(mock_open_file, mock_dump, mock_campaign_data):
+@patch("cruiseplan.interactive.campaign_selector.Path")
+def test_save_selection_success(mock_path, mock_dump, mock_campaign_data):
     """Test that save_selection filters correctly and calls pickle.dump."""
     selector = CampaignSelector(mock_campaign_data)
 
@@ -123,8 +123,9 @@ def test_save_selection_success(mock_open_file, mock_dump, mock_campaign_data):
     output_path = "selection.pkl"
     selector.save_selection(output_path)
 
-    # Check that open was called with 'wb'
-    mock_open_file.assert_called_once_with(output_path, "wb")
+    # Check that the output path was opened with 'wb'
+    mock_path.assert_called_once_with(output_path)
+    mock_path.return_value.open.assert_called_once_with("wb")
 
     # Check that pickle.dump was called with the filtered list (4 datasets - 1 = 3)
     args, _ = mock_dump.call_args

@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 def run(args: argparse.Namespace) -> None:
     """
-    Main entry point for interactive station placement.
+    Run the interactive station picker.
 
     Thin CLI wrapper that calls the cruiseplan.stations() API function.
     This follows the established pattern used by process.py, validate.py, map.py, and schedule.py.

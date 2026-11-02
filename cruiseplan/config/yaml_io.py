@@ -32,8 +32,6 @@ logger = logging.getLogger(__name__)
 class YAMLIOError(Exception):
     """Custom exception for YAML I/O operations."""
 
-    pass
-
 
 def _get_yaml_processor(preserve_quotes: bool = True, width: int = 4096) -> YAML:
     """
@@ -86,7 +84,7 @@ def load_yaml(file_path: str | Path, encoding: str = "utf-8") -> dict[str, Any]:
 
     try:
         yaml = _get_yaml_processor()
-        with open(file_path, encoding=encoding) as f:
+        with file_path.open(encoding=encoding) as f:
             config = yaml.load(f)
 
         if config is None:
@@ -162,7 +160,7 @@ def save_yaml(
 
         # Write YAML file with comment preservation
         yaml = _get_yaml_processor()
-        with open(file_path, "w", encoding=encoding) as f:
+        with file_path.open("w", encoding=encoding) as f:
             yaml.dump(config, f)
 
         logger.info(f"Saved configuration to: {file_path}")
@@ -216,7 +214,7 @@ def load_yaml_safe(file_path: str | Path) -> dict[str, Any]:
     try:
         yaml = YAML(typ="safe")  # Use safe mode, returns plain Python objects
         yaml.sort_keys = False  # type: ignore[attr-defined] # Preserve insertion order
-        with open(file_path, encoding="utf-8") as f:
+        with file_path.open(encoding="utf-8") as f:
             config = yaml.load(f)
 
         if config is None:

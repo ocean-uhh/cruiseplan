@@ -30,11 +30,11 @@ def check_matplotlib_available() -> None:
     """
     try:
         import matplotlib.pyplot  # noqa: F401
-    except ImportError:
+    except ImportError as e:
         raise ImportError(
             "Interactive plotting requires matplotlib. "
             "Install with: pip install matplotlib"
-        )
+        ) from e
 
 
 # ============================================================================
@@ -303,11 +303,10 @@ def get_plot_style(
     # Fallback to generic styling
     if entity_type.endswith("_port"):
         return PLOT_STYLES["departure_port"].copy()
-    elif entity_type in ["station", "mooring", "transit", "area"]:
+    if entity_type in ["station", "mooring", "transit", "area"]:
         return PLOT_STYLES[entity_type].copy()
-    else:
-        # Ultimate fallback
-        return PLOT_STYLES["station"].copy()
+    # Ultimate fallback
+    return PLOT_STYLES["station"].copy()
 
 
 def get_legend_entries() -> dict[str, dict[str, Any]]:

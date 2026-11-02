@@ -35,7 +35,7 @@ class DurationCalculator:
         Hour when daytime operations end (0-23).
     """
 
-    def __init__(self, config: CruiseConfig):
+    def __init__(self, config: CruiseConfig) -> None:
         self.config = config
         # Pull from config (defaulting to 8/20 via Pydantic if not set)
         self.day_start_hour = config.day_start_hour
@@ -156,9 +156,8 @@ class DurationCalculator:
                 finish_time = current_dt + timedelta(minutes=duration_minutes)
                 if finish_time <= day_end:
                     return 0.0
-                else:
-                    next_start = day_start + timedelta(days=1)
-                    return (next_start - current_dt).total_seconds() / 60.0
+                next_start = day_start + timedelta(days=1)
+                return (next_start - current_dt).total_seconds() / 60.0
 
         elif required_window == "night":
             # Simplified: If at night, start. If at day, wait for night.

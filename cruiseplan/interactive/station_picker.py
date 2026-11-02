@@ -5,12 +5,14 @@ This module provides the StationPicker class, which creates an interactive
 matplotlib-based interface for planning cruise stations, transects, and survey areas.
 """
 
+import contextlib
 import logging
 import sys
 from pathlib import Path
-from typing import ClassVar
+from typing import Any, ClassVar
 
 import matplotlib.pyplot as plt
+from matplotlib.backend_bases import KeyEvent, MouseEvent, ResizeEvent
 
 from cruiseplan.config.activities import AreaDefinition, LineDefinition, PointDefinition
 from cruiseplan.config.cruise_config import CruiseConfig, LegDefinition
@@ -129,7 +131,7 @@ class StationPicker:
         custom_contours: list | None = None,
         overwrite: bool = False,
         max_depth: int | None = None,
-    ):
+    ) -> None:
         """
         Initialize the station picker interface.
 
@@ -147,8 +149,13 @@ class StationPicker:
             Bathymetry data source: "etopo2022" or "gebco2025" (default: gebco2025)
         bathymetry_dir : str
             Directory containing bathymetry data files (default: "data/bathymetry")
+        custom_contours : list, optional
+            Extra depth contours (m, positive down) drawn over the bathymetry.
         overwrite : bool
             Whether to overwrite existing files without prompting (default: False)
+        max_depth : int, optional
+            Maximum water depth (m) for the colour scale. If None, the full
+            -8000 to +200 m range is used.
         """
         # CRITICAL FIX: Unbind default Matplotlib shortcuts
         self._unbind_default_keys()
@@ -230,8 +237,8 @@ class StationPicker:
         self._update_status_display()
         self._update_aspect_ratio()
 
-    def _unbind_default_keys(self):
-        """Removes conflicting default keymaps from Matplotlib."""
+    def _unbind_default_keys(self) -> None:
+        """Remove conflicting default keymaps from Matplotlib."""
         keys_to_remove = ["l", "L", "k", "K", "p", "o", "s"]
 
         for key in keys_to_remove:
@@ -243,12 +250,10 @@ class StationPicker:
                 "keymap.save",
             ]:
                 if key in plt.rcParams.get(param, []):
-                    try:
+                    with contextlib.suppress(ValueError):
                         plt.rcParams[param].remove(key)
-                    except ValueError:
-                        pass
 
-    def _setup_interface(self):
+    def _setup_interface(self) -> None:
         """Create the matplotlib figure with subplot layout."""
         self.fig = plt.figure(figsize=(16, 9), constrained_layout=True)
 
@@ -295,7 +300,7 @@ class StationPicker:
             va="center",
             fontweight="bold",
             fontsize=12,
-            bbox=dict(boxstyle="round,pad=0.3", facecolor="#2E8B57", alpha=0.3),
+            bbox={"boxstyle": "round,pad=0.3", "facecolor": "#2E8B57", "alpha": 0.3},
         )
 
         # Status display (middle 60%)
@@ -320,7 +325,7 @@ class StationPicker:
             fontsize=9,
         )
 
-    def _setup_widgets(self):
+    def _setup_widgets(self) -> None:
         """Initialize the custom widgets."""
         # Campaign selector widget (if campaigns available)
         if self.campaigns:
@@ -343,7 +348,7 @@ class StationPicker:
         # Mode and status are now handled by text objects in _setup_interface()
         # Remove the separate widget instances for now to simplify
 
-    def _setup_callbacks(self):
+    def _setup_callbacks(self) -> None:
         """Connect matplotlib event handlers."""
         self.fig.canvas.mpl_connect("key_press_event", self._on_key_press)
         self.fig.canvas.mpl_connect("button_press_event", self._on_click)
@@ -353,8 +358,8 @@ class StationPicker:
         self.fig.canvas.mpl_connect("button_release_event", self._on_release)
         self.fig.canvas.mpl_connect("resize_event", self._on_resize)
 
-    def _plot_bathymetry(self):
-        """Fetches and renders bathymetry contours."""
+    def _plot_bathymetry(self) -> None:
+        """Fetch and render bathymetry contours."""
         # Clear previous bathymetry contours to prevent double plotting
         if self.bathymetry_filled_contours:
             self.bathymetry_filled_contours.remove()
@@ -457,7 +462,7 @@ class StationPicker:
                 self.bathymetry_custom_contours, inline=True, fontsize=8, fmt="%d"
             )
 
-    def _plot_initial_campaigns(self):
+    def _plot_initial_campaigns(self) -> None:
         """Plot campaign tracks if available."""
         if not self.campaigns:
             return
@@ -493,7 +498,7 @@ class StationPicker:
             if self.campaign_selector:
                 self.campaign_selector.campaign_artists[camp_name] = artist
 
-    def _plot_existing_stations(self):
+    def _plot_existing_stations(self) -> None:
         """Plot any pre-existing stations loaded from config file."""
         if not self.points:
             return
@@ -539,12 +544,12 @@ class StationPicker:
                 fontsize=9,
                 fontweight="bold",
                 color="black",
-                bbox=dict(
-                    boxstyle="round,pad=0.3",
-                    facecolor="white",
-                    alpha=0.8,
-                    edgecolor="black",
-                ),
+                bbox={
+                    "boxstyle": "round,pad=0.3",
+                    "facecolor": "white",
+                    "alpha": 0.8,
+                    "edgecolor": "black",
+                },
                 zorder=11,  # Above the markers
             )
 
@@ -557,7 +562,7 @@ class StationPicker:
 
     # --- Event Handlers ---
 
-    def _on_key_press(self, event):
+    def _on_key_press(self, event: KeyEvent) -> None:
         """Handle keyboard shortcuts."""
         key = event.key.lower() if event.key else ""
 
@@ -599,7 +604,7 @@ class StationPicker:
         self._update_status_display()
         self.fig.canvas.draw_idle()
 
-    def _on_click(self, event):
+    def _on_click(self, event: MouseEvent) -> None:
         """Handle mouse click events based on current mode."""
         if (
             event.button != 1
@@ -621,7 +626,7 @@ class StationPicker:
             else:
                 self._update_status_display(message="No point close enough to remove.")
 
-    def _on_mouse_move(self, event):
+    def _on_mouse_move(self, event: MouseEvent) -> None:
         """Handle mouse movement for real-time coordinate and depth display."""
         if event.inaxes != self.ax_map:
             return
@@ -658,12 +663,12 @@ class StationPicker:
 
             self.fig.canvas.draw_idle()
 
-    def _on_release(self, event):
+    def _on_release(self, event: MouseEvent) -> None:
         """Handle mouse button release events."""
         if event.inaxes == self.ax_map:
             self._update_aspect_ratio()
 
-    def _on_resize(self, event):
+    def _on_resize(self, _event: ResizeEvent) -> None:
         """Handle figure resize events."""
         self._update_aspect_ratio()
 
@@ -696,7 +701,7 @@ class StationPicker:
         else:
             print(f"Warning: Attempted to set invalid mode: {new_mode}")
 
-    def _reset_line_state(self):
+    def _reset_line_state(self) -> None:
         """Reset line drawing state."""
         self.line_start = None
 
@@ -712,7 +717,7 @@ class StationPicker:
 
     # --- Operation Management ---
 
-    def _add_point(self, lon, lat):
+    def _add_point(self, lon: float, lat: float) -> None:
         """
         Add a new station at the specified coordinates.
 
@@ -733,7 +738,7 @@ class StationPicker:
         self.history.append(("point", data, artist))
         self._update_status_display(lat, lon, depth, message="Point added.")
 
-    def _handle_line_click(self, lon, lat):
+    def _handle_line_click(self, lon: float, lat: float) -> None:
         """Handle click events in line drawing mode."""
         if self.line_start is None:
             self.line_start = (lon, lat)
@@ -756,7 +761,7 @@ class StationPicker:
             self._reset_line_state()
             self._update_status_display(message="Line added.")
 
-    def _handle_area_click(self, lon, lat):
+    def _handle_area_click(self, lon: float, lat: float) -> None:
         """Handle click events in area drawing mode."""
         # Add point to current area
         self.current_area_points.append((lon, lat))
@@ -785,7 +790,7 @@ class StationPicker:
                 message=f"Area: {len(self.current_area_points)} points\nReady! Press 'a' to complete"
             )
 
-    def _update_temp_area(self):
+    def _update_temp_area(self) -> None:
         """Update the temporary area polygon display."""
         if len(self.current_area_points) < 2:
             return
@@ -810,7 +815,7 @@ class StationPicker:
 
         self.fig.canvas.draw_idle()
 
-    def _complete_area(self):
+    def _complete_area(self) -> None:
         """Complete the current area and add it to the areas list."""
         if len(self.current_area_points) < 3:
             return
@@ -849,7 +854,7 @@ class StationPicker:
             message=f"Area completed! Total areas: {len(self.areas)}"
         )
 
-    def _reset_area_state(self):
+    def _reset_area_state(self) -> None:
         """Reset area drawing state."""
         # Remove temporary area polygon
         if self.temp_area_artist:
@@ -863,7 +868,9 @@ class StationPicker:
 
         self.fig.canvas.draw_idle()
 
-    def _find_nearest_point(self, target_lon, target_lat, threshold=2.0):
+    def _find_nearest_point(
+        self, target_lon: float, target_lat: float, threshold: float = 2.0
+    ) -> tuple[dict[str, Any] | None, int | None]:
         """
         Find the station closest to the click coordinates.
 
@@ -902,7 +909,7 @@ class StationPicker:
             return closest_data, closest_index
         return None, None
 
-    def _remove_specific_point(self, point_data):
+    def _remove_specific_point(self, point_data: dict[str, Any]) -> None:
         """Remove a specific station from the display and data."""
         self.points.remove(point_data)
 
@@ -921,7 +928,7 @@ class StationPicker:
             message=f"Removed point at {point_data['lat']:.2f}, {point_data['lon']:.2f}"
         )
 
-    def _remove_last_item(self):
+    def _remove_last_item(self) -> None:
         """Remove the most recently added operation."""
         if not self.history:
             return
@@ -937,16 +944,15 @@ class StationPicker:
         elif item_type in ["line"]:
             if item_data in self.lines:
                 self.lines.remove(item_data)
-        elif item_type == "area":
-            if item_data in self.areas:
-                self.areas.remove(item_data)
+        elif item_type == "area" and item_data in self.areas:
+            self.areas.remove(item_data)
 
         self.ax_map.figure.canvas.draw_idle()
         self._update_status_display(message=f"Removed last {item_type}")
 
     # --- Display Updates ---
 
-    def _update_mode_display(self):
+    def _update_mode_display(self) -> None:
         """Update the mode indicator display."""
         # Color mapping for modes
         mode_colors = {
@@ -960,11 +966,13 @@ class StationPicker:
         color = mode_colors.get(self.mode, "#808080")
         self.mode_text.set_text(f"Mode: {self.mode.upper()}")
         self.mode_text.set_bbox(
-            dict(boxstyle="round,pad=0.3", facecolor=color, alpha=0.3)
+            {"boxstyle": "round,pad=0.3", "facecolor": color, "alpha": 0.3}
         )
         self.fig.canvas.draw_idle()
 
-    def _update_status_display(self, lat=0, lon=0, depth=0, message=""):
+    def _update_status_display(
+        self, lat: float = 0, lon: float = 0, depth: float = 0, message: str = ""
+    ) -> None:
         """Update the status display with coordinates and operation counts."""
         text = (
             f"Lat: {lat:.4f}\n"
@@ -984,7 +992,7 @@ class StationPicker:
         self.status_text.set_text(text)
         self.fig.canvas.draw_idle()
 
-    def _sanitize_limits(self):
+    def _sanitize_limits(self) -> None:
         """Prevents non-physical zooming."""
         min_lat, max_lat = self.ax_map.get_ylim()
         min_lon, max_lon = self.ax_map.get_xlim()
@@ -1017,7 +1025,7 @@ class StationPicker:
         if dirty:
             self.ax_map.set_ylim(min_lat, max_lat)
 
-    def _update_aspect_ratio(self):
+    def _update_aspect_ratio(self) -> None:
         """Update aspect ratio based on latitude for proper geographic projection."""
         import math
 
@@ -1121,7 +1129,7 @@ class StationPicker:
         )
 
     # --- File Operations ---
-    def _save_to_yaml(self):
+    def _save_to_yaml(self) -> None:
         """Save current cruise plan to YAML format using Pydantic models and CruiseInstance."""
         if not self.points and not self.lines and not self.areas:
             return
@@ -1215,7 +1223,7 @@ class StationPicker:
             print(
                 f"✅ Saved {len(point_definitions)} stations, {len(line_definitions)} transects, {len(area_definitions)} areas."
             )
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - interactive save: report error, keep the session
             print(f"❌ Save Error: {e}")
 
     def _prompt_overwrite(self, file_path: Path) -> str:
@@ -1250,19 +1258,18 @@ class StationPicker:
                 choice = input("Enter choice (o/r/c): ").lower().strip()
                 if choice in ["o", "overwrite"]:
                     return "overwrite"
-                elif choice in ["r", "rename"]:
+                if choice in ["r", "rename"]:
                     return "rename"
-                elif choice in ["c", "cancel"]:
+                if choice in ["c", "cancel"]:
                     return "cancel"
-                else:
-                    print("Invalid choice. Please enter 'o', 'r', or 'c'.")
+                print("Invalid choice. Please enter 'o', 'r', or 'c'.")
             except (EOFError, KeyboardInterrupt):
                 print("\nOperation cancelled.")
                 return "cancel"
 
     # --- Public Interface ---
 
-    def show(self):
+    def show(self) -> None:
         """Display the interactive cruise planning interface."""
         plt.show()
 
@@ -1282,7 +1289,7 @@ class StationPicker:
 
 
 # Backward compatibility for tests: lazy import bathymetry when requested
-def __getattr__(name):
+def __getattr__(name: str) -> BathymetryManager:
     if name == "bathymetry":
         from cruiseplan.data.bathymetry import bathymetry
 

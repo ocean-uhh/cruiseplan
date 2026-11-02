@@ -194,7 +194,7 @@ class TestTC2TwoLegsIntegration:
         import yaml
 
         minimal_path = temp_dir / "minimal_mooring.yaml"
-        with open(minimal_path, "w") as f:
+        with Path(minimal_path).open("w") as f:
             yaml.dump(minimal_config, f)
 
         # Perform enrichment

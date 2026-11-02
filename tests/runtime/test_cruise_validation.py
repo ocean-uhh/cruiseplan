@@ -261,18 +261,18 @@ class TestWarningFormatting:
         station.operation_type = "CTD"
 
         # Should detect relationship via operation_type
-        assert _warning_relates_to_entity(warning_msg, station) == True
+        assert _warning_relates_to_entity(warning_msg, station) is True
 
         # Test action matching
         warning_msg2 = "Action profile found in warning"
         station2 = MagicMock()
         station2.action = "profile"
 
-        assert _warning_relates_to_entity(warning_msg2, station2) == True
+        assert _warning_relates_to_entity(warning_msg2, station2) is True
 
         # Test no match
         warning_msg3 = "Unrelated warning message"
-        assert _warning_relates_to_entity(warning_msg3, station) == False
+        assert _warning_relates_to_entity(warning_msg3, station) is False
 
     def test_warning_relates_to_entity_no_name(self):
         """Test entity relationship when entity has no name."""

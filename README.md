@@ -1,7 +1,7 @@
 # CruisePlan
 
 [![Tests](https://github.com/ocean-uhh/cruiseplan/actions/workflows/tests.yml/badge.svg)](https://github.com/ocean-uhh/cruiseplan/actions/workflows/tests.yml)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Documentation](https://img.shields.io/badge/docs-sphinx-blue)](https://ocean-uhh.github.io/cruiseplan/)
 
@@ -36,7 +36,7 @@ git clone https://github.com/ocean-uhh/cruiseplan.git
 cd cruiseplan
 
 # Using conda/mamba (includes dev dependencies)
-conda env create -f environment.yml
+conda create -n cruiseplan -c conda-forge python=3.11
 conda activate cruiseplan
 pip install -e ".[dev]"
 
@@ -71,15 +71,9 @@ See the [Usage Guide](https://ocean-uhh.github.io/cruiseplan/usage.html) and [AP
 
 ---
 
-## Breaking changes
+## Changelog
 
-**v0.3.0:** Commands `cruiseplan download` and `cruiseplan pandoi` removed. Bathymetry flags shortened (`--bathymetry-*` → `--bathy-*`).
-
-**v0.3.3:** YAML now uses `transects:` (not `transits:`) for line operations and `waypoints:` (not `stations:`) for point operations.
-
-**v0.3.6:** Module renames — `cruiseplan.schema` → `cruiseplan.config`, `cruiseplan.core` → `cruiseplan.runtime`, `cruiseplan.calculators` → `cruiseplan.timeline`.
-
-**v0.4.0:** `cruiseplan stationplan` renamed to `cruiseplan forecast`. New `cruiseplan list` and `cruiseplan run` subcommands added.
+Release notes, including breaking changes, are in [CHANGELOG.md](CHANGELOG.md).
 
 ---
 

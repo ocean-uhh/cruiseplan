@@ -15,7 +15,7 @@ for stations, moorings, areas, and transects.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import TYPE_CHECKING, Protocol
 
 from cruiseplan.config.activities import (
     AreaDefinition,
@@ -26,8 +26,17 @@ from cruiseplan.config.activities import (
 from cruiseplan.config.fields import ACTION_FIELD
 from cruiseplan.config.values import ActionEnum
 
+if TYPE_CHECKING:
+    from cruiseplan.config.cruise_config import CruiseConfig
+
 # Port actions that identify mobilization/demobilization operations
 PORT_ACTIONS = [ActionEnum.MOB.value, ActionEnum.DEMOB.value]
+
+
+class DurationRules(Protocol):
+    """Rules object passed to duration calculations; carries the cruise config."""
+
+    config: "CruiseConfig"
 
 
 class BaseOperation(ABC):
@@ -51,7 +60,7 @@ class BaseOperation(ABC):
         name: str,
         comment: str | None = None,
         display_name: str | None = None,
-    ):
+    ) -> None:
         """
         Initialize a base operation.
 
@@ -70,13 +79,13 @@ class BaseOperation(ABC):
         self.display_name = display_name or name
 
     @abstractmethod
-    def calculate_duration(self, rules: Any) -> float:
+    def calculate_duration(self, rules: DurationRules | None) -> float:
         """
         Calculate duration in minutes based on provided rules.
 
         Parameters
         ----------
-        rules : Any
+        rules : DurationRules or None
             Duration calculation rules and parameters.
 
         Returns
@@ -84,7 +93,6 @@ class BaseOperation(ABC):
         float
             Duration in minutes.
         """
-        pass
 
     @abstractmethod
     def get_entry_point(self) -> tuple[float, float]:
@@ -99,7 +107,6 @@ class BaseOperation(ABC):
         tuple[float, float]
             (latitude, longitude) of the operation's entry point.
         """
-        pass
 
     @abstractmethod
     def get_exit_point(self) -> tuple[float, float]:
@@ -114,7 +121,6 @@ class BaseOperation(ABC):
         tuple[float, float]
             (latitude, longitude) of the operation's exit point.
         """
-        pass
 
     def get_coordinates(self) -> tuple[GeoPoint, GeoPoint]:
         """
@@ -195,7 +201,7 @@ class PointOperation(BaseOperation):
         action: str | None = None,
         display_name: str | None = None,
         delay_start: float | None = None,
-    ):
+    ) -> None:
         """
         Initialize a point operation.
 
@@ -203,10 +209,12 @@ class PointOperation(BaseOperation):
         ----------
         name : str
             Unique identifier for this operation.
-        position : tuple
-            Geographic position as (latitude, longitude).
-        depth : float, optional
-            Operation depth in meters (default: 0.0).
+        position : GeoPoint
+            Geographic position.
+        operation_depth : float, optional
+            Operation depth in meters (e.g. CTD cast depth).
+        water_depth : float, optional
+            Seafloor depth in meters (default: 0.0).
         duration : float, optional
             Manual duration override in minutes (default: 0.0).
         comment : str, optional
@@ -215,6 +223,8 @@ class PointOperation(BaseOperation):
             Type of operation ('station' or 'mooring', default: 'station').
         action : str, optional
             Specific action for moorings (deploy/recover).
+        display_name : str, optional
+            Human-readable label; defaults to ``name``.
         delay_start : float, optional
             Time to wait before operation begins in minutes.
         """
@@ -241,12 +251,11 @@ class PointOperation(BaseOperation):
         """
         if self.operation_depth is not None:
             return self.operation_depth
-        elif self.water_depth is not None:
+        if self.water_depth is not None:
             return self.water_depth
-        else:
-            return 0.0
+        return 0.0
 
-    def calculate_duration(self, rules: Any) -> float:
+    def calculate_duration(self, rules: DurationRules | None) -> float:
         """
         Calculate duration based on operation type and rules.
 
@@ -257,7 +266,7 @@ class PointOperation(BaseOperation):
 
         Parameters
         ----------
-        rules : Any
+        rules : DurationRules or None
             Duration calculation rules containing config.
 
         Returns
@@ -291,7 +300,7 @@ class PointOperation(BaseOperation):
         ):
             return calc.calculate_ctd_time(self.get_depth())
         # TODO: replace with default
-        elif self.op_type == "mooring" or (
+        if self.op_type == "mooring" or (
             self.op_type == "CTD" and self.action == "yo_yo"
         ):
             # Moorings and yo_yo CTD operations should have manual duration, but fallback to default
@@ -300,9 +309,9 @@ class PointOperation(BaseOperation):
                 if hasattr(rules.config, "default_mooring_duration")
                 else 60.0
             )
-        elif self.op_type == "port":
+        if self.op_type == "port":
             return 0.0
-        elif self.op_type == "waypoint":
+        if self.op_type == "waypoint":
             # Waypoints have no operation duration by default (waiting time is handled separately)
             return 0.0
 
@@ -360,7 +369,7 @@ class PointOperation(BaseOperation):
     @classmethod
     def from_pydantic(cls, obj: PointDefinition) -> "PointOperation":
         """
-        Factory to create a logical operation from a validated Pydantic model.
+        Create a logical operation from a validated Pydantic model.
 
         Handles the internal 'position' normalization done by FlexibleLocationModel.
 
@@ -413,7 +422,7 @@ class PointOperation(BaseOperation):
     @classmethod
     def from_port(cls, obj: PointDefinition) -> "PointOperation":
         """
-        Factory to create a PointOperation from a PointDefinition.
+        Create a PointOperation from a PointDefinition.
 
         Parameters
         ----------
@@ -467,7 +476,7 @@ class LineOperation(BaseOperation):
         display_name: str | None = None,
         op_type: str = "line",
         action: str | None = None,
-    ):
+    ) -> None:
         """
         Initialize a line operation.
 
@@ -475,12 +484,18 @@ class LineOperation(BaseOperation):
         ----------
         name : str
             Unique identifier for this operation.
-        route : List[tuple]
-            List of geographic waypoints as (latitude, longitude) tuples.
+        route : list of GeoPoint
+            Geographic waypoints along the line.
         speed : float, optional
             Vessel speed in knots (default: 10.0).
         comment : str, optional
             Human-readable comment or description.
+        display_name : str, optional
+            Human-readable label; defaults to ``name``.
+        op_type : str, optional
+            Operation type (default: 'line').
+        action : str, optional
+            Action for this operation, if any.
         """
         super().__init__(name, comment, display_name)
         self.route = route  # List of GeoPoint
@@ -488,13 +503,13 @@ class LineOperation(BaseOperation):
         self.op_type = op_type
         self.action = action
 
-    def calculate_duration(self, rules: Any) -> float:
+    def calculate_duration(self, rules: DurationRules | None) -> float:
         """
         Calculate duration for the line operation based on route distance and vessel speed.
 
         Parameters
         ----------
-        rules : Any
+        rules : DurationRules or None
             Duration calculation rules containing config with default_vessel_speed.
 
         Returns
@@ -522,14 +537,13 @@ class LineOperation(BaseOperation):
                 else rules.config.default_vessel_speed
             )
             return calc.calculate_transit_time(route_distance_km, effective_speed)
-        else:
-            # Fallback for cases without config
-            from cruiseplan.utils.units import hours_to_minutes, km_to_nm
+        # Fallback for cases without config
+        from cruiseplan.utils.units import hours_to_minutes, km_to_nm
 
-            vessel_speed = self.speed or 10.0
-            route_distance_nm = km_to_nm(route_distance_km)
-            duration_hours = route_distance_nm / vessel_speed
-            return hours_to_minutes(duration_hours)
+        vessel_speed = self.speed or 10.0
+        route_distance_nm = km_to_nm(route_distance_km)
+        duration_hours = route_distance_nm / vessel_speed
+        return hours_to_minutes(duration_hours)
 
     def get_entry_point(self) -> tuple[float, float]:
         """
@@ -586,7 +600,7 @@ class LineOperation(BaseOperation):
         cls, obj: LineDefinition, default_speed: float
     ) -> "LineOperation":
         """
-        Factory to create a line operation from a validated Pydantic model.
+        Create a line operation from a validated Pydantic model.
 
         Parameters
         ----------
@@ -655,7 +669,7 @@ class AreaOperation(BaseOperation):
         display_name: str | None = None,
         op_type: str = "area",
         action: str | None = None,
-    ):
+    ) -> None:
         """
         Initialize an area operation.
 
@@ -663,8 +677,8 @@ class AreaOperation(BaseOperation):
         ----------
         name : str
             Unique identifier for this operation.
-        boundary_polygon : List[Tuple[float, float]]
-            List of (latitude, longitude) tuples defining the area boundary.
+        boundary_polygon : list of GeoPoint
+            Corners defining the area boundary.
         area_km2 : float
             Area of the polygon in square kilometers.
         duration : Optional[float], optional
@@ -677,6 +691,12 @@ class AreaOperation(BaseOperation):
             Sampling density factor for duration calculations (default: 1.0).
         comment : str, optional
             Human-readable comment or description.
+        display_name : str, optional
+            Human-readable label; defaults to ``name``.
+        op_type : str, optional
+            Operation type (default: 'area').
+        action : str, optional
+            Action for this operation, if any.
         """
         super().__init__(name, comment, display_name)
         self.boundary_polygon = boundary_polygon  # List of GeoPoint
@@ -698,7 +718,7 @@ class AreaOperation(BaseOperation):
             else (0.0, 0.0)
         )
 
-    def calculate_duration(self, rules: Any) -> float:
+    def calculate_duration(self, rules: DurationRules | None) -> float:  # noqa: ARG002 - interface; area duration is user-set
         """
         Calculate duration using user-specified duration or fallback formula.
 
@@ -707,7 +727,7 @@ class AreaOperation(BaseOperation):
 
         Parameters
         ----------
-        rules : Any
+        rules : DurationRules or None
             Duration calculation rules and parameters (unused for area operations).
 
         Returns
@@ -722,11 +742,10 @@ class AreaOperation(BaseOperation):
         """
         if self.duration is not None:
             return self.duration
-        else:
-            raise ValueError(
-                f"Area operation '{self.name}' requires user-specified duration. "
-                "Add 'duration: <minutes>' to the area definition in YAML."
-            )
+        raise ValueError(
+            f"Area operation '{self.name}' requires user-specified duration. "
+            "Add 'duration: <minutes>' to the area definition in YAML."
+        )
 
     def get_entry_point(self) -> tuple[float, float]:
         """
@@ -757,7 +776,7 @@ class AreaOperation(BaseOperation):
     @classmethod
     def from_pydantic(cls, obj: AreaDefinition) -> "AreaOperation":
         """
-        Factory to create an area operation from a validated Pydantic model.
+        Create an area operation from a validated Pydantic model.
 
         Parameters
         ----------
@@ -843,6 +862,4 @@ class AreaOperation(BaseOperation):
         # Rough conversion from lat/lon degrees to km²
         # (very approximate, assumes mid-latitude ~45°)
         km_per_degree = 111.0  # Rough conversion
-        area_km2 = area * (km_per_degree**2)
-
-        return area_km2
+        return area * (km_per_degree**2)

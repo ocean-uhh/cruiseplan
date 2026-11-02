@@ -1,29 +1,37 @@
 """
 Clean scheduler implementation with unified operations model.
 
-This module implements the new scheduler architecture from CLAUDE-v0.3.1-scheduler-fix.md
-with a focus on:
-- Everything as operations with entry/exit coordinates
-- Clear separation between operations (science) and navigational transits (connections)
-- Consistent coordinate system for accurate distance calculations
-- Simplified, maintainable code (~500 lines vs 2000+ lines)
+The scheduler treats every activity as an operation with entry and exit
+coordinates:
+- Operations (science) are kept separate from navigational transits (connections)
+- All distances are computed in one coordinate system
 """
 
 import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from cruiseplan.config.activities import GeoPoint
-from cruiseplan.config.cruise_config import CruiseConfig
+from cruiseplan.config.activities import (
+    AreaDefinition,
+    GeoPoint,
+    LineDefinition,
+    PointDefinition,
+)
+from cruiseplan.config.cruise_config import ClusterDefinition, CruiseConfig
 from cruiseplan.runtime.operations import (
     AreaOperation,
     BaseOperation,
+    DurationRules,
     LineOperation,
     PointOperation,
 )
 from cruiseplan.timeline.distance import haversine_distance
 from cruiseplan.utils.units import km_to_nm
+
+if TYPE_CHECKING:
+    from cruiseplan.runtime.cruise import CruiseInstance
+    from cruiseplan.runtime.organizational import Cluster, Leg
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +51,7 @@ class OperationCoordinates:
     entry: GeoPoint
     exit: GeoPoint
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate coordinates."""
         if not isinstance(self.entry, GeoPoint):
             self.entry = GeoPoint(latitude=self.entry[0], longitude=self.entry[1])
@@ -78,7 +86,7 @@ class ActivityRecord:
     delay_start: float | None = None  # Delay before operation starts in minutes
     comment: str | None = None  # User comment or description
 
-    def __init__(self, data: dict[str, Any]):
+    def __init__(self, data: dict[str, Any]) -> None:
         """Initialize from dictionary for compatibility with old system."""
         # Initialize all fields to None first
         for field in self.__dataclass_fields__:
@@ -124,7 +132,7 @@ class NavigationalTransit(BaseOperation):
         config: CruiseConfig,
         leg_name: str,
         vessel_speed: float | None = None,
-    ):
+    ) -> None:
         name = f"Transit to {to_op.get_label()}"
         super().__init__(name)
         self.from_op = from_op
@@ -135,7 +143,7 @@ class NavigationalTransit(BaseOperation):
             config, "default_vessel_speed", 10.0
         )
 
-    def calculate_duration(self, rules: Any) -> float:
+    def calculate_duration(self, rules: DurationRules | None) -> float:  # noqa: ARG002 - interface; transit uses its own speed
         """Calculate based on transit distance and vessel speed."""
         exit_pt = self.from_op.get_exit_point()
         entry_pt = self.to_op.get_entry_point()
@@ -175,10 +183,10 @@ class NavigationalTransit(BaseOperation):
 class OperationFactory:
     """Factory for creating operation objects from configuration data."""
 
-    def __init__(self, config: CruiseConfig):
+    def __init__(self, config: CruiseConfig) -> None:
         self.config = config
 
-    def create_operation(self, name: str, leg_name: str) -> BaseOperation:
+    def create_operation(self, name: str, leg_name: str) -> BaseOperation:  # noqa: ARG002 - public signature; leg_name not used yet
         """Create operation from configuration using catalog-based type detection."""
         # Check each catalog to find the operation
         catalog_checks = [
@@ -200,13 +208,12 @@ class OperationFactory:
                         # Special handling for ports which use PortDefinition instead of StationDefinition
                         if catalog_name == "ports":
                             return PointOperation.from_port(item)
-                        else:
-                            return PointOperation.from_pydantic(item)
-                    elif operation_type == "line":
+                        return PointOperation.from_pydantic(item)
+                    if operation_type == "line":
                         return LineOperation.from_pydantic(
                             item, self.config.default_vessel_speed
                         )
-                    elif operation_type == "area":
+                    if operation_type == "area":
                         return AreaOperation.from_pydantic(item)
 
         # Fallback: Try to resolve from global ports registry
@@ -383,9 +390,7 @@ def _calculate_transit_stats(transits: list["ActivityRecord"]) -> dict[str, floa
 def _log_debug_counts(
     categorized: dict[str, list], leg_stats: dict[str, dict[str, int]]
 ) -> None:
-    """
-    Log debug information about operation counts.
-    """
+    """Log debug information about operation counts."""
     station_activities = categorized["station_activities"]
     mooring_activities = categorized["mooring_activities"]
     scientific_transits = categorized["scientific_transits"]
@@ -501,7 +506,11 @@ def calculate_timeline_statistics(
     categorized = _categorize_activities(timeline)
 
     # Calculate statistics for each category
-    def calc_stats(activities, include_distance=False, include_depth=False):
+    def calc_stats(
+        activities: list[dict[str, Any]],
+        include_distance: bool = False,
+        include_depth: bool = False,
+    ) -> dict[str, float]:
         if not activities:
             stats = {
                 "count": 0,
@@ -609,12 +618,12 @@ def calculate_timeline_statistics(
 class TimelineGenerator:
     """Generates cruise timeline from operations and legs."""
 
-    def __init__(self, config: CruiseConfig):
+    def __init__(self, config: CruiseConfig) -> None:
         self.config = config
         self.factory = OperationFactory(config)
         self.current_time = self._parse_start_datetime()
 
-    def generate_timeline(self, legs: list[Any] | None = None) -> CruiseSchedule:
+    def generate_timeline(self, legs: list["Leg"] | None = None) -> CruiseSchedule:
         """Generate complete cruise timeline."""
         if legs is None:
             legs = self._create_runtime_legs()
@@ -628,7 +637,7 @@ class TimelineGenerator:
         # Convert ActivityRecord objects to dictionaries for output compatibility
         return [activity.to_dict() for activity in timeline]
 
-    def _create_runtime_legs(self) -> list[Any]:
+    def _create_runtime_legs(self) -> list["Leg"]:
         """Create runtime legs from config."""
         # Import here to avoid circular imports
         from cruiseplan.runtime.organizational import Leg
@@ -652,14 +661,14 @@ class TimelineGenerator:
                 runtime_leg.delay_start = getattr(leg_def, "delay_start", None)
 
                 runtime_legs.append(runtime_leg)
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001 - skip a leg that cannot be built; others are scheduled
                 logger.warning(
                     f"Failed to create runtime leg for '{leg_def.name}': {e}"
                 )
 
         return runtime_legs
 
-    def _process_leg(self, leg: Any) -> list[ActivityRecord]:
+    def _process_leg(self, leg: "Leg") -> list[ActivityRecord]:
         """Process a single leg and generate activities."""
         # Initialize current_time if not set
         if self.current_time is None:
@@ -723,15 +732,15 @@ class TimelineGenerator:
         return activities
 
     def _create_buffer_activity(
-        self, leg: Any, last_operation: Any, duration_minutes: float
+        self, leg: "Leg", last_operation: BaseOperation, duration_minutes: float
     ) -> ActivityRecord:
         """Create a contingency buffer block at the position of the last operation.
 
         Parameters
         ----------
-        leg : Any
+        leg : Leg
             The current leg (provides name for labelling).
-        last_operation : Any
+        last_operation : BaseOperation
             The last scientific operation; the buffer is placed at its exit position.
         duration_minutes : float
             Buffer duration in minutes.
@@ -769,16 +778,21 @@ class TimelineGenerator:
         self.current_time = buffer_end
         return activity
 
-    def _create_operation_from_activity(self, activity, leg: Any):
+    def _create_operation_from_activity(
+        self,
+        activity: str | PointDefinition | LineDefinition | AreaDefinition,
+        leg: "Leg",
+    ) -> BaseOperation:
         """Create operation object from activity definition."""
         if isinstance(activity, str):
             # Regular activity name - use factory
             return self.factory.create_operation(activity, leg.name)
-        else:
-            # Definition object - create directly
-            return self._create_operation_from_definition(activity, leg)
+        # Definition object - create directly
+        return self._create_operation_from_definition(activity, leg)
 
-    def _create_operation_from_definition(self, activity, leg: Any):
+    def _create_operation_from_definition(
+        self, activity: PointDefinition | LineDefinition | AreaDefinition, leg: "Leg"
+    ) -> BaseOperation:
         """Create operation from Pydantic definition object."""
         from cruiseplan.config.activities import (
             AreaDefinition,
@@ -798,21 +812,23 @@ class TimelineGenerator:
                 and activity.operation_type.value == "port"
             ):
                 return PointOperation.from_port(activity)
-            else:
-                return PointOperation.from_pydantic(activity)
-        elif isinstance(activity, LineDefinition):
+            return PointOperation.from_pydantic(activity)
+        if isinstance(activity, LineDefinition):
             return LineOperation.from_pydantic(activity, leg.vessel_speed)
-        elif isinstance(activity, AreaDefinition):
+        if isinstance(activity, AreaDefinition):
             return AreaOperation.from_pydantic(activity)
-        else:
-            raise TypeError(
-                f"Unknown activity type: {type(activity)}. "
-                f"Expected PointDefinition, LineDefinition, or AreaDefinition, got {activity}"
-            )
+        raise TypeError(
+            f"Unknown activity type: {type(activity)}. "
+            f"Expected PointDefinition, LineDefinition, or AreaDefinition, got {activity}"
+        )
 
     def _add_transit_and_operation(
-        self, operation, activities, leg: Any, previous_operation
-    ):
+        self,
+        operation: BaseOperation,
+        activities: list[ActivityRecord],
+        leg: "Leg",
+        previous_operation: BaseOperation | None,
+    ) -> None:
         """Add navigational transit and operation to activities list."""
         # Add navigational transit between all operations
         if previous_operation is not None:
@@ -831,7 +847,7 @@ class TimelineGenerator:
         from_op: BaseOperation,
         to_op: BaseOperation,
         leg_name: str = "unknown",
-        leg: Any = None,
+        leg: "Leg | None" = None,
     ) -> ActivityRecord | None:
         """Create navigational transit between operations."""
         # Get leg-specific vessel speed if available
@@ -931,7 +947,7 @@ class TimelineGenerator:
         self.current_time = activity.end_time
         return activity
 
-    def _extract_activities_from_operations(self, leg: Any) -> list[str]:
+    def _extract_activities_from_operations(self, leg: "Leg") -> list[str]:
         """Extract activities from leg operations."""
         activities = []
         if hasattr(leg, "operations") and leg.operations:
@@ -944,7 +960,9 @@ class TimelineGenerator:
                     activities.append(operation.station.name)
         return activities
 
-    def _extract_activities_from_clusters(self, clusters) -> list[str]:
+    def _extract_activities_from_clusters(
+        self, clusters: "list[Cluster] | list[ClusterDefinition]"
+    ) -> list[str]:
         """Extract activities from cluster definitions."""
         activities = []
         for cluster in clusters:
@@ -956,7 +974,7 @@ class TimelineGenerator:
                         activities.append(str(activity))
         return activities
 
-    def _extract_activities_from_config_leg(self, leg: Any) -> list[str]:
+    def _extract_activities_from_config_leg(self, leg: "Leg") -> list[str]:
         """Extract activities from matching config leg."""
         activities = []
         if hasattr(self.config, "legs"):
@@ -971,7 +989,7 @@ class TimelineGenerator:
                     break
         return activities
 
-    def _extract_activities_from_leg(self, leg: Any) -> list[str]:
+    def _extract_activities_from_leg(self, leg: "Leg") -> list[str]:
         """Extract activity names from leg definition."""
         # Try runtime leg operations first
         activities = self._extract_activities_from_operations(leg)
@@ -997,9 +1015,8 @@ class TimelineGenerator:
             if "T" in start_date:
                 start_date_clean = start_date.replace("Z", "").replace("+00:00", "")
                 return datetime.fromisoformat(start_date_clean)
-            else:
-                start_time = getattr(self.config, "start_time", "08:00")
-                return datetime.strptime(f"{start_date} {start_time}", "%Y-%m-%d %H:%M")
+            start_time = getattr(self.config, "start_time", "08:00")
+            return datetime.strptime(f"{start_date} {start_time}", "%Y-%m-%d %H:%M")
         except (ValueError, AttributeError):
             logger.exception("Invalid start_date or start_time format")
             # Return a default datetime instead of None
@@ -1011,7 +1028,9 @@ class TimelineGenerator:
 # =============================================================================
 
 
-def generate_timeline(cruise, legs: list[Any] | None = None) -> CruiseSchedule:
+def generate_timeline(
+    cruise: "CruiseInstance", legs: list["Leg"] | None = None
+) -> CruiseSchedule:
     """
     Generate cruise timeline directly from CruiseInstance object.
 
@@ -1042,16 +1061,16 @@ def generate_timeline(cruise, legs: list[Any] | None = None) -> CruiseSchedule:
 
 def generate_cruise_schedule(
     config_path: str,
-    output_dir: str = "data",
+    output_dir: str = "data",  # noqa: ARG001 - kept for backward compatibility
     formats: list[str] | None = None,
     validate_depths: bool = False,
     selected_leg: str | None = None,
-    derive_netcdf: bool = False,
-    bathy_source: str = "gebco2025",
-    bathy_dir: str = "data/bathymetry",
-    bathy_stride: int = 10,
-    figsize: list[float] | None = None,
-    output_basename: str | None = None,
+    derive_netcdf: bool = False,  # noqa: ARG001 - kept for backward compatibility
+    bathy_source: str = "gebco2025",  # noqa: ARG001 - kept for backward compatibility
+    bathy_dir: str = "data/bathymetry",  # noqa: ARG001 - kept for backward compatibility
+    bathy_stride: int = 10,  # noqa: ARG001 - kept for backward compatibility
+    figsize: list[float] | None = None,  # noqa: ARG001 - kept for backward compatibility
+    output_basename: str | None = None,  # noqa: ARG001 - kept for backward compatibility
 ) -> dict[str, Any]:
     """
     Generate cruise schedule (backward compatibility function).

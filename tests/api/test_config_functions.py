@@ -89,9 +89,9 @@ class TestParameterMapping:
 
         call_args = mock_enrich.call_args[1]
         assert call_args["coord_format"] == "dd"
-        assert call_args["expand_sections"] == False
+        assert call_args["expand_sections"] is False
         assert call_args["bathy_source"] == "gebco2025"
-        assert call_args["verbose"] == True
+        assert call_args["verbose"] is True
 
     @patch("cruiseplan.api.data.pangaea")
     def test_pangaea_config_mapping(self, mock_pangaea):
@@ -121,8 +121,8 @@ class TestNestedConfigInitialization:
         # Check default values in nested configs
         assert config.bathymetry.source == "gebco2025"
         assert config.output.directory == "data"
-        assert config.validation.run_validation == True
-        assert config.visualization.include_ports == True
+        assert config.validation.run_validation is True
+        assert config.visualization.include_ports is True
 
     def test_schedule_config_nested_init(self):
         """Test ScheduleConfig creates nested configs automatically."""

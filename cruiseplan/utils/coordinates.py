@@ -14,7 +14,11 @@ The CoordConverter class provides static methods for coordinate conversions.
 """
 
 import math
-from typing import Any
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from cruiseplan.config.activities import PointDefinition
+    from cruiseplan.runtime.cruise import CruiseInstance
 
 
 class CoordConverter:
@@ -147,18 +151,15 @@ class CoordConverter:
             raise ValueError(f"Minutes must be in range [0, 60), got {minutes}")
 
         # Validate degree ranges based on direction
-        if direction in ["N", "S"]:
-            # Latitude: -90 to +90
-            if not (0 <= degrees <= 90):
-                raise ValueError(
-                    f"Latitude degrees must be in range [0, 90], got {degrees}"
-                )
-        elif direction in ["E", "W"]:
-            # Longitude: -180 to +180, but degrees part should be [0, 180]
-            if not (0 <= degrees <= 180):
-                raise ValueError(
-                    f"Longitude degrees must be in range [0, 180], got {degrees}"
-                )
+        # Latitude: -90 to +90; longitude: -180 to +180 (degrees part [0, 180])
+        if direction in ["N", "S"] and not (0 <= degrees <= 90):
+            raise ValueError(
+                f"Latitude degrees must be in range [0, 90], got {degrees}"
+            )
+        if direction in ["E", "W"] and not (0 <= degrees <= 180):
+            raise ValueError(
+                f"Longitude degrees must be in range [0, 180], got {degrees}"
+            )
 
         # Convert to decimal degrees
         decimal_degrees = degrees + minutes / 60.0
@@ -248,14 +249,16 @@ def format_position_latex(lat: float, lon: float) -> str:
     return f"{lat_str}, {lon_str}"
 
 
-def _extract_port_info(port: Any) -> tuple[float, float, str] | None:
+def _extract_port_info(
+    port: "PointDefinition | str | None",
+) -> tuple[float, float, str] | None:
     """
     Extract port information from a port object.
 
     Parameters
     ----------
-    port : Any
-        Port object (PortDefinition or string reference)
+    port : PointDefinition, str or None
+        Port object or unresolved string reference.
 
     Returns
     -------
@@ -274,7 +277,7 @@ def _extract_port_info(port: Any) -> tuple[float, float, str] | None:
 
 
 def extract_coordinates_from_cruise(
-    cruise: Any,
+    cruise: "CruiseInstance",
 ) -> tuple[
     list[float],
     list[float],
@@ -287,7 +290,7 @@ def extract_coordinates_from_cruise(
 
     Parameters
     ----------
-    cruise : Cruise
+    cruise : CruiseInstance
         Cruise object with station registry and configuration
 
     Returns

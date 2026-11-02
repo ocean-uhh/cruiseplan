@@ -74,7 +74,7 @@ def schedule_with_config(
     )
 
 
-def schedule(  # noqa: C901, PLR0915
+def schedule(
     config_file: str | Path,
     output_dir: str = "data",
     output: str | None = None,
@@ -198,7 +198,7 @@ def schedule(  # noqa: C901, PLR0915
     try:
         config_path = validate_input_file(config_file)
     except ValueError as e:
-        raise FileError(str(e))
+        raise FileError(str(e)) from e
 
     logger.info(f"📅 Generating schedule from {config_path}")
 
@@ -342,11 +342,8 @@ def schedule(  # noqa: C901, PLR0915
                     "leg": leg,
                 },
             )
-        else:
-            logger.error("No schedule files were generated")
-            raise RuntimeError(
-                "Schedule generation failed: No output files were created"
-            )
+        logger.error("No schedule files were generated")
+        raise RuntimeError("Schedule generation failed: No output files were created")
 
     except Exception:
         logger.exception("❌ Schedule generation failed")

@@ -77,9 +77,8 @@ class KMLGenerator:
     are included, with different styling for each operation type.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the KML generator."""
-        pass
 
     def generate_schedule_kml(
         self, config: CruiseConfig, timeline: list[ActivityRecord], output_file: Path
@@ -282,7 +281,7 @@ class KMLGenerator:
 
         # Write to file
         output_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_file, "w", encoding="utf-8") as f:
+        with Path(output_file).open("w", encoding="utf-8") as f:
             f.write(kml_content)
 
         return output_file
@@ -607,7 +606,7 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
 
     # Write to file
     output_file.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_file, "w", encoding="utf-8") as f:
+    with Path(output_file).open("w", encoding="utf-8") as f:
         f.write(kml_content)
 
     return output_file
@@ -617,7 +616,7 @@ def generate_kml_schedule(
     config: CruiseConfig, timeline: list[ActivityRecord], output_file: Path
 ) -> Path:
     """
-    Main interface to generate KML schedule from scheduler timeline.
+    Generate a KML schedule from the scheduler timeline.
 
     Parameters
     ----------

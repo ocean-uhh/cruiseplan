@@ -61,7 +61,7 @@ class CruiseInstance:
         List of runtime Leg objects converted from LegDefinition objects.
     """
 
-    def __init__(self, config_path: str | Path):
+    def __init__(self, config_path: str | Path) -> None:
         """
         Initialize a CruiseInstance object from a YAML configuration file.
 
@@ -136,7 +136,7 @@ class CruiseInstance:
         """
         return load_yaml(self.config_path)
 
-    def _resolve_references(self):
+    def _resolve_references(self) -> None:
         """
         Resolve string references to full objects from the registry.
 
@@ -258,7 +258,9 @@ class CruiseInstance:
                 resolved_items.append(item)
         return resolved_items
 
-    def _resolve_port_reference(self, port_ref) -> PointDefinition:
+    def _resolve_port_reference(
+        self, port_ref: str | PointDefinition | dict[str, Any]
+    ) -> PointDefinition:
         """
         Resolve a port reference checking catalog first, then global registry.
 
@@ -306,13 +308,12 @@ class CruiseInstance:
                 if isinstance(catalog_port, PointDefinition):
                     return catalog_port
                 # If it's a dict, convert to PointDefinition
-                elif isinstance(catalog_port, dict):
+                if isinstance(catalog_port, dict):
                     return PointDefinition(**catalog_port)
-                else:
-                    # Handle unexpected type in catalog
-                    raise ReferenceError(
-                        f"Unexpected type in port catalog: {type(catalog_port)}"
-                    )
+                # Handle unexpected type in catalog
+                raise ReferenceError(
+                    f"Unexpected type in port catalog: {type(catalog_port)}"
+                )
 
             # Fall back to global port registry
             try:
@@ -325,26 +326,32 @@ class CruiseInstance:
         raise ReferenceError(f"Invalid port reference type: {type(port_ref)}")
 
     # TODO check is this pydantic or yaml-based, if yaml-based can we use vocabulary.py for DEPARTURE_PORT_FIELD and ARRIVAL_PORT_FIELD?
-    def _resolve_config_ports(self):
+    def _resolve_config_ports(self) -> None:
         """
         Resolve top-level config departure_port and arrival_port references.
 
         This method resolves string references in the cruise configuration's
         top-level departure_port and arrival_port fields to PointDefinition objects.
         """
-        if hasattr(self.config, "departure_port") and self.config.departure_port:
-            if isinstance(self.config.departure_port, str):
-                self.config.departure_port = self._resolve_port_reference(
-                    self.config.departure_port
-                )
+        if (
+            hasattr(self.config, "departure_port")
+            and self.config.departure_port
+            and isinstance(self.config.departure_port, str)
+        ):
+            self.config.departure_port = self._resolve_port_reference(
+                self.config.departure_port
+            )
 
-        if hasattr(self.config, "arrival_port") and self.config.arrival_port:
-            if isinstance(self.config.arrival_port, str):
-                self.config.arrival_port = self._resolve_port_reference(
-                    self.config.arrival_port
-                )
+        if (
+            hasattr(self.config, "arrival_port")
+            and self.config.arrival_port
+            and isinstance(self.config.arrival_port, str)
+        ):
+            self.config.arrival_port = self._resolve_port_reference(
+                self.config.arrival_port
+            )
 
-    def _enrich_leg_ports(self):
+    def _enrich_leg_ports(self) -> None:
         """
         Automatically enrich leg-level port references with actions.
 
@@ -429,7 +436,7 @@ class CruiseInstance:
         """
         Convert LegDefinition objects to runtime Leg objects with clusters.
 
-        This method implements Phase 4 of the CLAUDE-legclass.md architecture:
+        Steps:
         - Creates runtime Leg objects from LegDefinition YAML data
         - Resolves port references using global port system
         - Applies parameter inheritance from cruise to leg level

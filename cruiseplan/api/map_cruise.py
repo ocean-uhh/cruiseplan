@@ -136,6 +136,9 @@ def map(
         Omit the legend from PNG output (default: False)
     verbose : bool
         Enable verbose logging (default: False)
+    max_depth : int, optional
+        Maximum water depth (m) for the bathymetry colour scale on PNG maps. If
+        None, the full -8000 to +200 m range is used.
     include_eez : bool
         Overlay EEZ boundaries (visualization only; data downloaded on first use). Default is False.
 
@@ -217,7 +220,7 @@ def map(
 
         return MapResult(map_files=generated_files, format=format, summary=summary)
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - API boundary: log and return a failed MapResult
         from cruiseplan.api.init_utils import _handle_error_with_logging
 
         _handle_error_with_logging(e, "Map generation failed", verbose)

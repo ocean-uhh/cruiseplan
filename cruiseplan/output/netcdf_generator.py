@@ -6,7 +6,7 @@ Implements discrete sampling geometries as specified in netcdf_outputs.md.
 """
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -38,7 +38,7 @@ class NetCDFGenerator:
         CF conventions version used for NetCDF files ("CF-1.8").
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.cf_conventions = "CF-1.8"
 
     def generate_all_netcdf_outputs(
@@ -314,7 +314,7 @@ class NetCDFGenerator:
                 # Handle timezone-aware datetime objects properly
                 if time_obj.tzinfo is not None:
                     # Convert to UTC and then to naive datetime
-                    time_obj = time_obj.astimezone(timezone.utc).replace(tzinfo=None)
+                    time_obj = time_obj.astimezone(UTC).replace(tzinfo=None)
 
                 epoch_days = (time_obj - datetime(1970, 1, 1)).total_seconds() / 86400.0
                 times.append(epoch_days)
@@ -344,9 +344,7 @@ class NetCDFGenerator:
                             end_time_obj.replace("Z", "+00:00")
                         )
                     if end_time_obj.tzinfo is not None:
-                        end_time_obj = end_time_obj.astimezone(timezone.utc).replace(
-                            tzinfo=None
-                        )
+                        end_time_obj = end_time_obj.astimezone(UTC).replace(tzinfo=None)
                     end_epoch_days = (
                         end_time_obj - datetime(1970, 1, 1)
                     ).total_seconds() / 86400.0
@@ -1353,7 +1351,7 @@ def generate_netcdf_outputs(
     config: CruiseConfig, timeline: list[ActivityRecord], output_dir: Path
 ) -> list[Path]:
     """
-    Convenience function to generate all NetCDF outputs.
+    Generate all NetCDF outputs.
 
     Args:
         config: Cruise configuration

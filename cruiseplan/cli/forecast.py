@@ -283,10 +283,10 @@ def _forecast_text(args: argparse.Namespace, schedule_file: Path) -> None:
     if output_path:
         try:
             output_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(output_path, "w") as f:
+            with Path(output_path).open("w") as f:
                 f.write(result.output)
             print(f"Forecast written to: {output_path}")
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - CLI: report write failure without traceback
             print(
                 f"ERROR: Error writing to {output_path}: {e}",
                 file=sys.stderr,
@@ -444,7 +444,7 @@ Static format mode (no start params):
         "-o",
         "--output-dir",
         type=Path,
-        default=Path("."),
+        default=Path(),
         help="Output directory (default: current directory)",
     )
     p.add_argument(

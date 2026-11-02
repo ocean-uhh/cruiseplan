@@ -96,7 +96,7 @@ class TestKMLGenerator:
             output_file = Path(tmp_file.name)
 
         try:
-            result = self.generator.generate_schedule_kml(
+            self.generator.generate_schedule_kml(
                 self.mock_config, timeline, output_file
             )
 
@@ -176,7 +176,7 @@ class TestKMLGeneratorCatalogMode:
             assert output_file.exists()
 
             # Verify content contains catalog entities
-            with open(output_file, encoding="utf-8") as f:
+            with Path(output_file).open(encoding="utf-8") as f:
                 content = f.read()
                 assert "CAT_STN_001" in content
                 assert "SURVEY_AREA" in content
@@ -208,7 +208,7 @@ class TestKMLGeneratorCatalogMode:
             assert output_file.exists()
 
             # Should still create valid KML structure
-            with open(output_file, encoding="utf-8") as f:
+            with Path(output_file).open(encoding="utf-8") as f:
                 content = f.read()
                 assert "kml" in content.lower()
                 assert "Empty_Test" in content
@@ -238,7 +238,7 @@ class TestKMLUtilityFunctions:
 
     def test_coordinate_formatting(self):
         """Test coordinate formatting in KML output."""
-        generator = KMLGenerator()
+        KMLGenerator()
 
         # Test coordinate formatting with various inputs
         test_cases = [

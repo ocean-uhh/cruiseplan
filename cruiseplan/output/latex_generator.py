@@ -13,6 +13,7 @@ paginated to fit within LaTeX float environments.
 """
 
 import logging
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -68,7 +69,7 @@ class LaTeXGenerator:
     # Max rows per page for LaTeX table float environment
     MAX_ROWS_PER_PAGE = 45
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Locate the template directory relative to this file
         template_dir = Path(__file__).parent / "templates"
 
@@ -89,7 +90,7 @@ class LaTeXGenerator:
         self, data_rows: list[dict], table_type: str
     ) -> list[dict[str, Any]]:
         """
-        Splits data rows into pages and adds metadata (caption, header).
+        Split data rows into pages and add metadata (caption, header).
 
         Parameters
         ----------
@@ -128,7 +129,7 @@ class LaTeXGenerator:
         return pages
 
     def _generate_stations_rows(
-        self, config: CruiseConfig, timeline: list[ActivityRecord]
+        self, _config: CruiseConfig, timeline: list[ActivityRecord]
     ) -> list[dict[str, str]]:
         """
         Extract station/operation data from timeline for table generation.
@@ -212,9 +213,7 @@ class LaTeXGenerator:
     def generate_stations_table(
         self, config: CruiseConfig, timeline: list[ActivityRecord]
     ) -> str:
-        """
-        Generates the Working Area, Stations and Profiles table from scheduler timeline.
-        """
+        """Generate the Working Area, Stations and Profiles table from the timeline."""
         template = self.env.get_template("stations_table.tex.j2")
 
         table_rows = self._generate_stations_rows(config, timeline)
@@ -227,7 +226,7 @@ class LaTeXGenerator:
         self, config: CruiseConfig, timeline: list[ActivityRecord]
     ) -> str:
         """
-        Generates the Work Days at Sea table from scheduler timeline.
+        Generate the Work Days at Sea table from the scheduler timeline.
 
         If multiple legs exist, generates separate tables per leg.
         """
@@ -241,18 +240,15 @@ class LaTeXGenerator:
         if len(leg_names) <= 1:
             # Single leg or no legs defined - generate single table
             return self._generate_single_work_days_table(config, timeline)
-        else:
-            # Multiple legs - generate unified table with leg information in Area column
-            return self._generate_unified_multi_leg_work_days_table(
-                config, timeline, leg_names
-            )
+        # Multiple legs - generate unified table with leg information in Area column
+        return self._generate_unified_multi_leg_work_days_table(
+            config, timeline, leg_names
+        )
 
     def _generate_single_work_days_table(
         self, config: CruiseConfig, timeline: list[ActivityRecord]
     ) -> str:
-        """
-        Generate a single work days table for the entire cruise.
-        """
+        """Generate a single work days table for the entire cruise."""
         template = self.env.get_template("work_days_table.tex.j2")
 
         # Use scheduler statistics instead of manual calculations
@@ -302,9 +298,7 @@ class LaTeXGenerator:
     def _generate_multi_leg_work_days_tables(
         self, config: CruiseConfig, timeline: list[ActivityRecord], leg_names: list[str]
     ) -> str:
-        """
-        Generate separate work days tables for each leg.
-        """
+        """Generate separate work days tables for each leg."""
         template = self.env.get_template("work_days_table.tex.j2")
 
         all_tables = []
@@ -355,9 +349,7 @@ class LaTeXGenerator:
     def _generate_unified_multi_leg_work_days_table(
         self, config: CruiseConfig, timeline: list[ActivityRecord], leg_names: list[str]
     ) -> str:
-        """
-        Generate a unified work days table with leg information in the Area column.
-        """
+        """Generate a unified work days table with leg information in the Area column."""
         template = self.env.get_template("work_days_table.tex.j2")
 
         all_summary_rows = []
@@ -412,9 +404,7 @@ class LaTeXGenerator:
     def _generate_work_days_rows_for_timeline(
         self, timeline: list[ActivityRecord]
     ) -> list[dict[str, str]]:
-        """
-        Extract work days summary rows from a timeline (used for both single and multi-leg).
-        """
+        """Extract work days summary rows from a timeline (used for both single and multi-leg)."""
         summary_rows = []
 
         # Use scheduler statistics instead of manual calculations
@@ -548,7 +538,7 @@ class LaTeXGenerator:
         self,
         records: list[ActivityRecord],
         cruise_name: str = "Cruise",
-        config: Any = None,
+        config: CruiseConfig | None = None,  # noqa: ARG002 - public keyword, kept for callers
         logo_path: str | Path | None = None,
         workplan_number: str | None = None,
         cruise_title: str | None = None,
@@ -564,9 +554,9 @@ class LaTeXGenerator:
             ActivityRecord objects (typically from NetCDF reader).
         cruise_name : str
             Name of cruise for table header. Default is ``"Cruise"``.
-        config : Any, optional
-            Cruise configuration object; used to extract cruise name and date
-            range when provided.
+        config : CruiseConfig, optional
+            Accepted for compatibility and not used: the header takes the
+            cruise name from ``cruise_name`` and ``cruise_title``.
         logo_path : str or Path, optional
             Path to a logo image file (PNG, JPG, PDF). If None, the generator
             searches ``config/images/`` for ``project_logo.*`` or
@@ -780,10 +770,7 @@ class LaTeXGenerator:
 
             # Extract just the cruise identifier (e.g., "MSM142" from "MSM142 StJohns")
             cruise_parts = base_cruise_name.split()
-            if cruise_parts:
-                main_cruise_name = cruise_parts[0]  # e.g., "MSM142"
-            else:
-                main_cruise_name = base_cruise_name
+            main_cruise_name = cruise_parts[0] if cruise_parts else base_cruise_name
 
         # Use provided workplan number or default
         workplan_num = workplan_number if workplan_number else "01"
@@ -879,7 +866,7 @@ Time & Position & Depth & Distance & Station & Comment \\\\
         else:
             all_tables = table_blocks[0]
 
-        full_document = f"""\\documentclass{{article}}
+        return f"""\\documentclass{{article}}
 \\usepackage{{booktabs}}
 \\usepackage{{geometry}}
 \\usepackage{{textcomp}}
@@ -895,7 +882,6 @@ Time & Position & Depth & Distance & Station & Comment \\\\
 
 \\end{{document}}
 """
-        return full_document
 
     def _escape_latex_text(self, text: str) -> str:
         """Escape LaTeX special characters in text."""
@@ -910,7 +896,7 @@ Time & Position & Depth & Distance & Station & Comment \\\\
         )
 
     def _get_original_station_coordinates(
-        self, station_name: str, config: Any = None
+        self, station_name: str, config: CruiseConfig | None = None
     ) -> tuple[float, float, bool]:
         """
         Get original station coordinates from cruise configuration.
@@ -924,9 +910,13 @@ Time & Position & Depth & Distance & Station & Comment \\\\
             # Look for station in cruise configuration points
             if hasattr(config, "points") and config.points:
                 for point in config.points:
-                    if hasattr(point, "name") and point.name == station_name:
-                        if hasattr(point, "latitude") and hasattr(point, "longitude"):
-                            return float(point.latitude), float(point.longitude), True
+                    if (
+                        hasattr(point, "name")
+                        and point.name == station_name
+                        and hasattr(point, "latitude")
+                        and hasattr(point, "longitude")
+                    ):
+                        return float(point.latitude), float(point.longitude), True
 
             # Also check legs->clusters->activities if no direct match
             if hasattr(config, "legs") and config.legs:
@@ -948,7 +938,7 @@ Time & Position & Depth & Distance & Station & Comment \\\\
                                                     True,
                                                 )
 
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - best-effort lookup; falls back to timeline coordinates
             logger.warning(
                 f"Error looking up original coordinates for {station_name}: {e}"
             )
@@ -956,7 +946,7 @@ Time & Position & Depth & Distance & Station & Comment \\\\
         return 0.0, 0.0, False
 
     def _verify_station_coordinates(
-        self, record: Any, config: Any = None
+        self, record: ActivityRecord, config: CruiseConfig | None = None
     ) -> tuple[float, float, str]:
         """
         Verify station coordinates and return the correct ones to use.
@@ -988,11 +978,10 @@ Time & Position & Depth & Distance & Station & Comment \\\\
                 f"Timeline: {record.entry_lat:.6f}, {record.entry_lon:.6f}"
             )
             return orig_lat, orig_lon, " (corrected)"
-        else:
-            # Coordinates match - use original
-            return orig_lat, orig_lon, ""
+        # Coordinates match - use original
+        return orig_lat, orig_lon, ""
 
-    def _round_time_to_10min(self, dt):
+    def _round_time_to_10min(self, dt: datetime) -> datetime:
         """Round time to nearest 10 minutes like letsgo.m (rnd = 144)."""
         # Convert to total minutes
         total_minutes = dt.hour * 60 + dt.minute
@@ -1062,6 +1051,13 @@ def generate_letsgo_table_from_netcdf(
         Path to NetCDF schedule file
     output_path : Path, optional
         Output path for .tex file. If None, uses netcdf_path with .tex extension
+    logo_path : str or Path, optional
+        Path to a logo image (PNG, JPG or PDF). If None, ``config/images/`` is
+        searched for a default logo.
+    workplan_number : str, optional
+        Workplan number printed in the TeX header (e.g. ``"28"``).
+    cruise_title : str, optional
+        Cruise title printed in the TeX header (e.g. ``"MSM142"``).
 
     Returns
     -------
@@ -1104,7 +1100,7 @@ def generate_latex_tables(
     base_name: str | None = None,
 ) -> list[Path]:
     """
-    Main interface to generate LaTeX tables for cruise proposal from scheduler timeline.
+    Generate LaTeX tables for a cruise proposal from the scheduler timeline.
 
     Parameters
     ----------
@@ -1114,9 +1110,12 @@ def generate_latex_tables(
         Timeline generated by the scheduler
     output_dir : Path
         Directory to write output files
+    base_name : str, optional
+        Filename stem for the .tex files. If None, a default stem is derived.
 
     Returns
     -------
+    list of Path
         List of generated .tex files
     """
     generator = LaTeXGenerator()

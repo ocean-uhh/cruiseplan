@@ -10,7 +10,7 @@ git clone https://github.com/YOUR_USERNAME/cruiseplan.git
 cd cruiseplan
 
 # Using conda/mamba
-conda env create -f environment.yml
+conda create -n cruiseplan -c conda-forge python=3.11
 conda activate cruiseplan
 pip install -e ".[dev]"
 

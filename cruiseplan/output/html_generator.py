@@ -15,6 +15,7 @@ tables for each operation type.
 
 import logging
 from pathlib import Path
+from typing import Any
 
 from cruiseplan.config.cruise_config import CruiseConfig
 from cruiseplan.output.output_utils import (
@@ -31,7 +32,7 @@ from cruiseplan.utils.units import NM_PER_KM, hours_to_days
 logger = logging.getLogger(__name__)
 
 
-def _convert_decimal_to_deg_min_html(decimal_degrees):
+def _convert_decimal_to_deg_min_html(decimal_degrees: float) -> str:
     """
     Convert decimal degrees to DD MM.mmm format for HTML display.
 
@@ -50,15 +51,7 @@ def _convert_decimal_to_deg_min_html(decimal_degrees):
 
     if decimal_degrees >= 0:
         return f"{degrees:02d} {minutes:06.3f}"
-    else:
-        return f"-{degrees:02d} {minutes:06.3f}"
-    degrees = int(abs(decimal_degrees))
-    minutes = abs((abs(decimal_degrees) - degrees) * 60)
-
-    if decimal_degrees >= 0:
-        return f"{degrees:02d} {minutes:06.3f}"
-    else:
-        return f"-{degrees:02d} {minutes:06.3f}"
+    return f"-{degrees:02d} {minutes:06.3f}"
 
 
 class HTMLGenerator:
@@ -69,9 +62,8 @@ class HTMLGenerator:
     schedule data, including summary statistics and detailed activity breakdowns.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the HTML generator."""
-        pass
 
     def generate_schedule_report(
         self, config: CruiseConfig, timeline: list[ActivityRecord], output_file: Path
@@ -300,7 +292,7 @@ class HTMLGenerator:
 
         # Write to file
         output_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_file, "w", encoding="utf-8") as f:
+        with Path(output_file).open("w", encoding="utf-8") as f:
             f.write(html_content)
 
         return output_file
@@ -515,7 +507,12 @@ class HTMLGenerator:
 
         return legs_data
 
-    def _get_activity_entry_exit_distance(self, activity, activities, index):
+    def _get_activity_entry_exit_distance(
+        self,
+        activity: dict[str, Any],
+        _activities: list[dict[str, Any]],
+        _index: int,
+    ) -> tuple[str, str, str]:
         """
         Determine entry position, exit position, and distance for an activity.
 
@@ -523,15 +520,16 @@ class HTMLGenerator:
         ----------
         activity : dict
             Current activity record
-        activities : list
+        _activities : list
             List of all activities in this leg
-        index : int
+        _index : int
             Index of current activity in the activities list
 
         Returns
         -------
-        tuple
-            (entry_position, exit_position, distance_nm) as formatted strings and float
+        tuple of str
+            (entry_position, exit_position, distance) formatted for display;
+            distance is "-" when zero.
         """
         # Get current activity position
         if "lat" in activity and "lon" in activity:
@@ -584,22 +582,19 @@ class HTMLGenerator:
             distance_nm = activity.get("dist_nm", 0.0)
 
         # Format distance
-        if distance_nm == 0.0:
-            distance_str = "-"
-        else:
-            distance_str = f"{distance_nm:.1f}"
+        distance_str = "-" if distance_nm == 0.0 else f"{distance_nm:.1f}"
 
         return entry_position, exit_position, distance_str
 
-    def _add_leg_transits(self, legs_data: dict, config: CruiseConfig) -> None:
+    def _add_leg_transits(self, _legs_data: dict, _config: CruiseConfig) -> None:
         """
         Add transit connections between legs.
 
         Parameters
         ----------
-        legs_data : dict
+        _legs_data : dict
             Leg data dictionary to modify
-        config : CruiseConfig
+        _config : CruiseConfig
             Cruise configuration
         """
         from cruiseplan.timeline.distance import haversine_distance
@@ -634,7 +629,7 @@ def generate_html_schedule(
     config: CruiseConfig, timeline: list[ActivityRecord], output_file: Path
 ) -> Path:
     """
-    Main interface to generate HTML schedule from scheduler timeline.
+    Generate an HTML schedule from the scheduler timeline.
 
     Parameters
     ----------

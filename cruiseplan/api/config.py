@@ -1,9 +1,8 @@
 """
 Configuration objects for CruisePlan API functions.
 
-This module provides dataclass-based configuration objects to reduce
-the number of arguments in main API functions, following the refactoring
-plan outlined in docs/legacy/CLAUDE-v0.3.3-refactor-complex.md.
+This module provides dataclass-based configuration objects that group
+related arguments of the main API functions.
 """
 
 from dataclasses import dataclass
@@ -101,7 +100,7 @@ class ProcessConfig:
     visualization: VisualizationConfig = None
     """Visualization configuration"""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Initialize nested config objects with defaults if not provided."""
         if self.bathymetry is None:
             self.bathymetry = BathymetryConfig()
@@ -133,7 +132,7 @@ class ScheduleConfig:
     visualization: VisualizationConfig = None
     """Visualization configuration"""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Initialize nested config objects with defaults if not provided."""
         if self.bathymetry is None:
             self.bathymetry = BathymetryConfig()
@@ -157,7 +156,7 @@ class MapConfig:
     visualization: VisualizationConfig = None
     """Visualization configuration"""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Initialize nested config objects with defaults if not provided."""
         if self.bathymetry is None:
             self.bathymetry = BathymetryConfig()
@@ -191,7 +190,7 @@ class PangaeaConfig:
     output: OutputConfig = None
     """Output configuration"""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Initialize nested config objects with defaults if not provided."""
         if self.output is None:
             self.output = OutputConfig()
@@ -235,7 +234,7 @@ class EnrichConfig:
     output: OutputConfig = None
     """Output configuration"""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Initialize nested config objects with defaults if not provided."""
         if self.bathymetry is None:
             self.bathymetry = BathymetryConfig()
@@ -263,7 +262,7 @@ class ValidateConfig:
     bathymetry: BathymetryConfig = None
     """Bathymetry configuration"""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Initialize nested config objects with defaults if not provided."""
         if self.bathymetry is None:
             self.bathymetry = BathymetryConfig()
@@ -299,7 +298,7 @@ class StationsConfig:
     output: OutputConfig = None
     """Output configuration"""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Initialize nested config objects with defaults if not provided."""
         if self.output is None:
             self.output = OutputConfig()

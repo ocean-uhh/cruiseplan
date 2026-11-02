@@ -9,8 +9,10 @@ import logging
 from dataclasses import dataclass
 from datetime import timedelta
 from pathlib import Path
+from typing import Any
 
 import numpy as np
+import xarray as xr
 
 from cruiseplan.forecast.formatter import format_letsgo_output
 from cruiseplan.forecast.generator import (
@@ -228,6 +230,13 @@ def stationplan_tex(
         Path to NetCDF schedule file (e.g., 'MSM142_leg_2_schedule.nc')
     output_path : str or Path, optional
         Output path for .tex file. If None, uses schedule_file name with .tex extension
+    logo_path : str or Path, optional
+        Path to a logo image (PNG, JPG or PDF). If None, ``config/images/`` is
+        searched for a default logo.
+    workplan_number : str, optional
+        Workplan number printed in the TeX header (e.g. ``"28"``).
+    cruise_title : str, optional
+        Cruise title printed in the TeX header (e.g. ``"MSM142"``).
 
     Returns
     -------
@@ -289,7 +298,9 @@ class _ForecastRecord:
             setattr(self, key, value)
 
 
-def _lookup_schedule_depth_data(schedule, index: int) -> tuple:
+def _lookup_schedule_depth_data(
+    schedule: xr.Dataset, index: int
+) -> tuple[float | None, float | None, str]:
     """Look up water_depth, operation_depth, and comment from a NetCDF schedule.
 
     Returns (water_depth, operation_depth, comment) with None/empty defaults.
@@ -323,7 +334,7 @@ def _lookup_schedule_depth_data(schedule, index: int) -> tuple:
 
 
 def _lookup_tex_exit_coords(
-    schedule, index: int, latitude: float, longitude: float
+    schedule: xr.Dataset, index: int, latitude: float, longitude: float
 ) -> tuple[float, float]:
     """Return exit (lat, lon) from schedule variables, falling back to entry coords."""
     try:
@@ -335,13 +346,13 @@ def _lookup_tex_exit_coords(
             exit_lon_val = float(schedule.exit_longitude[index].values)
             if not (np.isnan(exit_lat_val) or np.isnan(exit_lon_val)):
                 return exit_lat_val, exit_lon_val
-    except Exception:
+    except (AttributeError, TypeError, ValueError, IndexError):
         pass
     return latitude, longitude
 
 
 def _build_tex_forecast_record(
-    schedule, index: int, activity_tuple: tuple
+    schedule: xr.Dataset, index: int, activity_tuple: tuple
 ) -> "_ForecastRecord | None":
     """Convert one forecast activity tuple to a _ForecastRecord for TeX output.
 
@@ -433,6 +444,10 @@ def stationplan_forecast_tex(
         Output path for .tex file
     logo_path : str or Path, optional
         Path to logo image file (PNG, JPG, or PDF). If None, checks for default logos in config/images/ folder
+    workplan_number : str, optional
+        Workplan number printed in the TeX header (e.g. ``"28"``).
+    cruise_title : str, optional
+        Cruise title printed in the TeX header (e.g. ``"MSM142"``).
 
     Returns
     -------
@@ -586,7 +601,7 @@ def _resolve_exit_coordinates(
             next_lon = float(schedule.longitude[index + 1].values)
             if not (np.isnan(next_lat) or np.isnan(next_lon)):
                 return next_lat, next_lon
-    except Exception:
+    except (AttributeError, TypeError, ValueError, IndexError):
         pass
 
     return latitude, longitude
@@ -594,9 +609,9 @@ def _resolve_exit_coordinates(
 
 def stationplan_waypoints(
     schedule_file: str | Path,
-    start_index: int,
+    start_index: int | None,
     start_time: str | None = None,
-    duration_hours: float = 48.0,
+    duration_hours: float | None = 48.0,
     current_position: tuple[float, float] | None = None,
     output_path: str | Path | None = None,
 ) -> StationplanResult:
@@ -664,7 +679,7 @@ def stationplan_waypoints(
             )
 
         # Generate waypoint content in both coordinate formats
-        def generate_waypoint_content(use_decimal_degrees=False):
+        def generate_waypoint_content(use_decimal_degrees: bool = False) -> str:
             waypoint_lines = []
 
             # Add header with proper spacing
@@ -748,20 +763,19 @@ def stationplan_waypoints(
                 message=f"Generated {waypoint_count} waypoints in both coordinate formats",
                 output=f"{ddm_file} and {decdeg_file}",
             )
-        else:
-            # Return DDM content directly (default format)
-            waypoint_count = len(
-                [
-                    line
-                    for line in waypoint_content_ddm.split("\n")
-                    if line and not line.startswith("%")
-                ]
-            )
-            return StationplanResult(
-                success=True,
-                message=f"Generated {waypoint_count} waypoints (DDM format)",
-                output=waypoint_content_ddm,
-            )
+        # Return DDM content directly (default format)
+        waypoint_count = len(
+            [
+                line
+                for line in waypoint_content_ddm.split("\n")
+                if line and not line.startswith("%")
+            ]
+        )
+        return StationplanResult(
+            success=True,
+            message=f"Generated {waypoint_count} waypoints (DDM format)",
+            output=waypoint_content_ddm,
+        )
 
     except Exception as e:
         error_msg = f"Error generating bridge waypoints: {e}"
@@ -779,10 +793,10 @@ def _format_ddm_coordinate(decimal_degrees: float, coord_type: str) -> str:
         # Latitude: 2 digits for degrees, N/S direction with space
         direction = "N" if decimal_degrees >= 0 else "S"
         return f"{int(abs(degrees)):02d} {minutes:05.2f} {direction}"
-    else:  # longitude
-        # Longitude: 3 digits for degrees, E/W direction with space
-        direction = "E" if decimal_degrees >= 0 else "W"
-        return f"{int(abs(degrees)):03d} {minutes:05.2f} {direction}"
+    # longitude
+    # Longitude: 3 digits for degrees, E/W direction with space
+    direction = "E" if decimal_degrees >= 0 else "W"
+    return f"{int(abs(degrees)):03d} {minutes:05.2f} {direction}"
 
 
 def _format_decimal_degrees(decimal_degrees: float, coord_type: str) -> str:
@@ -790,9 +804,9 @@ def _format_decimal_degrees(decimal_degrees: float, coord_type: str) -> str:
     if coord_type == "lat":
         # Latitude: format with 6 decimal places, signed (negative for South)
         return f"{decimal_degrees:8.5f}"
-    else:  # longitude
-        # Longitude: format with 6 decimal places, signed (negative for West)
-        return f"{decimal_degrees:9.5f}"
+    # longitude
+    # Longitude: format with 6 decimal places, signed (negative for West)
+    return f"{decimal_degrees:9.5f}"
 
 
 def _add_depth_data_to_timeline_record(
@@ -808,7 +822,7 @@ def _add_depth_data_to_timeline_record(
             op_depth_val = schedule.operation_depth[index].values
             if not np.isnan(float(op_depth_val)):
                 record["operation_depth"] = float(op_depth_val)
-    except Exception:
+    except (AttributeError, TypeError, ValueError, IndexError):
         pass
 
 
@@ -826,7 +840,7 @@ _WORK_CODE_BY_TYPE: dict[str, int] = {
 
 
 def _map_activity_to_work_code(
-    category: str, activity_type: str, name: str = ""
+    _category: str, activity_type: str, name: str = ""
 ) -> int:
     """
     Map activity category/type to letsgo.m work code.
@@ -948,7 +962,7 @@ def stationplan_forecast_kml(
 
         # Create a minimal cruise config for KML generation
         class MockCruiseConfig:
-            def __init__(self):
+            def __init__(self) -> None:
                 self.cruise_name = schedule_path.stem
                 self.description = (
                     f"Forecast starting from {start_time} for {duration_hours}h"
@@ -958,17 +972,17 @@ def stationplan_forecast_kml(
 
         # Convert to ActivityRecord-like objects for KMLGenerator
         class MockActivityRecord:
-            def __init__(self, data):
+            def __init__(self, data: dict[str, Any]) -> None:
                 for key, value in data.items():
                     setattr(self, key, value)
 
                 # Convert to dict access for KML generator compatibility
                 self.data = data
 
-            def __getitem__(self, key):
+            def __getitem__(self, key: str) -> Any:  # noqa: ANN401 - activity dict values are heterogeneous
                 return self.data[key]
 
-            def get(self, key, default=None):
+            def get(self, key: str, default: Any = None) -> Any:  # noqa: ANN401 - mirrors dict.get
                 return self.data.get(key, default)
 
         activity_records = [
@@ -1173,12 +1187,11 @@ def stationplan_forecast_png(
                 message=f"Generated PNG forecast map with {activity_count} activities",
                 output=str(map_file),
             )
-        else:
-            return StationplanResult(
-                success=False,
-                message="PNG map generation failed",
-                output="",
-            )
+        return StationplanResult(
+            success=False,
+            message="PNG map generation failed",
+            output="",
+        )
 
     except Exception as e:
         error_msg = f"Error generating PNG forecast: {e}"

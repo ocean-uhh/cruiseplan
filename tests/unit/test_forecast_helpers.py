@@ -8,7 +8,7 @@ from cruiseplan.cli.forecast import _resolve_output_path
 
 class TestResolveOutputPath:
     def test_returns_none_when_output_not_set(self):
-        args = Namespace(output=None, output_dir=Path("."))
+        args = Namespace(output=None, output_dir=Path())
         assert _resolve_output_path(args, ".kml") is None
 
     def test_plain_path_concatenation(self):

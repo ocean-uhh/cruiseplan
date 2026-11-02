@@ -69,7 +69,9 @@ class BathymetryManager:
         Longitude coordinate array.
     """
 
-    def __init__(self, source: str = "gebco2025", data_dir: str = "data/bathymetry"):
+    def __init__(
+        self, source: str = "gebco2025", data_dir: str = "data/bathymetry"
+    ) -> None:
         """
         Initialize the bathymetry manager.
 
@@ -109,10 +111,9 @@ class BathymetryManager:
             "msm142_dt",
         ]:
             return "elevation"
-        else:
-            return "z"  # Default for ETOPO and other sources
+        return "z"  # Default for ETOPO and other sources
 
-    def _initialize_data(self):
+    def _initialize_data(self) -> None:
         """
         Attempt to load NetCDF data, falling back to mock mode on failure.
 
@@ -168,7 +169,7 @@ class BathymetryManager:
                 self._depth_var_name = self._get_depth_variable_name()
                 self._is_mock = False
                 logger.info(f"✅ Loaded bathymetry from {file_path}")
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001 - unreadable bathymetry file falls back to mock mode
                 logger.warning(
                     f"❌ Failed to load bathymetry file: {e}. Using MOCK mode. Run 'cruiseplan download' to fix."
                 )
@@ -220,7 +221,14 @@ class BathymetryManager:
             logger.exception(f"Error interpolating depth at {lat}, {lon}")
             return DEFAULT_DEPTH
 
-    def get_grid_subset(self, lat_min, lat_max, lon_min, lon_max, stride=1):
+    def get_grid_subset(
+        self,
+        lat_min: float,
+        lat_max: float,
+        lon_min: float,
+        lon_max: float,
+        stride: int = 1,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Get a subset of the bathymetry grid for contour plotting.
 
@@ -242,8 +250,8 @@ class BathymetryManager:
 
         Returns
         -------
-        tuple
-            Tuple of (lons, lats, depths) as 2D numpy arrays for contour plotting.
+        tuple of numpy.ndarray
+            (lons, lats, depths) as 2D arrays for contour plotting.
 
         Notes
         -----
@@ -362,7 +370,7 @@ class BathymetryManager:
 
         return float(depth)
 
-    def ensure_gebco_2025(self, silent_if_exists=False):
+    def ensure_gebco_2025(self, silent_if_exists: bool = False) -> bool:
         """
         Ensure GEBCO 2025 dataset is available for high-resolution bathymetry.
 
@@ -392,11 +400,10 @@ class BathymetryManager:
                         f"✅ GEBCO 2025 already available at {gebco_nc_path} ({file_size_gb:.1f} GB)"
                     )
                 return True
-            else:
-                logger.warning(
-                    f"⚠️ GEBCO 2025 file is incomplete ({file_size_gb:.1f} GB). Re-downloading..."
-                )
-                gebco_nc_path.unlink()
+            logger.warning(
+                f"⚠️ GEBCO 2025 file is incomplete ({file_size_gb:.1f} GB). Re-downloading..."
+            )
+            gebco_nc_path.unlink()
 
         # Check disk space (need ~12GB: 4GB zip + 7.5GB extracted + buffer)
         try:
@@ -406,7 +413,7 @@ class BathymetryManager:
                     f"❌ Insufficient disk space. Need ~12GB, have {free_space_gb:.1f}GB free."
                 )
                 return False
-        except Exception as e:
+        except OSError as e:
             logger.warning(f"⚠️ Could not check disk space: {e}")
 
         # User confirmation for large download
@@ -465,7 +472,7 @@ class BathymetryManager:
             total_size = int(response.headers.get("content-length", 0))
 
             with (
-                open(zip_path, "wb") as file,
+                zip_path.open("wb") as file,
                 tqdm(
                     desc="Downloading GEBCO 2025",
                     total=total_size,
@@ -506,7 +513,7 @@ class BathymetryManager:
                 # Extract with progress (for large files)
                 with (
                     zip_ref.open(nc_file_in_zip) as source,
-                    open(nc_path, "wb") as target,
+                    nc_path.open("wb") as target,
                 ):
                     shutil.copyfileobj(source, target)
 
@@ -565,7 +572,7 @@ class BathymetryManager:
         val = (abs(lat) * 100) + (abs(lon) * 50)
         return -(val % 4000) - 100
 
-    def close(self):
+    def close(self) -> None:
         """
         Close the NetCDF dataset if open.
 
@@ -667,7 +674,7 @@ def _download_etopo2022(target_dir: str) -> str | bool | None:
             resp.raise_for_status()
             total_size = int(resp.headers.get("Content-Length", 0))
             with (
-                open(local_path, "wb") as file,
+                local_path.open("wb") as file,
                 tqdm(
                     desc="Downloading ETOPO",
                     total=total_size,
@@ -681,7 +688,7 @@ def _download_etopo2022(target_dir: str) -> str | bool | None:
                     bar.update(len(chunk))
             print("\nDownload complete!")
             return str(local_path)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - download fallback: try the next URL
             print(f"Failed to download from {url}")
             print(f"   Error: {e}")
             if local_path.exists():
@@ -752,7 +759,7 @@ def check_bathymetry_availability(source: str) -> bool:
         # Create a temporary manager to check availability
         manager = BathymetryManager(source=source)
         return not manager._is_mock
-    except Exception:
+    except Exception:  # noqa: BLE001 - availability check returns False on any failure
         return False
 
 
@@ -814,10 +821,10 @@ def determine_bathymetry_source(requested_source: str) -> str:
 
 
 # Lazy singleton instance - only created when first accessed
-_bathymetry_instance = None
+_bathymetry_instance: BathymetryManager | None = None
 
 
-def get_bathymetry_singleton():
+def get_bathymetry_singleton() -> BathymetryManager:
     """Get the singleton BathymetryManager instance (lazy initialization)."""
     global _bathymetry_instance
     if _bathymetry_instance is None:
@@ -826,7 +833,7 @@ def get_bathymetry_singleton():
 
 
 # For backward compatibility, create the singleton on first access
-def __getattr__(name):
+def __getattr__(name: str) -> BathymetryManager:
     if name == "bathymetry":
         return get_bathymetry_singleton()
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")

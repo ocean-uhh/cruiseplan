@@ -21,13 +21,10 @@ logger = logging.getLogger(__name__)
 
 
 class CSVGenerator:
-    """
-    Manages CSV generation for cruise schedules with comprehensive formatting.
-    """
+    """Generate CSV files for cruise schedules."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the CSV generator."""
-        pass
 
     def _get_display_label(self, activity: dict) -> str:
         """
@@ -75,7 +72,10 @@ class CSVGenerator:
         return str(round(depth))
 
     def generate_schedule_csv(
-        self, config: CruiseConfig, timeline: list[ActivityRecord], output_file: Path
+        self,
+        config: CruiseConfig,  # noqa: ARG002 - same signature as the other generators
+        timeline: list[ActivityRecord],
+        output_file: Path,
     ) -> Path:
         """
         Generate CSV schedule output with comprehensive formatting.
@@ -117,7 +117,7 @@ class CSVGenerator:
 
         # Write CSV file
         output_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_file, "w", newline="", encoding="utf-8") as csvfile:
+        with Path(output_file).open("w", newline="", encoding="utf-8") as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
             writer.writeheader()
@@ -206,7 +206,7 @@ def generate_csv_schedule(
     config: CruiseConfig, timeline: list[ActivityRecord], output_file: Path
 ) -> Path:
     """
-    Main interface to generate CSV schedule from scheduler timeline.
+    Generate a CSV schedule from the scheduler timeline.
 
     Parameters
     ----------

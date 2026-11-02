@@ -25,20 +25,18 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Set up Python
-      uses: actions/setup-python@v7
-      with:
-        python-version: "3.11"
-
     - name: Setup Micromamba
       uses: mamba-org/setup-micromamba@v3
       with:
-        environment-file: environment.yml
-        cache-environment: true
+        environment-name: docs
+        init-shell: bash
+        create-args: >-
+          python=3.11 pip pandoc
+          --channel conda-forge
 
     - name: Install package
       run: |
-        python -m pip install -e . --force-reinstall
+        python -m pip install -e ".[dev]"
         # Force version file regeneration with setuptools-scm
         python -c "import setuptools_scm; print('Version detected:', setuptools_scm.get_version())"
         # Verify what version the docs will see
