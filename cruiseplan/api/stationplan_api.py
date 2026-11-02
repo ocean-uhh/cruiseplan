@@ -609,9 +609,9 @@ def _resolve_exit_coordinates(
 
 def stationplan_waypoints(
     schedule_file: str | Path,
-    start_index: int,
+    start_index: int | None,
     start_time: str | None = None,
-    duration_hours: float = 48.0,
+    duration_hours: float | None = 48.0,
     current_position: tuple[float, float] | None = None,
     output_path: str | Path | None = None,
 ) -> StationplanResult:
