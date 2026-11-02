@@ -27,26 +27,18 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Set up Python
-      uses: actions/setup-python@v7
-      with:
-        python-version: "3.11"
-
     - name: Setup Micromamba
       uses: mamba-org/setup-micromamba@v3
       with:
-        environment-file: environment.yml
-        cache-environment: true
-
-    - name: Install system dependencies
-      run: |
-        # Install HDF5 system libraries needed for netCDF4
-        sudo apt-get update
-        sudo apt-get install -y libhdf5-dev libnetcdf-dev
+        environment-name: docs
+        init-shell: bash
+        create-args: >-
+          python=3.11 pip pandoc
+          --channel conda-forge
 
     - name: Install package
       run: |
-        python -m pip install -e . --force-reinstall
+        python -m pip install -e ".[dev]"
 
     - name: Build documentation
       run: |

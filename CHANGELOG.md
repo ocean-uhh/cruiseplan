@@ -29,6 +29,7 @@ versions follow [Semantic Versioning](https://semver.org/).
 - `requirements.txt` and `requirements-dev.txt` (#169).
 - Invalid `schedule.day` in the Dependabot config (#169).
 - CI workaround for building `ruamel.yaml.clibz`; ruamel.yaml 0.19 only pulls it in through an optional extra.
+- `environment.yml`; the docs workflows create their environment (Python, pip, pandoc) inline and install `.[dev]`.
 
 ## [0.4.0] - 2026-08-04
 

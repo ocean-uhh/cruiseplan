@@ -1,9 +1,0 @@
-name: cruiseplan
-channels:
-  - conda-forge
-dependencies:
-  - python>=3.11,<3.14
-  - pip
-  - pandoc
-  - pip:
-      - "-e .[dev]"

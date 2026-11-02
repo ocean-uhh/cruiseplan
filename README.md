@@ -36,7 +36,7 @@ git clone https://github.com/ocean-uhh/cruiseplan.git
 cd cruiseplan
 
 # Using conda/mamba (includes dev dependencies)
-conda env create -f environment.yml
+conda create -n cruiseplan -c conda-forge python=3.11
 conda activate cruiseplan
 pip install -e ".[dev]"
 
