@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 
 import cruiseplan
-from cruiseplan.config.values import BATHY_SOURCES, DEFAULT_BATHY_SOURCE
+from cruiseplan.config.values import BATHY_DOWNLOAD_SOURCES, DEFAULT_BATHY_SOURCE
 
 
 def run(args: argparse.Namespace) -> None:
@@ -79,6 +79,10 @@ This command downloads bathymetry datasets for depth calculations and bathymetri
 Available sources:
   etopo2022: ETOPO 2022 bathymetry (60s resolution, ~500MB)
   gebco2025: GEBCO 2025 bathymetry (15s resolution, ~7.5GB)
+  msm142, msm142_jj, msm142_dt: local regional grids; checks the file is present
+
+gebco2023 cannot be downloaded here: place GEBCO_2023.nc in the bathymetry
+directory by hand to use it with --bathy-source gebco2023 in other commands.
 
 Examples:
   cruiseplan bathymetry                                          # Download gebco2025 (default)
@@ -100,7 +104,7 @@ Examples:
     )
     p.add_argument(
         "--bathy-source",
-        choices=BATHY_SOURCES,
+        choices=BATHY_DOWNLOAD_SOURCES,
         default=DEFAULT_BATHY_SOURCE,
         help="Bathymetry dataset to download (default: gebco2025)",
     )

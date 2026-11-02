@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from cruiseplan.config.activities import GeoPoint
+from cruiseplan.config.values import DEFAULT_MOORING_DURATION_MIN
 from cruiseplan.runtime.operations import (
     AreaOperation,
     BaseOperation,
@@ -111,7 +112,7 @@ class TestPointOperation:
             mock_calc.calculate_ctd_time.assert_called_once_with(1000.0)
 
     def test_calculate_duration_mooring(self):
-        """Test duration calculation for moorings."""
+        """A mooring without duration gets the 999 h fill and is flagged."""
         op = PointOperation(
             name="MOOR_001",
             position=(60.0, -20.0),
@@ -119,30 +120,27 @@ class TestPointOperation:
             action="deployment",
         )
 
-        mock_config = MagicMock()
-        mock_config.default_mooring_duration = 240.0
         mock_rules = MagicMock()
-        mock_rules.config = mock_config
+        mock_rules.config = MagicMock()
 
         duration = op.calculate_duration(mock_rules)
-        assert duration == 240.0
+        assert duration == DEFAULT_MOORING_DURATION_MIN
+        assert op.duration_is_fill is True
 
-    def test_calculate_duration_mooring_no_default(self):
-        """Test duration calculation for moorings without default."""
+    def test_calculate_duration_mooring_with_duration(self):
+        """A stated mooring duration is used as is and not flagged."""
         op = PointOperation(
             name="MOOR_001",
             position=GeoPoint(latitude=60.0, longitude=-20.0),
             op_type="mooring",
+            duration=240.0,
         )
 
-        mock_config = MagicMock()
-        # No default_mooring_duration attribute
-        del mock_config.default_mooring_duration
         mock_rules = MagicMock()
-        mock_rules.config = mock_config
+        mock_rules.config = MagicMock()
 
-        duration = op.calculate_duration(mock_rules)
-        assert duration == 60.0  # Fallback default
+        assert op.calculate_duration(mock_rules) == 240.0
+        assert op.duration_is_fill is False
 
     def test_calculate_duration_no_rules(self):
         """Test duration calculation with invalid rules."""

@@ -19,6 +19,7 @@ from typing import TYPE_CHECKING, Any
 
 import folium
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.axes import Axes
 
 if TYPE_CHECKING:
@@ -627,7 +628,7 @@ def plot_bathymetry(
         True if bathymetry was successfully plotted, False otherwise
     """
     try:
-        from cruiseplan.data.bathymetry import BathymetryManager
+        from cruiseplan.data.bathymetry import get_bathymetry_manager
         from cruiseplan.utils.plot_config import (
             create_bathymetry_colormap,
             get_colormap,
@@ -638,7 +639,7 @@ def plot_bathymetry(
         )
 
         # Initialize bathymetry
-        bathymetry = BathymetryManager(source=bathy_source, data_dir=bathy_dir)
+        bathymetry = get_bathymetry_manager(bathy_source, bathy_dir)
         bathy_data = bathymetry.get_grid_subset(
             lat_min=bathy_min_lat,
             lat_max=bathy_max_lat,
@@ -647,8 +648,10 @@ def plot_bathymetry(
             stride=bathy_stride,
         )
 
-        if bathy_data is None:
-            logger.warning("No bathymetry data available for this region")
+        if bathy_data is None or np.size(bathy_data[2]) == 0:
+            logger.warning(
+                f"No {bathy_source} bathymetry for this region; map drawn without it"
+            )
             return False
 
         lons_grid, lats_grid, depths_grid = bathy_data

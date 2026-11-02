@@ -41,6 +41,7 @@ from cruiseplan.config.values import (
     DEFAULT_ARRIVAL_PORT,
     DEFAULT_CRUISE_NAME,
     DEFAULT_DEPARTURE_PORT,
+    DEFAULT_DEPTH,
     DEFAULT_UPDATE_PREFIX,
 )
 from cruiseplan.data.bathymetry import BathymetryManager
@@ -365,7 +366,12 @@ def validate_depth_accuracy(
     for station_name, station in cruise_instance.point_registry.items():
         # Check water_depth field (preferred for bathymetry comparison)
         water_depth = getattr(station, "water_depth", None)
-        if water_depth is not None:
+        if water_depth == DEFAULT_DEPTH:
+            warning_messages.append(
+                f"Station {station_name}: water_depth is the fill value "
+                f"{DEFAULT_DEPTH} (no bathymetry when enriched)"
+            )
+        elif water_depth is not None:
             stations_checked += 1
 
             # Get depth from bathymetry
@@ -373,7 +379,7 @@ def validate_depth_accuracy(
                 station.latitude, station.longitude
             )
 
-            if bathymetry_depth is not None and bathymetry_depth != 0:
+            if bathymetry_depth not in (None, 0, DEFAULT_DEPTH):
                 # Convert to positive depth value
                 expected_depth = abs(bathymetry_depth)
                 stated_depth = water_depth
@@ -401,7 +407,9 @@ def validate_depth_accuracy(
                 station, "depth", None
             )
 
-            if operation_depth is not None and water_depth is not None:
+            if water_depth == DEFAULT_DEPTH:
+                pass  # fill value, reported above
+            elif operation_depth is not None and water_depth is not None:
                 # For moorings, operation_depth and water_depth should be very close
                 diff_percent = _calc_percent_diff(operation_depth, water_depth)
 

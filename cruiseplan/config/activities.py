@@ -26,6 +26,7 @@ from cruiseplan.utils.coordinates import (
 )
 
 from .values import (
+    DEFAULT_DEPTH,
     ActionEnum,
     AreaOperationTypeEnum,
     LineOperationTypeEnum,
@@ -235,9 +236,9 @@ class PointDefinition(FlexibleLocationModel):
     @field_validator("water_depth")
     @classmethod
     def validate_water_depth(cls, v: float | None) -> float | None:
-        """Validate water depth is positive."""
-        if v is not None and v < 0:
-            msg = "Water depth must be positive"
+        """Validate water depth is positive or the fill value DEFAULT_DEPTH."""
+        if v is not None and v < 0 and v != DEFAULT_DEPTH:
+            msg = f"Water depth must be positive (or the fill value {DEFAULT_DEPTH})"
             raise ValueError(msg)
         return v
 

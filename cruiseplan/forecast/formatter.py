@@ -9,6 +9,8 @@ MATLAB cruise planning tools and cruise operations documentation.
 import logging
 from datetime import datetime
 
+from cruiseplan.utils.coordinates import ddm_parts
+
 logger = logging.getLogger(__name__)
 
 
@@ -95,16 +97,12 @@ def format_coordinates(latitude: float, longitude: float) -> tuple[str, str]:
     ('45 15.000 S', '170 45.000 E')
     """
     # Latitude formatting
-    lat_abs = abs(latitude)
-    lat_deg = int(lat_abs)
-    lat_min = (lat_abs - lat_deg) * 60
+    lat_deg, lat_min = ddm_parts(latitude, 3)
     lat_hem = "N" if latitude >= 0 else "S"
     lat_str = f"{lat_deg:02d} {lat_min:06.3f} {lat_hem}"
 
     # Longitude formatting
-    lon_abs = abs(longitude)
-    lon_deg = int(lon_abs)
-    lon_min = (lon_abs - lon_deg) * 60
+    lon_deg, lon_min = ddm_parts(longitude, 3)
     lon_hem = "E" if longitude >= 0 else "W"
     lon_str = f"{lon_deg:03d} {lon_min:06.3f} {lon_hem}"
 

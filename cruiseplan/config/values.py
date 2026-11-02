@@ -34,8 +34,10 @@ DEFAULT_CTD_RATE_M_S = 1.0
 # Default distance between stations in kilometers (km)
 DEFAULT_STATION_SPACING_KM = 15.0
 
-# Default mooring operation duration in minutes (999 hours = 59940 minutes)
-# Used as a highly visible placeholder for mooring operations without specified duration
+# Fill duration in minutes (999 hours = 59940 minutes). Large on purpose so a
+# missing value cannot be overlooked: used for moorings without a duration and
+# for any point operation whose duration cannot be computed (no usable depth,
+# no rule for its operation type). Outputs flag records that use it.
 DEFAULT_MOORING_DURATION_MIN = 59940.0
 
 # Default start date/time
@@ -76,6 +78,11 @@ BATHY_SOURCES = [
     "msm142_jj",
     "msm142_dt",
 ]
+
+# Sources accepted by `cruiseplan bathymetry`: etopo2022 and gebco2025 are
+# downloaded; the msm142 sources are local files whose presence is checked.
+# gebco2023 is a lookup source only (no download location; place the file by hand).
+BATHY_DOWNLOAD_SOURCES = [s for s in BATHY_SOURCES if s != "gebco2023"]
 
 # Sentinel value indicating that depth data is missing, the station is outside
 # the bathymetry grid boundaries, or a calculation failed.
@@ -222,6 +229,7 @@ class AreaOperationTypeEnum(str, Enum):  # noqa: UP042 - StrEnum would change st
 # =============================================================================
 
 __all__ = [
+    "BATHY_DOWNLOAD_SOURCES",
     "BATHY_SOURCES",
     "DEFAULT_AREA_ACTION",
     "DEFAULT_AREA_OPTYPE",

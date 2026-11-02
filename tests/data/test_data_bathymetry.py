@@ -83,58 +83,87 @@ def real_mode_manager(mock_netcdf_data):
             # 4. Manually set the internal state to the mock's arrays (since __init__ does this)
             manager._lats = mock_netcdf_data.variables["lat"]
             manager._lons = mock_netcdf_data.variables["lon"]
-            manager._is_mock = False
+            manager.available = True
             yield manager
             manager.close()
 
 
 @pytest.fixture
-def mock_bathymetry():
-    """Returns a bathy_module.BathymetryManager forced into Mock Mode."""
-    # We pass a non-existent path to force mock mode
-    return bathy_module.BathymetryManager(source="non_existent_file")
+def missing_file_manager(tmp_path):
+    """Return a BathymetryManager whose GEBCO 2025 file is absent."""
+    return bathy_module.BathymetryManager(source="gebco2025", data_dir=str(tmp_path))
 
 
-def test_mock_depth_determinism(mock_bathymetry):
-    """Ensure mock data returns consistent values for the same coordinates."""
-    d1 = mock_bathymetry.get_depth_at_point(47.5, -52.0)
-    d2 = mock_bathymetry.get_depth_at_point(47.5, -52.0)
-    assert d1 == d2
-    assert isinstance(d1, float)
-    assert d1 < 0  # Should be underwater
+def test_missing_file_returns_fill_depth(missing_file_manager):
+    """A missing file gives the fill value, never a formula depth."""
+    assert missing_file_manager.available is False
+    for lat, lon in [(47.5, -52.0), (45.0, -45.0), (-75.0, 164.0), (91.0, 0.0)]:
+        assert missing_file_manager.get_depth_at_point(lat, lon) == DEFAULT_DEPTH
 
 
-def test_grid_subset_shape(mock_bathymetry):
-    """Verify 2D grid generation works and respects bounds."""
-    lat_min, lat_max = 40, 50
-    lon_min, lon_max = -60, -50
-
-    # 1. Fetch grid
-    xx, yy, zz = mock_bathymetry.get_grid_subset(lat_min, lat_max, lon_min, lon_max)
-
-    # 2. Check dimensions (Mock generates 100x100 by default)
-    assert xx.shape == (100, 100)
-    assert yy.shape == (100, 100)
-    assert zz.shape == (100, 100)
-
-    # 3. Check value ranges
-    assert np.min(xx) >= lon_min
-    assert np.max(xx) <= lon_max
-    assert np.min(yy) >= lat_min
-    assert np.max(yy) <= lat_max
+def test_missing_file_grid_subset_is_empty(missing_file_manager):
+    """A missing file gives an empty grid, not a synthetic one."""
+    xx, yy, zz = missing_file_manager.get_grid_subset(40, 50, -60, -50)
+    assert xx.size == 0
+    assert yy.size == 0
+    assert zz.size == 0
 
 
-def test_out_of_bounds_handling(mock_bathymetry):
-    """Ensure the system handles weird coordinates gracefully."""
-    # Note: Mock mode calculates math on anything, but real mode returns -9999.
-    # We test that it returns a float and doesn't crash.
-    depth = mock_bathymetry.get_depth_at_point(91.0, 0.0)
-    assert isinstance(depth, float)
+def test_missing_file_warns_with_path_and_command(tmp_path, caplog):
+    """The warning names the missing file and the download command."""
+    with caplog.at_level("WARNING", logger="cruiseplan.data.bathymetry"):
+        bathy_module.BathymetryManager(source="etopo2022", data_dir=str(tmp_path))
+    record = next(r for r in caplog.records if r.levelname == "WARNING")
+    assert bathy_module.ETOPO_FILENAME in record.getMessage()
+    assert "cruiseplan bathymetry --bathy-source etopo2022" in record.getMessage()
+
+
+def test_small_file_returns_fill_depth(tmp_path, caplog):
+    """A partial download is not read; depths are the fill value."""
+    (tmp_path / bathy_module.ETOPO_FILENAME).write_bytes(b"partial")
+    with caplog.at_level("WARNING", logger="cruiseplan.data.bathymetry"):
+        manager = bathy_module.BathymetryManager(
+            source="etopo2022", data_dir=str(tmp_path)
+        )
+    assert manager.available is False
+    assert manager.get_depth_at_point(45.0, -45.0) == DEFAULT_DEPTH
+    assert "too small" in caplog.text
+
+
+def test_no_source_substitution(tmp_path):
+    """determine_bathymetry_source returns the requested source unchanged."""
+    # A complete-looking etopo2022 file is present; gebco2025 is requested.
+    with patch.object(bathy_module, "check_bathymetry_availability") as available:
+        available.side_effect = lambda source, _dir=None: source == "etopo2022"
+        assert (
+            bathy_module.determine_bathymetry_source("gebco2025", str(tmp_path))
+            == "gebco2025"
+        )
+
+
+def test_gebco2023_download_raises(tmp_path):
+    """gebco2023 has no download location; the error says so instead of fetching ETOPO."""
+    with patch.object(bathy_module, "_download_etopo2022") as etopo:
+        with pytest.raises(ValueError, match="gebco2023"):
+            bathy_module.download_bathymetry(str(tmp_path), source="gebco2023")
+        etopo.assert_not_called()
+
+
+def test_shared_bathymetry_reuses_manager(tmp_path):
+    """Inside shared_bathymetry one manager serves each source and directory."""
+    first = bathy_module.get_bathymetry_manager("gebco2025", str(tmp_path))
+    assert bathy_module.get_bathymetry_manager("gebco2025", str(tmp_path)) is not first
+    with bathy_module.shared_bathymetry():
+        a = bathy_module.get_bathymetry_manager("gebco2025", str(tmp_path))
+        b = bathy_module.get_bathymetry_manager("gebco2025", str(tmp_path))
+        c = bathy_module.get_bathymetry_manager("etopo2022", str(tmp_path))
+    assert a is b
+    assert c is not a
 
 
 def test_real_mode_initialization(real_mode_manager):
     """Verify REAL mode is engaged and coordinates are loaded."""
-    assert real_mode_manager._is_mock is False
+    assert real_mode_manager.available is True
     assert real_mode_manager._dataset is not None
     assert real_mode_manager._lats.shape == (5,)
 
@@ -303,8 +332,8 @@ class TestBathymetrySimpleCoverage:
             manager.data_dir = bathymetry_dir
             manager._initialize_data()
 
-            # Should be in mock mode due to small file
-            assert manager._is_mock is True
+            # Unavailable due to small file
+            assert manager.available is False
 
             # Should log warning about small file
             mock_logger.warning.assert_called()
@@ -323,7 +352,7 @@ class TestBathymetrySimpleCoverage:
 
         with (
             patch("cruiseplan.data.bathymetry.logger") as mock_logger,
-            patch("netCDF4.Dataset", side_effect=Exception("Corrupted NetCDF")),
+            patch("netCDF4.Dataset", side_effect=OSError("Corrupted NetCDF")),
             patch.object(Path, "stat") as mock_stat,
         ):
             # Mock file size to be large enough
@@ -335,8 +364,8 @@ class TestBathymetrySimpleCoverage:
             manager.data_dir = bathymetry_dir
             manager._initialize_data()
 
-            # Should be in mock mode due to corrupted file
-            assert manager._is_mock is True
+            # Unavailable due to corrupted file
+            assert manager.available is False
 
             # Should log warning about failed load
             mock_logger.warning.assert_called()
@@ -346,7 +375,7 @@ class TestBathymetrySimpleCoverage:
         manager = bathy_module.BathymetryManager(source="etopo2022")
 
         # Set up manager to not be in mock mode
-        manager._is_mock = False
+        manager.available = True
 
         # Mock _interpolate_depth to raise an exception
         with (
@@ -377,13 +406,13 @@ class TestBathymetrySimpleCoverage:
             manager.data_dir = bathymetry_dir
             manager._initialize_data()
 
-            # Should be in mock mode since custom file doesn't exist
-            assert manager._is_mock is True
+            # Unavailable since custom file doesn't exist
+            assert manager.available is False
 
     def test_grid_subset_edge_cases(self):
         """Test grid subset with edge cases."""
         manager = bathy_module.BathymetryManager(source="etopo2022")
-        manager._is_mock = False
+        manager.available = True
 
         # Mock the dataset and coordinates
         mock_dataset = MagicMock()
@@ -400,7 +429,7 @@ class TestBathymetrySimpleCoverage:
     def test_bilinear_interpolation_edge_cases(self):
         """Test bilinear interpolation edge cases."""
         manager = bathy_module.BathymetryManager(source="etopo2022")
-        manager._is_mock = False
+        manager.available = True
 
         # Set up minimal coordinates
         manager._lats = [40.0, 50.0]
@@ -454,7 +483,7 @@ class TestBathymetrySimpleCoverage:
     def test_interpolation_bounds_edge_cases(self):
         """Test interpolation boundary conditions that might cause errors."""
         manager = bathy_module.BathymetryManager(source="etopo2022")
-        manager._is_mock = False
+        manager.available = True
 
         # Mock the dataset and coordinates
         mock_dataset = MagicMock()
@@ -489,14 +518,10 @@ class TestBathymetrySimpleCoverage:
             manager.data_dir = bathymetry_dir
             manager._initialize_data()
 
-            # Should be in mock mode
-            assert manager._is_mock is True
+            assert manager.available is False
 
-            # Should not log about mock mode (download context)
-            # Check that no info calls were made about mock mode
-            info_calls = [call[0][0] for call in mock_logger.info.call_args_list]
-            mock_mode_logs = [call for call in info_calls if "MOCK mode" in call]
-            assert len(mock_mode_logs) == 0
+            # No missing-file warning in download context
+            mock_logger.warning.assert_not_called()
 
 
 """
@@ -787,6 +812,4 @@ class TestGEBCO2025Functionality:
 
             # Assertions
             assert manager.source == "gebco2025"
-            assert (
-                manager._is_mock is True
-            )  # Should be in mock mode since file doesn't exist
+            assert manager.available is False  # file does not exist

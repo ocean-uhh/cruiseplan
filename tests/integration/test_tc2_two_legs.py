@@ -343,7 +343,11 @@ class TestTC2TwoLegsIntegration:
         )
 
     def test_html_output_leg_durations(self, base_config_path, temp_dir):
-        """Test that HTML output shows expected leg durations: 11.5 days for Leg_Atlantic, 48.5 days for Leg_North."""
+        """HTML leg durations: 53.1 days for Leg_Atlantic, 48.5 days for Leg_North.
+
+        Both stations take the 999 h fill duration: STN_001 is a CTD with no
+        depth (not enriched here) and STN_002 a mooring without duration.
+        """
         cruise = self._get_enriched_cruise(base_config_path)
         timeline = generate_timeline(cruise)
 
@@ -356,10 +360,9 @@ class TestTC2TwoLegsIntegration:
         # Read HTML content
         html_content = html_path.read_text()
 
-        # Check for expected leg durations
-        # Based on the actual calculation: 11.5 days for Leg_Atlantic, 48.5 days for Leg_North
-        assert "11.5 days" in html_content, (
-            "Leg_Atlantic should show 11.5 days total duration."
+        # Check for expected leg durations (11.5 days of transit + 41.6 days fill)
+        assert "53.1 days" in html_content, (
+            "Leg_Atlantic should show 53.1 days total duration."
         )
         assert "48.5 days" in html_content, (
             "Leg_North should show 48.5 days total duration"

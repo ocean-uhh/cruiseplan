@@ -14,22 +14,29 @@ tables for each operation type.
 """
 
 import logging
+from html import escape
 from pathlib import Path
 from typing import Any
 
 from cruiseplan.config.cruise_config import CruiseConfig
+from cruiseplan.config.values import DEFAULT_MOORING_DURATION_MIN
 from cruiseplan.output.output_utils import (
     format_activity_type,
     get_activity_depth,
     get_activity_position,
 )
+from cruiseplan.output.provenance import provenance_lines
 from cruiseplan.timeline.scheduler import (
     ActivityRecord,
     calculate_timeline_statistics,
 )
+from cruiseplan.utils.coordinates import ddm_parts
 from cruiseplan.utils.units import NM_PER_KM, hours_to_days
 
 logger = logging.getLogger(__name__)
+
+# Heading for activities whose leg_name matches no configured leg
+UNASSIGNED_LEG = "Unassigned (leg not in configuration)"
 
 
 def _convert_decimal_to_deg_min_html(decimal_degrees: float) -> str:
@@ -46,12 +53,44 @@ def _convert_decimal_to_deg_min_html(decimal_degrees: float) -> str:
     str
         Formatted coordinate string in DD MM.mmm format with leading zeros.
     """
-    degrees = int(abs(decimal_degrees))
-    minutes = abs((abs(decimal_degrees) - degrees) * 60)
+    degrees, minutes = ddm_parts(decimal_degrees, 3)
 
     if decimal_degrees >= 0:
         return f"{degrees:02d} {minutes:06.3f}"
     return f"-{degrees:02d} {minutes:06.3f}"
+
+
+def _duration_cell(activity: dict[str, Any]) -> str:
+    """Return the duration in hours for a table cell, marking the fill value."""
+    hours = f"{activity.get('duration_minutes', 0) / 60:.1f}"
+    if activity.get("duration_is_fill"):
+        return f'<span class="fill">{hours} (fill)</span>'
+    return hours
+
+
+def _fill_notice(timeline: list[dict[str, Any]]) -> str:
+    """Return a paragraph naming operations that use the fill duration, or ''."""
+    filled = list(
+        dict.fromkeys(
+            a.get("label", "Unknown") for a in timeline if a.get("duration_is_fill")
+        )
+    )
+    if not filled:
+        return ""
+    return (
+        f'<p class="fill">{len(filled)} operation(s) use the fill duration '
+        f"{DEFAULT_MOORING_DURATION_MIN / 60:.0f} h because no duration was stated "
+        f"or computable: {', '.join(escape(str(name)) for name in filled)}</p>"
+    )
+
+
+def _provenance_footer(config: CruiseConfig) -> str:
+    """Return the provenance block shown at the end of the report."""
+    items = "".join(f"<li>{escape(line)}</li>" for line in provenance_lines(config))
+    return f"""
+    <h2>Provenance</h2>
+    <ul class="provenance">{items}</ul>
+"""
 
 
 class HTMLGenerator:
@@ -107,11 +146,14 @@ class HTMLGenerator:
         .number {{ text-align: right; }}
         h1, h2 {{ color: #333; }}
         .description {{ font-style: italic; color: #666; }}
+        .fill {{ color: #D55E00; font-weight: bold; }}
+        .provenance {{ font-size: small; color: #666; }}
     </style>
 </head>
 <body>
     <h1>{config.cruise_name}</h1>
     {f'<p class="description">{config.description}</p>' if config.description else ""}
+    {_fill_notice(timeline)}
 
     <h2>1. Cruise Schedule</h2>
     <table cellpadding="5" cellspacing="0" border="1">
@@ -251,7 +293,7 @@ class HTMLGenerator:
             <td>{lat:.6f}, {lon:.6f}</td>
             <td>{lat_ddm}, {lon_ddm}</td>
             <td class="number">{depth:.0f}</td>
-            <td class="number">{mooring["duration_minutes"] / 60:.1f}</td>
+            <td class="number">{_duration_cell(mooring)}</td>
             <td>{action}</td>
         </tr>
 """
@@ -285,6 +327,7 @@ class HTMLGenerator:
     </div>
 """
 
+        html_content += _provenance_footer(config)
         html_content += """
 </body>
 </html>
@@ -369,7 +412,7 @@ class HTMLGenerator:
             <td>{entry_position}</td>
             <td>{exit_position}</td>
             <td class="number">{distance_nm}</td>
-            <td class="number">{duration_hrs:.1f}</td>
+            <td class="number">{_duration_cell(activity)}</td>
             <td>{activity.get("comment", "")}</td>
         </tr>
 """
@@ -490,17 +533,15 @@ class HTMLGenerator:
 
             if leg_name and leg_name in legs_data:
                 legs_data[leg_name]["activities"].append(activity_dict)
-            # If no leg_name, assign to first leg or create default
-            elif leg_names:
-                legs_data[leg_names[0]]["activities"].append(activity_dict)
             else:
-                legs_data.setdefault(
-                    "Main Cruise",
-                    {
-                        "activities": [],
-                    },
+                # Not in any configured leg: list it separately, never in another leg
+                logger.warning(
+                    f"Activity {activity_dict.get('label', 'Unknown')} has leg "
+                    f"'{leg_name}', which is not a configured leg; listed under "
+                    f"'{UNASSIGNED_LEG}' in the HTML report"
                 )
-                legs_data["Main Cruise"]["activities"].append(activity_dict)
+                legs_data.setdefault(UNASSIGNED_LEG, {"activities": []})
+                legs_data[UNASSIGNED_LEG]["activities"].append(activity_dict)
 
         # Add transit connections between legs
         self._add_leg_transits(legs_data, config)

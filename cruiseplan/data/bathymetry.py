@@ -2,12 +2,19 @@
 Bathymetry data download and management.
 
 This module provides functionality for downloading, caching, and accessing
-bathymetry data from ETOPO datasets for depth lookups.
+bathymetry data from ETOPO and GEBCO datasets for depth lookups.
+
+When the file for the requested source is missing, too small or unreadable,
+depth lookups return the fill value ``DEFAULT_DEPTH`` (-9999.0) and a warning
+names the file and how to obtain it. No other source is substituted.
 """
 
 import logging
 import shutil
 import zipfile
+from collections.abc import Iterator
+from contextlib import contextmanager
+from contextvars import ContextVar
 from pathlib import Path
 
 import netCDF4 as nc
@@ -15,7 +22,7 @@ import numpy as np
 import requests
 from tqdm import tqdm
 
-from cruiseplan.config.values import DEFAULT_DEPTH
+from cruiseplan.config.values import DEFAULT_BATHY_DIR, DEFAULT_DEPTH
 
 logger = logging.getLogger(__name__)
 
@@ -44,14 +51,59 @@ MSM142_LEGACY_NC_FILENAME = "msm142.nc"  # Legacy filename
 # Constants from Spec
 DEPTH_CONTOURS = [-5000, -4000, -3000, -2000, -1000, -750, -500, -200, -100, -50, 0]
 
+# Source identifier -> (file name in the bathymetry directory, minimum size in MB).
+# A file smaller than the minimum is treated as a partial download.
+SOURCE_FILES: dict[str, tuple[str, float]] = {
+    "etopo2022": (ETOPO_FILENAME, 450),  # ~491 MB
+    "gebco2025": (GEBCO_NC_FILENAME, 6900),  # ~7.5 GB
+    "gebco2023": (GEBCO_2023_NC_FILENAME, 6900),  # ~7.5 GB
+    "msm142": (MSM142_LEGACY_NC_FILENAME, 2.0),  # ~2.8 MB
+    "msm142_jj": (MSM142_JJ_NC_FILENAME, 0.1),  # ~167 KB regional grid
+    "msm142_dt": (MSM142_DT_NC_FILENAME, 2.0),  # ~2.8 MB
+}
+
+# Sources that `cruiseplan bathymetry` can download; the others must be placed
+# in the bathymetry directory by hand.
+DOWNLOADABLE_SOURCES = ("etopo2022", "gebco2025")
+
+
+def source_file(source: str) -> tuple[str, float]:
+    """
+    Return the expected file name and minimum size for a bathymetry source.
+
+    Parameters
+    ----------
+    source : str
+        Bathymetry source identifier (e.g. ``"gebco2025"``). An unknown
+        identifier maps to ``"<source>.nc"`` with a 10 MB minimum.
+
+    Returns
+    -------
+    tuple of (str, float)
+        File name inside the bathymetry directory and minimum size in MB.
+    """
+    return SOURCE_FILES.get(source, (f"{source}.nc", 10))
+
+
+def _how_to_get(source: str, data_dir: Path) -> str:
+    """Return a one-line instruction for obtaining the file for ``source``."""
+    if source in DOWNLOADABLE_SOURCES:
+        return (
+            f"Download it with: cruiseplan bathymetry --bathy-source {source} "
+            f"--output-dir {data_dir}"
+        )
+    filename, _ = source_file(source)
+    return f"This source is not downloadable; place {filename} in {data_dir}"
+
 
 class BathymetryManager:
     """
     Handles ETOPO bathymetry data with lazy loading and bilinear interpolation.
 
-    Manages bathymetric data from ETOPO datasets, providing depth lookups
-    and grid subsets for oceanographic applications. Implements fallback
-    to mock data when bathymetry files are unavailable.
+    Manages bathymetric data from ETOPO and GEBCO datasets, providing depth
+    lookups and grid subsets for oceanographic applications. When the file for
+    ``source`` is missing, too small or unreadable, depth lookups return
+    ``DEFAULT_DEPTH`` and grid subsets are empty; a warning names the file.
 
     Attributes
     ----------
@@ -59,8 +111,10 @@ class BathymetryManager:
         Bathymetry data source identifier.
     data_dir : Path
         Directory containing bathymetry data files.
-    _is_mock : bool
-        Whether the manager is operating in mock mode.
+    file_path : Path
+        Expected path of the bathymetry file for ``source``.
+    available : bool
+        True when the bathymetry file was loaded.
     _dataset : Optional[nc.Dataset]
         NetCDF dataset object when loaded.
     _lats : Optional[np.ndarray]
@@ -86,7 +140,8 @@ class BathymetryManager:
         # Use the provided data_dir exactly as specified - no automatic modifications
         self.data_dir = Path(data_dir).resolve()
 
-        self._is_mock = True
+        self.file_path = self.data_dir / source_file(source)[0]
+        self.available = False
         self._dataset = None
         self._lats = None
         self._lons = None
@@ -114,84 +169,46 @@ class BathymetryManager:
         return "z"  # Default for ETOPO and other sources
 
     def _initialize_data(self) -> None:
-        """
-        Attempt to load NetCDF data, falling back to mock mode on failure.
+        """Open the bathymetry file, or warn and leave the manager unavailable."""
+        filename, min_size_mb = source_file(self.source)
+        file_path = self.file_path = self.data_dir / filename
+        self.available = False
 
-        Tries to load the specified bathymetry dataset. If the file doesn't
-        exist, is too small (corrupted/partial), or cannot be loaded, switches
-        to mock mode for testing. Offers user option to redownload corrupt files.
-        """
-        # Map source name to actual filename and expected size
-        if self.source == "etopo2022":
-            filename = ETOPO_FILENAME
-            min_size_mb = 450  # ETOPO is ~491 MB
-        elif self.source == "gebco2025":
-            filename = GEBCO_NC_FILENAME
-            min_size_mb = 6900  # GEBCO is ~7.5 GB, use 6.9GB threshold
-        elif self.source == "gebco2023":
-            filename = GEBCO_2023_NC_FILENAME
-            min_size_mb = 6900  # GEBCO 2023 is similar size to 2025, ~7.5 GB
-        elif self.source == "msm142":
-            filename = MSM142_LEGACY_NC_FILENAME
-            min_size_mb = 2.0  # Legacy MSM142 is ~2.8 MB
-        elif self.source == "msm142_jj":
-            filename = MSM142_JJ_NC_FILENAME
-            min_size_mb = 0.1  # MSM142_JJ is ~167 KB, small regional dataset
-        elif self.source == "msm142_dt":
-            filename = MSM142_DT_NC_FILENAME
-            min_size_mb = 2.0  # MSM142_DT is ~2.8 MB, same as legacy
-        else:
-            filename = f"{self.source}.nc"
-            min_size_mb = 10  # Generic minimum for custom sources
-
-        file_path = self.data_dir / filename
-
-        if file_path.exists():
-            # Check file size based on source type
-            file_size_mb = file_path.stat().st_size / (1024 * 1024)
-
-            if file_size_mb < min_size_mb:
-                logger.warning(
-                    f"⚠️ Bathymetry file at {file_path} is too small ({file_size_mb:.1f} MB). "
-                    f"Expected at least {min_size_mb} MB. Using MOCK mode. Run 'cruiseplan download' to fix."
-                )
-                self._is_mock = True
-                return
-
-            try:
-                # Load using netCDF4 for efficient lazy slicing
-                self._dataset = nc.Dataset(file_path, "r")
-                # Cache coordinate arrays for fast search
-                # (These are 1D arrays, so they fit easily in memory)
-                self._lats = self._dataset.variables["lat"][:]
-                self._lons = self._dataset.variables["lon"][:]
-                # Determine depth variable name based on source
-                self._depth_var_name = self._get_depth_variable_name()
-                self._is_mock = False
-                logger.info(f"✅ Loaded bathymetry from {file_path}")
-            except Exception as e:  # noqa: BLE001 - unreadable bathymetry file falls back to mock mode
-                logger.warning(
-                    f"❌ Failed to load bathymetry file: {e}. Using MOCK mode. Run 'cruiseplan download' to fix."
-                )
-                self._is_mock = True
-        else:
-            # Don't log about mock mode if we're in a download context
-            # (the download function will handle this better)
+        if not file_path.exists():
+            # The download command constructs a manager before the file exists.
             import traceback
 
             stack = traceback.extract_stack()
-            is_download_context = any(
-                "download" in frame.name.lower() for frame in stack[-10:]
-            )
+            if not any("download" in frame.name.lower() for frame in stack[-10:]):
+                self._warn_unavailable(f"No bathymetry file found at {file_path}")
+            return
 
-            if not is_download_context:
-                logger.info(
-                    f"⚠️ No bathymetry file found at {file_path}. Using MOCK mode."
-                )
-                logger.info(
-                    "   Run `cruiseplan.data.bathymetry.download_bathymetry()` to fetch it."
-                )
-            self._is_mock = True
+        file_size_mb = file_path.stat().st_size / (1024 * 1024)
+        if file_size_mb < min_size_mb:
+            self._warn_unavailable(
+                f"Bathymetry file at {file_path} is too small "
+                f"({file_size_mb:.1f} MB, expected at least {min_size_mb} MB)"
+            )
+            return
+
+        try:
+            # Load using netCDF4 for efficient lazy slicing
+            self._dataset = nc.Dataset(file_path, "r")
+            # Cache 1D coordinate arrays for fast search
+            self._lats = self._dataset.variables["lat"][:]
+            self._lons = self._dataset.variables["lon"][:]
+            self._depth_var_name = self._get_depth_variable_name()
+            self.available = True
+            logger.info(f"Loaded bathymetry from {file_path}")
+        except (OSError, KeyError, RuntimeError) as e:
+            self._warn_unavailable(f"Failed to read bathymetry file {file_path}: {e}")
+
+    def _warn_unavailable(self, reason: str) -> None:
+        """Log why depths will be the fill value and how to get the file."""
+        logger.warning(
+            f"{reason}. Depth lookups for '{self.source}' return the fill value "
+            f"{DEFAULT_DEPTH}. {_how_to_get(self.source, self.data_dir)}"
+        )
 
     def get_depth_at_point(self, lat: float, lon: float) -> float:
         """
@@ -210,10 +227,12 @@ class BathymetryManager:
         Returns
         -------
         float
-            Depth in meters (negative for below sea level).
+            Depth in meters (negative for below sea level), or
+            ``DEFAULT_DEPTH`` when the file is unavailable or the point is
+            outside the grid.
         """
-        if self._is_mock:
-            return self._get_mock_depth(lat, lon)
+        if not self.available:
+            return DEFAULT_DEPTH
 
         try:
             return self._interpolate_depth(lat, lon)
@@ -251,7 +270,8 @@ class BathymetryManager:
         Returns
         -------
         tuple of numpy.ndarray
-            (lons, lats, depths) as 2D arrays for contour plotting.
+            (lons, lats, depths) as 2D arrays for contour plotting. All three
+            are empty when the file is unavailable or the region is outside it.
 
         Notes
         -----
@@ -260,14 +280,8 @@ class BathymetryManager:
         overlapping geographic bounds, especially in interactive applications like
         station_picker and map generation workflows.
         """
-        if self._is_mock:
-            # Generate synthetic grid
-            lat_range = np.linspace(lat_min, lat_max, 100)
-            lon_range = np.linspace(lon_min, lon_max, 100)
-            xx, yy = np.meshgrid(lon_range, lat_range)
-            # Same formula as get_mock_depth but vectorized
-            zz = -((np.abs(yy) * 100) + (np.abs(xx) * 50)) % 4000 - 100
-            return xx, yy, zz
+        if not self.available:
+            return np.array([]), np.array([]), np.array([])
 
         # Real Data Slicing
         # Find indices
@@ -550,28 +564,6 @@ class BathymetryManager:
                     path.unlink()
             return False
 
-    def _get_mock_depth(self, lat: float, lon: float) -> float:
-        """
-        Generate deterministic mock depth for testing.
-
-        Uses a deterministic formula based on coordinates to provide
-        consistent depth values for testing without real bathymetry data.
-
-        Parameters
-        ----------
-        lat : float
-            Latitude coordinate.
-        lon : float
-            Longitude coordinate.
-
-        Returns
-        -------
-        float
-            Mock depth value.
-        """
-        val = (abs(lat) * 100) + (abs(lon) * 50)
-        return -(val % 4000) - 100
-
     def close(self) -> None:
         """
         Close the NetCDF dataset if open.
@@ -710,8 +702,9 @@ def download_bathymetry(
     """
     Download bathymetry dataset with progress bar.
 
-    Downloads either ETOPO 2022 (60s resolution) or GEBCO 2025 (15s resolution)
-    bathymetry data based on the source parameter.
+    Downloads ETOPO 2022 (60 s resolution) or GEBCO 2025 (15 s resolution).
+    For the local-only sources (``msm142``, ``msm142_jj``, ``msm142_dt``) the
+    file is not downloaded; its presence is checked instead.
 
     Parameters
     ----------
@@ -727,9 +720,17 @@ def download_bathymetry(
     str, bool, or None
         Returns file path (str) if successful or file exists, False if explicitly cancelled,
         None if download failed completely.
+
+    Raises
+    ------
+    ValueError
+        If ``source`` cannot be downloaded (for example ``"gebco2023"``, which
+        has no download location here and must be placed by hand).
     """
     if source == "gebco2025":
         return _download_gebco2025(target_dir)
+    if source == "etopo2022":
+        return _download_etopo2022(target_dir)
     if source == "msm142":
         return _check_local_bathy_file(
             target_dir, MSM142_LEGACY_NC_FILENAME, "MSM142 (legacy)"
@@ -738,86 +739,126 @@ def download_bathymetry(
         return _check_local_bathy_file(target_dir, MSM142_JJ_NC_FILENAME, "MSM142_JJ")
     if source == "msm142_dt":
         return _check_local_bathy_file(target_dir, MSM142_DT_NC_FILENAME, "MSM142_DT")
-    return _download_etopo2022(target_dir)
+    filename, _ = source_file(source)
+    raise ValueError(
+        f"Bathymetry source '{source}' cannot be downloaded by cruiseplan. "
+        f"Downloadable sources: {', '.join(DOWNLOADABLE_SOURCES)}. "
+        f"To use '{source}', place {filename} in {Path(target_dir).resolve()}."
+    )
 
 
-def check_bathymetry_availability(source: str) -> bool:
+def check_bathymetry_availability(
+    source: str, data_dir: str = DEFAULT_BATHY_DIR
+) -> bool:
     """
-    Check if bathymetry files are available for the specified source.
+    Check if the bathymetry file for the specified source is present and complete.
 
     Parameters
     ----------
     source : str
-        Bathymetry source ("etopo2022" or "gebco2025")
+        Bathymetry source identifier (e.g. "etopo2022", "gebco2025").
+    data_dir : str, optional
+        Directory containing bathymetry files (default: "data/bathymetry").
 
     Returns
     -------
     bool
-        True if bathymetry files are available and valid, False otherwise
+        True if the file exists and is at least the minimum expected size.
     """
-    try:
-        # Create a temporary manager to check availability
-        manager = BathymetryManager(source=source)
-        return not manager._is_mock
-    except Exception:  # noqa: BLE001 - availability check returns False on any failure
+    filename, min_size_mb = source_file(source)
+    file_path = Path(data_dir) / filename
+    if not file_path.is_file():
         return False
+    return file_path.stat().st_size / (1024 * 1024) >= min_size_mb
 
 
-def determine_bathymetry_source(requested_source: str) -> str:
+def determine_bathymetry_source(
+    requested_source: str, data_dir: str = DEFAULT_BATHY_DIR
+) -> str:
     """
-    Determine the optimal bathymetry source with automatic fallback.
+    Return the requested bathymetry source, warning if its file is unavailable.
 
-    If the requested source is not available but an alternative is,
-    automatically switch to the available source.
+    No other source is substituted: depths from a different dataset than the
+    one requested would be recorded under the wrong name.
 
     Parameters
     ----------
     requested_source : str
-        The user's requested bathymetry source
+        The user's requested bathymetry source.
+    data_dir : str, optional
+        Directory containing bathymetry files (default: "data/bathymetry").
 
     Returns
     -------
     str
-        The optimal available bathymetry source
+        ``requested_source``, unchanged.
     """
-    # Check if requested source is available
-    if check_bathymetry_availability(requested_source):
-        return requested_source
-
-    # Try alternative sources in order of preference
-    alternatives = []
-    if requested_source == "etopo2022":
-        alternatives = ["gebco2025", "gebco2023", "msm142_jj", "msm142_dt"]
-    elif requested_source == "gebco2025":
-        alternatives = ["gebco2023", "etopo2022", "msm142_jj", "msm142_dt"]
-    elif requested_source == "gebco2023":
-        alternatives = ["gebco2025", "etopo2022", "msm142_jj", "msm142_dt"]
-    elif requested_source == "msm142":
-        alternatives = ["msm142_jj", "msm142_dt", "gebco2025", "gebco2023", "etopo2022"]
-    elif requested_source == "msm142_jj":
-        alternatives = ["msm142_dt", "msm142", "gebco2025", "gebco2023", "etopo2022"]
-    elif requested_source == "msm142_dt":
-        alternatives = ["msm142_jj", "msm142", "gebco2025", "gebco2023", "etopo2022"]
-    else:
-        alternatives = [
-            "gebco2025",
-            "gebco2023",
-            "etopo2022",
-            "msm142",
-            "msm142_jj",
-            "msm142_dt",
-        ]
-
-    for alternative in alternatives:
-        if check_bathymetry_availability(alternative):
-            logger.info(
-                f"📁 Requested {requested_source} not available, "
-                f"automatically switching to {alternative}"
-            )
-            return alternative
-
-    # Neither available - return requested (will trigger mock mode with appropriate warning)
+    if not check_bathymetry_availability(requested_source, data_dir):
+        filename, _ = source_file(requested_source)
+        logger.warning(
+            f"Bathymetry file {filename} for '{requested_source}' is not available "
+            f"in {Path(data_dir).resolve()}; depths will be the fill value "
+            f"{DEFAULT_DEPTH}. {_how_to_get(requested_source, Path(data_dir).resolve())}"
+        )
     return requested_source
+
+
+# Managers shared within one pipeline call (see shared_bathymetry)
+_shared_managers: ContextVar[dict[tuple[str, str], BathymetryManager] | None] = (
+    ContextVar("_shared_managers", default=None)
+)
+
+
+@contextmanager
+def shared_bathymetry() -> Iterator[None]:
+    """
+    Share one BathymetryManager per source and directory inside the block.
+
+    ``get_bathymetry_manager`` calls inside the block return the same open
+    manager, so a pipeline run opens each bathymetry file once and warns about
+    a missing file once. Managers are closed when the block exits.
+
+    Yields
+    ------
+    None
+        Control returns to the caller with sharing active.
+    """
+    token = _shared_managers.set({})
+    try:
+        yield
+    finally:
+        managers = _shared_managers.get() or {}
+        for manager in managers.values():
+            manager.close()
+        _shared_managers.reset(token)
+
+
+def get_bathymetry_manager(
+    source: str = "gebco2025", data_dir: str = DEFAULT_BATHY_DIR
+) -> BathymetryManager:
+    """
+    Return a BathymetryManager, shared within a ``shared_bathymetry`` block.
+
+    Parameters
+    ----------
+    source : str, optional
+        Bathymetry source identifier (default: "gebco2025").
+    data_dir : str, optional
+        Directory containing bathymetry files (default: "data/bathymetry").
+
+    Returns
+    -------
+    BathymetryManager
+        A new manager, or the one already opened for the same source and
+        directory inside the current ``shared_bathymetry`` block.
+    """
+    managers = _shared_managers.get()
+    if managers is None:
+        return BathymetryManager(source=source, data_dir=data_dir)
+    key = (source, str(Path(data_dir).resolve()))
+    if key not in managers:
+        managers[key] = BathymetryManager(source=source, data_dir=data_dir)
+    return managers[key]
 
 
 # Lazy singleton instance - only created when first accessed

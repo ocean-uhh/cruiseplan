@@ -9,7 +9,11 @@ import logging
 from abc import ABC, abstractmethod
 
 from cruiseplan.config.activities import PointDefinition
-from cruiseplan.config.cruise_config import ClusterDefinition, LegDefinition
+from cruiseplan.config.cruise_config import (
+    ClusterDefinition,
+    CruiseConfig,
+    LegDefinition,
+)
 from cruiseplan.config.ports import resolve_port_reference
 from cruiseplan.config.values import StrategyEnum
 from cruiseplan.runtime.operations import BaseOperation, DurationRules
@@ -718,20 +722,17 @@ class Leg(BaseOrganizationUnit):
 
         Parameters
         ----------
-        resolver : object, optional
-            Operation resolver to look up waypoint coordinates.
+        resolver : CruiseConfig, optional
+            Cruise configuration whose catalogs define ``first_activity``.
 
         Returns
         -------
         tuple[float, float] or None
-            (latitude, longitude) of the operational entry point, or None if not resolvable.
+            (latitude, longitude) of the operational entry point, or None if
+            there is no resolver, no ``first_activity``, or it is not in the catalogs.
         """
         if self.first_activity and resolver:
-            from ..calculators.scheduler import _resolve_station_details
-
-            details = _resolve_station_details(resolver, self.first_activity)
-            if details:
-                return (details["lat"], details["lon"])
+            return _activity_point(resolver, self.first_activity, self.name, "entry")
         return None
 
     def get_operational_exit_point(
@@ -744,20 +745,17 @@ class Leg(BaseOrganizationUnit):
 
         Parameters
         ----------
-        resolver : object, optional
-            Operation resolver to look up waypoint coordinates.
+        resolver : CruiseConfig, optional
+            Cruise configuration whose catalogs define ``last_activity``.
 
         Returns
         -------
         tuple[float, float] or None
-            (latitude, longitude) of the operational exit point, or None if not resolvable.
+            (latitude, longitude) of the operational exit point, or None if
+            there is no resolver, no ``last_activity``, or it is not in the catalogs.
         """
         if self.last_activity and resolver:
-            from ..calculators.scheduler import _resolve_station_details
-
-            details = _resolve_station_details(resolver, self.last_activity)
-            if details:
-                return (details["lat"], details["lon"])
+            return _activity_point(resolver, self.last_activity, self.name, "exit")
         return None
 
     # TODO Check: why does this return Tuples instead of GeoPoints?
@@ -895,3 +893,18 @@ class Leg(BaseOrganizationUnit):
         # The leg structure and boundaries are established here
 
         return leg
+
+
+def _activity_point(
+    config: CruiseConfig, name: str, leg_name: str, which: str
+) -> tuple[float, float] | None:
+    """Return the entry or exit (lat, lon) of catalog activity ``name``, or None."""
+    from cruiseplan.timeline.scheduler import OperationFactory
+
+    try:
+        operation = OperationFactory(config).create_operation(name, leg_name)
+    except ValueError:
+        return None
+    return (
+        operation.get_entry_point() if which == "entry" else operation.get_exit_point()
+    )

@@ -14,14 +14,22 @@ import numpy as np
 import xarray as xr
 
 from cruiseplan.config.cruise_config import CruiseConfig
+from cruiseplan.config.values import DEFAULT_MOORING_DURATION_MIN
 from cruiseplan.output.netcdf_metadata import (
     create_coordinate_variables,
     create_global_attributes,
     create_operation_variables,
 )
+from cruiseplan.output.provenance import planning_provenance
 from cruiseplan.timeline.scheduler import ActivityRecord
 
 logger = logging.getLogger(__name__)
+
+
+def _provenance_attrs(config: CruiseConfig) -> dict[str, Any]:
+    """Return provenance global attributes, with creation_date equal to date_created."""
+    provenance = planning_provenance(config)
+    return {"creation_date": provenance["date_created"], **provenance}
 
 
 class NetCDFGenerator:
@@ -304,6 +312,7 @@ class NetCDFGenerator:
             dist_nms = []
             activities = []
             operation_classes = []
+            fill_flags = []  # 1 where the duration is the fill value
 
             for event in timeline:
                 # Convert time to days since epoch for CF compliance
@@ -324,6 +333,7 @@ class NetCDFGenerator:
                 names.append(event["label"])
                 leg_names.append(event["leg_name"])
                 durations.append(event["duration_minutes"] / 60.0)  # Convert to hours
+                fill_flags.append(1 if event.get("duration_is_fill") else 0)
                 vessel_speeds.append(event["vessel_speed_kt"])
                 # Will compute distance to next waypoint after processing all events
                 distances_to_next.append(0.0)  # Placeholder, will be computed below
@@ -496,6 +506,7 @@ class NetCDFGenerator:
             exit_lons = np.array(exit_lons, dtype=np.float32)
             end_times = np.array(end_times, dtype=np.float64)
             dist_nms = np.array(dist_nms, dtype=np.float32)
+            fill_flags = np.array(fill_flags, dtype=np.int8)
 
             # Create xarray Dataset
             ds = xr.Dataset(
@@ -611,6 +622,22 @@ class NetCDFGenerator:
                         {
                             "long_name": "activity duration",
                             "units": "hour",
+                            "coordinates": "time latitude longitude water_depth",
+                        },
+                    ),
+                    "duration_fill_flag": (
+                        ["obs"],
+                        fill_flags,
+                        {
+                            "long_name": "duration is the fill value",
+                            "flag_values": np.array([0, 1], dtype=np.int8),
+                            "flag_meanings": "duration_stated_or_computed duration_fill_value",
+                            "comment": (
+                                "1: no duration was stated or computable (missing "
+                                "duration or depth, or no rule for the operation "
+                                "type); duration is the fill value "
+                                f"{DEFAULT_MOORING_DURATION_MIN / 60:.0f} hours"
+                            ),
                             "coordinates": "time latitude longitude water_depth",
                         },
                     ),
@@ -745,6 +772,8 @@ class NetCDFGenerator:
             total_duration_days = max(0.0, times[-1] - times[0])
         else:
             total_duration_days = 0.0
+        provenance = planning_provenance(config)
+        fill_count = sum(1 for event in timeline if event.get("duration_is_fill"))
         ds.attrs.update(
             {
                 "featureType": "trajectory",
@@ -754,8 +783,11 @@ class NetCDFGenerator:
                 "Conventions": self.cf_conventions,
                 "cruise_name": config.cruise_name,
                 "total_duration_days": total_duration_days,
-                "creation_date": datetime.now().replace(microsecond=0).isoformat(),
+                "creation_date": provenance["date_created"],
                 "comment": "Master file containing all cruise data - specialized files derived from this",
+                **provenance,
+                "fill_duration_count": fill_count,
+                "fill_duration_hours": DEFAULT_MOORING_DURATION_MIN / 60.0,
             }
         )
 
@@ -779,7 +811,7 @@ class NetCDFGenerator:
             "source": "YAML configuration file",
             "Conventions": self.cf_conventions,
             "cruise_name": config.cruise_name,
-            "creation_date": datetime.now().isoformat(),
+            **_provenance_attrs(config),
             "coordinate_system": "WGS84",
             "comment": comment
             or f"No {operation_type} operations defined in cruise plan",
@@ -930,7 +962,7 @@ class NetCDFGenerator:
                     "source": "YAML configuration file",
                     "Conventions": self.cf_conventions,
                     "cruise_name": config.cruise_name,
-                    "creation_date": datetime.now().replace(microsecond=0).isoformat(),
+                    **_provenance_attrs(config),
                     "coordinate_system": "WGS84",
                     "depth_datum": "Mean Sea Level",
                 }
@@ -1015,7 +1047,7 @@ class NetCDFGenerator:
                     "source": "YAML configuration file",
                     "Conventions": self.cf_conventions,
                     "cruise_name": config.cruise_name,
-                    "creation_date": datetime.now().replace(microsecond=0).isoformat(),
+                    **_provenance_attrs(config),
                     "coordinate_system": "WGS84",
                 }
             )
@@ -1076,7 +1108,7 @@ class NetCDFGenerator:
                     "source": "YAML configuration file",
                     "Conventions": self.cf_conventions,
                     "cruise_name": config.cruise_name,
-                    "creation_date": datetime.now().replace(microsecond=0).isoformat(),
+                    **_provenance_attrs(config),
                     "coordinate_system": "WGS84",
                 }
             )
@@ -1305,7 +1337,7 @@ class NetCDFGenerator:
                 "source": "YAML configuration file",
                 "Conventions": self.cf_conventions,
                 "cruise_name": config.cruise_name,
-                "creation_date": datetime.now().replace(microsecond=0).isoformat(),
+                **_provenance_attrs(config),
             }
         )
 
@@ -1335,7 +1367,7 @@ class NetCDFGenerator:
                 "source": "YAML configuration file",
                 "Conventions": self.cf_conventions,
                 "cruise_name": config.cruise_name,
-                "creation_date": datetime.now().replace(microsecond=0).isoformat(),
+                **_provenance_attrs(config),
             }
         )
 

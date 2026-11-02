@@ -183,6 +183,7 @@ def schedule(
     >>> ds = xr.open_dataset(netcdf_file)
     """
     from cruiseplan.api.init_utils import _parse_schedule_formats
+    from cruiseplan.output.provenance import record_source_config
     from cruiseplan.runtime.cruise import CruiseInstance
     from cruiseplan.timeline.scheduler import generate_timeline
     from cruiseplan.utils.logging import configure_logging
@@ -205,6 +206,7 @@ def schedule(
     try:
         # Load and validate cruise configuration
         cruise = CruiseInstance(config_path)
+        record_source_config(cruise.config, config_path)
 
         # Handle specific leg processing if requested
         target_legs = cruise.runtime_legs

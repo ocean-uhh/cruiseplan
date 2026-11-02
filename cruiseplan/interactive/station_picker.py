@@ -19,6 +19,7 @@ from cruiseplan.config.cruise_config import CruiseConfig, LegDefinition
 from cruiseplan.config.values import (
     DEFAULT_ARRIVAL_PORT,
     DEFAULT_DEPARTURE_PORT,
+    DEFAULT_DEPTH,
     DEFAULT_FIRST_ACTIVITY,
     DEFAULT_LAST_ACTIVITY,
     DEFAULT_STRATEGY,
@@ -387,6 +388,9 @@ class StationPicker:
         xx, yy, zz = self.bathymetry.get_grid_subset(
             lat_min, lat_max, lon_min, lon_max, stride=self.bathymetry_stride
         )
+        if zz.size == 0:
+            logger.warning("No bathymetry grid for this view; drawing without it")
+            return
 
         # 1. Filled Contours (The "Map" feel)
         if self.max_depth is not None and self.max_depth > 0:
@@ -733,7 +737,9 @@ class StationPicker:
             lon, lat, "ro", markersize=8, markeredgecolor="k", zorder=10
         )
 
-        data = {"lat": lat, "lon": lon, "depth": abs(depth)}
+        # Keep the fill value as is so it is not mistaken for a real depth
+        depth = depth if depth == DEFAULT_DEPTH else abs(depth)
+        data = {"lat": lat, "lon": lon, "depth": depth}
         self.points.append(data)
         self.history.append(("point", data, artist))
         self._update_status_display(lat, lon, depth, message="Point added.")

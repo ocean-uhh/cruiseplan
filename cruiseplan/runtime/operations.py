@@ -14,6 +14,7 @@ This module provides the base operation classes and specialized implementations
 for stations, moorings, areas, and transects.
 """
 
+import logging
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Protocol
 
@@ -24,13 +25,20 @@ from cruiseplan.config.activities import (
     PointDefinition,
 )
 from cruiseplan.config.fields import ACTION_FIELD
-from cruiseplan.config.values import ActionEnum
+from cruiseplan.config.values import (
+    DEFAULT_DEPTH,
+    DEFAULT_MOORING_DURATION_MIN,
+    ActionEnum,
+)
 
 if TYPE_CHECKING:
     from cruiseplan.config.cruise_config import CruiseConfig
 
 # Port actions that identify mobilization/demobilization operations
 PORT_ACTIONS = [ActionEnum.MOB.value, ActionEnum.DEMOB.value]
+
+
+logger = logging.getLogger(__name__)
 
 
 class DurationRules(Protocol):
@@ -236,6 +244,9 @@ class PointOperation(BaseOperation):
         self.op_type = op_type
         self.action = action  # Specific to Moorings
         self.delay_start = delay_start or 0.0
+        # Set by calculate_duration when the fill duration was used
+        self.duration_is_fill = False
+        self.duration_fill_reason: str | None = None
 
     def get_depth(self) -> float:
         """
@@ -261,8 +272,16 @@ class PointOperation(BaseOperation):
 
         If ``manual_duration > 0`` (set via ``duration:`` in YAML, in minutes),
         that value is returned immediately and all type-based calculations
-        (CTD cast time, mooring default, etc.) are skipped.  This is the
-        intended per-station override mechanism.
+        (CTD cast time, etc.) are skipped.  This is the intended per-station
+        override mechanism.
+
+        When no duration can be computed, the fill value
+        ``DEFAULT_MOORING_DURATION_MIN`` (999 h) is returned and
+        ``duration_is_fill`` / ``duration_fill_reason`` are set (the scheduler
+        logs one warning per operation): a mooring or yo-yo cast
+        without ``duration``, a depth-driven cast without a usable depth
+        (missing, zero or the fill depth), and an operation type with no
+        duration rule. Ports and waypoints take 0 minutes.
 
         Parameters
         ----------
@@ -274,14 +293,24 @@ class PointOperation(BaseOperation):
         float
             Duration in minutes.
         """
+        self.duration_is_fill = False
+        self.duration_fill_reason = None
         # Manual duration (from YAML `duration:` field, minutes) always wins.
         if self.manual_duration > 0:
+            # The enrich step writes the fill value for moorings without one
+            if self.manual_duration == DEFAULT_MOORING_DURATION_MIN:
+                self.duration_is_fill = True
+                self.duration_fill_reason = "duration is the fill value"
             return self.manual_duration
 
         # Import calculator
         from cruiseplan.timeline.duration import DurationCalculator
 
         if not hasattr(rules, "config"):
+            return 0.0
+
+        if self.op_type in ("port", "waypoint"):
+            # No operation time; waiting time is handled separately
             return 0.0
 
         calc = DurationCalculator(rules.config)
@@ -298,24 +327,28 @@ class PointOperation(BaseOperation):
             and self.operation_depth > 0
             and self.action != "yo_yo"
         ):
-            return calc.calculate_ctd_time(self.get_depth())
-        # TODO: replace with default
+            depth = self.get_depth()
+            if depth is None or depth <= 0 or depth == DEFAULT_DEPTH:
+                return self._fill_duration(
+                    "no usable depth (operation_depth and water_depth missing, "
+                    "zero or the fill value)"
+                )
+            return calc.calculate_ctd_time(depth)
         if self.op_type == "mooring" or (
             self.op_type == "CTD" and self.action == "yo_yo"
         ):
-            # Moorings and yo_yo CTD operations should have manual duration, but fallback to default
-            return (
-                rules.config.default_mooring_duration
-                if hasattr(rules.config, "default_mooring_duration")
-                else 60.0
-            )
-        if self.op_type == "port":
-            return 0.0
-        if self.op_type == "waypoint":
-            # Waypoints have no operation duration by default (waiting time is handled separately)
-            return 0.0
+            return self._fill_duration("no duration given")
 
-        return 0.0
+        return self._fill_duration(
+            f"no duration rule for operation type '{self.op_type}'"
+        )
+
+    def _fill_duration(self, reason: str) -> float:
+        """Flag this operation as using the fill duration and return it."""
+        self.duration_is_fill = True
+        self.duration_fill_reason = reason
+        logger.debug(f"Operation {self.name}: {reason}; fill duration")
+        return DEFAULT_MOORING_DURATION_MIN
 
     # Todo, check why these arenot using geopoint.
     def get_entry_point(self) -> tuple[float, float]:

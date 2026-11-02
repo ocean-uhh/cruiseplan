@@ -16,9 +16,81 @@ The CoordConverter class provides static methods for coordinate conversions.
 import math
 from typing import TYPE_CHECKING
 
+from cruiseplan.utils.units import NM_PER_KM
+
 if TYPE_CHECKING:
     from cruiseplan.config.activities import PointDefinition
     from cruiseplan.runtime.cruise import CruiseInstance
+
+# Mean Earth radius in kilometers, used for great-circle distances
+EARTH_RADIUS_KM = 6371.0
+
+
+def ddm_parts(decimal_degrees: float, decimals: int = 2) -> tuple[int, float]:
+    """
+    Split a coordinate into whole degrees and rounded decimal minutes.
+
+    Minutes are rounded to ``decimals`` places first; when they round to 60
+    the degree is carried, so 59.99999 gives ``(60, 0.0)`` and never
+    ``(59, 60.0)``. The sign is dropped: use ``decimal_degrees >= 0`` for the
+    hemisphere.
+
+    Parameters
+    ----------
+    decimal_degrees : float
+        Latitude or longitude in decimal degrees.
+    decimals : int, optional
+        Decimal places kept in the minutes (default: 2).
+
+    Returns
+    -------
+    tuple of (int, float)
+        Absolute whole degrees and minutes in ``[0, 60)``, rounded to
+        ``decimals`` places.
+
+    Examples
+    --------
+    >>> ddm_parts(65.7458)
+    (65, 44.75)
+    >>> ddm_parts(-0.99999)
+    (1, 0.0)
+    """
+    value = abs(decimal_degrees)
+    degrees = int(value)
+    minutes = round((value - degrees) * 60, decimals)
+    if minutes >= 60:
+        degrees += 1
+        minutes = round(minutes - 60, decimals)
+    return degrees, minutes
+
+
+def distance_nm(start: tuple[float, float], end: tuple[float, float]) -> float:
+    """
+    Great-circle (haversine) distance between two positions in nautical miles.
+
+    Parameters
+    ----------
+    start : tuple of float
+        (latitude, longitude) of the first position in decimal degrees.
+    end : tuple of float
+        (latitude, longitude) of the second position in decimal degrees.
+
+    Returns
+    -------
+    float
+        Distance in nautical miles on a sphere of radius ``EARTH_RADIUS_KM``.
+    """
+    lat1, lon1 = start
+    lat2, lon2 = end
+    phi1, phi2 = math.radians(lat1), math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlambda = math.radians(lon2 - lon1)
+    a = (
+        math.sin(dphi / 2) ** 2
+        + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
+    )
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return EARTH_RADIUS_KM * c * NM_PER_KM
 
 
 class CoordConverter:
@@ -43,6 +115,11 @@ class CoordConverter:
         -------
         tuple of float
             Tuple of (degrees, decimal_minutes).
+
+        Notes
+        -----
+        Minutes are not rounded. For display use ``ddm_parts``, which rounds
+        and carries 60 minutes into the degrees.
 
         Examples
         --------
@@ -75,9 +152,9 @@ class CoordConverter:
         >>> CoordConverter.format_latitude_decmin(-65.244)
         "65 14.640 S"
         """
-        degrees, minutes = CoordConverter.decimal_degrees_to_ddm(decimal_degrees)
+        degrees, minutes = ddm_parts(decimal_degrees, 3)
         direction = "N" if decimal_degrees >= 0 else "S"
-        return f"{int(degrees):02d} {minutes:06.3f} {direction}"
+        return f"{degrees:02d} {minutes:06.3f} {direction}"
 
     @staticmethod
     def format_longitude_decmin(decimal_degrees: float) -> str:
@@ -101,9 +178,9 @@ class CoordConverter:
         >>> CoordConverter.format_longitude_decmin(31.3177)
         "031 19.062 E"
         """
-        degrees, minutes = CoordConverter.decimal_degrees_to_ddm(decimal_degrees)
+        degrees, minutes = ddm_parts(decimal_degrees, 3)
         direction = "E" if decimal_degrees >= 0 else "W"
-        return f"{int(degrees):03d} {minutes:06.3f} {direction}"
+        return f"{degrees:03d} {minutes:06.3f} {direction}"
 
     @staticmethod
     def decmin_to_decimal_degrees(decmin_str: str) -> float:
@@ -199,16 +276,16 @@ def format_ddm_comment(lat: float, lon: float) -> str:
     "65 44.75'N, 024 28.75'W"
     """
     # Convert to degrees and decimal minutes
-    lat_deg, lat_min = CoordConverter.decimal_degrees_to_ddm(lat)
-    lon_deg, lon_min = CoordConverter.decimal_degrees_to_ddm(lon)
+    lat_deg, lat_min = ddm_parts(lat, 2)
+    lon_deg, lon_min = ddm_parts(lon, 2)
 
     # Determine directions
     lat_dir = "N" if lat >= 0 else "S"
     lon_dir = "E" if lon >= 0 else "W"
 
     # Format with required precision: DD MM.MM'N, DDD MM.MM'W
-    lat_str = f"{abs(int(lat_deg)):02d} {lat_min:05.2f}'{lat_dir}"
-    lon_str = f"{abs(int(lon_deg)):03d} {lon_min:05.2f}'{lon_dir}"
+    lat_str = f"{lat_deg:02d} {lat_min:05.2f}'{lat_dir}"
+    lon_str = f"{lon_deg:03d} {lon_min:05.2f}'{lon_dir}"
 
     return f"{lat_str}, {lon_str}"
 
@@ -235,16 +312,16 @@ def format_position_latex(lat: float, lon: float) -> str:
     "65$^\\circ$44.75'N, 024$^\\circ$28.75'W"
     """
     # Convert to degrees and decimal minutes
-    lat_deg, lat_min = CoordConverter.decimal_degrees_to_ddm(lat)
-    lon_deg, lon_min = CoordConverter.decimal_degrees_to_ddm(lon)
+    lat_deg, lat_min = ddm_parts(lat, 2)
+    lon_deg, lon_min = ddm_parts(lon, 2)
 
     # Determine directions
     lat_dir = "N" if lat >= 0 else "S"
     lon_dir = "E" if lon >= 0 else "W"
 
     # Format with LaTeX degree symbols
-    lat_str = f"{abs(int(lat_deg)):02d}$^\\circ${lat_min:05.2f}'{lat_dir}"
-    lon_str = f"{abs(int(lon_deg)):03d}$^\\circ${lon_min:05.2f}'{lon_dir}"
+    lat_str = f"{lat_deg:02d}$^\\circ${lat_min:05.2f}'{lat_dir}"
+    lon_str = f"{lon_deg:03d}$^\\circ${lon_min:05.2f}'{lon_dir}"
 
     return f"{lat_str}, {lon_str}"
 

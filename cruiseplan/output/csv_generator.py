@@ -9,13 +9,14 @@ import logging
 from pathlib import Path
 
 from cruiseplan.config.cruise_config import CruiseConfig
+from cruiseplan.config.values import DEFAULT_MOORING_DURATION_MIN
 from cruiseplan.output.output_utils import (
     format_operation_action,
     get_activity_depth,
     round_time_to_minute,
 )
 from cruiseplan.timeline.scheduler import ActivityRecord
-from cruiseplan.utils.coordinates import CoordConverter
+from cruiseplan.utils.coordinates import ddm_parts
 
 logger = logging.getLogger(__name__)
 
@@ -113,6 +114,7 @@ class CSVGenerator:
             "Lon [deg_rounded]",
             "Lon [min]",
             "leg_name",
+            "Duration note",
         ]
 
         # Write CSV file
@@ -153,12 +155,8 @@ class CSVGenerator:
                 # Use entry coordinates (with backward compatibility for legacy tests)
                 lat_decimal = activity.get("entry_lat")
                 lon_decimal = activity.get("entry_lon")
-                lat_deg_float, lat_min = CoordConverter.decimal_degrees_to_ddm(
-                    lat_decimal
-                )
-                lon_deg_float, lon_min = CoordConverter.decimal_degrees_to_ddm(
-                    lon_decimal
-                )
+                lat_deg_float, lat_min = ddm_parts(lat_decimal, 2)
+                lon_deg_float, lon_min = ddm_parts(lon_decimal, 2)
                 # Preserve sign for rounded degrees
                 lat_deg_rounded = (
                     int(lat_deg_float) if lat_decimal >= 0 else -int(lat_deg_float)
@@ -195,6 +193,11 @@ class CSVGenerator:
                     "Lon [deg_rounded]": lon_deg_rounded,
                     "Lon [min]": lon_min,
                     "leg_name": activity.get("leg_name", ""),
+                    "Duration note": (
+                        f"fill value ({DEFAULT_MOORING_DURATION_MIN / 60:.0f} h)"
+                        if activity.get("duration_is_fill")
+                        else ""
+                    ),
                 }
 
                 writer.writerow(row)

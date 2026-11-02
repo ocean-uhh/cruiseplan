@@ -19,6 +19,7 @@ from cruiseplan.config.activities import (
     PointDefinition,
 )
 from cruiseplan.config.cruise_config import ClusterDefinition, CruiseConfig
+from cruiseplan.config.values import DEFAULT_MOORING_DURATION_MIN
 from cruiseplan.runtime.operations import (
     AreaOperation,
     BaseOperation,
@@ -85,6 +86,7 @@ class ActivityRecord:
     water_depth: float | None = None  # Water depth at location
     delay_start: float | None = None  # Delay before operation starts in minutes
     comment: str | None = None  # User comment or description
+    duration_is_fill: bool | None = None  # True when the fill duration was used
 
     def __init__(self, data: dict[str, Any]) -> None:
         """Initialize from dictionary for compatibility with old system."""
@@ -622,6 +624,8 @@ class TimelineGenerator:
         self.config = config
         self.factory = OperationFactory(config)
         self.current_time = self._parse_start_datetime()
+        # Operation label -> why it was scheduled with the fill duration
+        self._fill_reasons: dict[str, str] = {}
 
     def generate_timeline(self, legs: list["Leg"] | None = None) -> CruiseSchedule:
         """Generate complete cruise timeline."""
@@ -629,10 +633,18 @@ class TimelineGenerator:
             legs = self._create_runtime_legs()
 
         timeline = []
+        self._fill_reasons = {}
 
         for leg in legs:
             leg_activities = self._process_leg(leg)
             timeline.extend(leg_activities)
+
+        for name, reason in self._fill_reasons.items():
+            logger.warning(
+                f"Operation {name}: {reason}; scheduled with the fill duration "
+                f"{DEFAULT_MOORING_DURATION_MIN / 60:.0f} h. Add 'duration:' or a "
+                f"depth in the YAML."
+            )
 
         # Convert ActivityRecord objects to dictionaries for output compatibility
         return [activity.to_dict() for activity in timeline]
@@ -881,6 +893,7 @@ class TimelineGenerator:
                 "start_time": self.current_time,
                 "end_time": self.current_time + timedelta(minutes=duration_minutes),
                 "duration_minutes": duration_minutes,
+                "duration_is_fill": False,
                 "dist_nm": transit.get_operation_distance_nm(),
                 "vessel_speed_kt": transit.get_vessel_speed(),
                 "leg_name": leg_name,
@@ -901,6 +914,11 @@ class TimelineGenerator:
         # Create rules object for calculate_duration
         rules = type("Rules", (), {"config": self.config})()
         duration_minutes = operation.calculate_duration(rules)
+        if getattr(operation, "duration_is_fill", False):
+            self._fill_reasons.setdefault(
+                operation.get_label(),
+                getattr(operation, "duration_fill_reason", None) or "no duration",
+            )
 
         # Apply delay_start if specified
         delay_start_minutes = getattr(operation, "delay_start", 0.0) or 0.0
@@ -920,6 +938,7 @@ class TimelineGenerator:
                 "start_time": actual_start_time,
                 "end_time": actual_start_time + timedelta(minutes=duration_minutes),
                 "duration_minutes": duration_minutes,
+                "duration_is_fill": bool(getattr(operation, "duration_is_fill", False)),
                 "delay_start": delay_start_minutes,
                 "comment": getattr(operation, "comment", None),
                 "dist_nm": getattr(

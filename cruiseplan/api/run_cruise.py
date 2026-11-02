@@ -11,6 +11,7 @@ from pathlib import Path
 from cruiseplan.api.process_cruise import process
 from cruiseplan.api.schedule_cruise import schedule
 from cruiseplan.api.types import ProcessResult, ScheduleResult
+from cruiseplan.data.bathymetry import shared_bathymetry
 
 
 def run(
@@ -111,15 +112,19 @@ def run(
         "include_eez": include_eez,
     }
 
-    process_result = process(config_file=config_file, **shared)
+    # One bathymetry file handle (and one missing-file warning) for the whole run
+    with shared_bathymetry():
+        process_result = process(config_file=config_file, **shared)
 
-    if process_result.config is None:
-        raise RuntimeError(f"Process step failed for {config_file}; schedule not run.")
+        if process_result.config is None:
+            raise RuntimeError(
+                f"Process step failed for {config_file}; schedule not run."
+            )
 
-    schedule_result = schedule(
-        config_file=process_result.config,
-        leg=leg,
-        **shared,
-    )
+        schedule_result = schedule(
+            config_file=process_result.config,
+            leg=leg,
+            **shared,
+        )
 
     return process_result, schedule_result

@@ -7,12 +7,12 @@ Includes utilities for route distance calculation and unit conversions between
 kilometers and nautical miles.
 """
 
-import math
-
 from cruiseplan.config.activities import GeoPoint
+from cruiseplan.utils.coordinates import EARTH_RADIUS_KM, distance_nm
+from cruiseplan.utils.units import NM_PER_KM
 
-# Earth radius in kilometers (WGS84 approximate) - used for haversine distance calculation
-R_EARTH_KM = 6371.0
+# Earth radius in kilometers - used for haversine distance calculation
+R_EARTH_KM = EARTH_RADIUS_KM
 
 
 def to_coords(point: GeoPoint | tuple[float, float]) -> tuple[float, float]:
@@ -55,20 +55,7 @@ def haversine_distance(
     float
         Distance in kilometers.
     """
-    lat1, lon1 = to_coords(start)
-    lat2, lon2 = to_coords(end)
-
-    phi1, phi2 = math.radians(lat1), math.radians(lat2)
-    dphi = math.radians(lat2 - lat1)
-    dlambda = math.radians(lon2 - lon1)
-
-    a = (
-        math.sin(dphi / 2) ** 2
-        + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
-    )
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-
-    return R_EARTH_KM * c
+    return distance_nm(to_coords(start), to_coords(end)) / NM_PER_KM
 
 
 def route_distance(points: list[GeoPoint | tuple[float, float]]) -> float:
