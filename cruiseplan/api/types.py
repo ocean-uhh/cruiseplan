@@ -40,7 +40,7 @@ class BaseResult:
         return len(self.errors) == 0 and bool(self._success_indicator)
 
     def __str__(self) -> str:
-        """Standard string representation with error/warning/file counts."""
+        """Return a status line with error, warning and file counts."""
         if self:
             parts = [f"✅ {self._operation_name} complete"]
             if self.files_created:

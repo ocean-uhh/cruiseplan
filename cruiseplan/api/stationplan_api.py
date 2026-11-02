@@ -230,6 +230,13 @@ def stationplan_tex(
         Path to NetCDF schedule file (e.g., 'MSM142_leg_2_schedule.nc')
     output_path : str or Path, optional
         Output path for .tex file. If None, uses schedule_file name with .tex extension
+    logo_path : str or Path, optional
+        Path to a logo image (PNG, JPG or PDF). If None, ``config/images/`` is
+        searched for a default logo.
+    workplan_number : str, optional
+        Workplan number printed in the TeX header (e.g. ``"28"``).
+    cruise_title : str, optional
+        Cruise title printed in the TeX header (e.g. ``"MSM142"``).
 
     Returns
     -------
@@ -437,6 +444,10 @@ def stationplan_forecast_tex(
         Output path for .tex file
     logo_path : str or Path, optional
         Path to logo image file (PNG, JPG, or PDF). If None, checks for default logos in config/images/ folder
+    workplan_number : str, optional
+        Workplan number printed in the TeX header (e.g. ``"28"``).
+    cruise_title : str, optional
+        Cruise title printed in the TeX header (e.g. ``"MSM142"``).
 
     Returns
     -------

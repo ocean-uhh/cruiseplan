@@ -226,7 +226,7 @@ class PangaeaManager:
         include_eez: bool = True,
     ) -> Path:
         """
-        Convenience wrapper to visualize datasets fetched by this manager.
+        Plot the datasets fetched by this manager on an interactive map.
 
         Parameters
         ----------
@@ -323,7 +323,7 @@ class PangaeaManager:
         self, events_data: pd.DataFrame | list[object], doi: str
     ) -> dict[str, Any] | None:
         """
-        Extracts lat/lon/label/campaign from the .events attribute.
+        Extract lat/lon/label/campaign from the .events attribute.
 
         Returns a standardized Dictionary.
 
@@ -444,7 +444,7 @@ class PangaeaManager:
 
     def _safe_get(self, obj: object, keys: list[str]) -> Any:  # noqa: ANN401 - returns whatever the PANGAEA record holds
         """
-        Helper to get attributes safely from dicts or objects.
+        Get the first non-None value for any of ``keys`` from a dict or object.
 
         Parameters
         ----------
@@ -487,7 +487,7 @@ class PangaeaManager:
 
 def _is_valid_doi(doi: any) -> bool:
     """
-    Validates if the input string is a valid DOI format.
+    Check whether the input string is a valid DOI.
 
     Strictly checks for '10.XXXX/XXXX' format.
 
@@ -511,7 +511,7 @@ def _is_valid_doi(doi: any) -> bool:
 
 def merge_campaign_tracks(datasets: list[dict]) -> list[dict]:
     """
-    Merges datasets by their 'label' (campaign).
+    Merge datasets by their 'label' (campaign).
 
     Aggregates coordinates into single arrays and collects all source DOIs.
 

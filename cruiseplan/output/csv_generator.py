@@ -21,9 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 class CSVGenerator:
-    """
-    Manages CSV generation for cruise schedules with comprehensive formatting.
-    """
+    """Generate CSV files for cruise schedules."""
 
     def __init__(self) -> None:
         """Initialize the CSV generator."""
@@ -205,7 +203,7 @@ def generate_csv_schedule(
     config: CruiseConfig, timeline: list[ActivityRecord], output_file: Path
 ) -> Path:
     """
-    Main interface to generate CSV schedule from scheduler timeline.
+    Generate a CSV schedule from the scheduler timeline.
 
     Parameters
     ----------

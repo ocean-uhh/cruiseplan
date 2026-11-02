@@ -254,7 +254,7 @@ def serialize_cluster_definition(cluster: ClusterDefinition) -> dict[str, Any]:
 
 
 def _serialize_port_object(port_obj: PointDefinition | str) -> dict[str, Any] | str:
-    """Helper to serialize port objects for leg definitions."""
+    """Serialize a port object for a leg definition; strings pass through."""
     if hasattr(port_obj, "name") and hasattr(port_obj, "latitude"):
         # This is a full PortDefinition object, serialize it
         return serialize_definition(port_obj, POINT_ALLOWED_FIELDS)
@@ -262,7 +262,7 @@ def _serialize_port_object(port_obj: PointDefinition | str) -> dict[str, Any] | 
 
 
 def _convert_activity_to_name(activity: PointDefinition | str) -> str:
-    """Helper to convert activity object to string name reference."""
+    """Convert an activity object to its name reference."""
     if hasattr(activity, "name"):
         # This is a PointDefinition object, use its name
         return activity.name

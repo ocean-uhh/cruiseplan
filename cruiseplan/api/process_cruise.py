@@ -223,6 +223,8 @@ def _enrich_configuration(
         Whether to expand CTD sections into individual stations (default: False).
     bathymetry_source : str, optional
         Bathymetry dataset to use (default: "gebco2025").
+    bathymetry_dir : str, optional
+        Directory containing bathymetry data (default: "data/bathymetry").
     coord_format : str, optional
         Coordinate format ("ddm" or "dms", default: "ddm").
     output_path : Optional[Path], optional
@@ -558,7 +560,7 @@ def _validate_configuration(
     bathymetry_dir: str = "data/bathymetry",
 ) -> tuple[bool, list[str], list[str]]:
     """
-    Comprehensive validation of YAML configuration file.
+    Validate a YAML configuration file.
 
     Performs schema validation, logical consistency checks, and optional
     depth verification against bathymetry data.
@@ -573,6 +575,8 @@ def _validate_configuration(
         Depth difference tolerance percentage (default: 10.0).
     bathymetry_source : str, optional
         Bathymetry dataset to use (default: "gebco2025").
+    bathymetry_dir : str, optional
+        Directory containing bathymetry data (default: "data/bathymetry").
 
     Returns
     -------
@@ -1187,6 +1191,15 @@ def process(
         Map output format(s): "png", "kml", "all" (default: "all")
     bathy_stride : int
         Bathymetry contour stride for maps (default: 10)
+    bathy_contours : list, optional
+        Explicit depth contours (m) for PNG maps. If None, contours are derived
+        from the bathymetry stride.
+    lat_bounds : list, optional
+        Latitude bounds [min_lat, max_lat] for PNG maps. If None, derived from
+        the cruise track.
+    lon_bounds : list, optional
+        Longitude bounds [min_lon, max_lon] for PNG maps. If None, derived from
+        the cruise track.
     figsize : list, optional
         Figure size for maps [width, height] (default: auto)
     no_ports : bool
@@ -1199,6 +1212,9 @@ def process(
         Omit the legend from PNG output (default: False)
     verbose : bool
         Enable verbose logging (default: False)
+    max_depth : int, optional
+        Maximum water depth (m) for the bathymetry colour scale on PNG maps. If
+        None, the full -8000 to +200 m range is used.
     include_eez : bool
         Overlay EEZ boundaries on PNG maps (default: False; data downloaded on first use)
 

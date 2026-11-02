@@ -390,9 +390,7 @@ def _calculate_transit_stats(transits: list["ActivityRecord"]) -> dict[str, floa
 def _log_debug_counts(
     categorized: dict[str, list], leg_stats: dict[str, dict[str, int]]
 ) -> None:
-    """
-    Log debug information about operation counts.
-    """
+    """Log debug information about operation counts."""
     station_activities = categorized["station_activities"]
     mooring_activities = categorized["mooring_activities"]
     scientific_transits = categorized["scientific_transits"]

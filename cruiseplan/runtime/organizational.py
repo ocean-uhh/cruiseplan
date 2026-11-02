@@ -317,7 +317,7 @@ class Cluster(BaseOrganizationUnit):
         return None
 
     def __repr__(self) -> str:
-        """String representation for debugging."""
+        """Return a debugging representation."""
         return (
             f"Cluster(name='{self.name}', strategy={self.strategy.name}, "
             f"ordered={self.ordered}, operations={len(self.operations)})"
@@ -801,7 +801,7 @@ class Leg(BaseOrganizationUnit):
 
     def __repr__(self) -> str:
         """
-        String representation of the leg.
+        Return a readable description of the leg.
 
         Returns
         -------

@@ -49,7 +49,7 @@ def optimize_composite_route(
 # NOTE: Add a simple placeholder for route calculations if needed later
 def calculate_route_distance(start_point: object, end_point: object) -> float:
     """
-    Placeholder for Haversine/geodesic distance calculation.
+    Return the route distance between two points (placeholder, always 0.0).
 
     Parameters
     ----------

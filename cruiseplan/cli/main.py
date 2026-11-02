@@ -31,7 +31,7 @@ _SUBCOMMAND_MODULES = {
 
 
 def main() -> None:
-    """Main CLI entry point following git-style subcommand pattern."""
+    """Run the cruiseplan CLI (git-style subcommands)."""
     parser = argparse.ArgumentParser(
         prog="cruiseplan",
         description="Oceanographic Cruise Planning System",

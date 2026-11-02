@@ -40,9 +40,7 @@ def validate_lat_lon_bounds(
 
 
 def determine_workflow_mode(args: argparse.Namespace) -> str:
-    """
-    Determine whether we're in search mode or DOI file mode.
-    """
+    """Determine whether we're in search mode or DOI file mode."""
     if hasattr(args, "doi_file") and args.doi_file:
         return "doi_file"
     return "search"

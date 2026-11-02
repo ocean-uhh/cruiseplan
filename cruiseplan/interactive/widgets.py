@@ -1,6 +1,4 @@
-"""
-Custom matplotlib widgets for oceanographic cruise planning interface.
-"""
+"""Custom matplotlib widgets for oceanographic cruise planning interface."""
 
 from collections.abc import Callable
 

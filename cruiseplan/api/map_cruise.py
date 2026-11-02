@@ -136,6 +136,9 @@ def map(
         Omit the legend from PNG output (default: False)
     verbose : bool
         Enable verbose logging (default: False)
+    max_depth : int, optional
+        Maximum water depth (m) for the bathymetry colour scale on PNG maps. If
+        None, the full -8000 to +200 m range is used.
     include_eez : bool
         Overlay EEZ boundaries (visualization only; data downloaded on first use). Default is False.
 

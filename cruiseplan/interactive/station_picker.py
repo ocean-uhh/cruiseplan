@@ -148,8 +148,13 @@ class StationPicker:
             Bathymetry data source: "etopo2022" or "gebco2025" (default: gebco2025)
         bathymetry_dir : str
             Directory containing bathymetry data files (default: "data/bathymetry")
+        custom_contours : list, optional
+            Extra depth contours (m, positive down) drawn over the bathymetry.
         overwrite : bool
             Whether to overwrite existing files without prompting (default: False)
+        max_depth : int, optional
+            Maximum water depth (m) for the colour scale. If None, the full
+            -8000 to +200 m range is used.
         """
         # CRITICAL FIX: Unbind default Matplotlib shortcuts
         self._unbind_default_keys()
@@ -232,7 +237,7 @@ class StationPicker:
         self._update_aspect_ratio()
 
     def _unbind_default_keys(self) -> None:
-        """Removes conflicting default keymaps from Matplotlib."""
+        """Remove conflicting default keymaps from Matplotlib."""
         keys_to_remove = ["l", "L", "k", "K", "p", "o", "s"]
 
         for key in keys_to_remove:
@@ -355,7 +360,7 @@ class StationPicker:
         self.fig.canvas.mpl_connect("resize_event", self._on_resize)
 
     def _plot_bathymetry(self) -> None:
-        """Fetches and renders bathymetry contours."""
+        """Fetch and render bathymetry contours."""
         # Clear previous bathymetry contours to prevent double plotting
         if self.bathymetry_filled_contours:
             self.bathymetry_filled_contours.remove()

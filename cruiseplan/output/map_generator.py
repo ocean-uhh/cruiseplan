@@ -616,6 +616,10 @@ def plot_bathymetry(
         Bathymetry dataset to use (default "gebco2025")
     bathy_stride : int, optional
         Downsampling factor for bathymetry (default 5)
+    bathy_dir : str, optional
+        Directory containing bathymetry data (default "data/bathymetry")
+    custom_contours : list, optional
+        Extra depth contours (m, positive down) drawn over the bathymetry.
     max_depth : int, optional
         Maximum water depth (m) for the colour scale. When provided, the colour
         scale spans -max_depth to +200 m instead of the default -8000 to +200 m.
@@ -769,6 +773,12 @@ def plot_cruise_elements(
         Structured map data with 'points', 'lines', 'areas', 'title', and 'bounds'
     display_bounds : tuple
         (min_lon, max_lon, min_lat, max_lat) for display area
+    no_title : bool, optional
+        Omit the map title (default False).
+    no_labels : bool, optional
+        Omit station name annotations (default False).
+    no_legend : bool, optional
+        Omit the legend (default False).
     """
     from cruiseplan.utils.plot_config import get_plot_style
 
@@ -1401,7 +1411,7 @@ def generate_folium_map(
     include_eez: bool = True,
 ) -> Path | None:
     """
-    Generates an interactive Leaflet map from merged cruise tracks.
+    Generate an interactive Leaflet map from merged cruise tracks.
 
     Parameters
     ----------

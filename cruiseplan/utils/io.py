@@ -162,7 +162,7 @@ def setup_output_paths(
     output: str | None = None,
 ) -> tuple[Path, str]:
     """
-    Helper function to set up output directory and base filename from config file and parameters.
+    Set up the output directory and base filename from the config file and parameters.
 
     This is the consolidated output path utility, migrated from utils/config.py.
     It handles both explicit output naming and automatic name derivation from

@@ -635,7 +635,7 @@ def generate_html_schedule(
     config: CruiseConfig, timeline: list[ActivityRecord], output_file: Path
 ) -> Path:
     """
-    Main interface to generate HTML schedule from scheduler timeline.
+    Generate an HTML schedule from the scheduler timeline.
 
     Parameters
     ----------

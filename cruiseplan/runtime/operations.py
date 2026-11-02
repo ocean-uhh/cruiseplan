@@ -209,10 +209,12 @@ class PointOperation(BaseOperation):
         ----------
         name : str
             Unique identifier for this operation.
-        position : tuple
-            Geographic position as (latitude, longitude).
-        depth : float, optional
-            Operation depth in meters (default: 0.0).
+        position : GeoPoint
+            Geographic position.
+        operation_depth : float, optional
+            Operation depth in meters (e.g. CTD cast depth).
+        water_depth : float, optional
+            Seafloor depth in meters (default: 0.0).
         duration : float, optional
             Manual duration override in minutes (default: 0.0).
         comment : str, optional
@@ -221,6 +223,8 @@ class PointOperation(BaseOperation):
             Type of operation ('station' or 'mooring', default: 'station').
         action : str, optional
             Specific action for moorings (deploy/recover).
+        display_name : str, optional
+            Human-readable label; defaults to ``name``.
         delay_start : float, optional
             Time to wait before operation begins in minutes.
         """
@@ -365,7 +369,7 @@ class PointOperation(BaseOperation):
     @classmethod
     def from_pydantic(cls, obj: PointDefinition) -> "PointOperation":
         """
-        Factory to create a logical operation from a validated Pydantic model.
+        Create a logical operation from a validated Pydantic model.
 
         Handles the internal 'position' normalization done by FlexibleLocationModel.
 
@@ -418,7 +422,7 @@ class PointOperation(BaseOperation):
     @classmethod
     def from_port(cls, obj: PointDefinition) -> "PointOperation":
         """
-        Factory to create a PointOperation from a PointDefinition.
+        Create a PointOperation from a PointDefinition.
 
         Parameters
         ----------
@@ -480,12 +484,18 @@ class LineOperation(BaseOperation):
         ----------
         name : str
             Unique identifier for this operation.
-        route : List[tuple]
-            List of geographic waypoints as (latitude, longitude) tuples.
+        route : list of GeoPoint
+            Geographic waypoints along the line.
         speed : float, optional
             Vessel speed in knots (default: 10.0).
         comment : str, optional
             Human-readable comment or description.
+        display_name : str, optional
+            Human-readable label; defaults to ``name``.
+        op_type : str, optional
+            Operation type (default: 'line').
+        action : str, optional
+            Action for this operation, if any.
         """
         super().__init__(name, comment, display_name)
         self.route = route  # List of GeoPoint
@@ -590,7 +600,7 @@ class LineOperation(BaseOperation):
         cls, obj: LineDefinition, default_speed: float
     ) -> "LineOperation":
         """
-        Factory to create a line operation from a validated Pydantic model.
+        Create a line operation from a validated Pydantic model.
 
         Parameters
         ----------
@@ -667,8 +677,8 @@ class AreaOperation(BaseOperation):
         ----------
         name : str
             Unique identifier for this operation.
-        boundary_polygon : List[Tuple[float, float]]
-            List of (latitude, longitude) tuples defining the area boundary.
+        boundary_polygon : list of GeoPoint
+            Corners defining the area boundary.
         area_km2 : float
             Area of the polygon in square kilometers.
         duration : Optional[float], optional
@@ -681,6 +691,12 @@ class AreaOperation(BaseOperation):
             Sampling density factor for duration calculations (default: 1.0).
         comment : str, optional
             Human-readable comment or description.
+        display_name : str, optional
+            Human-readable label; defaults to ``name``.
+        op_type : str, optional
+            Operation type (default: 'area').
+        action : str, optional
+            Action for this operation, if any.
         """
         super().__init__(name, comment, display_name)
         self.boundary_polygon = boundary_polygon  # List of GeoPoint
@@ -760,7 +776,7 @@ class AreaOperation(BaseOperation):
     @classmethod
     def from_pydantic(cls, obj: AreaDefinition) -> "AreaOperation":
         """
-        Factory to create an area operation from a validated Pydantic model.
+        Create an area operation from a validated Pydantic model.
 
         Parameters
         ----------

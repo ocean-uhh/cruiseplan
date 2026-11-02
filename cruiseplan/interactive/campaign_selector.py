@@ -1,6 +1,4 @@
-"""
-PANGAEA campaign selection and management interface.
-"""
+"""PANGAEA campaign selection and management interface."""
 
 import logging
 import pickle

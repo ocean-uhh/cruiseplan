@@ -1351,7 +1351,7 @@ def generate_netcdf_outputs(
     config: CruiseConfig, timeline: list[ActivityRecord], output_dir: Path
 ) -> list[Path]:
     """
-    Convenience function to generate all NetCDF outputs.
+    Generate all NetCDF outputs.
 
     Args:
         config: Cruise configuration

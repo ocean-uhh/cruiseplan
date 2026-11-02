@@ -616,7 +616,7 @@ def generate_kml_schedule(
     config: CruiseConfig, timeline: list[ActivityRecord], output_file: Path
 ) -> Path:
     """
-    Main interface to generate KML schedule from scheduler timeline.
+    Generate a KML schedule from the scheduler timeline.
 
     Parameters
     ----------

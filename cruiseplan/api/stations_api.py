@@ -44,7 +44,7 @@ class StationPickerResult(BaseResult):
         self.pangaea_data = pangaea_data
 
     def __str__(self) -> str:
-        """String representation of the result."""
+        """Return a one-line summary of the result."""
         return f"Interactive station picker completed - output: {self.output_file}"
 
 
@@ -422,6 +422,8 @@ def stations(
         Bathymetry source ("etopo2022" or "gebco2025")
     bathy_dir : str
         Bathymetry data directory
+    bathy_contours : list, optional
+        Extra depth contours (m, positive down) drawn over the bathymetry.
     bathy_stride : int
         Bathymetry downsampling factor (default: 10, lower = finer detail but slower)
     max_depth : int, optional
