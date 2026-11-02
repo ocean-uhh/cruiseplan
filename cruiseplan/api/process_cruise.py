@@ -775,11 +775,15 @@ def _check_cruise_metadata_raw(raw_config: dict) -> list[str]:
                 f"Departure port name is set to placeholder '{DEFAULT_DEPARTURE_PORT}'. Please update with actual port name."
             )
 
-        if "latitude" in port and "longitude" in port:
-            if port.get("latitude") == 0.0 and port.get("longitude") == 0.0:
-                metadata_warnings.append(
-                    "Departure port coordinates are set to default (0.0, 0.0). Please update with actual port coordinates."
-                )
+        if (
+            "latitude" in port
+            and "longitude" in port
+            and port.get("latitude") == 0.0
+            and port.get("longitude") == 0.0
+        ):
+            metadata_warnings.append(
+                "Departure port coordinates are set to default (0.0, 0.0). Please update with actual port coordinates."
+            )
 
         if port.get("timezone") == "GMT+0":
             metadata_warnings.append(
@@ -794,11 +798,15 @@ def _check_cruise_metadata_raw(raw_config: dict) -> list[str]:
                 f"Arrival port name is set to placeholder '{DEFAULT_ARRIVAL_PORT}'. Please update with actual port name."
             )
 
-        if "latitude" in port and "longitude" in port:
-            if port.get("latitude") == 0.0 and port.get("longitude") == 0.0:
-                metadata_warnings.append(
-                    "Arrival port coordinates are set to default (0.0, 0.0). Please update with actual port coordinates."
-                )
+        if (
+            "latitude" in port
+            and "longitude" in port
+            and port.get("latitude") == 0.0
+            and port.get("longitude") == 0.0
+        ):
+            metadata_warnings.append(
+                "Arrival port coordinates are set to default (0.0, 0.0). Please update with actual port coordinates."
+            )
 
         if port.get("timezone") == "GMT+0":
             metadata_warnings.append(

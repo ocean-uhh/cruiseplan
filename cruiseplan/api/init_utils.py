@@ -117,9 +117,7 @@ def _parse_map_formats(format_str: str | None) -> list[str]:
 
     if format_str == "all":
         return ["png", "kml"]
-    formats = [fmt.strip() for fmt in format_str.split(",")]
-
-    return formats
+    return [fmt.strip() for fmt in format_str.split(",")]
 
 
 # ============================================================================

@@ -19,7 +19,7 @@ from cruiseplan.timeline.scheduler import ActivityRecord
 
 def create_comprehensive_cruise_yaml():
     """Create a comprehensive cruise YAML file for testing."""
-    yaml_content = """
+    return """
 cruise_name: "ROUNDTRIP_TEST_2026"
 vessel_name: "R/V TestShip"
 start_date: "2026-06-01T08:00:00"
@@ -64,7 +64,6 @@ legs:
           - "CTD_001"
           - "MOOR_001"
 """
-    return yaml_content
 
 
 def test_activity_record_netcdf_roundtrip():
@@ -305,9 +304,7 @@ def test_activity_record_required_fields_present():
             print(
                 f"✅ All {len(expected_variables)} expected ActivityRecord variables present in NetCDF"
             )
-            print(
-                f"✅ Variables found: {sorted(list(schedule_dataset.variables.keys()))}"
-            )
+            print(f"✅ Variables found: {sorted(schedule_dataset.variables.keys())}")
         finally:
             # Ensure NetCDF file is properly closed on Windows
             schedule_dataset.close()

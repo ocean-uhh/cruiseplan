@@ -90,8 +90,7 @@ def real_mode_manager(mock_netcdf_data):
 def mock_bathymetry():
     """Returns a bathy_module.BathymetryManager forced into Mock Mode."""
     # We pass a non-existent path to force mock mode
-    bm = bathy_module.BathymetryManager(source="non_existent_file")
-    return bm
+    return bathy_module.BathymetryManager(source="non_existent_file")
 
 
 def test_mock_depth_determinism(mock_bathymetry):
@@ -371,7 +370,7 @@ class TestBathymetrySimpleCoverage:
         bathymetry_dir = tmp_path / "data" / "bathymetry"
         bathymetry_dir.mkdir(parents=True, exist_ok=True)
 
-        with patch("cruiseplan.data.bathymetry.logger") as mock_logger:
+        with patch("cruiseplan.data.bathymetry.logger"):
             manager = bathy_module.BathymetryManager(source="custom_source")
             manager.data_dir = bathymetry_dir
             manager._initialize_data()
@@ -615,7 +614,7 @@ class TestGEBCO2025Functionality:
             patch("shutil.disk_usage") as mock_disk_usage,
             patch("builtins.input", return_value="y"),
             patch("requests.get") as mock_get,
-            patch.object(Path, "unlink") as mock_unlink,
+            patch.object(Path, "unlink"),
             patch("cruiseplan.data.bathymetry.tqdm") as mock_tqdm,
             patch("sys.modules") as mock_modules,
         ):
@@ -655,7 +654,7 @@ class TestGEBCO2025Functionality:
             patch("builtins.input", return_value="y"),
             patch("requests.get") as mock_get,
             patch("zipfile.ZipFile") as mock_zipfile,
-            patch.object(Path, "unlink") as mock_unlink,
+            patch.object(Path, "unlink"),
             patch("builtins.open", mock_open()),
             patch("cruiseplan.data.bathymetry.tqdm") as mock_tqdm,
             patch("sys.modules") as mock_modules,

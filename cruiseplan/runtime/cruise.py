@@ -333,17 +333,23 @@ class CruiseInstance:
         This method resolves string references in the cruise configuration's
         top-level departure_port and arrival_port fields to PointDefinition objects.
         """
-        if hasattr(self.config, "departure_port") and self.config.departure_port:
-            if isinstance(self.config.departure_port, str):
-                self.config.departure_port = self._resolve_port_reference(
-                    self.config.departure_port
-                )
+        if (
+            hasattr(self.config, "departure_port")
+            and self.config.departure_port
+            and isinstance(self.config.departure_port, str)
+        ):
+            self.config.departure_port = self._resolve_port_reference(
+                self.config.departure_port
+            )
 
-        if hasattr(self.config, "arrival_port") and self.config.arrival_port:
-            if isinstance(self.config.arrival_port, str):
-                self.config.arrival_port = self._resolve_port_reference(
-                    self.config.arrival_port
-                )
+        if (
+            hasattr(self.config, "arrival_port")
+            and self.config.arrival_port
+            and isinstance(self.config.arrival_port, str)
+        ):
+            self.config.arrival_port = self._resolve_port_reference(
+                self.config.arrival_port
+            )
 
     def _enrich_leg_ports(self) -> None:
         """

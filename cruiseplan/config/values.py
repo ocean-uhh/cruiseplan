@@ -113,7 +113,7 @@ DEFAULT_LAST_ACTIVITY = "UPDATE-last-station-name"
 # =============================================================================
 
 
-class StrategyEnum(str, Enum):
+class StrategyEnum(str, Enum):  # noqa: UP042 - StrEnum would change str()/format() output
     """
     Enumeration of scheduling strategies for cruise operations.
 
@@ -131,7 +131,7 @@ class StrategyEnum(str, Enum):
     DAY_NIGHT_SPLIT = "day_night_split"  # not yet implemented
 
 
-class OperationTypeEnum(str, Enum):
+class OperationTypeEnum(str, Enum):  # noqa: UP042 - StrEnum would change str()/format() output
     """
     Enumeration of point operation types.
 
@@ -152,7 +152,7 @@ class OperationTypeEnum(str, Enum):
     DEFAULT = DEFAULT_POINT_OPTYPE
 
 
-class ActionEnum(str, Enum):
+class ActionEnum(str, Enum):  # noqa: UP042 - StrEnum would change str()/format() output
     """
     Enumeration of specific actions for operations.
 
@@ -189,7 +189,7 @@ class ActionEnum(str, Enum):
     DEFAULT_AREA = DEFAULT_AREA_ACTION
 
 
-class LineOperationTypeEnum(str, Enum):
+class LineOperationTypeEnum(str, Enum):  # noqa: UP042 - StrEnum would change str()/format() output
     """
     Enumeration of line operation types.
 
@@ -204,7 +204,7 @@ class LineOperationTypeEnum(str, Enum):
     DEFAULT = DEFAULT_LINE_OPTYPE
 
 
-class AreaOperationTypeEnum(str, Enum):
+class AreaOperationTypeEnum(str, Enum):  # noqa: UP042 - StrEnum would change str()/format() output
     """
     Enumeration of area operation types.
 

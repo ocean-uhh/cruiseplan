@@ -615,7 +615,7 @@ def save_campaign_data(
                 total_events = sum(
                     len(ds.get("latitude", ds.get("events", []))) for ds in datasets
                 )
-                campaigns = set(ds.get("label", "Unknown") for ds in datasets)
+                campaigns = {ds.get("label", "Unknown") for ds in datasets}
 
                 progress_callback("Summary:")
                 # Use original count if provided, otherwise current count

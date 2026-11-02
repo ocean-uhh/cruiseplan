@@ -585,10 +585,7 @@ class HTMLGenerator:
             distance_nm = activity.get("dist_nm", 0.0)
 
         # Format distance
-        if distance_nm == 0.0:
-            distance_str = "-"
-        else:
-            distance_str = f"{distance_nm:.1f}"
+        distance_str = "-" if distance_nm == 0.0 else f"{distance_nm:.1f}"
 
         return entry_position, exit_position, distance_str
 

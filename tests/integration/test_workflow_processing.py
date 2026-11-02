@@ -15,7 +15,7 @@ def test_workflow_fetch_and_merge_mocked():
     Verifies that the manager can fetch them and the merger consolidates them.
     """
     # 1. Setup the Manager
-    manager = PangaeaManager()
+    PangaeaManager()
 
     # 2. Mock the external 'PanDataSet' from the pangaeapy library
     # We simulate 3 datasets returned from a search
@@ -37,7 +37,7 @@ def test_workflow_fetch_and_merge_mocked():
     # Patch the method in your manager that does the actual API search/retrieval
     # Assuming you have a method `get_datasets` or similar.
     # If not, we mock the library call directly:
-    with patch("cruiseplan.data.pangaea.PanDataSet") as MockPanDataSet:
+    with patch("cruiseplan.data.pangaea.PanDataSet"):
         # Configure the mock to return our fake datasets when instantiated/called
         # This part depends heavily on how your Manager calls the library.
         # simpler approach: Let's assume your manager has a `fetch_raw_data` method we mock.

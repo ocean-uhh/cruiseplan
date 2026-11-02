@@ -64,10 +64,7 @@ def extract_points_from_cruise(
             lon = station.longitude
             # Determine entity type based on operation type
             operation_type = getattr(station, "operation_type", "station")
-            if operation_type == "mooring":
-                entity_type = "mooring"
-            else:
-                entity_type = "station"
+            entity_type = "mooring" if operation_type == "mooring" else "station"
 
             points.append(
                 {

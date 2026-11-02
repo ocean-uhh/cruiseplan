@@ -221,8 +221,7 @@ class TestSummaryStatistics:
         assert stats["areas"]["count"] == 1
 
         # Check that all durations are calculated correctly
-        total_scientific_h = (120 + 180 + 240 + 150) / 60  # 11.5 hours
-        total_navigation_h = 90 / 60  # 1.5 hours
+        (120 + 180 + 240 + 150) / 60  # 11.5 hours
 
 
 class TestHTMLGenerator:
@@ -316,7 +315,7 @@ class TestHTMLGenerator:
             output_file = Path(tmp_file.name)
 
         try:
-            result = self.generator.generate_schedule_report(
+            self.generator.generate_schedule_report(
                 self.mock_config, timeline, output_file
             )
 
@@ -369,7 +368,7 @@ class TestHTMLGenerator:
             output_file = Path(tmp_file.name)
 
         try:
-            result = self.generator.generate_schedule_report(
+            self.generator.generate_schedule_report(
                 self.mock_config, timeline, output_file
             )
 
@@ -420,7 +419,7 @@ class TestHTMLGenerator:
             output_file = Path(tmp_file.name)
 
         try:
-            result = self.generator.generate_schedule_report(
+            self.generator.generate_schedule_report(
                 self.mock_config, timeline, output_file
             )
 
@@ -459,7 +458,7 @@ class TestHTMLGenerator:
             output_file = Path(tmp_file.name)
 
         try:
-            result = self.generator.generate_schedule_report(
+            self.generator.generate_schedule_report(
                 self.mock_config, timeline, output_file
             )
 
@@ -501,7 +500,7 @@ class TestHTMLGenerator:
             output_file = Path(tmp_file.name)
 
         try:
-            result = self.generator.generate_schedule_report(
+            self.generator.generate_schedule_report(
                 self.mock_config, timeline, output_file
             )
 
@@ -565,7 +564,7 @@ class TestHTMLGenerator:
             output_file = Path(tmp_file.name)
 
         try:
-            result = self.generator.generate_schedule_report(
+            self.generator.generate_schedule_report(
                 self.mock_config, timeline, output_file
             )
 
@@ -587,7 +586,7 @@ class TestHTMLGenerator:
 
             # Check total calculation
             assert "4 operations" in content  # Total count
-            total_hours = (120 + 180 + 240 + 150) / 60  # 11.5
+            (120 + 180 + 240 + 150) / 60  # 11.5
             assert "11.5" in content
 
             # Check mooring detail table
@@ -615,7 +614,7 @@ class TestHTMLGenerator:
             output_file = Path(tmp_file.name)
 
         try:
-            result = self.generator.generate_schedule_report(
+            self.generator.generate_schedule_report(
                 self.mock_config, timeline, output_file
             )
 

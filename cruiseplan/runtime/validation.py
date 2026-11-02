@@ -511,17 +511,23 @@ def check_cruise_metadata(cruise_instance: "CruiseInstance") -> list[str]:
 
     # Check port names for placeholder patterns
     for leg in cruise_instance.config.legs:
-        if hasattr(leg, "departure_port") and leg.departure_port:
-            if leg.departure_port.name == DEFAULT_DEPARTURE_PORT:
-                warnings.append(
-                    f"Departure port contains placeholder value: {leg.departure_port.name}"
-                )
+        if (
+            hasattr(leg, "departure_port")
+            and leg.departure_port
+            and leg.departure_port.name == DEFAULT_DEPARTURE_PORT
+        ):
+            warnings.append(
+                f"Departure port contains placeholder value: {leg.departure_port.name}"
+            )
 
-        if hasattr(leg, "arrival_port") and leg.arrival_port:
-            if leg.arrival_port.name == DEFAULT_ARRIVAL_PORT:
-                warnings.append(
-                    f"Arrival port contains placeholder value: {leg.arrival_port.name}"
-                )
+        if (
+            hasattr(leg, "arrival_port")
+            and leg.arrival_port
+            and leg.arrival_port.name == DEFAULT_ARRIVAL_PORT
+        ):
+            warnings.append(
+                f"Arrival port contains placeholder value: {leg.arrival_port.name}"
+            )
 
     return warnings
 
@@ -693,9 +699,12 @@ def warning_relates_to_entity(
     """
     # Use literal strings for Python object attribute access (entity is a Pydantic model)
     # not vocabulary constants which are for YAML field access
-    if hasattr(entity, "operation_type") and str(entity.operation_type) in warning_msg:
-        if "placeholder" not in warning_msg:
-            return True
+    if (
+        hasattr(entity, "operation_type")
+        and str(entity.operation_type) in warning_msg
+        and "placeholder" not in warning_msg
+    ):
+        return True
 
     if hasattr(entity, "action") and str(entity.action) in warning_msg:
         return True
@@ -731,6 +740,4 @@ def clean_warning_message(warning_msg: str) -> str:
         "Duration is set to placeholder value ", "Duration is set to placeholder "
     )
     cleaned = cleaned.replace("Input should be ", "")
-    cleaned = cleaned.replace(" (type=", " - expected ")
-
-    return cleaned
+    return cleaned.replace(" (type=", " - expected ")

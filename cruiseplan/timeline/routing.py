@@ -41,9 +41,7 @@ def optimize_composite_route(
 
     # In Phase 1, we simply sum the durations, ignoring routing complexity.
     # The actual TSP/routing logic will be added in a later phase.
-    total_duration = sum(child.calculate_duration(rules) for child in children)
-
-    return total_duration
+    return sum(child.calculate_duration(rules) for child in children)
 
 
 # NOTE: Add a simple placeholder for route calculations if needed later

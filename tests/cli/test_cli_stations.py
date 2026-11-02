@@ -31,7 +31,7 @@ def mock_args(tmp_path):
     mock_file = tmp_path / "campaigns.pkl"
     mock_file.write_text("dummy data")  # Create a file to pass .exists() check
 
-    args = argparse.Namespace(
+    return argparse.Namespace(
         pangaea_file=mock_file,
         lat=[50.0, 60.0],
         lon=[-30.0, -20.0],
@@ -43,7 +43,6 @@ def mock_args(tmp_path):
         verbose=False,
         quiet=False,
     )
-    return args
 
 
 # --- Test Cases ---

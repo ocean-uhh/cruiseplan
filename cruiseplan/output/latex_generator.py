@@ -770,10 +770,7 @@ class LaTeXGenerator:
 
             # Extract just the cruise identifier (e.g., "MSM142" from "MSM142 StJohns")
             cruise_parts = base_cruise_name.split()
-            if cruise_parts:
-                main_cruise_name = cruise_parts[0]  # e.g., "MSM142"
-            else:
-                main_cruise_name = base_cruise_name
+            main_cruise_name = cruise_parts[0] if cruise_parts else base_cruise_name
 
         # Use provided workplan number or default
         workplan_num = workplan_number if workplan_number else "01"
@@ -869,7 +866,7 @@ Time & Position & Depth & Distance & Station & Comment \\\\
         else:
             all_tables = table_blocks[0]
 
-        full_document = f"""\\documentclass{{article}}
+        return f"""\\documentclass{{article}}
 \\usepackage{{booktabs}}
 \\usepackage{{geometry}}
 \\usepackage{{textcomp}}
@@ -885,7 +882,6 @@ Time & Position & Depth & Distance & Station & Comment \\\\
 
 \\end{{document}}
 """
-        return full_document
 
     def _escape_latex_text(self, text: str) -> str:
         """Escape LaTeX special characters in text."""
@@ -914,9 +910,13 @@ Time & Position & Depth & Distance & Station & Comment \\\\
             # Look for station in cruise configuration points
             if hasattr(config, "points") and config.points:
                 for point in config.points:
-                    if hasattr(point, "name") and point.name == station_name:
-                        if hasattr(point, "latitude") and hasattr(point, "longitude"):
-                            return float(point.latitude), float(point.longitude), True
+                    if (
+                        hasattr(point, "name")
+                        and point.name == station_name
+                        and hasattr(point, "latitude")
+                        and hasattr(point, "longitude")
+                    ):
+                        return float(point.latitude), float(point.longitude), True
 
             # Also check legs->clusters->activities if no direct match
             if hasattr(config, "legs") and config.legs:

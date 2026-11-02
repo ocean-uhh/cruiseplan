@@ -862,6 +862,4 @@ class AreaOperation(BaseOperation):
         # Rough conversion from lat/lon degrees to km²
         # (very approximate, assumes mid-latitude ~45°)
         km_per_degree = 111.0  # Rough conversion
-        area_km2 = area * (km_per_degree**2)
-
-        return area_km2
+        return area * (km_per_degree**2)

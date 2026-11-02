@@ -18,25 +18,25 @@ class TestRunThinCLI:
     """Test suite for thin CLI run functionality."""
 
     def _make_args(self, **overrides):
-        defaults = dict(
-            config_file=Path("test.yaml"),
-            output_dir=Path("data"),
-            leg=None,
-            bathy_source="gebco2025",
-            bathy_dir="data/bathymetry",
-            bathy_stride=10,
-            bathy_contours=None,
-            lat=None,
-            lon=None,
-            figsize=None,
-            no_ports=False,
-            no_title=False,
-            no_labels=False,
-            no_legend=False,
-            verbose=False,
-            max_depth=None,
-            eez=False,
-        )
+        defaults = {
+            "config_file": Path("test.yaml"),
+            "output_dir": Path("data"),
+            "leg": None,
+            "bathy_source": "gebco2025",
+            "bathy_dir": "data/bathymetry",
+            "bathy_stride": 10,
+            "bathy_contours": None,
+            "lat": None,
+            "lon": None,
+            "figsize": None,
+            "no_ports": False,
+            "no_title": False,
+            "no_labels": False,
+            "no_legend": False,
+            "verbose": False,
+            "max_depth": None,
+            "eez": False,
+        }
         defaults.update(overrides)
         return argparse.Namespace(**defaults)
 

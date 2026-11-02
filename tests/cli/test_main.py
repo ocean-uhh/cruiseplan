@@ -134,7 +134,7 @@ class TestSubcommandArguments:
                 assert str(args.output_dir) == "output_dir"
                 assert str(args.output) == "specific"
                 assert args.rate_limit == 2.0
-                assert args.merge_campaigns == True
+                assert args.merge_campaigns is True
 
     def test_stations_arguments(self):
         """Test stations subcommand argument parsing."""
@@ -201,7 +201,7 @@ class TestVersionAndHelp:
         test_args = ["cruiseplan", "--version"]
 
         with patch.object(sys, "argv", test_args):
-            with patch("sys.exit") as mock_exit:
+            with patch("sys.exit"):
                 with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
                     main()
                     output = mock_stdout.getvalue()

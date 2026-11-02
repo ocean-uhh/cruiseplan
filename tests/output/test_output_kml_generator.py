@@ -96,7 +96,7 @@ class TestKMLGenerator:
             output_file = Path(tmp_file.name)
 
         try:
-            result = self.generator.generate_schedule_kml(
+            self.generator.generate_schedule_kml(
                 self.mock_config, timeline, output_file
             )
 
@@ -238,7 +238,7 @@ class TestKMLUtilityFunctions:
 
     def test_coordinate_formatting(self):
         """Test coordinate formatting in KML output."""
-        generator = KMLGenerator()
+        KMLGenerator()
 
         # Test coordinate formatting with various inputs
         test_cases = [

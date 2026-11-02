@@ -301,7 +301,7 @@ class StationPicker:
             va="center",
             fontweight="bold",
             fontsize=12,
-            bbox=dict(boxstyle="round,pad=0.3", facecolor="#2E8B57", alpha=0.3),
+            bbox={"boxstyle": "round,pad=0.3", "facecolor": "#2E8B57", "alpha": 0.3},
         )
 
         # Status display (middle 60%)
@@ -545,12 +545,12 @@ class StationPicker:
                 fontsize=9,
                 fontweight="bold",
                 color="black",
-                bbox=dict(
-                    boxstyle="round,pad=0.3",
-                    facecolor="white",
-                    alpha=0.8,
-                    edgecolor="black",
-                ),
+                bbox={
+                    "boxstyle": "round,pad=0.3",
+                    "facecolor": "white",
+                    "alpha": 0.8,
+                    "edgecolor": "black",
+                },
                 zorder=11,  # Above the markers
             )
 
@@ -945,9 +945,8 @@ class StationPicker:
         elif item_type in ["line"]:
             if item_data in self.lines:
                 self.lines.remove(item_data)
-        elif item_type == "area":
-            if item_data in self.areas:
-                self.areas.remove(item_data)
+        elif item_type == "area" and item_data in self.areas:
+            self.areas.remove(item_data)
 
         self.ax_map.figure.canvas.draw_idle()
         self._update_status_display(message=f"Removed last {item_type}")
@@ -968,7 +967,7 @@ class StationPicker:
         color = mode_colors.get(self.mode, "#808080")
         self.mode_text.set_text(f"Mode: {self.mode.upper()}")
         self.mode_text.set_bbox(
-            dict(boxstyle="round,pad=0.3", facecolor=color, alpha=0.3)
+            {"boxstyle": "round,pad=0.3", "facecolor": color, "alpha": 0.3}
         )
         self.fig.canvas.draw_idle()
 
