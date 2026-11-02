@@ -159,4 +159,4 @@ test_output/
 
 # Directories that should never be committed
 MagicMock/
-output/
+/output/
