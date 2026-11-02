@@ -5,6 +5,7 @@ This module provides the StationPicker class, which creates an interactive
 matplotlib-based interface for planning cruise stations, transects, and survey areas.
 """
 
+import contextlib
 import logging
 import sys
 from pathlib import Path
@@ -249,10 +250,8 @@ class StationPicker:
                 "keymap.save",
             ]:
                 if key in plt.rcParams.get(param, []):
-                    try:
+                    with contextlib.suppress(ValueError):
                         plt.rcParams[param].remove(key)
-                    except ValueError:
-                        pass
 
     def _setup_interface(self) -> None:
         """Create the matplotlib figure with subplot layout."""
@@ -1224,7 +1223,7 @@ class StationPicker:
             print(
                 f"✅ Saved {len(point_definitions)} stations, {len(line_definitions)} transects, {len(area_definitions)} areas."
             )
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - interactive save: report error, keep the session
             print(f"❌ Save Error: {e}")
 
     def _prompt_overwrite(self, file_path: Path) -> str:

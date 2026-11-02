@@ -17,6 +17,7 @@ Boundaries and Exclusive Economic Zones (200NM), version 12. Available online
 at https://www.marineregions.org/. https://doi.org/10.14284/632
 """
 
+import contextlib
 import logging
 import zipfile
 from pathlib import Path
@@ -96,7 +97,7 @@ def ensure_eez_data() -> Path:
                     zip_path.unlink(missing_ok=True)
                     continue
                 break
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001 - download fallback: try the next URL
                 logger.warning(f"Download failed from {url}: {e}")
                 zip_path.unlink(missing_ok=True)
                 continue
@@ -181,10 +182,8 @@ def _extract_and_validate_eez_data(zip_path: Path, eez_file_path: Path) -> bool:
                     extracted_path.rename(temp_path)
                     # Remove any subdirectory created by extract() (e.g. World_EEZ_v12_20231025/)
                     if extracted_dir != eez_file_path.parent:
-                        try:
+                        with contextlib.suppress(OSError):
                             extracted_dir.rmdir()
-                        except OSError:
-                            pass
 
                     # Validate the GeoPackage contains expected EEZ schema
                     if _validate_eez_schema(temp_path):
@@ -198,7 +197,7 @@ def _extract_and_validate_eez_data(zip_path: Path, eez_file_path: Path) -> bool:
                     )
                     temp_path.unlink(missing_ok=True)
 
-                except Exception as e:
+                except Exception as e:  # noqa: BLE001 - skip unreadable GeoPackage, try the next one
                     logger.warning(f"Failed to process {gpkg_name}: {e}")
                     continue
 
@@ -255,7 +254,7 @@ def _validate_eez_schema(gpkg_path: Path) -> bool:
         )
         return True
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - schema check returns False on any read failure
         logger.warning(f"Failed to validate EEZ schema: {e}")
         return False
 

@@ -94,8 +94,10 @@ def validate_output_directory(
     if create_if_missing:
         try:
             resolved_path.mkdir(parents=True, exist_ok=True)
-        except Exception as e:
-            raise ValueError(f"Cannot create output directory: {resolved_path}: {e}")
+        except OSError as e:
+            raise ValueError(
+                f"Cannot create output directory: {resolved_path}: {e}"
+            ) from e
 
     if not resolved_path.exists():
         raise ValueError(f"Output directory does not exist: {resolved_path}")
@@ -108,8 +110,10 @@ def validate_output_directory(
         test_file = resolved_path / ".cruiseplan_write_test"
         test_file.touch()
         test_file.unlink()
-    except Exception as e:
-        raise ValueError(f"Output directory is not writable: {resolved_path}: {e}")
+    except OSError as e:
+        raise ValueError(
+            f"Output directory is not writable: {resolved_path}: {e}"
+        ) from e
 
     return resolved_path
 
@@ -194,7 +198,7 @@ def setup_output_paths(
     try:
         output_dir_path = validate_output_directory(output_dir)
     except ValueError as e:
-        raise ValueError(f"Output directory setup failed: {e}")
+        raise ValueError(f"Output directory setup failed: {e}") from e
 
     # Determine base filename
     if output:

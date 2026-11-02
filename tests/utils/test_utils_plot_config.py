@@ -259,7 +259,7 @@ class TestPlotConfigIntegration:
                 assert contour is not None
                 # QuadContourSet might have different attributes
                 assert hasattr(contour, "levels") or hasattr(contour, "collections")
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001 - turn any plotting error into a test failure with context
                 pytest.fail(
                     f"Failed to create contour plot with {cmap_func.__name__}: {e}"
                 )

@@ -61,7 +61,7 @@ class CacheManager:
                     data = pickle.load(f)
                     logger.debug(f"Cache hit: {key}")
                     return data
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001 - unreadable cache entry is a cache miss
                 logger.warning(f"Cache read error for {key}: {e}")
         return None
 

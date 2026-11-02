@@ -488,7 +488,7 @@ def resolve_port_reference(
             if missing_fields:
                 raise ValueError(
                     f"Port dictionary missing required fields: {', '.join(missing_fields)}"
-                )
+                ) from e
             # Re-raise original validation error for other types of validation issues
             raise ValueError(str(e)) from e
 

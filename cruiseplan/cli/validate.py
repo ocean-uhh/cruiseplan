@@ -74,7 +74,7 @@ def _handle_exceptions(args: argparse.Namespace) -> None:
         handle_error(f"ERROR: File not found: {e}")
     except KeyboardInterrupt:
         handle_error("\nOperation cancelled by user.")
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - CLI top level: report any error and exit 1
         print(f"ERROR: Unexpected error: {e}", file=sys.stderr)
         if getattr(args, "verbose", False):
             import traceback
@@ -104,7 +104,7 @@ def run(args: argparse.Namespace) -> None:
         _display_validation_results(result, warnings_only)
         _print_summary_and_exit(result, warnings_only)
 
-    except Exception:
+    except Exception:  # noqa: BLE001 - CLI top level: delegated to _handle_exceptions
         _handle_exceptions(args)
 
 

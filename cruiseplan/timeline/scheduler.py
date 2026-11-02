@@ -661,7 +661,7 @@ class TimelineGenerator:
                 runtime_leg.delay_start = getattr(leg_def, "delay_start", None)
 
                 runtime_legs.append(runtime_leg)
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001 - skip a leg that cannot be built; others are scheduled
                 logger.warning(
                     f"Failed to create runtime leg for '{leg_def.name}': {e}"
                 )

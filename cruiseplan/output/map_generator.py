@@ -746,7 +746,7 @@ def plot_bathymetry(
         logger.info("Added bathymetry contours covering full region")
         return cs_filled  # Return contour object for colorbar creation later
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - optional bathymetry layer; map is drawn without it
         logger.warning(f"Bathymetry plotting failed: {e}")
         return False
 
@@ -1457,7 +1457,7 @@ def generate_folium_map(
     if include_eez:
         try:
             _add_eez_boundaries(m, tracks)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - optional EEZ overlay; map is drawn without it
             logger.warning(f"Could not add EEZ boundaries: {e}")
 
     # 3. Draw Each Track

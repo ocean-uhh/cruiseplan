@@ -288,13 +288,13 @@ def _process_search_query(
         logger.info(f"📂 DOI file: {dois_file}")
         return clean_dois, generated_files
 
-    except ImportError:
+    except ImportError as e:
         logger.exception(
             "❌ pangaeapy not available. Please install with: pip install pangaeapy"
         )
         raise RuntimeError(
             "pangaeapy package not available - please install with: pip install pangaeapy"
-        )
+        ) from e
 
 
 def _resolve_doi_list(

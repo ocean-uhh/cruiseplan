@@ -30,11 +30,11 @@ def check_matplotlib_available() -> None:
     """
     try:
         import matplotlib.pyplot  # noqa: F401
-    except ImportError:
+    except ImportError as e:
         raise ImportError(
             "Interactive plotting requires matplotlib. "
             "Install with: pip install matplotlib"
-        )
+        ) from e
 
 
 # ============================================================================

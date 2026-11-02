@@ -5,6 +5,7 @@ This module provides the complete processing workflow including enrich(), valida
 and process() functions that coordinate the full data processing pipeline.
 """
 
+import contextlib
 import logging
 import warnings as python_warnings
 from collections.abc import Iterator
@@ -431,14 +432,14 @@ def enrich(
         try:
             config_path = validate_input_file(config_file)
         except ValueError as e:
-            raise FileError(str(e))
+            raise FileError(str(e)) from e
 
         # Validate config file format
         try:
             config_data = load_yaml(config_path)
             cruise_name = config_data.get("cruise_name")
         except Exception as e:
-            raise CruisePlanValidationError(f"Invalid YAML configuration: {e}")
+            raise CruisePlanValidationError(f"Invalid YAML configuration: {e}") from e
 
         # Setup and validate output paths
         try:
@@ -456,13 +457,15 @@ def enrich(
             try:
                 test_file.touch()
                 test_file.unlink()
-            except Exception:
-                raise FileError(f"Output directory is not writable: {output_dir_path}")
+            except OSError as e:
+                raise FileError(
+                    f"Output directory is not writable: {output_dir_path}"
+                ) from e
 
         except Exception as e:
             if isinstance(e, FileError):
                 raise
-            raise FileError(f"Output directory setup failed: {e}")
+            raise FileError(f"Output directory setup failed: {e}") from e
 
         # Determine final output file path
         output_path = output_dir_path / f"{base_name}_enriched.yaml"
@@ -496,19 +499,21 @@ def enrich(
                 or "invalid" in error_msg
                 or "missing" in error_msg
             ):
-                raise CruisePlanValidationError(f"Configuration validation failed: {e}")
+                raise CruisePlanValidationError(
+                    f"Configuration validation failed: {e}"
+                ) from e
             if (
                 "bathymetry" in error_msg
                 or "etopo" in error_msg
                 or "gebco" in error_msg
             ):
-                raise BathymetryError(f"Bathymetry processing failed: {e}")
+                raise BathymetryError(f"Bathymetry processing failed: {e}") from e
             if (
                 "file" in error_msg
                 or "directory" in error_msg
                 or "permission" in error_msg
             ):
-                raise FileError(f"File operation failed: {e}")
+                raise FileError(f"File operation failed: {e}") from e
             # Re-raise as generic error for now
             raise
 
@@ -665,11 +670,10 @@ def _validate_configuration(
     except ValidationError as e:
         # Load raw config first to help with error formatting
         raw_config = None
-        try:
+        # Best-effort: if the raw YAML cannot be loaded, report the schema errors
+        # without station names.
+        with contextlib.suppress(Exception):
             raw_config = load_yaml_safe(config_path)
-        except Exception:
-            # Best-effort: if we cannot load raw YAML, continue with basic error reporting
-            pass
 
         for error in e.errors():
             # Enhanced location formatting with station names when possible
@@ -687,7 +691,7 @@ def _validate_configuration(
                 # Check for unexpanded CTD sections from raw YAML
                 ctd_warnings = _check_unexpanded_ctd_sections_raw(raw_config)
                 warnings.extend(ctd_warnings)
-        except Exception:
+        except Exception:  # noqa: BLE001 - best-effort warnings after a schema error
             # If we can't load raw YAML, just continue
             pass
 
@@ -697,7 +701,7 @@ def _validate_configuration(
 
         return False, errors, warnings
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - validation reports any load error as an error
         errors.append(f"Configuration loading error: {e}")
         return False, errors, warnings
 
@@ -1000,7 +1004,7 @@ def validate(
     try:
         config_path = validate_input_file(config_file)
     except ValueError as e:
-        raise FileError(str(e))
+        raise FileError(str(e)) from e
     logger.info(f"🔍 Validating {config_path}")
 
     try:
@@ -1025,7 +1029,7 @@ def validate(
             config_dict = load_yaml_safe(config_path)
             if "cruise_name" in config_dict:
                 summary["cruise_name"] = config_dict["cruise_name"]
-        except Exception:
+        except Exception:  # noqa: BLE001 - best-effort; cruise_name is optional in the summary
             # Best-effort enrichment: failure to read cruise_name should not break validation
             pass
 
@@ -1261,7 +1265,7 @@ def process(
     try:
         config_path = validate_input_file(config_file)
     except ValueError as e:
-        raise FileError(str(e))
+        raise FileError(str(e)) from e
 
     generated_files = []
     validation_result = None
@@ -1337,7 +1341,7 @@ def process(
         try:
             config_dict = load_yaml_safe(config_path)
             cruise_name = config_dict.get("cruise_name", "Unknown")
-        except Exception:
+        except Exception:  # noqa: BLE001 - best-effort; summary falls back to 'Unknown'
             cruise_name = "Unknown"
 
         # Create comprehensive summary

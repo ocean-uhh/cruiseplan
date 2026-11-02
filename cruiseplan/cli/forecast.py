@@ -286,7 +286,7 @@ def _forecast_text(args: argparse.Namespace, schedule_file: Path) -> None:
             with Path(output_path).open("w") as f:
                 f.write(result.output)
             print(f"Forecast written to: {output_path}")
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - CLI: report write failure without traceback
             print(
                 f"ERROR: Error writing to {output_path}: {e}",
                 file=sys.stderr,

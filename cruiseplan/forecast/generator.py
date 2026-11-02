@@ -245,8 +245,8 @@ def generate_forecast(
     # Parse start_time
     try:
         new_start_time = pd.to_datetime(start_time)
-    except Exception as e:
-        raise ValueError(f"Invalid start_time format '{start_time}': {e}")
+    except (ValueError, TypeError, OverflowError) as e:
+        raise ValueError(f"Invalid start_time format '{start_time}': {e}") from e
 
     # Convert time data to pandas timedeltas for easier calculation
     time_data = schedule.time.values

@@ -440,7 +440,7 @@ def enrich_depths(
                     f"Added depth to {station_name}: {water_depth:.1f}m from {bathymetry_source}"
                 )
 
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - per-station depth lookup; skip the station
             logger.warning(f"Failed to get depth for station {station_name}: {e}")
             continue
 

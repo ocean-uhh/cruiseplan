@@ -82,7 +82,7 @@ For detailed help on a subcommand:
     except KeyboardInterrupt:
         print("\n\nOperation cancelled by user.")
         sys.exit(1)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - CLI top level: report any error and exit 1
         print(f"\nERROR: A critical error occurred during execution: {e}")
         sys.exit(1)
 

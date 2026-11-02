@@ -169,7 +169,7 @@ class BathymetryManager:
                 self._depth_var_name = self._get_depth_variable_name()
                 self._is_mock = False
                 logger.info(f"✅ Loaded bathymetry from {file_path}")
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001 - unreadable bathymetry file falls back to mock mode
                 logger.warning(
                     f"❌ Failed to load bathymetry file: {e}. Using MOCK mode. Run 'cruiseplan download' to fix."
                 )
@@ -413,7 +413,7 @@ class BathymetryManager:
                     f"❌ Insufficient disk space. Need ~12GB, have {free_space_gb:.1f}GB free."
                 )
                 return False
-        except Exception as e:
+        except OSError as e:
             logger.warning(f"⚠️ Could not check disk space: {e}")
 
         # User confirmation for large download
@@ -688,7 +688,7 @@ def _download_etopo2022(target_dir: str) -> str | bool | None:
                     bar.update(len(chunk))
             print("\nDownload complete!")
             return str(local_path)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - download fallback: try the next URL
             print(f"Failed to download from {url}")
             print(f"   Error: {e}")
             if local_path.exists():
@@ -759,7 +759,7 @@ def check_bathymetry_availability(source: str) -> bool:
         # Create a temporary manager to check availability
         manager = BathymetryManager(source=source)
         return not manager._is_mock
-    except Exception:
+    except Exception:  # noqa: BLE001 - availability check returns False on any failure
         return False
 
 

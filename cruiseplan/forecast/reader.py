@@ -88,7 +88,7 @@ def read_schedule(filepath: str | Path) -> xr.Dataset:
     except Exception as e:
         if isinstance(e, (FileNotFoundError, ValueError)):
             raise
-        raise ValueError(f"Error reading NetCDF schedule file {filepath}: {e}")
+        raise ValueError(f"Error reading NetCDF schedule file {filepath}: {e}") from e
 
 
 def netcdf_to_activity_records(schedule: xr.Dataset) -> list[ActivityRecord]:

@@ -938,7 +938,7 @@ Time & Position & Depth & Distance & Station & Comment \\\\
                                                     True,
                                                 )
 
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - best-effort lookup; falls back to timeline coordinates
             logger.warning(
                 f"Error looking up original coordinates for {station_name}: {e}"
             )

@@ -6,6 +6,7 @@ tests argument passing to the API. Business logic testing happens in API tests.
 """
 
 import argparse
+import contextlib
 from pathlib import Path
 from unittest.mock import patch
 
@@ -211,11 +212,12 @@ class TestValidateThinCLI:
             mock_validate.side_effect = KeyboardInterrupt()
 
             # Capture the exception handling without letting it propagate
-            with patch("sys.exit") as mock_exit:
-                try:
-                    run(args)
-                except SystemExit:
-                    pass  # Expected, but don't let it propagate to pytest
+            # SystemExit is expected; don't let it propagate to pytest
+            with (
+                patch("sys.exit") as mock_exit,
+                contextlib.suppress(SystemExit),
+            ):
+                run(args)
 
             # Verify the exit code and message
             mock_exit.assert_called_once_with(1)

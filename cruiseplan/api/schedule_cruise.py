@@ -198,7 +198,7 @@ def schedule(
     try:
         config_path = validate_input_file(config_file)
     except ValueError as e:
-        raise FileError(str(e))
+        raise FileError(str(e)) from e
 
     logger.info(f"📅 Generating schedule from {config_path}")
 

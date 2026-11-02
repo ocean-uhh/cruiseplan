@@ -166,9 +166,9 @@ def load_pangaea_campaign_data(pangaea_file: Path) -> list[dict]:
         return campaign_data
 
     except ImportError as e:
-        raise ValueError(f"PANGAEA functionality not available: {e}")
+        raise ValueError(f"PANGAEA functionality not available: {e}") from e
     except Exception as e:
-        raise ValueError(f"Error loading PANGAEA data: {e}")
+        raise ValueError(f"Error loading PANGAEA data: {e}") from e
 
 
 def load_config_stations_data(
@@ -260,7 +260,7 @@ def load_config_stations_data(
         return stations_data, lat_bounds, lon_bounds
 
     except Exception as e:
-        raise ValueError(f"Error loading config stations: {e}")
+        raise ValueError(f"Error loading config stations: {e}") from e
 
 
 def _determine_output_path(
@@ -480,7 +480,7 @@ def stations(
     try:
         _validate_coordinate_bounds(list(final_lat_bounds), list(final_lon_bounds))
     except ValueError as e:
-        raise ValueError(f"Invalid coordinate bounds: {e}")
+        raise ValueError(f"Invalid coordinate bounds: {e}") from e
 
     # Set up output paths
     output_dir_path, output_filename = _determine_output_path(

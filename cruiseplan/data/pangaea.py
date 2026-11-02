@@ -422,7 +422,7 @@ class PangaeaManager:
         try:
             clean_lats = pd.to_numeric(df[lat_col], errors="coerce").dropna().tolist()
             clean_lons = pd.to_numeric(df[lon_col], errors="coerce").dropna().tolist()
-        except Exception:
+        except Exception:  # noqa: BLE001 - malformed PANGAEA table: skip the dataset
             return None
 
         if not clean_lats:
@@ -629,7 +629,7 @@ def save_campaign_data(
                 progress_callback(f"  - {total_events} total events/stations")
 
     except Exception as e:
-        raise ValueError(f"Error saving pickle file: {e}")
+        raise ValueError(f"Error saving pickle file: {e}") from e
 
 
 def load_campaign_data(file_path: str | Path, merge_tracks: bool = True) -> list[dict]:
@@ -688,9 +688,9 @@ def load_campaign_data(file_path: str | Path, merge_tracks: bool = True) -> list
     except pickle.PickleError as e:
         raise pickle.PickleError(
             f"Failed to unpickle campaign data from {file_path}: {e}"
-        )
+        ) from e
     except Exception as e:
-        raise ValueError(f"Error loading campaign data from {file_path}: {e}")
+        raise ValueError(f"Error loading campaign data from {file_path}: {e}") from e
 
 
 def read_doi_list(file_path: str | Path) -> list[str]:
@@ -739,4 +739,4 @@ def read_doi_list(file_path: str | Path) -> list[str]:
         return dois
 
     except Exception as e:
-        raise ValueError(f"Error reading DOI list from {file_path}: {e}")
+        raise ValueError(f"Error reading DOI list from {file_path}: {e}") from e

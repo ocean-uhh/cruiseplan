@@ -220,7 +220,7 @@ def map(
 
         return MapResult(map_files=generated_files, format=format, summary=summary)
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - API boundary: log and return a failed MapResult
         from cruiseplan.api.init_utils import _handle_error_with_logging
 
         _handle_error_with_logging(e, "Map generation failed", verbose)
