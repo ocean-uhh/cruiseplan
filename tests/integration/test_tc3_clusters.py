@@ -191,7 +191,7 @@ class TestTC3ClustersIntegration:
         import tempfile
 
         with tempfile.TemporaryDirectory() as tmp_dir:
-            output_path = Path(tmp_dir)
+            Path(tmp_dir)
 
             # Generate timeline
             timeline = generate_timeline(tc3_cruise)

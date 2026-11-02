@@ -6,6 +6,7 @@ generator methods to increase test coverage. These are tactical tests
 focused on coverage rather than comprehensive validation.
 """
 
+import contextlib
 import tempfile
 from datetime import datetime
 from pathlib import Path
@@ -74,12 +75,10 @@ class TestNetCDFCoverageBoost:
         mock_to_netcdf.return_value = None
 
         # This should execute the uncovered lines 100-282
-        try:
+        # Tactical coverage test - exceptions expected due to incomplete mocking
+        # We only care about exercising code paths, not functional correctness
+        with contextlib.suppress(Exception):
             self.generator.generate_point_operations(config, timeline, output_path)
-        except Exception:
-            # Tactical coverage test - exceptions expected due to incomplete mocking
-            # We only care about exercising code paths, not functional correctness
-            pass
 
     @patch("cruiseplan.output.netcdf_generator.xr.Dataset.to_netcdf")
     def test_generate_master_schedule_call_coverage(self, mock_to_netcdf):
@@ -91,12 +90,10 @@ class TestNetCDFCoverageBoost:
         mock_to_netcdf.return_value = None
 
         # This should execute the uncovered lines 1041-1236
-        try:
+        # Tactical coverage test - exceptions expected due to incomplete mocking
+        # We only care about exercising code paths, not functional correctness
+        with contextlib.suppress(Exception):
             self.generator.generate_master_schedule(timeline, config, output_path)
-        except Exception:
-            # Tactical coverage test - exceptions expected due to incomplete mocking
-            # We only care about exercising code paths, not functional correctness
-            pass
 
     @patch("cruiseplan.output.netcdf_generator.xr.Dataset.to_netcdf")
     def test_generate_line_operations_call_coverage(self, mock_to_netcdf):
@@ -108,12 +105,10 @@ class TestNetCDFCoverageBoost:
         mock_to_netcdf.return_value = None
 
         # This should execute the uncovered lines 1245-1441
-        try:
+        # Tactical coverage test - exceptions expected due to incomplete mocking
+        # We only care about exercising code paths, not functional correctness
+        with contextlib.suppress(Exception):
             self.generator.generate_line_operations(config, timeline, output_path)
-        except Exception:
-            # Tactical coverage test - exceptions expected due to incomplete mocking
-            # We only care about exercising code paths, not functional correctness
-            pass
 
     @patch("cruiseplan.output.netcdf_generator.xr.open_dataset")
     @patch("cruiseplan.output.netcdf_generator.xr.Dataset.to_netcdf")
@@ -131,11 +126,9 @@ class TestNetCDFCoverageBoost:
         schedule_path = self.temp_dir / "schedule.nc"
         output_path = self.temp_dir / "points.nc"
 
-        try:
+        # Tactical coverage test - exceptions expected due to incomplete mocking
+        with contextlib.suppress(Exception):
             self.generator.derive_point_operations(schedule_path, output_path, config)
-        except Exception:
-            # Tactical coverage test - exceptions expected due to incomplete mocking
-            pass
 
     @patch("cruiseplan.output.netcdf_generator.xr.open_dataset")
     @patch("cruiseplan.output.netcdf_generator.xr.Dataset.to_netcdf")
@@ -153,11 +146,9 @@ class TestNetCDFCoverageBoost:
         schedule_path = self.temp_dir / "schedule.nc"
         output_path = self.temp_dir / "lines.nc"
 
-        try:
+        # Tactical coverage test - exceptions expected due to incomplete mocking
+        with contextlib.suppress(Exception):
             self.generator.derive_line_operations(schedule_path, output_path, config)
-        except Exception:
-            # Tactical coverage test - exceptions expected due to incomplete mocking
-            pass
 
     @patch("cruiseplan.output.netcdf_generator.xr.open_dataset")
     @patch("cruiseplan.output.netcdf_generator.xr.Dataset.to_netcdf")
@@ -175,11 +166,9 @@ class TestNetCDFCoverageBoost:
         schedule_path = self.temp_dir / "schedule.nc"
         output_path = self.temp_dir / "areas.nc"
 
-        try:
+        # Tactical coverage test - exceptions expected due to incomplete mocking
+        with contextlib.suppress(Exception):
             self.generator.derive_area_operations(schedule_path, output_path, config)
-        except Exception:
-            # Tactical coverage test - exceptions expected due to incomplete mocking
-            pass
 
     def test_empty_timeline_branches(self):
         """Test empty timeline branches for coverage."""
@@ -188,26 +177,20 @@ class TestNetCDFCoverageBoost:
 
         # Test various methods with empty timeline
         with patch("cruiseplan.output.netcdf_generator.xr.Dataset.to_netcdf"):
-            try:
+            with contextlib.suppress(Exception):
                 self.generator.generate_point_operations(
                     config, empty_timeline, self.temp_dir / "empty1.nc"
                 )
-            except Exception:
-                pass
 
-            try:
+            with contextlib.suppress(Exception):
                 self.generator.generate_master_schedule(
                     empty_timeline, config, self.temp_dir / "empty2.nc"
                 )
-            except Exception:
-                pass
 
-            try:
+            with contextlib.suppress(Exception):
                 self.generator.generate_line_operations(
                     config, empty_timeline, self.temp_dir / "empty3.nc"
                 )
-            except Exception:
-                pass
 
     def test_config_with_stations(self):
         """Test with actual station objects to cover more branches."""
@@ -247,13 +230,13 @@ class TestNetCDFCoverageBoost:
             )
         ]
 
-        with patch("cruiseplan.output.netcdf_generator.xr.Dataset.to_netcdf"):
-            try:
-                self.generator.generate_point_operations(
-                    config, timeline, self.temp_dir / "with_station.nc"
-                )
-            except Exception:
-                pass
+        with (
+            patch("cruiseplan.output.netcdf_generator.xr.Dataset.to_netcdf"),
+            contextlib.suppress(Exception),
+        ):
+            self.generator.generate_point_operations(
+                config, timeline, self.temp_dir / "with_station.nc"
+            )
 
     def test_different_operation_types(self):
         """Test different operation types for coverage."""
@@ -296,19 +279,15 @@ class TestNetCDFCoverageBoost:
         ]
 
         with patch("cruiseplan.output.netcdf_generator.xr.Dataset.to_netcdf"):
-            try:
+            with contextlib.suppress(Exception):
                 self.generator.generate_master_schedule(
                     timeline, config, self.temp_dir / "mixed_ops.nc"
                 )
-            except Exception:
-                pass
 
-            try:
+            with contextlib.suppress(Exception):
                 self.generator.generate_line_operations(
                     config, timeline, self.temp_dir / "line_ops.nc"
                 )
-            except Exception:
-                pass
 
 
 class TestNetCDFErrorPaths:
@@ -354,13 +333,13 @@ class TestNetCDFErrorPaths:
             )
         ]
 
-        with patch("cruiseplan.output.netcdf_generator.xr.Dataset.to_netcdf"):
-            try:
-                self.generator.generate_point_operations(
-                    config, timeline, self.temp_dir / "miss.nc"
-                )
-            except Exception:
-                pass
+        with (
+            patch("cruiseplan.output.netcdf_generator.xr.Dataset.to_netcdf"),
+            contextlib.suppress(Exception),
+        ):
+            self.generator.generate_point_operations(
+                config, timeline, self.temp_dir / "miss.nc"
+            )
 
     def test_operation_type_edge_cases(self):
         """Test operation type edge cases."""
@@ -396,10 +375,10 @@ class TestNetCDFErrorPaths:
             )
         ]
 
-        with patch("cruiseplan.output.netcdf_generator.xr.Dataset.to_netcdf"):
-            try:
-                self.generator.generate_point_operations(
-                    config, timeline, self.temp_dir / "edge.nc"
-                )
-            except Exception:
-                pass
+        with (
+            patch("cruiseplan.output.netcdf_generator.xr.Dataset.to_netcdf"),
+            contextlib.suppress(Exception),
+        ):
+            self.generator.generate_point_operations(
+                config, timeline, self.temp_dir / "edge.nc"
+            )

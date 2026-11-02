@@ -51,12 +51,12 @@ class GeoPoint(BaseModel):
     longitude: float
 
     @field_validator("latitude")
-    def validate_lat(cls, v):
+    def validate_lat(cls, v: float) -> float:
         """Validate latitude using centralized coordinate utilities."""
         return _validate_latitude(v)
 
     @field_validator("longitude")
-    def validate_lon(cls, v):
+    def validate_lon(cls, v: float) -> float:
         """Validate longitude using centralized coordinate utilities."""
         return _validate_longitude(v)
 
@@ -88,7 +88,7 @@ class FlexibleLocationModel(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def unify_coordinates(cls, data: Any) -> Any:
+    def unify_coordinates(cls, data: object) -> object:
         """
         Unify different coordinate input formats.
 
@@ -97,12 +97,13 @@ class FlexibleLocationModel(BaseModel):
 
         Parameters
         ----------
-        data : Any
-            Input data dictionary to process.
+        data : object
+            Raw input; dictionaries are processed, anything else is
+            passed through to pydantic.
 
         Returns
         -------
-        Any
+        object
             Processed data with latitude and longitude fields.
 
         Raises
@@ -224,7 +225,7 @@ class PointDefinition(FlexibleLocationModel):
 
     @field_validator("operation_depth")
     @classmethod
-    def validate_operation_depth(cls, v):
+    def validate_operation_depth(cls, v: float | None) -> float | None:
         """Validate operation depth is positive."""
         if v is not None and v < 0:
             msg = "Operation depth must be positive"
@@ -233,7 +234,7 @@ class PointDefinition(FlexibleLocationModel):
 
     @field_validator("water_depth")
     @classmethod
-    def validate_water_depth(cls, v):
+    def validate_water_depth(cls, v: float | None) -> float | None:
         """Validate water depth is positive."""
         if v is not None and v < 0:
             msg = "Water depth must be positive"
@@ -242,7 +243,7 @@ class PointDefinition(FlexibleLocationModel):
 
     @field_validator("operation_type", mode="before")
     @classmethod
-    def normalize_operation_type(cls, v):
+    def normalize_operation_type(cls, v: object) -> object:
         """Normalize operation_type for case-insensitive validation."""
         if isinstance(v, str):
             # Create case-insensitive mapping to correct enum values
@@ -308,7 +309,7 @@ class LineDefinition(BaseModel):
     max_depth: float | None = None  # Override default depth for CTD sections
 
     @field_validator("route", mode="before")
-    def parse_route_strings(cls, v):
+    def parse_route_strings(cls, v: list[str | dict[str, Any]]) -> list[dict[str, Any]]:
         """
         Parse route strings into GeoPoint objects.
 
@@ -338,7 +339,7 @@ class LineDefinition(BaseModel):
 
     @field_validator("vessel_speed")
     @classmethod
-    def validate_vessel_speed(cls, v):
+    def validate_vessel_speed(cls, v: float | None) -> float | None:
         """Validate vessel speed is positive."""
         if v is not None and v <= 0:
             msg = "Vessel speed must be positive"
@@ -378,7 +379,7 @@ class AreaDefinition(BaseModel):
 
     @field_validator("duration")
     @classmethod
-    def validate_duration(cls, v):
+    def validate_duration(cls, v: float | None) -> float | None:
         """Validate duration is positive."""
         if v is not None and v <= 0:
             msg = "Duration must be positive"
@@ -387,7 +388,7 @@ class AreaDefinition(BaseModel):
 
     @field_validator("corners")
     @classmethod
-    def validate_corners_minimum(cls, v):
+    def validate_corners_minimum(cls, v: list[GeoPoint]) -> list[GeoPoint]:
         """Validate at least 3 corners for a valid area."""
         if len(v) < 3:
             msg = "Area must have at least 3 corners"

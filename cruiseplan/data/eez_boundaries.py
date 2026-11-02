@@ -17,13 +17,18 @@ Boundaries and Exclusive Economic Zones (200NM), version 12. Available online
 at https://www.marineregions.org/. https://doi.org/10.14284/632
 """
 
+import contextlib
 import logging
 import zipfile
 from pathlib import Path
+from typing import TYPE_CHECKING
 from urllib.request import urlretrieve
 
 import geopandas as gpd
 from shapely.geometry import Point
+
+if TYPE_CHECKING:
+    from cruiseplan.runtime.cruise import CruiseInstance
 
 logger = logging.getLogger(__name__)
 
@@ -92,7 +97,7 @@ def ensure_eez_data() -> Path:
                     zip_path.unlink(missing_ok=True)
                     continue
                 break
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001 - download fallback: try the next URL
                 logger.warning(f"Download failed from {url}: {e}")
                 zip_path.unlink(missing_ok=True)
                 continue
@@ -177,10 +182,8 @@ def _extract_and_validate_eez_data(zip_path: Path, eez_file_path: Path) -> bool:
                     extracted_path.rename(temp_path)
                     # Remove any subdirectory created by extract() (e.g. World_EEZ_v12_20231025/)
                     if extracted_dir != eez_file_path.parent:
-                        try:
+                        with contextlib.suppress(OSError):
                             extracted_dir.rmdir()
-                        except OSError:
-                            pass
 
                     # Validate the GeoPackage contains expected EEZ schema
                     if _validate_eez_schema(temp_path):
@@ -188,14 +191,13 @@ def _extract_and_validate_eez_data(zip_path: Path, eez_file_path: Path) -> bool:
                         temp_path.rename(eez_file_path)
                         logger.info(f"Successfully validated EEZ data from {gpkg_name}")
                         return True
-                    else:
-                        # Invalid schema - clean up and try next file
-                        logger.warning(
-                            f"GeoPackage {gpkg_name} does not contain valid EEZ schema"
-                        )
-                        temp_path.unlink(missing_ok=True)
+                    # Invalid schema - clean up and try next file
+                    logger.warning(
+                        f"GeoPackage {gpkg_name} does not contain valid EEZ schema"
+                    )
+                    temp_path.unlink(missing_ok=True)
 
-                except Exception as e:
+                except Exception as e:  # noqa: BLE001 - skip unreadable GeoPackage, try the next one
                     logger.warning(f"Failed to process {gpkg_name}: {e}")
                     continue
 
@@ -252,7 +254,7 @@ def _validate_eez_schema(gpkg_path: Path) -> bool:
         )
         return True
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - schema check returns False on any read failure
         logger.warning(f"Failed to validate EEZ schema: {e}")
         return False
 
@@ -350,13 +352,13 @@ def get_eez_for_point(lat: float, lon: float) -> dict | None:
     }
 
 
-def get_cruise_area_bbox(cruise) -> tuple[float, float, float, float]:
+def get_cruise_area_bbox(cruise: "CruiseInstance") -> tuple[float, float, float, float]:
     """
     Calculate bounding box for cruise area based on all station positions.
 
     Parameters
     ----------
-    cruise : Cruise
+    cruise : CruiseInstance
         Cruise object with station registry.
 
     Returns

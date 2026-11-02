@@ -7,7 +7,7 @@ configuration file. This is the top-level YAML structure that contains
 all cruise metadata, global catalog definitions, and schedule organization.
 """
 
-from typing import Any
+from typing import Any, Self
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -69,7 +69,7 @@ class ClusterDefinition(BaseModel):
     model_config = ConfigDict(extra="allow")
 
     @model_validator(mode="after")
-    def validate_cluster_activities(self):
+    def validate_cluster_activities(self) -> Self:
         """
         Validate cluster has activities and handle deprecated fields.
 
@@ -97,7 +97,7 @@ class ClusterDefinition(BaseModel):
 
     @field_validator("strategy")
     @classmethod
-    def validate_strategy(cls, v):
+    def validate_strategy(cls, v: StrategyEnum | str) -> StrategyEnum:
         """Ensure strategy is a valid StrategyEnum."""
         if isinstance(v, str):
             try:
@@ -203,7 +203,7 @@ class LegDefinition(BaseModel):
 
     @field_validator("departure_port", "arrival_port")
     @classmethod
-    def validate_ports(cls, v):
+    def validate_ports(cls, v: str | PointDefinition | None) -> str | PointDefinition:
         """Validate port references are not None."""
         if v is None:
             msg = "Departure and arrival ports are required for all legs"
@@ -212,7 +212,7 @@ class LegDefinition(BaseModel):
 
     @field_validator("vessel_speed")
     @classmethod
-    def validate_vessel_speed(cls, v):
+    def validate_vessel_speed(cls, v: float | None) -> float | None:
         """Validate vessel speed is positive."""
         if v is not None and v <= 0:
             msg = "Vessel speed must be positive"
@@ -221,7 +221,7 @@ class LegDefinition(BaseModel):
 
     @field_validator("distance_between_stations")
     @classmethod
-    def validate_station_spacing(cls, v):
+    def validate_station_spacing(cls, v: float | None) -> float | None:
         """Validate station spacing is positive."""
         if v is not None and v <= 0:
             msg = "Distance between stations must be positive"
@@ -230,7 +230,7 @@ class LegDefinition(BaseModel):
 
     @field_validator("turnaround_time", "buffer_time")
     @classmethod
-    def validate_time_fields(cls, v):
+    def validate_time_fields(cls, v: float | None) -> float | None:
         """Validate time fields are non-negative."""
         if v is not None and v < 0:
             msg = "Time values must be non-negative"
@@ -238,7 +238,7 @@ class LegDefinition(BaseModel):
         return v
 
     @model_validator(mode="after")
-    def validate_leg_structure(self):
+    def validate_leg_structure(self) -> Self:
         """
         Validate leg has valid structure and content.
 
@@ -355,7 +355,7 @@ class CruiseConfig(BaseModel):
     model_config = ConfigDict(extra="allow")
 
     @model_validator(mode="after")
-    def validate_cruise_structure(self):
+    def validate_cruise_structure(self) -> Self:
         """
         Validate overall cruise configuration structure.
 

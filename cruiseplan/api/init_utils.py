@@ -2,7 +2,11 @@
 
 import logging
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from cruiseplan.config.cruise_config import CruiseConfig
+    from cruiseplan.runtime.cruise import CruiseInstance
 
 logger = logging.getLogger(__name__)
 
@@ -113,10 +117,7 @@ def _parse_map_formats(format_str: str | None) -> list[str]:
 
     if format_str == "all":
         return ["png", "kml"]
-    else:
-        formats = [fmt.strip() for fmt in format_str.split(",")]
-
-    return formats
+    return [fmt.strip() for fmt in format_str.split(",")]
 
 
 # ============================================================================
@@ -125,7 +126,10 @@ def _parse_map_formats(format_str: str | None) -> list[str]:
 
 
 def generate_html_format(
-    cruise_config: Any, timeline: list[Any], output_dir_path: Path, base_name: str
+    cruise_config: "CruiseConfig",
+    timeline: list[Any],
+    output_dir_path: Path,
+    base_name: str,
 ) -> Path | None:
     """Generate HTML schedule output."""
     from cruiseplan.output.html_generator import generate_html_schedule
@@ -137,7 +141,10 @@ def generate_html_format(
 
 
 def generate_latex_format(
-    cruise_config: Any, timeline: list[Any], output_dir_path: Path, base_name: str
+    cruise_config: "CruiseConfig",
+    timeline: list[Any],
+    output_dir_path: Path,
+    base_name: str,
 ) -> Path | None:
     """Generate LaTeX schedule output."""
     from cruiseplan.output.latex_generator import generate_latex_tables
@@ -153,7 +160,10 @@ def generate_latex_format(
 
 
 def generate_csv_format(
-    cruise_config: Any, timeline: list[Any], output_dir_path: Path, base_name: str
+    cruise_config: "CruiseConfig",
+    timeline: list[Any],
+    output_dir_path: Path,
+    base_name: str,
 ) -> Path | None:
     """Generate CSV schedule output."""
     from cruiseplan.output.csv_generator import generate_csv_schedule
@@ -165,7 +175,10 @@ def generate_csv_format(
 
 
 def generate_netcdf_format(
-    cruise_config: Any, timeline: list[Any], output_dir_path: Path, base_name: str
+    cruise_config: "CruiseConfig",
+    timeline: list[Any],
+    output_dir_path: Path,
+    base_name: str,
 ) -> Path | None:
     """Generate NetCDF schedule output."""
     from cruiseplan.output.netcdf_generator import NetCDFGenerator
@@ -181,7 +194,7 @@ def generate_netcdf_format(
 
 
 def generate_specialized_netcdf(
-    cruise_config: Any, timeline: list[Any], output_dir_path: Path
+    cruise_config: "CruiseConfig", timeline: list[Any], output_dir_path: Path
 ) -> list[Path]:
     """Generate specialized NetCDF files."""
     from cruiseplan.output.netcdf_generator import NetCDFGenerator
@@ -197,7 +210,7 @@ def generate_specialized_netcdf(
 
 
 def generate_png_format(
-    cruise: Any,
+    cruise: "CruiseInstance",
     timeline: list[Any],
     output_dir_path: Path,
     base_name: str,

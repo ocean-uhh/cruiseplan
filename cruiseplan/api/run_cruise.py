@@ -93,23 +93,23 @@ def run(
     >>> print(f"Enriched: {process_result.config}")
     >>> print(f"Schedule activities: {len(schedule_result.timeline)}")
     """
-    shared = dict(
-        output_dir=output_dir,
-        bathy_source=bathy_source,
-        bathy_dir=bathy_dir,
-        bathy_stride=bathy_stride,
-        bathy_contours=bathy_contours,
-        lat_bounds=lat_bounds,
-        lon_bounds=lon_bounds,
-        figsize=figsize,
-        no_ports=no_ports,
-        no_title=no_title,
-        no_labels=no_labels,
-        no_legend=no_legend,
-        verbose=verbose,
-        max_depth=max_depth,
-        include_eez=include_eez,
-    )
+    shared = {
+        "output_dir": output_dir,
+        "bathy_source": bathy_source,
+        "bathy_dir": bathy_dir,
+        "bathy_stride": bathy_stride,
+        "bathy_contours": bathy_contours,
+        "lat_bounds": lat_bounds,
+        "lon_bounds": lon_bounds,
+        "figsize": figsize,
+        "no_ports": no_ports,
+        "no_title": no_title,
+        "no_labels": no_labels,
+        "no_legend": no_legend,
+        "verbose": verbose,
+        "max_depth": max_depth,
+        "include_eez": include_eez,
+    }
 
     process_result = process(config_file=config_file, **shared)
 

@@ -81,10 +81,10 @@ def deserialize_inline_definition(
     # Determine definition type based on key fields (check most specific first)
     if LINE_VERTEX_FIELD in definition_dict:  # "route"
         return LineDefinition(**definition_dict)
-    elif AREA_VERTEX_FIELD in definition_dict:
+    if AREA_VERTEX_FIELD in definition_dict:
         return AreaDefinition(**definition_dict)
     # Fallback: assume it's a station if it has common station fields
-    elif any(field in definition_dict for field in ["latitude", "longitude"]):
+    if any(field in definition_dict for field in ["latitude", "longitude"]):
         # Add default operation_type if missing
         if "operation_type" not in definition_dict:
             definition_dict = definition_dict.copy()
@@ -92,10 +92,9 @@ def deserialize_inline_definition(
                 "CTD"  # Default operation type - TODO this doesn't seem right, do we have a default operation defined in defaults.py?
             )
         return PointDefinition(**definition_dict)
-    else:
-        raise ValueError(
-            f"Cannot determine definition type for inline definition: {definition_dict}"
-        )
+    raise ValueError(
+        f"Cannot determine definition type for inline definition: {definition_dict}"
+    )
 
 
 def serialize_definition(
@@ -254,22 +253,21 @@ def serialize_cluster_definition(cluster: ClusterDefinition) -> dict[str, Any]:
     return output
 
 
-def _serialize_port_object(port_obj) -> dict[str, Any]:
-    """Helper to serialize port objects for leg definitions."""
+def _serialize_port_object(port_obj: PointDefinition | str) -> dict[str, Any] | str:
+    """Serialize a port object for a leg definition; strings pass through."""
     if hasattr(port_obj, "name") and hasattr(port_obj, "latitude"):
         # This is a full PortDefinition object, serialize it
         return serialize_definition(port_obj, POINT_ALLOWED_FIELDS)
     return port_obj
 
 
-def _convert_activity_to_name(activity) -> str:
-    """Helper to convert activity object to string name reference."""
+def _convert_activity_to_name(activity: PointDefinition | str) -> str:
+    """Convert an activity object to its name reference."""
     if hasattr(activity, "name"):
         # This is a PointDefinition object, use its name
         return activity.name
-    else:
-        # This is already a string reference
-        return activity
+    # This is already a string reference
+    return activity
 
 
 def serialize_leg_definition(leg: LegDefinition) -> dict[str, Any]:
@@ -490,8 +488,7 @@ def to_yaml(
         save_yaml(output_dict, output_path, backup=backup)
         logger.info(f"Saved cruise configuration to {output_path}")
         return None
-    else:
-        # Return as string
-        from cruiseplan.config.yaml_io import dict_to_yaml_string
+    # Return as string
+    from cruiseplan.config.yaml_io import dict_to_yaml_string
 
-        return dict_to_yaml_string(output_dict, add_comments=add_comments)
+    return dict_to_yaml_string(output_dict, add_comments=add_comments)

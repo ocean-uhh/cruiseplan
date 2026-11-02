@@ -234,7 +234,10 @@ class TestLoadCampaignData:
         mock_merge.return_value = mock_merged_data
 
         # Patch pickle.load to return the raw data
-        with patch("builtins.open", mock_open(read_data=pickle.dumps(raw_loaded_data))):
+        with patch(
+            "cruiseplan.data.pangaea.Path.open",
+            mock_open(read_data=pickle.dumps(raw_loaded_data)),
+        ):
             results = load_campaign_data("dummy_path.pkl", merge_tracks=True)
 
         # 1. Assert merge was called with the raw data
@@ -254,7 +257,10 @@ class TestLoadCampaignData:
             mock_merged_data  # Use clean data to skip deep validation issues
         )
 
-        with patch("builtins.open", mock_open(read_data=pickle.dumps(raw_loaded_data))):
+        with patch(
+            "cruiseplan.data.pangaea.Path.open",
+            mock_open(read_data=pickle.dumps(raw_loaded_data)),
+        ):
             results = load_campaign_data("dummy_path.pkl", merge_tracks=False)
 
         # 1. Assert merge was NOT called
@@ -273,14 +279,18 @@ class TestLoadCampaignData:
             load_campaign_data("non_existent_path.pkl")
 
     @patch("cruiseplan.data.pangaea.Path.exists", return_value=True)
-    @patch("builtins.open", side_effect=OSError("Permission denied"))
+    @patch(
+        "cruiseplan.data.pangaea.Path.open", side_effect=OSError("Permission denied")
+    )
     def test_io_error_handling(self, mock_open, mock_exists):
         """Tests general IO errors during file reading."""
         with pytest.raises(ValueError, match="Error loading campaign data"):
             load_campaign_data("unreadable_file.pkl")
 
     @patch("cruiseplan.data.pangaea.Path.exists", return_value=True)
-    @patch("builtins.open", mock_open(read_data=b"invalid pickle data"))
+    @patch(
+        "cruiseplan.data.pangaea.Path.open", mock_open(read_data=b"invalid pickle data")
+    )
     def test_pickle_error_handling(self, mock_exists):
         """Tests failure during unpickling."""
         with pytest.raises(
@@ -295,7 +305,8 @@ class TestLoadCampaignData:
         """Tests failure if the loaded data is not a list."""
         with (
             patch(
-                "builtins.open", mock_open(read_data=pickle.dumps({"campaign": "dict"}))
+                "cruiseplan.data.pangaea.Path.open",
+                mock_open(read_data=pickle.dumps({"campaign": "dict"})),
             ),
             pytest.raises(ValueError, match="Expected list of campaigns, got"),
         ):
@@ -308,11 +319,14 @@ class TestLoadCampaignData:
             {"label": "Good", "latitude": [10.0], "longitude": [5.0]},
             {"label": "Bad", "latitude": [10.0]},  # Missing longitude
         ]
-        with patch("builtins.open", mock_open(read_data=pickle.dumps(bad_data))):
-            with pytest.raises(
-                ValueError, match="missing required keys: \\['longitude'\\]"
-            ):
-                load_campaign_data("missing_key.pkl")
+        with (
+            patch(
+                "cruiseplan.data.pangaea.Path.open",
+                mock_open(read_data=pickle.dumps(bad_data)),
+            ),
+            pytest.raises(ValueError, match="missing required keys: \\['longitude'\\]"),
+        ):
+            load_campaign_data("missing_key.pkl")
 
     @patch("cruiseplan.data.pangaea.Path.exists", return_value=True)
     def test_invalid_campaign_is_not_dict(self, mock_exists):
@@ -321,6 +335,11 @@ class TestLoadCampaignData:
             {"label": "Good", "latitude": [10.0], "longitude": [5.0]},
             "this is a string",  # Invalid item
         ]
-        with patch("builtins.open", mock_open(read_data=pickle.dumps(bad_data))):
-            with pytest.raises(ValueError, match="is not a dictionary"):
-                load_campaign_data("not_dict.pkl")
+        with (
+            patch(
+                "cruiseplan.data.pangaea.Path.open",
+                mock_open(read_data=pickle.dumps(bad_data)),
+            ),
+            pytest.raises(ValueError, match="is not a dictionary"),
+        ):
+            load_campaign_data("not_dict.pkl")

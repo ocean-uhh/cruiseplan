@@ -102,7 +102,7 @@ class TestTC1SingleIntegration:
         output_path = temp_dir / "tc1_single_defaults.yaml"
 
         # Perform enrichment with defaults only (no coords/depths)
-        enrichment_summary = enrich_configuration(
+        enrich_configuration(
             config_path=Path(yaml_path),
             output_path=output_path,
             add_coords=False,
@@ -126,7 +126,7 @@ class TestTC1SingleIntegration:
         output_path = temp_dir / "tc1_single_depths.yaml"
 
         # Perform enrichment with depths using default ETOPO2022
-        enrichment_summary = enrich_configuration(
+        enrich_configuration(
             config_path=Path(yaml_path),
             output_path=output_path,
             add_coords=False,
@@ -150,7 +150,7 @@ class TestTC1SingleIntegration:
         output_path = temp_dir / "tc1_single_coords.yaml"
 
         # Perform enrichment with coordinates
-        enrichment_summary = enrich_configuration(
+        enrich_configuration(
             config_path=Path(yaml_path),
             output_path=output_path,
             add_coords=True,
@@ -176,7 +176,7 @@ class TestTC1SingleIntegration:
         output_path = temp_dir / "tc1_single_gebco.yaml"
 
         # Perform enrichment with GEBCO2025 bathymetry source
-        enrichment_summary = enrich_configuration(
+        enrich_configuration(
             config_path=Path(yaml_path),
             output_path=output_path,
             add_coords=False,
@@ -381,7 +381,7 @@ class TestTC1SingleIntegration:
         """Test complete end-to-end workflow from YAML to all outputs."""
         # 1. Load and enrich configuration
         enriched_path = temp_dir / "enriched.yaml"
-        enrichment_summary = enrich_configuration(
+        enrich_configuration(
             config_path=Path(yaml_path),
             output_path=enriched_path,
             add_coords=True,

@@ -184,7 +184,8 @@ def _build_station_attrs(
 
 
 def expand_sections(
-    cruise_instance: "CruiseInstance", default_depth: float = -9999.0
+    cruise_instance: "CruiseInstance",
+    default_depth: float = -9999.0,  # noqa: ARG001 - public keyword, kept for callers
 ) -> dict[str, int]:
     """
     Expand CTD sections into individual station definitions.
@@ -440,7 +441,7 @@ def enrich_depths(
                     f"Added depth to {station_name}: {water_depth:.1f}m from {bathymetry_source}"
                 )
 
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - per-station depth lookup; skip the station
             logger.warning(f"Failed to get depth for station {station_name}: {e}")
             continue
 
@@ -452,7 +453,7 @@ def enrich_depths(
     return stations_with_depths_added
 
 
-def expand_ports(cruise_instance: "CruiseInstance") -> dict[str, int]:
+def expand_ports(cruise_instance: "CruiseInstance") -> dict[str, int]:  # noqa: ARG001 - kept for API compatibility; ports resolve at load
     """
     Expand global port references into full PortDefinition objects.
 

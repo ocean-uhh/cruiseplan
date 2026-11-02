@@ -36,7 +36,7 @@ class TestCSVGenerator:
             assert output_file.exists()
 
             # Check that file has header but no data rows
-            with open(output_file, encoding="utf-8") as f:
+            with Path(output_file).open(encoding="utf-8") as f:
                 reader = csv.reader(f)
                 rows = list(reader)
 
@@ -77,7 +77,7 @@ class TestCSVGenerator:
                 self.mock_config, timeline, output_file
             )
 
-            with open(output_file, encoding="utf-8") as f:
+            with Path(output_file).open(encoding="utf-8") as f:
                 reader = csv.DictReader(f)
                 rows = list(reader)
 
@@ -129,7 +129,7 @@ class TestCSVGenerator:
                 self.mock_config, timeline, output_file
             )
 
-            with open(output_file, encoding="utf-8") as f:
+            with Path(output_file).open(encoding="utf-8") as f:
                 reader = csv.DictReader(f)
                 rows = list(reader)
 
@@ -174,7 +174,7 @@ class TestCSVGenerator:
                 self.mock_config, timeline, output_file
             )
 
-            with open(output_file, encoding="utf-8") as f:
+            with Path(output_file).open(encoding="utf-8") as f:
                 reader = csv.DictReader(f)
                 rows = list(reader)
 

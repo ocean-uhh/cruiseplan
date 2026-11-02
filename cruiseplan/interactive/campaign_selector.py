@@ -1,9 +1,8 @@
-"""
-PANGAEA campaign selection and management interface.
-"""
+"""PANGAEA campaign selection and management interface."""
 
 import logging
 import pickle
+from pathlib import Path
 from typing import Any
 
 import matplotlib.pyplot as plt
@@ -36,7 +35,7 @@ class CampaignSelector:
         Reference to the main map axes for updating campaign display.
     """
 
-    def __init__(self, campaign_data: list[dict[str, Any]] | None = None):
+    def __init__(self, campaign_data: list[dict[str, Any]] | None = None) -> None:
         """
         Initialize the campaign selector.
 
@@ -174,7 +173,7 @@ class CampaignSelector:
         """
         selected_campaigns = self.get_selected_campaigns()
         try:
-            with open(file_path, "wb") as f:
+            with Path(file_path).open("wb") as f:
                 pickle.dump(selected_campaigns, f, protocol=pickle.HIGHEST_PROTOCOL)
             logger.info(
                 f"💾 Saved {len(selected_campaigns)} selected campaigns to {file_path}"

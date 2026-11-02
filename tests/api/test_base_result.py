@@ -37,7 +37,7 @@ class TestBaseResultCore:
         assert result.files_created == [Path("test.txt")]
         assert result.errors == ["error1"]
         assert result.warnings == ["warning1"]
-        assert result._success_indicator == True
+        assert result._success_indicator is True
 
     def test_base_result_defaults(self):
         """Test BaseResult defaults to empty lists."""
@@ -52,40 +52,40 @@ class TestBaseResultCore:
         """Test boolean success logic."""
         # Success: no errors + truthy success indicator
         success_result = BaseResult({"test": "data"}, success_indicator=True)
-        assert bool(success_result) == True
+        assert bool(success_result) is True
 
         # Failure: has errors
         error_result = BaseResult(
             {"test": "data"}, success_indicator=True, errors=["error"]
         )
-        assert bool(error_result) == False
+        assert bool(error_result) is False
 
         # Failure: no success indicator
         no_indicator = BaseResult({"test": "data"})
-        assert bool(no_indicator) == False
+        assert bool(no_indicator) is False
 
         # Failure: both errors and no indicator
         double_fail = BaseResult({"test": "data"}, errors=["error"])
-        assert bool(double_fail) == False
+        assert bool(double_fail) is False
 
     def test_error_warning_management(self):
         """Test error and warning management methods."""
         result = BaseResult({"test": "data"})
 
         # Initially no issues
-        assert result.has_issues == False
+        assert result.has_issues is False
 
         # Add error
         result.add_error("Something went wrong")
         assert len(result.errors) == 1
         assert result.errors[0] == "Something went wrong"
-        assert result.has_issues == True
+        assert result.has_issues is True
 
         # Add warning
         result.add_warning("Potential issue")
         assert len(result.warnings) == 1
         assert result.warnings[0] == "Potential issue"
-        assert result.has_issues == True
+        assert result.has_issues is True
 
     def test_file_management(self):
         """Test file creation tracking."""
@@ -144,7 +144,7 @@ class TestBackwardCompatibility:
         assert result.summary == summary
 
         # Original boolean logic (should be True if output_file exists)
-        assert bool(result) == True
+        assert bool(result) is True
 
         # New attributes should also work
         assert result.files_count == 2
@@ -159,18 +159,18 @@ class TestBackwardCompatibility:
 
         # Test successful validation
         success_result = ValidationResult(True, [], warnings, summary)
-        assert success_result.success == True  # Critical backward compatibility
+        assert success_result.success is True  # Critical backward compatibility
         assert success_result.errors == []
         assert success_result.warnings == warnings
         assert success_result.summary == summary
-        assert bool(success_result) == True
+        assert bool(success_result) is True
 
         # Test failed validation
         fail_result = ValidationResult(False, errors, warnings, summary)
-        assert fail_result.success == False  # Critical backward compatibility
+        assert fail_result.success is False  # Critical backward compatibility
         assert fail_result.errors == errors
         assert fail_result.warnings == warnings
-        assert bool(fail_result) == False
+        assert bool(fail_result) is False
 
     def test_bathymetry_result_backward_compatibility(self):
         """Test BathymetryResult preserves data_file and source attributes."""
@@ -224,11 +224,11 @@ class TestBackwardCompatibility:
         assert result.summary == summary
 
         # Success should be based on timeline existence and length
-        assert bool(result) == True
+        assert bool(result) is True
 
         # Test empty timeline
         empty_result = ScheduleResult([], files_created, summary)
-        assert bool(empty_result) == False
+        assert bool(empty_result) is False
 
 
 class TestNewFunctionality:
@@ -288,17 +288,17 @@ class TestNewFunctionality:
         result = ProcessResult({"valid": True}, [], {})
 
         # No issues initially
-        assert result.has_issues == False
+        assert result.has_issues is False
 
         # Add warning - should have issues but still succeed
         result.add_warning("Performance slow")
-        assert result.has_issues == True
-        assert bool(result) == True  # Still succeeds
+        assert result.has_issues is True
+        assert bool(result) is True  # Still succeeds
 
         # Add error - should have issues and fail
         result.add_error("Critical failure")
-        assert result.has_issues == True
-        assert bool(result) == False  # Now fails
+        assert result.has_issues is True
+        assert bool(result) is False  # Now fails
 
     def test_cross_result_error_aggregation(self):
         """Test that errors can be aggregated across multiple operations."""

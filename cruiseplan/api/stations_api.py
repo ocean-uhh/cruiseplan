@@ -34,7 +34,7 @@ class StationPickerResult(BaseResult):
         output_file: Path,
         summary: dict[str, Any],
         pangaea_data: list[dict] | None = None,
-    ):
+    ) -> None:
         """Initialize station picker result."""
         super().__init__(
             files_created=[output_file],
@@ -44,7 +44,7 @@ class StationPickerResult(BaseResult):
         self.pangaea_data = pangaea_data
 
     def __str__(self) -> str:
-        """String representation of the result."""
+        """Return a one-line summary of the result."""
         return f"Interactive station picker completed - output: {self.output_file}"
 
 
@@ -166,9 +166,9 @@ def load_pangaea_campaign_data(pangaea_file: Path) -> list[dict]:
         return campaign_data
 
     except ImportError as e:
-        raise ValueError(f"PANGAEA functionality not available: {e}")
+        raise ValueError(f"PANGAEA functionality not available: {e}") from e
     except Exception as e:
-        raise ValueError(f"Error loading PANGAEA data: {e}")
+        raise ValueError(f"Error loading PANGAEA data: {e}") from e
 
 
 def load_config_stations_data(
@@ -260,7 +260,7 @@ def load_config_stations_data(
         return stations_data, lat_bounds, lon_bounds
 
     except Exception as e:
-        raise ValueError(f"Error loading config stations: {e}")
+        raise ValueError(f"Error loading config stations: {e}") from e
 
 
 def _determine_output_path(
@@ -422,6 +422,8 @@ def stations(
         Bathymetry source ("etopo2022" or "gebco2025")
     bathy_dir : str
         Bathymetry data directory
+    bathy_contours : list, optional
+        Extra depth contours (m, positive down) drawn over the bathymetry.
     bathy_stride : int
         Bathymetry downsampling factor (default: 10, lower = finer detail but slower)
     max_depth : int, optional
@@ -478,7 +480,7 @@ def stations(
     try:
         _validate_coordinate_bounds(list(final_lat_bounds), list(final_lon_bounds))
     except ValueError as e:
-        raise ValueError(f"Invalid coordinate bounds: {e}")
+        raise ValueError(f"Invalid coordinate bounds: {e}") from e
 
     # Set up output paths
     output_dir_path, output_filename = _determine_output_path(

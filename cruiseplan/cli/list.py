@@ -44,7 +44,7 @@ def run(args: argparse.Namespace) -> None:
     except KeyboardInterrupt:
         print("\nOperation cancelled by user.", file=sys.stderr)
         sys.exit(1)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - CLI top level: report any error and exit 1
         print(f"ERROR: Unexpected error: {e}", file=sys.stderr)
         sys.exit(1)
 

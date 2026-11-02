@@ -221,8 +221,7 @@ class TestSummaryStatistics:
         assert stats["areas"]["count"] == 1
 
         # Check that all durations are calculated correctly
-        total_scientific_h = (120 + 180 + 240 + 150) / 60  # 11.5 hours
-        total_navigation_h = 90 / 60  # 1.5 hours
+        (120 + 180 + 240 + 150) / 60  # 11.5 hours
 
 
 class TestHTMLGenerator:
@@ -254,7 +253,7 @@ class TestHTMLGenerator:
             assert output_file.exists()
 
             # Read and verify HTML content
-            with open(output_file, encoding="utf-8") as f:
+            with Path(output_file).open(encoding="utf-8") as f:
                 content = f.read()
 
             assert "Test_Cruise_2024" in content
@@ -316,11 +315,11 @@ class TestHTMLGenerator:
             output_file = Path(tmp_file.name)
 
         try:
-            result = self.generator.generate_schedule_report(
+            self.generator.generate_schedule_report(
                 self.mock_config, timeline, output_file
             )
 
-            with open(output_file, encoding="utf-8") as f:
+            with Path(output_file).open(encoding="utf-8") as f:
                 content = f.read()
 
             assert "CTD Profiles" in content
@@ -369,11 +368,11 @@ class TestHTMLGenerator:
             output_file = Path(tmp_file.name)
 
         try:
-            result = self.generator.generate_schedule_report(
+            self.generator.generate_schedule_report(
                 self.mock_config, timeline, output_file
             )
 
-            with open(output_file, encoding="utf-8") as f:
+            with Path(output_file).open(encoding="utf-8") as f:
                 content = f.read()
 
             # Check summary table
@@ -420,11 +419,11 @@ class TestHTMLGenerator:
             output_file = Path(tmp_file.name)
 
         try:
-            result = self.generator.generate_schedule_report(
+            self.generator.generate_schedule_report(
                 self.mock_config, timeline, output_file
             )
 
-            with open(output_file, encoding="utf-8") as f:
+            with Path(output_file).open(encoding="utf-8") as f:
                 content = f.read()
 
             assert "Survey operations" in content
@@ -459,11 +458,11 @@ class TestHTMLGenerator:
             output_file = Path(tmp_file.name)
 
         try:
-            result = self.generator.generate_schedule_report(
+            self.generator.generate_schedule_report(
                 self.mock_config, timeline, output_file
             )
 
-            with open(output_file, encoding="utf-8") as f:
+            with Path(output_file).open(encoding="utf-8") as f:
                 content = f.read()
 
             assert "Area operations" in content
@@ -501,11 +500,11 @@ class TestHTMLGenerator:
             output_file = Path(tmp_file.name)
 
         try:
-            result = self.generator.generate_schedule_report(
+            self.generator.generate_schedule_report(
                 self.mock_config, timeline, output_file
             )
 
-            with open(output_file, encoding="utf-8") as f:
+            with Path(output_file).open(encoding="utf-8") as f:
                 content = f.read()
 
             # With new logic, all navigation transits are within area
@@ -565,11 +564,11 @@ class TestHTMLGenerator:
             output_file = Path(tmp_file.name)
 
         try:
-            result = self.generator.generate_schedule_report(
+            self.generator.generate_schedule_report(
                 self.mock_config, timeline, output_file
             )
 
-            with open(output_file, encoding="utf-8") as f:
+            with Path(output_file).open(encoding="utf-8") as f:
                 content = f.read()
 
             # Check that all operation types are represented
@@ -587,7 +586,7 @@ class TestHTMLGenerator:
 
             # Check total calculation
             assert "4 operations" in content  # Total count
-            total_hours = (120 + 180 + 240 + 150) / 60  # 11.5
+            (120 + 180 + 240 + 150) / 60  # 11.5
             assert "11.5" in content
 
             # Check mooring detail table
@@ -615,11 +614,11 @@ class TestHTMLGenerator:
             output_file = Path(tmp_file.name)
 
         try:
-            result = self.generator.generate_schedule_report(
+            self.generator.generate_schedule_report(
                 self.mock_config, timeline, output_file
             )
 
-            with open(output_file, encoding="utf-8") as f:
+            with Path(output_file).open(encoding="utf-8") as f:
                 content = f.read()
 
             # Should not have description paragraph when None
@@ -712,7 +711,7 @@ def test_generate_html_schedule_convenience_function():
         assert output_file.exists()
 
         # Verify content was written
-        with open(output_file, encoding="utf-8") as f:
+        with Path(output_file).open(encoding="utf-8") as f:
             content = f.read()
             assert "Test_Cruise" in content
             assert "html" in content

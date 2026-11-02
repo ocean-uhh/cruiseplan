@@ -56,7 +56,7 @@ def test_pangaea_natl_campaign_validation():
     assert fixture_path.exists(), f"Test fixture not found: {fixture_path}"
 
     # Read DOIs from fixture
-    with open(fixture_path) as f:
+    with Path(fixture_path).open() as f:
         dois = [line.strip() for line in f if line.strip() and not line.startswith("#")]
 
     # Expected to have 4 DOIs based on the edited fixture
@@ -188,7 +188,7 @@ def test_pangaea_merge_campaigns():
     """
     fixture_path = Path(__file__).parent.parent / "fixtures" / "pangaea_list_NAtl.txt"
 
-    with open(fixture_path) as f:
+    with Path(fixture_path).open() as f:
         dois = [line.strip() for line in f if line.strip() and not line.startswith("#")]
 
     manager = PangaeaManager()
@@ -277,7 +277,7 @@ def test_api_pangaea_search_mode_integration(tmp_path):
     assert stations_file.exists()
 
     # Validate DOI file has search header
-    with open(doi_file) as f:
+    with Path(doi_file).open() as f:
         content = f.read()
         assert "# PANGAEA Search Results" in content
         assert "# Query: CTD" in content
@@ -308,7 +308,7 @@ def test_api_pangaea_file_mode_integration(tmp_path):
     test_doi_file = tmp_path / "input_dois.txt"
     test_doi = "10.1594/PANGAEA.859930"  # Known working DOI
 
-    with open(test_doi_file, "w") as f:
+    with Path(test_doi_file).open("w") as f:
         f.write("# Test DOI file\n")
         f.write("# Created for testing\n")
         f.write("#\n")
@@ -336,7 +336,7 @@ def test_api_pangaea_file_mode_integration(tmp_path):
     assert stations_file.exists()
 
     # Validate DOI file was copied and contains original content
-    with open(doi_file) as f:
+    with Path(doi_file).open() as f:
         content = f.read()
         assert "# Test DOI file" in content
         assert test_doi in content
@@ -382,7 +382,7 @@ def test_api_pangaea_single_doi_mode_integration(tmp_path):
     assert stations_file.exists()
 
     # Validate DOI file has single DOI header
-    with open(doi_file) as f:
+    with Path(doi_file).open() as f:
         content = f.read()
         assert "# Single DOI Processing" in content
         assert f"# DOI: {test_doi}" in content

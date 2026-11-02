@@ -41,7 +41,7 @@ class PangaeaManager:
         File-based cache for storing fetched dataset metadata.
     """
 
-    def __init__(self, cache_dir: str = ".cache"):
+    def __init__(self, cache_dir: str = ".cache") -> None:
         """
         Initialize PANGAEA manager.
 
@@ -226,7 +226,7 @@ class PangaeaManager:
         include_eez: bool = True,
     ) -> Path:
         """
-        Convenience wrapper to visualize datasets fetched by this manager.
+        Plot the datasets fetched by this manager on an interactive map.
 
         Parameters
         ----------
@@ -319,16 +319,18 @@ class PangaeaManager:
             logger.exception(f"Failed to fetch {doi}")
             return None
 
-    def _parse_events(self, events_data: Any, doi: str) -> dict[str, Any] | None:
+    def _parse_events(
+        self, events_data: pd.DataFrame | list[object], doi: str
+    ) -> dict[str, Any] | None:
         """
-        Extracts lat/lon/label/campaign from the .events attribute.
+        Extract lat/lon/label/campaign from the .events attribute.
 
         Returns a standardized Dictionary.
 
         Parameters
         ----------
-        events_data : Any
-            Events data from PANGAEA dataset.
+        events_data : pandas.DataFrame or list
+            Events table from a PANGAEA dataset, or a list of event records.
         doi : str
             DOI identifier for the dataset.
 
@@ -420,7 +422,7 @@ class PangaeaManager:
         try:
             clean_lats = pd.to_numeric(df[lat_col], errors="coerce").dropna().tolist()
             clean_lons = pd.to_numeric(df[lon_col], errors="coerce").dropna().tolist()
-        except Exception:
+        except Exception:  # noqa: BLE001 - malformed PANGAEA table: skip the dataset
             return None
 
         if not clean_lats:
@@ -440,14 +442,14 @@ class PangaeaManager:
             "doi": doi,
         }
 
-    def _safe_get(self, obj: Any, keys: list[str]) -> Any:
+    def _safe_get(self, obj: object, keys: list[str]) -> Any:  # noqa: ANN401 - returns whatever the PANGAEA record holds
         """
-        Helper to get attributes safely from dicts or objects.
+        Get the first non-None value for any of ``keys`` from a dict or object.
 
         Parameters
         ----------
-        obj : Any
-            Object to extract attribute from.
+        obj : object
+            Dictionary-like or attribute-bearing record.
         keys : List[str]
             List of possible key/attribute names to try.
 
@@ -485,7 +487,7 @@ class PangaeaManager:
 
 def _is_valid_doi(doi: any) -> bool:
     """
-    Validates if the input string is a valid DOI format.
+    Check whether the input string is a valid DOI.
 
     Strictly checks for '10.XXXX/XXXX' format.
 
@@ -509,7 +511,7 @@ def _is_valid_doi(doi: any) -> bool:
 
 def merge_campaign_tracks(datasets: list[dict]) -> list[dict]:
     """
-    Merges datasets by their 'label' (campaign).
+    Merge datasets by their 'label' (campaign).
 
     Aggregates coordinates into single arrays and collects all source DOIs.
 
@@ -601,7 +603,7 @@ def save_campaign_data(
         file_path.parent.mkdir(parents=True, exist_ok=True)
 
         # Save datasets to pickle
-        with open(file_path, "wb") as f:
+        with file_path.open("wb") as f:
             pickle.dump(datasets, f, protocol=pickle.HIGHEST_PROTOCOL)
 
         if progress_callback:
@@ -613,7 +615,7 @@ def save_campaign_data(
                 total_events = sum(
                     len(ds.get("latitude", ds.get("events", []))) for ds in datasets
                 )
-                campaigns = set(ds.get("label", "Unknown") for ds in datasets)
+                campaigns = {ds.get("label", "Unknown") for ds in datasets}
 
                 progress_callback("Summary:")
                 # Use original count if provided, otherwise current count
@@ -627,7 +629,7 @@ def save_campaign_data(
                 progress_callback(f"  - {total_events} total events/stations")
 
     except Exception as e:
-        raise ValueError(f"Error saving pickle file: {e}")
+        raise ValueError(f"Error saving pickle file: {e}") from e
 
 
 def load_campaign_data(file_path: str | Path, merge_tracks: bool = True) -> list[dict]:
@@ -656,7 +658,7 @@ def load_campaign_data(file_path: str | Path, merge_tracks: bool = True) -> list
         raise FileNotFoundError(f"Campaign data file not found: {file_path}")
 
     try:
-        with open(file_path, "rb") as f:
+        with file_path.open("rb") as f:
             campaign_data = pickle.load(f)
 
         # Validate the loaded data structure
@@ -681,15 +683,14 @@ def load_campaign_data(file_path: str | Path, merge_tracks: bool = True) -> list
             # Apply your crucial merging step here before returning to the GUI
             logging.info("Merging campaign tracks by label for unique plotting.")
             return merge_campaign_tracks(campaign_data)
-        else:
-            return campaign_data
+        return campaign_data
 
     except pickle.PickleError as e:
         raise pickle.PickleError(
             f"Failed to unpickle campaign data from {file_path}: {e}"
-        )
+        ) from e
     except Exception as e:
-        raise ValueError(f"Error loading campaign data from {file_path}: {e}")
+        raise ValueError(f"Error loading campaign data from {file_path}: {e}") from e
 
 
 def read_doi_list(file_path: str | Path) -> list[str]:
@@ -714,7 +715,7 @@ def read_doi_list(file_path: str | Path) -> list[str]:
     file_path = Path(file_path)
 
     try:
-        with open(file_path, encoding="utf-8") as f:
+        with file_path.open(encoding="utf-8") as f:
             lines = f.readlines()
 
         dois = []
@@ -738,4 +739,4 @@ def read_doi_list(file_path: str | Path) -> list[str]:
         return dois
 
     except Exception as e:
-        raise ValueError(f"Error reading DOI list from {file_path}: {e}")
+        raise ValueError(f"Error reading DOI list from {file_path}: {e}") from e

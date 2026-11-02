@@ -11,7 +11,7 @@ Contains:
 - Enumeration classes for valid field values
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 
 # =============================================================================
@@ -39,7 +39,7 @@ DEFAULT_STATION_SPACING_KM = 15.0
 DEFAULT_MOORING_DURATION_MIN = 59940.0
 
 # Default start date/time
-DEFAULT_START_DATE_NUM = datetime(1970, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+DEFAULT_START_DATE_NUM = datetime(1970, 1, 1, 0, 0, 0, tzinfo=UTC)
 DEFAULT_START_DATE = DEFAULT_START_DATE_NUM.isoformat()
 
 # Default hours for daylight operations window
@@ -113,7 +113,7 @@ DEFAULT_LAST_ACTIVITY = "UPDATE-last-station-name"
 # =============================================================================
 
 
-class StrategyEnum(str, Enum):
+class StrategyEnum(str, Enum):  # noqa: UP042 - StrEnum would change str()/format() output
     """
     Enumeration of scheduling strategies for cruise operations.
 
@@ -131,7 +131,7 @@ class StrategyEnum(str, Enum):
     DAY_NIGHT_SPLIT = "day_night_split"  # not yet implemented
 
 
-class OperationTypeEnum(str, Enum):
+class OperationTypeEnum(str, Enum):  # noqa: UP042 - StrEnum would change str()/format() output
     """
     Enumeration of point operation types.
 
@@ -152,7 +152,7 @@ class OperationTypeEnum(str, Enum):
     DEFAULT = DEFAULT_POINT_OPTYPE
 
 
-class ActionEnum(str, Enum):
+class ActionEnum(str, Enum):  # noqa: UP042 - StrEnum would change str()/format() output
     """
     Enumeration of specific actions for operations.
 
@@ -189,7 +189,7 @@ class ActionEnum(str, Enum):
     DEFAULT_AREA = DEFAULT_AREA_ACTION
 
 
-class LineOperationTypeEnum(str, Enum):
+class LineOperationTypeEnum(str, Enum):  # noqa: UP042 - StrEnum would change str()/format() output
     """
     Enumeration of line operation types.
 
@@ -204,7 +204,7 @@ class LineOperationTypeEnum(str, Enum):
     DEFAULT = DEFAULT_LINE_OPTYPE
 
 
-class AreaOperationTypeEnum(str, Enum):
+class AreaOperationTypeEnum(str, Enum):  # noqa: UP042 - StrEnum would change str()/format() output
     """
     Enumeration of area operation types.
 

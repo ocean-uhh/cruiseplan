@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 
 import cruiseplan
+from cruiseplan.api.types import ValidationResult
 from cruiseplan.config.values import (
     BATHY_SOURCES,
     DEFAULT_BATHY_DIR,
@@ -19,7 +20,7 @@ from cruiseplan.config.values import (
 )
 
 
-def _display_validation_results(result, warnings_only: bool) -> None:
+def _display_validation_results(result: ValidationResult, warnings_only: bool) -> None:
     """Display validation results in formatted output."""
     print("")
     print("=" * 50)
@@ -40,7 +41,7 @@ def _display_validation_results(result, warnings_only: bool) -> None:
             print(f"  • {warning}")
 
 
-def _print_summary_and_exit(result, warnings_only: bool) -> None:
+def _print_summary_and_exit(result: ValidationResult, warnings_only: bool) -> None:
     """Print validation summary and exit with appropriate code."""
     if result.success:
         print(f"Validation passed ({len(result.warnings)} warnings)")
@@ -73,7 +74,7 @@ def _handle_exceptions(args: argparse.Namespace) -> None:
         handle_error(f"ERROR: File not found: {e}")
     except KeyboardInterrupt:
         handle_error("\nOperation cancelled by user.")
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - CLI top level: report any error and exit 1
         print(f"ERROR: Unexpected error: {e}", file=sys.stderr)
         if getattr(args, "verbose", False):
             import traceback
@@ -103,7 +104,7 @@ def run(args: argparse.Namespace) -> None:
         _display_validation_results(result, warnings_only)
         _print_summary_and_exit(result, warnings_only)
 
-    except Exception:
+    except Exception:  # noqa: BLE001 - CLI top level: delegated to _handle_exceptions
         _handle_exceptions(args)
 
 
