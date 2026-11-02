@@ -11,7 +11,7 @@ Contains:
 - Enumeration classes for valid field values
 """
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from enum import Enum
 
 # =============================================================================
@@ -39,7 +39,7 @@ DEFAULT_STATION_SPACING_KM = 15.0
 DEFAULT_MOORING_DURATION_MIN = 59940.0
 
 # Default start date/time
-DEFAULT_START_DATE_NUM = datetime(1970, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+DEFAULT_START_DATE_NUM = datetime(1970, 1, 1, 0, 0, 0, tzinfo=UTC)
 DEFAULT_START_DATE = DEFAULT_START_DATE_NUM.isoformat()
 
 # Default hours for daylight operations window

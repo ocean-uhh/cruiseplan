@@ -14,10 +14,9 @@ license = { file = "LICENSE" }
 maintainers = [
   { name = "Eleanor Frajka-Williams", email = "eleanorfrajka@gmail.com" },
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 classifiers = [
   "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
@@ -108,10 +107,10 @@ ignore = [
 
 [tool.black]
 line-length = 88
-target-version = ['py310']
+target-version = ['py311']
 
 [tool.ruff]
-target-version = "py310"
+target-version = "py311"
 line-length = 88
 extend-exclude = ["docs/legacy", "docs/source/legacy"]  # archived docs, not maintained
 
@@ -196,7 +195,7 @@ max-branches = 15
 max-returns = 6
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false  # Legacy code compatibility, tighten gradually

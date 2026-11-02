@@ -14,7 +14,7 @@
 
 ## Type annotations
 
-Use Python 3.10+ syntax: `list[str]` not `List[str]`, `T | None` not `Optional[T]`.
+Use Python 3.11+ syntax: `list[str]` not `List[str]`, `T | None` not `Optional[T]`.
 
 ## Import order
 
