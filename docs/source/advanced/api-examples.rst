@@ -59,7 +59,7 @@ PANGAEA Search
         query_terms="CTD temperature",
         lat_bounds=[60, 70],
         lon_bounds=[-30, 0],
-        max_results=50,
+        limit=50,
     )
     print(f"Found {len(result.stations_data)} campaigns")
 
@@ -206,7 +206,7 @@ Timeline Generation
 
     # Inspect individual activities
     for entry in timeline:
-        print(entry.get("name"), entry.get("start_time"), entry.get("duration_hours"))
+        print(entry["label"], entry["start_time"], entry["duration_minutes"])
 
 Distance Calculations
 =====================

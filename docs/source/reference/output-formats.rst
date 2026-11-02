@@ -54,9 +54,10 @@ Map Outputs
 PNG Maps
 --------
 
-**Files**: 
-- ``{cruise_name}_map.png`` - Station overview
-- ``{cruise_name}_bathymetry_map.png`` - With depth contours
+**Files**:
+
+- ``{cruise_name}_map.png`` - Station overview (``map``, ``process``, ``run``)
+- ``{cruise_name}_schedule.png`` - Map with transits and ports (``schedule``, ``run``)
 
 Static maps showing:
 
@@ -70,7 +71,7 @@ Static maps showing:
 KML/KMZ Files
 -------------
 
-**File**: ``{cruise_name}.kml``
+**File**: ``{cruise_name}_catalog.kml`` (from ``map``, ``process``, ``run``)
 
 Google Earth format with:
 
@@ -86,11 +87,12 @@ Document Formats
 LaTeX Station Table
 -------------------
 
-**File**: ``{cruise_name}_schedule.tex``
+**Files**: ``{cruise_name}_stations.tex`` and ``{cruise_name}_work_days.tex``
 
-LaTeX source file (not compiled — run ``pdflatex`` yourself to produce PDF):
+LaTeX source files (not compiled — run ``pdflatex`` yourself to produce PDF):
 
-- Station table with coordinates, depths, timing
+- Station table with coordinates and depths
+- Work days at sea table with operation and transit hours
 - Suitable for inclusion in cruise reports or proposals
 
 **Best for**: Formal proposals, ship time applications
@@ -102,6 +104,7 @@ YAML Configuration
 ------------------
 
 **Files**:
+
 - ``stations.yaml`` - Initial configuration from station picker
 - ``{cruise_name}_enriched.yaml`` - Enriched configuration with depths and validation
 
@@ -117,9 +120,10 @@ Human-readable configuration containing:
 Pickle Files
 ------------
 
-**Files**:
-- ``{cruise_name}_stations.pkl`` - Processed station data
-- ``historical_stations.pkl`` - PANGAEA historical data
+**Files** (from ``cruiseplan pangaea``):
+
+- ``{output}_stations.pkl`` - PANGAEA campaign/station data
+- ``{output}_dois.txt`` - DOI list (search mode)
 
 Binary data files for:
 
@@ -150,9 +154,11 @@ Choose formats based on your needs:
 
 .. code-block:: bash
 
-   cruiseplan schedule cruise.yaml --format html kml
+   cruiseplan schedule cruise.yaml --format html png
+   cruiseplan map cruise.yaml --format kml
 
 **Everything**:
+
 .. code-block:: bash
 
    cruiseplan schedule cruise.yaml  # All formats
@@ -170,7 +176,7 @@ All outputs use consistent naming:
 Example for ``cruise_name: "North Atlantic Survey 2025"``:
 
 - ``North_Atlantic_Survey_2025_schedule.html``
-- ``North_Atlantic_Survey_2025.nc``
+- ``North_Atlantic_Survey_2025_schedule.nc``
 - ``North_Atlantic_Survey_2025_map.png``
 
 For detailed format specifications, see the individual format pages below:

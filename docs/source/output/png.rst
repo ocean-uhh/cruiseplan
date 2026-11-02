@@ -148,7 +148,7 @@ Both PNG outputs include bathymetric background visualization.  The bathymetry s
   - Depth contours at standard oceanographic intervals
   - Color-coded depth ranges from land (yellow) and water (blues) ranging from shallow (light) to deep (dark)
 
-**Configuration Options** for ``cruiseplan map`` only:
+**Configuration Options** (``cruiseplan map``, ``process``, ``schedule``, ``run``, and ``forecast --format png``):
 
 .. code-block:: bash
 
@@ -179,7 +179,7 @@ These are not user-configurable unless you clone the repository and edit ``cruis
 Figure Customization
 ~~~~~~~~~~~~~~~~~~~~
 
-**Figure Size Options** for ``cruiseplan map`` only:
+**Figure Size Options** (same commands as above):
 
 .. code-block:: bash
 
@@ -215,8 +215,8 @@ File-Naming Conventions
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 **Schedule PNG Files**:
-  - Format: ``{cruise_name}_schedule_map.png`` 
-  - Example: ``Arctic_Survey_2024_schedule_map.png``
+  - Format: ``{cruise_name}_schedule.png``
+  - Example: ``Arctic_Survey_2024_schedule.png``
 
 **Map PNG Files**:
   - Format: ``{cruise_name}_map.png`` (or custom via ``--output``)

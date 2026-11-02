@@ -45,13 +45,13 @@ The LaTeX output includes a working areas table following DFG cruise proposal ex
     \textbf{Area} & \textbf{Activity} & \textbf{Duration (h)} & \textbf{Transit (h)} \\
     \midrule
     & Transit to area &  & 57.8 \\
-    & CTD/Station Operations & 0.5 &  \\
-    & ADCP Survey & 12.0 &  \\
+    & Ctd Operations & 0.5 &  \\
+    & Scientific Surveys & 12.0 &  \\
     & Area Survey Operations & 2.0 &  \\
-    & Within-area transits & 12.0 &  \\
-    & Transit from area &  & 202.9 \\
+    & Within-area transits & 9.6 &  \\
+    & Transit from area &  & 200.7 \\
     \midrule
-    \textbf{Total duration} & & \textbf{26.5} & \textbf{272.7} \\
+    \textbf{Total duration} & & \textbf{24.2} & \textbf{258.5} \\
     \bottomrule
     \end{tabular}
     \end{table}
@@ -128,44 +128,23 @@ Professional Formatting
 Integration with Proposal Documents
 ------------------------------------
 
+The schedule command writes two files: ``{cruise_name}_work_days.tex`` and
+``{cruise_name}_stations.tex``.
+
 **Standalone Compilation**:
 
 .. code-block:: bash
 
-   # Compile LaTeX tables independently
-   pdflatex cruise_schedule.tex
-   
-   # With bibliography and cross-references
-   pdflatex cruise_schedule.tex
-   bibtex cruise_schedule
-   pdflatex cruise_schedule.tex
-   pdflatex cruise_schedule.tex
+   # Each file is a complete document (\documentclass ... \end{document})
+   pdflatex {cruise_name}_work_days.tex
+   pdflatex {cruise_name}_stations.tex
 
 **Inclusion in Main Documents**:
 
-.. code-block:: latex
-
-   % In main proposal document
-   \input{cruise_schedule.tex}
-   
-   % Or with path specification
-   \input{tables/cruise_schedule.tex}
-   
-   % For specific tables only
-   \input{working_areas_table.tex}
-   \input{sea_days_table.tex}
-
-
-**Cross-Reference Integration**:
-
-.. code-block:: latex
-
-   % Reference tables from text
-   The working areas (Table~\ref{tab:working_areas}) show...
-   
-   % Total calculations
-   As shown in Table~\ref{tab:sea_days}, the total cruise duration 
-   is \ref{total_days} days at sea.
+Because each file is a standalone document, it cannot be ``\input`` directly.
+Copy the ``table`` environment(s) from the generated file into the proposal.
+The generated tables carry no ``\label``; add one after ``\caption`` if you
+need to reference them with ``\ref``.
 
 
 

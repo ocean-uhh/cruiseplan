@@ -36,7 +36,7 @@ Create a simple 3-station CTD cruise in the North Atlantic:
 That's it! You now have:
 
 - **YAML configuration**: ``data/{cruise_name}_enriched.yaml``
-- **Cruise map**: ``data/{cruise_name}_map.png``
+- **Cruise map**: ``data/{cruise_name}_map.png`` and ``data/{cruise_name}_catalog.kml``
 - **Schedule**: ``data/{cruise_name}_schedule.html``
 
 Interactive Station Placement
@@ -48,7 +48,8 @@ Step 2 opens an interactive map. Use these controls:
 - **l**: Draw line transects 
 - **a**: Define area surveys
 - **u**: Undo last action
-- **y**: Save and exit
+- **y**: Save (the window stays open)
+- **Escape**: Exit without saving
 
 **Tip**: Start with just 2-3 stations to learn the workflow.
 

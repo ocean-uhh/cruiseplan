@@ -1,9 +1,10 @@
 # CruisePlan
 
+[![PyPI](https://img.shields.io/pypi/v/cruiseplan.svg)](https://pypi.org/project/cruiseplan/)
+[![Python versions](https://img.shields.io/pypi/pyversions/cruiseplan.svg)](https://pypi.org/project/cruiseplan/)
+[![License: MIT](https://img.shields.io/pypi/l/cruiseplan.svg)](https://github.com/ocean-uhh/cruiseplan/blob/main/LICENSE)
 [![Tests](https://github.com/ocean-uhh/cruiseplan/actions/workflows/tests.yml/badge.svg)](https://github.com/ocean-uhh/cruiseplan/actions/workflows/tests.yml)
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Documentation](https://img.shields.io/badge/docs-sphinx-blue)](https://ocean-uhh.github.io/cruiseplan/)
+[![Documentation](https://img.shields.io/badge/docs-ocean--uhh.github.io-blue.svg)](https://ocean-uhh.github.io/cruiseplan/)
 
 CruisePlan is a Python tool for planning oceanographic research cruises. It takes a YAML cruise description and produces enriched configurations, cruise schedules, maps (PNG/KML), LaTeX station tables, and real-time workplans.
 

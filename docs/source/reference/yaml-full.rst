@@ -21,6 +21,8 @@ CruisePlan YAML files have three main sections:
    start_date: "2025-06-15"
    
    # 2. Global catalog (reusable definitions)
+   ports: [...]         # Port definitions (optional; built-in ports such as
+                        # port_reykjavik can be referenced without defining them)
    points: [...]        # Point operations
    lines: [...]         # Line operations  
    areas: [...]         # Area operations
@@ -32,7 +34,7 @@ Coordinate Conventions
 ======================
 
 - **Latitude**: -90.0 to 90.0 decimal degrees (negative = South)
-- **Longitude**: -180.0 to 180.0 decimal degrees (negative = West)
+- **Longitude**: -180.0 to 180.0 (negative = West) or 0.0 to 360.0 decimal degrees
 - **Depth**: meters below sea level (positive values)
 - **Distance**: kilometers
 - **Duration**: minutes
@@ -331,7 +333,7 @@ Group activities within legs for advanced scheduling:
 Operation Types
 ===============
 
-Standard operation types with default durations:
+How duration is determined when ``duration`` is not set:
 
 .. list-table::
    :header-rows: 1
@@ -340,18 +342,21 @@ Standard operation types with default durations:
    * - **Type**
      - **Default Duration**
      - **Description**
-   * - ``ctd``
-     - 45 min
-     - CTD/rosette operations
-   * - ``underway``
+   * - ``CTD`` (point)
+     - Depth-based
+     - Descent + ascent at ``ctd_descent_rate`` / ``ctd_ascent_rate``, plus ``turnaround_time``
+   * - ``underway``, ``towing``, ``CTD`` (line)
      - Transit time
-     - Continuous measurements
-   * - ``multibeam``
-     - 2 hours
-     - Seafloor mapping
+     - Route length at the line's ``vessel_speed`` (or the leg/cruise default)
+   * - ``survey`` (area)
+     - None
+     - ``duration`` is required
    * - ``mooring``
-     - 4 hours
-     - Mooring operations
+     - 999 hours
+     - Placeholder added by enrichment; set ``duration`` explicitly
+   * - ``port``, ``waypoint``
+     - 0
+     - No operation time
    * - ``net_tow`` *(planned)*
      - 90 min
      - Biological sampling — not yet implemented
@@ -444,7 +449,9 @@ CruisePlan validates configurations with these rules:
 Parameter Inheritance
 =====================
 
-Parameters cascade from cruise → leg → cluster → operation:
+Parameters cascade from cruise → leg → operation. Clusters do not carry
+speed or spacing parameters, and point definitions have no ``vessel_speed``;
+a per-operation speed is set on a line:
 
 .. code-block:: yaml
 
@@ -455,11 +462,12 @@ Parameters cascade from cruise → leg → cluster → operation:
      - name: "leg1"
        vessel_speed: 12.0      # Overrides cruise default
        activities:
-         - "CTD_001"           # Uses leg speed: 12.0 kt
+         - "CTD_001"           # Transit to this station uses leg speed: 12.0 kt
+         - "transect_A"
 
-   points:
-     - name: "CTD_001"
-       vessel_speed: 8.0       # Overrides leg speed for this operation
+   lines:
+     - name: "transect_A"
+       vessel_speed: 8.0       # Overrides leg speed along this line
 
 Comments and Documentation
 ==========================
@@ -476,7 +484,7 @@ Add comments to document your configuration:
        
    legs:
      - name: "leg1"
-       comment: "Main science operations in Denmark Strait"
+       description: "Main science operations in Denmark Strait"
        activities: ["CTD_001"]
 
 File Processing

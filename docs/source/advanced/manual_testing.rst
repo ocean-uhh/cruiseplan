@@ -7,7 +7,7 @@ This document provides systematic manual testing for validating CruisePlan funct
 - Complex cruise configurations are processed accurately  
 - Output generation functions as expected
 
-The testing approach uses the ``test_all_fixtures.py`` script combined with structured test cases to verify cruise planning workflows systematically.
+The testing approach runs ``cruiseplan run`` on each fixture and then checks the outputs against the structured test cases below.
 
 Run Tests
 ---------
@@ -15,22 +15,23 @@ Run Tests
 **Test Fixtures Location:**
 
 - **Test Files**: ``tests/fixtures/tc*.yaml``
-- **Output Directory**: ``tests_output/fixtures/``  
-- **Test Script**: ``test_all_fixtures.py`` (repository root)
+- **Output Directory**: ``tests_output/fixtures/``
 
 To run all manual tests:
 
 .. code-block:: bash
 
-   # Run automated fixture testing
-   python test_all_fixtures.py
-   
+   # Run every fixture through the full pipeline
+   for f in tests/fixtures/tc*.yaml; do
+       cruiseplan run "$f" -o tests_output/fixtures
+   done
+
    # Verify outputs
    ls tests_output/fixtures/
 
-This generates **54** output files (9 per test case in `tests/fixtures/tc*.yaml`).
+This generates **63** output files (9 per test case for the 7 files matching ``tests/fixtures/tc*.yaml``).
 
-- **Automated Processing**: The ``test_all_fixtures.py`` script processes all ``tc*.yaml`` files automatically
+- **Automated Processing**: The loop processes all ``tc*.yaml`` files
 - **Systematic Coverage**: Test cases progress from simple to complex scenarios
 - **Workflow Validation**: Each test verifies the complete ``process`` → ``schedule`` workflow
 - **Output Verification**: Generated files then need to be *manually* checked for existence and validity.  Specific verification steps are provided per test case below.
@@ -284,15 +285,17 @@ The primary method for running all tests:
 .. code-block:: bash
 
    # From repository root
-   python test_all_fixtures.py
+   for f in tests/fixtures/tc*.yaml; do
+       cruiseplan run "$f" -o tests_output/fixtures
+   done
 
-This script:
+For each ``tc*.yaml`` file in ``tests/fixtures/``, ``cruiseplan run``:
 
-1. **Finds all test fixtures**: Processes all ``tc*.yaml`` files in ``tests/fixtures/``
-2. **Runs process command**: Creates enriched configurations with depths and coordinates  
-3. **Runs schedule command**: Generates complete cruise schedules
-4. **Validates outputs**: Checks that expected files are created
-5. **Reports results**: Provides summary of successes and failures
+1. **Enriches** the configuration with depths and coordinates
+2. **Validates** it and writes the map PNG and KML
+3. **Schedules** it and writes the HTML, CSV, NetCDF, LaTeX and schedule PNG outputs
+
+Check the exit status and the file list; there is no automatic pass/fail summary.
 
 Individual Test Execution
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -302,8 +305,8 @@ For detailed testing of specific scenarios:
 .. code-block:: bash
 
    # Test a specific fixture
-   cruiseplan process -c tests/fixtures/tc1_single.yaml --output-dir tests_output/manual
-   cruiseplan schedule -c tests_output/manual/TC1_Single_Test_enriched.yaml --output-dir tests_output/manual
+   cruiseplan process tests/fixtures/tc1_single.yaml --output-dir tests_output/manual
+   cruiseplan schedule tests_output/manual/TC1_Single_Test_enriched.yaml --output-dir tests_output/manual
    
    # Verify outputs
    ls tests_output/manual/
@@ -320,9 +323,9 @@ After running automated tests, manually verify:
    ls tests_output/fixtures/
    # Should show:
    # - *_enriched.yaml files
-   # - *_timeline.html files  
-   # - *_timeline.csv files
-   # - *_map.png files (if map generation enabled)
+   # - *_schedule.html, *_schedule.csv, *_schedule.nc files
+   # - *_stations.tex and *_work_days.tex files
+   # - *_map.png, *_schedule.png and *_catalog.kml files
 
 **2. Content Validation**:
 
@@ -333,7 +336,7 @@ Here, I am currently manually checking against offline calculations, especially 
 .. code-block:: bash
 
    # Run with verbose output to check for warnings
-   cruiseplan process -c tests/fixtures/tc1_single.yaml --verbose
+   cruiseplan process tests/fixtures/tc1_single.yaml --verbose
 
 Development Workflow Integration
 --------------------------------
@@ -345,18 +348,18 @@ Before committing changes that affect core functionality:
 
 .. code-block:: bash
 
-   # Run full test suite
-   python test_all_fixtures.py
-   
-   # Check for any new warnings or errors
-   cruiseplan process -c tests/fixtures/tc3_clusters.yaml --verbose
+   # Run the unit and integration tests
+   pytest -m "not slow"
+
+   # Run all fixtures (see loop above), then check for new warnings or errors
+   cruiseplan process tests/fixtures/tc3_clusters.yaml --verbose
 
 Release Testing
 ~~~~~~~~~~~~~~~
 
 Before creating releases:
 
-1. **Run all automated tests**: ``python test_all_fixtures.py``
+1. **Run all automated tests**: ``pytest`` and the fixture loop above
 2. **Manual verification**: Check complex scenarios manually
 3. **Performance testing**: Time execution of large configurations
 4. **Documentation sync**: Ensure test results match documented behavior
@@ -419,7 +422,7 @@ To add new manual test scenarios:
 
 1. **Create fixture file**: ``tests/fixtures/tcX_description.yaml``
 2. **Follow naming convention**: Use ``tc`` prefix with descriptive name
-3. **Test automatically**: New files are included in ``test_all_fixtures.py`` automatically  
+3. **Test automatically**: New ``tc*.yaml`` files are picked up by the fixture loop
 4. **Document purpose**: Add description to this document
 
 Test Case Design Guidelines
