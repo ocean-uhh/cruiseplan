@@ -429,7 +429,7 @@ class CruiseInstance:
         """
         Convert LegDefinition objects to runtime Leg objects with clusters.
 
-        This method implements Phase 4 of the CLAUDE-legclass.md architecture:
+        Steps:
         - Creates runtime Leg objects from LegDefinition YAML data
         - Resolves port references using global port system
         - Applies parameter inheritance from cruise to leg level

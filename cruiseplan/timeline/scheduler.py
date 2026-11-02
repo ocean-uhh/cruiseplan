@@ -1,12 +1,10 @@
 """
 Clean scheduler implementation with unified operations model.
 
-This module implements the new scheduler architecture from CLAUDE-v0.3.1-scheduler-fix.md
-with a focus on:
-- Everything as operations with entry/exit coordinates
-- Clear separation between operations (science) and navigational transits (connections)
-- Consistent coordinate system for accurate distance calculations
-- Simplified, maintainable code (~500 lines vs 2000+ lines)
+The scheduler treats every activity as an operation with entry and exit
+coordinates:
+- Operations (science) are kept separate from navigational transits (connections)
+- All distances are computed in one coordinate system
 """
 
 import logging

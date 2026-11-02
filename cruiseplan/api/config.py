@@ -1,9 +1,8 @@
 """
 Configuration objects for CruisePlan API functions.
 
-This module provides dataclass-based configuration objects to reduce
-the number of arguments in main API functions, following the refactoring
-plan outlined in docs/legacy/CLAUDE-v0.3.3-refactor-complex.md.
+This module provides dataclass-based configuration objects that group
+related arguments of the main API functions.
 """
 
 from dataclasses import dataclass
