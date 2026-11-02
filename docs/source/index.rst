@@ -31,6 +31,7 @@ CruisePlan
    advanced/developer_guide.md
    advanced/manual_testing.rst
    API Reference <api/modules.rst>
+   changelog
 
 Indices and tables
 ==================
