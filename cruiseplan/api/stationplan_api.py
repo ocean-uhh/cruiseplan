@@ -840,7 +840,7 @@ _WORK_CODE_BY_TYPE: dict[str, int] = {
 
 
 def _map_activity_to_work_code(
-    category: str, activity_type: str, name: str = ""
+    _category: str, activity_type: str, name: str = ""
 ) -> int:
     """
     Map activity category/type to letsgo.m work code.

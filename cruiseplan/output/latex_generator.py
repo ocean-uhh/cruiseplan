@@ -129,7 +129,7 @@ class LaTeXGenerator:
         return pages
 
     def _generate_stations_rows(
-        self, config: CruiseConfig, timeline: list[ActivityRecord]
+        self, _config: CruiseConfig, timeline: list[ActivityRecord]
     ) -> list[dict[str, str]]:
         """
         Extract station/operation data from timeline for table generation.
@@ -538,7 +538,7 @@ class LaTeXGenerator:
         self,
         records: list[ActivityRecord],
         cruise_name: str = "Cruise",
-        config: CruiseConfig | None = None,
+        config: CruiseConfig | None = None,  # noqa: ARG002 - public keyword, kept for callers
         logo_path: str | Path | None = None,
         workplan_number: str | None = None,
         cruise_title: str | None = None,

@@ -958,7 +958,7 @@ def validate(
     bathy_dir: str = "data/bathymetry",
     check_depths: bool = True,
     tolerance: float = 10.0,
-    warnings_only: bool = False,
+    warnings_only: bool = False,  # noqa: ARG001 - mirrors the CLI flag; the CLI applies it
     verbose: bool = False,
 ) -> ValidationResult:
     """

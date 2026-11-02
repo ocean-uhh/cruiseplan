@@ -668,7 +668,7 @@ class StationPicker:
         if event.inaxes == self.ax_map:
             self._update_aspect_ratio()
 
-    def _on_resize(self, event: ResizeEvent) -> None:
+    def _on_resize(self, _event: ResizeEvent) -> None:
         """Handle figure resize events."""
         self._update_aspect_ratio()
 

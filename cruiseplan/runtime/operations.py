@@ -718,7 +718,7 @@ class AreaOperation(BaseOperation):
             else (0.0, 0.0)
         )
 
-    def calculate_duration(self, rules: DurationRules | None) -> float:
+    def calculate_duration(self, rules: DurationRules | None) -> float:  # noqa: ARG002 - interface; area duration is user-set
         """
         Calculate duration using user-specified duration or fallback formula.
 

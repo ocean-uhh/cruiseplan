@@ -143,7 +143,7 @@ class NavigationalTransit(BaseOperation):
             config, "default_vessel_speed", 10.0
         )
 
-    def calculate_duration(self, rules: DurationRules | None) -> float:
+    def calculate_duration(self, rules: DurationRules | None) -> float:  # noqa: ARG002 - interface; transit uses its own speed
         """Calculate based on transit distance and vessel speed."""
         exit_pt = self.from_op.get_exit_point()
         entry_pt = self.to_op.get_entry_point()
@@ -186,7 +186,7 @@ class OperationFactory:
     def __init__(self, config: CruiseConfig) -> None:
         self.config = config
 
-    def create_operation(self, name: str, leg_name: str) -> BaseOperation:
+    def create_operation(self, name: str, leg_name: str) -> BaseOperation:  # noqa: ARG002 - public signature; leg_name not used yet
         """Create operation from configuration using catalog-based type detection."""
         # Check each catalog to find the operation
         catalog_checks = [
@@ -1061,16 +1061,16 @@ def generate_timeline(
 
 def generate_cruise_schedule(
     config_path: str,
-    output_dir: str = "data",
+    output_dir: str = "data",  # noqa: ARG001 - kept for backward compatibility
     formats: list[str] | None = None,
     validate_depths: bool = False,
     selected_leg: str | None = None,
-    derive_netcdf: bool = False,
-    bathy_source: str = "gebco2025",
-    bathy_dir: str = "data/bathymetry",
-    bathy_stride: int = 10,
-    figsize: list[float] | None = None,
-    output_basename: str | None = None,
+    derive_netcdf: bool = False,  # noqa: ARG001 - kept for backward compatibility
+    bathy_source: str = "gebco2025",  # noqa: ARG001 - kept for backward compatibility
+    bathy_dir: str = "data/bathymetry",  # noqa: ARG001 - kept for backward compatibility
+    bathy_stride: int = 10,  # noqa: ARG001 - kept for backward compatibility
+    figsize: list[float] | None = None,  # noqa: ARG001 - kept for backward compatibility
+    output_basename: str | None = None,  # noqa: ARG001 - kept for backward compatibility
 ) -> dict[str, Any]:
     """
     Generate cruise schedule (backward compatibility function).

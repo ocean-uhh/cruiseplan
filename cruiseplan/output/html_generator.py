@@ -514,7 +514,10 @@ class HTMLGenerator:
         return legs_data
 
     def _get_activity_entry_exit_distance(
-        self, activity: dict[str, Any], activities: list[dict[str, Any]], index: int
+        self,
+        activity: dict[str, Any],
+        _activities: list[dict[str, Any]],
+        _index: int,
     ) -> tuple[str, str, str]:
         """
         Determine entry position, exit position, and distance for an activity.
@@ -523,9 +526,9 @@ class HTMLGenerator:
         ----------
         activity : dict
             Current activity record
-        activities : list
+        _activities : list
             List of all activities in this leg
-        index : int
+        _index : int
             Index of current activity in the activities list
 
         Returns
@@ -589,15 +592,15 @@ class HTMLGenerator:
 
         return entry_position, exit_position, distance_str
 
-    def _add_leg_transits(self, legs_data: dict, config: CruiseConfig) -> None:
+    def _add_leg_transits(self, _legs_data: dict, _config: CruiseConfig) -> None:
         """
         Add transit connections between legs.
 
         Parameters
         ----------
-        legs_data : dict
+        _legs_data : dict
             Leg data dictionary to modify
-        config : CruiseConfig
+        _config : CruiseConfig
             Cruise configuration
         """
         from cruiseplan.timeline.distance import haversine_distance

@@ -72,7 +72,10 @@ class CSVGenerator:
         return str(round(depth))
 
     def generate_schedule_csv(
-        self, config: CruiseConfig, timeline: list[ActivityRecord], output_file: Path
+        self,
+        config: CruiseConfig,  # noqa: ARG002 - same signature as the other generators
+        timeline: list[ActivityRecord],
+        output_file: Path,
     ) -> Path:
         """
         Generate CSV schedule output with comprehensive formatting.

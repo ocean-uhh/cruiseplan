@@ -1661,7 +1661,7 @@ def _add_eez_boundaries(folium_map: folium.Map, tracks: list[dict[str, Any]]) ->
         # Add boundary to map
         folium.GeoJson(
             eez.geometry,
-            style_function=lambda x: {
+            style_function=lambda _feature: {
                 "fillColor": "lightblue",
                 "color": "navy",
                 "weight": 2,
