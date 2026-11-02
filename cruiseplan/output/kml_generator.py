@@ -77,7 +77,7 @@ class KMLGenerator:
     are included, with different styling for each operation type.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the KML generator."""
 
     def generate_schedule_kml(

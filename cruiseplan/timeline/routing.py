@@ -6,12 +6,12 @@ Currently implements placeholder functions for composite route optimization that
 will eventually solve constrained Traveling Salesman Problems (TSP).
 """
 
-from typing import Any
-
-from cruiseplan.runtime.operations import BaseOperation
+from cruiseplan.runtime.operations import BaseOperation, DurationRules
 
 
-def optimize_composite_route(children: list[BaseOperation], rules: Any) -> float:
+def optimize_composite_route(
+    children: list[BaseOperation], rules: DurationRules | None
+) -> float:
     """
     Calculate total duration for operations within a Cluster.
 
@@ -23,7 +23,7 @@ def optimize_composite_route(children: list[BaseOperation], rules: Any) -> float
     ----------
     children : list of BaseOperation
         List of child operations to optimize.
-    rules : Any
+    rules : DurationRules or None
         Operational rules and constraints for optimization.
 
     Returns
@@ -47,15 +47,15 @@ def optimize_composite_route(children: list[BaseOperation], rules: Any) -> float
 
 
 # NOTE: Add a simple placeholder for route calculations if needed later
-def calculate_route_distance(start_point, end_point) -> float:
+def calculate_route_distance(start_point: object, end_point: object) -> float:
     """
     Placeholder for Haversine/geodesic distance calculation.
 
     Parameters
     ----------
-    start_point : Any
+    start_point : object
         Starting point coordinates.
-    end_point : Any
+    end_point : object
         Ending point coordinates.
 
     Returns

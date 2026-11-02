@@ -7,9 +7,10 @@ and process() functions that coordinate the full data processing pipeline.
 
 import logging
 import warnings as python_warnings
+from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any
+from typing import Any, TextIO
 
 from pydantic import ValidationError
 
@@ -51,7 +52,7 @@ logger = logging.getLogger(__name__)
 
 
 @contextmanager
-def _validation_warning_capture():
+def _validation_warning_capture() -> Iterator[list[str]]:
     """
     Context manager for capturing and formatting validation warnings.
 
@@ -60,9 +61,16 @@ def _validation_warning_capture():
     List[str]
         List that will be populated with captured warning messages.
     """
-    captured_warnings = []
+    captured_warnings: list[str] = []
 
-    def warning_handler(message, category, filename, lineno, file=None, line=None):
+    def warning_handler(
+        message: Warning | str,
+        _category: type[Warning],
+        _filename: str,
+        _lineno: int,
+        _file: TextIO | None = None,
+        _line: str | None = None,
+    ) -> None:
         captured_warnings.append(str(message))
 
     old_showwarning = python_warnings.showwarning
@@ -578,9 +586,16 @@ def _validate_configuration(
     warnings = []
 
     # Capture Python warnings for better formatting
-    captured_warnings = []
+    captured_warnings: list[str] = []
 
-    def warning_handler(message, category, filename, lineno, file=None, line=None):
+    def warning_handler(
+        message: Warning | str,
+        _category: type[Warning],
+        _filename: str,
+        _lineno: int,
+        _file: TextIO | None = None,
+        _line: str | None = None,
+    ) -> None:
         captured_warnings.append(str(message))
 
     # Set up warning capture

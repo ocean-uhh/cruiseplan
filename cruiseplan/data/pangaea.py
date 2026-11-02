@@ -41,7 +41,7 @@ class PangaeaManager:
         File-based cache for storing fetched dataset metadata.
     """
 
-    def __init__(self, cache_dir: str = ".cache"):
+    def __init__(self, cache_dir: str = ".cache") -> None:
         """
         Initialize PANGAEA manager.
 
@@ -319,7 +319,9 @@ class PangaeaManager:
             logger.exception(f"Failed to fetch {doi}")
             return None
 
-    def _parse_events(self, events_data: Any, doi: str) -> dict[str, Any] | None:
+    def _parse_events(
+        self, events_data: pd.DataFrame | list[object], doi: str
+    ) -> dict[str, Any] | None:
         """
         Extracts lat/lon/label/campaign from the .events attribute.
 
@@ -327,8 +329,8 @@ class PangaeaManager:
 
         Parameters
         ----------
-        events_data : Any
-            Events data from PANGAEA dataset.
+        events_data : pandas.DataFrame or list
+            Events table from a PANGAEA dataset, or a list of event records.
         doi : str
             DOI identifier for the dataset.
 
@@ -440,14 +442,14 @@ class PangaeaManager:
             "doi": doi,
         }
 
-    def _safe_get(self, obj: Any, keys: list[str]) -> Any:
+    def _safe_get(self, obj: object, keys: list[str]) -> Any:  # noqa: ANN401 - returns whatever the PANGAEA record holds
         """
         Helper to get attributes safely from dicts or objects.
 
         Parameters
         ----------
-        obj : Any
-            Object to extract attribute from.
+        obj : object
+            Dictionary-like or attribute-bearing record.
         keys : List[str]
             List of possible key/attribute names to try.
 

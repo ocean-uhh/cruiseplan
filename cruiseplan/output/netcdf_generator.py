@@ -38,7 +38,7 @@ class NetCDFGenerator:
         CF conventions version used for NetCDF files ("CF-1.8").
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.cf_conventions = "CF-1.8"
 
     def generate_all_netcdf_outputs(

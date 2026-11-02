@@ -15,7 +15,7 @@ for stations, moorings, areas, and transects.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import TYPE_CHECKING, Protocol
 
 from cruiseplan.config.activities import (
     AreaDefinition,
@@ -26,8 +26,17 @@ from cruiseplan.config.activities import (
 from cruiseplan.config.fields import ACTION_FIELD
 from cruiseplan.config.values import ActionEnum
 
+if TYPE_CHECKING:
+    from cruiseplan.config.cruise_config import CruiseConfig
+
 # Port actions that identify mobilization/demobilization operations
 PORT_ACTIONS = [ActionEnum.MOB.value, ActionEnum.DEMOB.value]
+
+
+class DurationRules(Protocol):
+    """Rules object passed to duration calculations; carries the cruise config."""
+
+    config: "CruiseConfig"
 
 
 class BaseOperation(ABC):
@@ -51,7 +60,7 @@ class BaseOperation(ABC):
         name: str,
         comment: str | None = None,
         display_name: str | None = None,
-    ):
+    ) -> None:
         """
         Initialize a base operation.
 
@@ -70,13 +79,13 @@ class BaseOperation(ABC):
         self.display_name = display_name or name
 
     @abstractmethod
-    def calculate_duration(self, rules: Any) -> float:
+    def calculate_duration(self, rules: DurationRules | None) -> float:
         """
         Calculate duration in minutes based on provided rules.
 
         Parameters
         ----------
-        rules : Any
+        rules : DurationRules or None
             Duration calculation rules and parameters.
 
         Returns
@@ -192,7 +201,7 @@ class PointOperation(BaseOperation):
         action: str | None = None,
         display_name: str | None = None,
         delay_start: float | None = None,
-    ):
+    ) -> None:
         """
         Initialize a point operation.
 
@@ -242,7 +251,7 @@ class PointOperation(BaseOperation):
             return self.water_depth
         return 0.0
 
-    def calculate_duration(self, rules: Any) -> float:
+    def calculate_duration(self, rules: DurationRules | None) -> float:
         """
         Calculate duration based on operation type and rules.
 
@@ -253,7 +262,7 @@ class PointOperation(BaseOperation):
 
         Parameters
         ----------
-        rules : Any
+        rules : DurationRules or None
             Duration calculation rules containing config.
 
         Returns
@@ -463,7 +472,7 @@ class LineOperation(BaseOperation):
         display_name: str | None = None,
         op_type: str = "line",
         action: str | None = None,
-    ):
+    ) -> None:
         """
         Initialize a line operation.
 
@@ -484,13 +493,13 @@ class LineOperation(BaseOperation):
         self.op_type = op_type
         self.action = action
 
-    def calculate_duration(self, rules: Any) -> float:
+    def calculate_duration(self, rules: DurationRules | None) -> float:
         """
         Calculate duration for the line operation based on route distance and vessel speed.
 
         Parameters
         ----------
-        rules : Any
+        rules : DurationRules or None
             Duration calculation rules containing config with default_vessel_speed.
 
         Returns
@@ -650,7 +659,7 @@ class AreaOperation(BaseOperation):
         display_name: str | None = None,
         op_type: str = "area",
         action: str | None = None,
-    ):
+    ) -> None:
         """
         Initialize an area operation.
 
@@ -693,7 +702,7 @@ class AreaOperation(BaseOperation):
             else (0.0, 0.0)
         )
 
-    def calculate_duration(self, rules: Any) -> float:
+    def calculate_duration(self, rules: DurationRules | None) -> float:
         """
         Calculate duration using user-specified duration or fallback formula.
 
@@ -702,7 +711,7 @@ class AreaOperation(BaseOperation):
 
         Parameters
         ----------
-        rules : Any
+        rules : DurationRules or None
             Duration calculation rules and parameters (unused for area operations).
 
         Returns

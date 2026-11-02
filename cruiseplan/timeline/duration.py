@@ -35,7 +35,7 @@ class DurationCalculator:
         Hour when daytime operations end (0-23).
     """
 
-    def __init__(self, config: CruiseConfig):
+    def __init__(self, config: CruiseConfig) -> None:
         self.config = config
         # Pull from config (defaulting to 8/20 via Pydantic if not set)
         self.day_start_hour = config.day_start_hour

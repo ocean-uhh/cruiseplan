@@ -24,7 +24,8 @@ error/warning information suitable for display to users.
 """
 
 import logging
-from typing import TYPE_CHECKING
+from collections.abc import Iterator
+from typing import TYPE_CHECKING, Any
 
 from cruiseplan.config.activities import AreaDefinition, LineDefinition, PointDefinition
 from cruiseplan.config.fields import (
@@ -55,7 +56,9 @@ logger = logging.getLogger(__name__)
 # =============================================================================
 
 
-def _get_all_entities(cruise_instance: "CruiseInstance"):
+def _get_all_entities(
+    cruise_instance: "CruiseInstance",
+) -> Iterator[tuple[str, str, list[Any], list[str]]]:
     """
     Yield all entity collections with their metadata.
 

@@ -13,6 +13,7 @@ paginated to fit within LaTeX float environments.
 """
 
 import logging
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -68,7 +69,7 @@ class LaTeXGenerator:
     # Max rows per page for LaTeX table float environment
     MAX_ROWS_PER_PAGE = 45
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Locate the template directory relative to this file
         template_dir = Path(__file__).parent / "templates"
 
@@ -547,7 +548,7 @@ class LaTeXGenerator:
         self,
         records: list[ActivityRecord],
         cruise_name: str = "Cruise",
-        config: Any = None,
+        config: CruiseConfig | None = None,
         logo_path: str | Path | None = None,
         workplan_number: str | None = None,
         cruise_title: str | None = None,
@@ -563,7 +564,7 @@ class LaTeXGenerator:
             ActivityRecord objects (typically from NetCDF reader).
         cruise_name : str
             Name of cruise for table header. Default is ``"Cruise"``.
-        config : Any, optional
+        config : CruiseConfig, optional
             Cruise configuration object; used to extract cruise name and date
             range when provided.
         logo_path : str or Path, optional
@@ -909,7 +910,7 @@ Time & Position & Depth & Distance & Station & Comment \\\\
         )
 
     def _get_original_station_coordinates(
-        self, station_name: str, config: Any = None
+        self, station_name: str, config: CruiseConfig | None = None
     ) -> tuple[float, float, bool]:
         """
         Get original station coordinates from cruise configuration.
@@ -955,7 +956,7 @@ Time & Position & Depth & Distance & Station & Comment \\\\
         return 0.0, 0.0, False
 
     def _verify_station_coordinates(
-        self, record: Any, config: Any = None
+        self, record: ActivityRecord, config: CruiseConfig | None = None
     ) -> tuple[float, float, str]:
         """
         Verify station coordinates and return the correct ones to use.
@@ -990,7 +991,7 @@ Time & Position & Depth & Distance & Station & Comment \\\\
         # Coordinates match - use original
         return orig_lat, orig_lon, ""
 
-    def _round_time_to_10min(self, dt):
+    def _round_time_to_10min(self, dt: datetime) -> datetime:
         """Round time to nearest 10 minutes like letsgo.m (rnd = 144)."""
         # Convert to total minutes
         total_minutes = dt.hour * 60 + dt.minute

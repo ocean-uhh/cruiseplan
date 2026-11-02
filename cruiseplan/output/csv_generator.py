@@ -25,7 +25,7 @@ class CSVGenerator:
     Manages CSV generation for cruise schedules with comprehensive formatting.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the CSV generator."""
 
     def _get_display_label(self, activity: dict) -> str:

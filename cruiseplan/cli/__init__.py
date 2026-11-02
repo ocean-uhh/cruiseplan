@@ -17,11 +17,12 @@ This package contains command-line interface modules for cruiseplan:
 """
 
 import sys
+from collections.abc import Iterator
 from contextlib import contextmanager
 
 
 @contextmanager
-def handle_cli_errors(command_name: str, verbose: bool = False):
+def handle_cli_errors(command_name: str, verbose: bool = False) -> Iterator[None]:
     """
     Context manager that catches and formats standard cruiseplan CLI errors.
 
@@ -54,7 +55,7 @@ def handle_cli_errors(command_name: str, verbose: bool = False):
     except KeyboardInterrupt:
         print("\nOperation cancelled by user.", file=sys.stderr)
         sys.exit(1)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - CLI top level: report any error and exit 1
         print(f"ERROR: Unexpected error: {e}", file=sys.stderr)
         if verbose:
             import traceback

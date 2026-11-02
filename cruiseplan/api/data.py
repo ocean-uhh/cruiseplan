@@ -8,10 +8,14 @@ PANGAEA oceanographic databases.
 import logging
 import re
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from cruiseplan.api.config import BathymetryDownloadConfig, PangaeaConfig
 from cruiseplan.api.types import BathymetryResult, PangaeaResult
 from cruiseplan.config.exceptions import ValidationError
+
+if TYPE_CHECKING:
+    from cruiseplan.data.pangaea import PangaeaManager
 
 logger = logging.getLogger(__name__)
 
@@ -207,7 +211,7 @@ def _process_doi_file(
 
 
 def _process_single_doi(
-    query_terms: str, dois_file: Path, manager
+    query_terms: str, dois_file: Path, manager: "PangaeaManager"
 ) -> tuple[list[str], list[Path]]:
     """Process single DOI input mode."""
     logger.info(f"📄 Processing single DOI: '{query_terms}'")
@@ -231,12 +235,12 @@ def _process_single_doi(
 
 def _process_search_query(
     query_terms: str,
-    bbox,
+    bbox: tuple[float, float, float, float] | None,
     lat_bounds: list[float] | None,
     lon_bounds: list[float] | None,
     limit: int,
     dois_file: Path,
-    manager,
+    manager: "PangaeaManager",
 ) -> tuple[list[str], list[Path]]:
     """Process search query input mode."""
     logger.info(f"🔍 Searching PANGAEA for: '{query_terms}'")
@@ -297,7 +301,7 @@ def _resolve_doi_list(
     query_terms: str,
     config: dict,
     limit: int,
-    manager,
+    manager: "PangaeaManager",
     lat_bounds: list[float] | None,
     lon_bounds: list[float] | None,
 ) -> tuple[list[str], list[Path]]:

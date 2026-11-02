@@ -69,7 +69,9 @@ class BathymetryManager:
         Longitude coordinate array.
     """
 
-    def __init__(self, source: str = "gebco2025", data_dir: str = "data/bathymetry"):
+    def __init__(
+        self, source: str = "gebco2025", data_dir: str = "data/bathymetry"
+    ) -> None:
         """
         Initialize the bathymetry manager.
 
@@ -111,7 +113,7 @@ class BathymetryManager:
             return "elevation"
         return "z"  # Default for ETOPO and other sources
 
-    def _initialize_data(self):
+    def _initialize_data(self) -> None:
         """
         Attempt to load NetCDF data, falling back to mock mode on failure.
 
@@ -219,7 +221,14 @@ class BathymetryManager:
             logger.exception(f"Error interpolating depth at {lat}, {lon}")
             return DEFAULT_DEPTH
 
-    def get_grid_subset(self, lat_min, lat_max, lon_min, lon_max, stride=1):
+    def get_grid_subset(
+        self,
+        lat_min: float,
+        lat_max: float,
+        lon_min: float,
+        lon_max: float,
+        stride: int = 1,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Get a subset of the bathymetry grid for contour plotting.
 
@@ -241,8 +250,8 @@ class BathymetryManager:
 
         Returns
         -------
-        tuple
-            Tuple of (lons, lats, depths) as 2D numpy arrays for contour plotting.
+        tuple of numpy.ndarray
+            (lons, lats, depths) as 2D arrays for contour plotting.
 
         Notes
         -----
@@ -361,7 +370,7 @@ class BathymetryManager:
 
         return float(depth)
 
-    def ensure_gebco_2025(self, silent_if_exists=False):
+    def ensure_gebco_2025(self, silent_if_exists: bool = False) -> bool:
         """
         Ensure GEBCO 2025 dataset is available for high-resolution bathymetry.
 
@@ -563,7 +572,7 @@ class BathymetryManager:
         val = (abs(lat) * 100) + (abs(lon) * 50)
         return -(val % 4000) - 100
 
-    def close(self):
+    def close(self) -> None:
         """
         Close the NetCDF dataset if open.
 
@@ -812,10 +821,10 @@ def determine_bathymetry_source(requested_source: str) -> str:
 
 
 # Lazy singleton instance - only created when first accessed
-_bathymetry_instance = None
+_bathymetry_instance: BathymetryManager | None = None
 
 
-def get_bathymetry_singleton():
+def get_bathymetry_singleton() -> BathymetryManager:
     """Get the singleton BathymetryManager instance (lazy initialization)."""
     global _bathymetry_instance
     if _bathymetry_instance is None:
@@ -824,7 +833,7 @@ def get_bathymetry_singleton():
 
 
 # For backward compatibility, create the singleton on first access
-def __getattr__(name):
+def __getattr__(name: str) -> BathymetryManager:
     if name == "bathymetry":
         return get_bathymetry_singleton()
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")

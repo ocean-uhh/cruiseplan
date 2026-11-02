@@ -10,6 +10,8 @@ to CF conventions.
 from datetime import datetime
 from typing import Any
 
+from numpy.typing import ArrayLike
+
 from cruiseplan.config.cruise_config import CruiseConfig
 
 
@@ -243,7 +245,11 @@ def get_variable_attributes(variable_name: str) -> dict[str, Any]:
 
 
 def create_coordinate_variables(
-    times, lats, lons, depths=None, operation_depths=None
+    times: ArrayLike,
+    lats: ArrayLike,
+    lons: ArrayLike,
+    depths: ArrayLike | None = None,
+    operation_depths: ArrayLike | None = None,
 ) -> dict[str, tuple[list[str], Any, dict[str, Any]]]:
     """
     Create standardized coordinate variable definitions for xarray Dataset.
@@ -292,20 +298,20 @@ def create_coordinate_variables(
 
 
 def create_operation_variables(
-    names,
-    types,
-    actions,
-    durations,
-    comments=None,
-    distances_to_next=None,
-    exit_lats=None,
-    exit_lons=None,
-    end_times=None,
-    dist_nms=None,
-    water_depths=None,
-    operation_depths=None,
-    activities=None,
-    operation_classes=None,
+    names: ArrayLike,
+    types: ArrayLike,
+    actions: ArrayLike,
+    durations: ArrayLike,
+    comments: ArrayLike | None = None,
+    distances_to_next: ArrayLike | None = None,
+    exit_lats: ArrayLike | None = None,
+    exit_lons: ArrayLike | None = None,
+    end_times: ArrayLike | None = None,
+    dist_nms: ArrayLike | None = None,
+    water_depths: ArrayLike | None = None,
+    operation_depths: ArrayLike | None = None,
+    activities: ArrayLike | None = None,
+    operation_classes: ArrayLike | None = None,
 ) -> dict[str, tuple[list[str], Any, dict[str, Any]]]:
     """
     Create standardized operation variable definitions for xarray Dataset.

@@ -9,8 +9,10 @@ import logging
 from dataclasses import dataclass
 from datetime import timedelta
 from pathlib import Path
+from typing import Any
 
 import numpy as np
+import xarray as xr
 
 from cruiseplan.forecast.formatter import format_letsgo_output
 from cruiseplan.forecast.generator import (
@@ -289,7 +291,9 @@ class _ForecastRecord:
             setattr(self, key, value)
 
 
-def _lookup_schedule_depth_data(schedule, index: int) -> tuple:
+def _lookup_schedule_depth_data(
+    schedule: xr.Dataset, index: int
+) -> tuple[float | None, float | None, str]:
     """Look up water_depth, operation_depth, and comment from a NetCDF schedule.
 
     Returns (water_depth, operation_depth, comment) with None/empty defaults.
@@ -323,7 +327,7 @@ def _lookup_schedule_depth_data(schedule, index: int) -> tuple:
 
 
 def _lookup_tex_exit_coords(
-    schedule, index: int, latitude: float, longitude: float
+    schedule: xr.Dataset, index: int, latitude: float, longitude: float
 ) -> tuple[float, float]:
     """Return exit (lat, lon) from schedule variables, falling back to entry coords."""
     try:
@@ -341,7 +345,7 @@ def _lookup_tex_exit_coords(
 
 
 def _build_tex_forecast_record(
-    schedule, index: int, activity_tuple: tuple
+    schedule: xr.Dataset, index: int, activity_tuple: tuple
 ) -> "_ForecastRecord | None":
     """Convert one forecast activity tuple to a _ForecastRecord for TeX output.
 
@@ -664,7 +668,7 @@ def stationplan_waypoints(
             )
 
         # Generate waypoint content in both coordinate formats
-        def generate_waypoint_content(use_decimal_degrees=False):
+        def generate_waypoint_content(use_decimal_degrees: bool = False) -> str:
             waypoint_lines = []
 
             # Add header with proper spacing
@@ -947,7 +951,7 @@ def stationplan_forecast_kml(
 
         # Create a minimal cruise config for KML generation
         class MockCruiseConfig:
-            def __init__(self):
+            def __init__(self) -> None:
                 self.cruise_name = schedule_path.stem
                 self.description = (
                     f"Forecast starting from {start_time} for {duration_hours}h"
@@ -957,17 +961,17 @@ def stationplan_forecast_kml(
 
         # Convert to ActivityRecord-like objects for KMLGenerator
         class MockActivityRecord:
-            def __init__(self, data):
+            def __init__(self, data: dict[str, Any]) -> None:
                 for key, value in data.items():
                     setattr(self, key, value)
 
                 # Convert to dict access for KML generator compatibility
                 self.data = data
 
-            def __getitem__(self, key):
+            def __getitem__(self, key: str) -> Any:  # noqa: ANN401 - activity dict values are heterogeneous
                 return self.data[key]
 
-            def get(self, key, default=None):
+            def get(self, key: str, default: Any = None) -> Any:  # noqa: ANN401 - mirrors dict.get
                 return self.data.get(key, default)
 
         activity_records = [

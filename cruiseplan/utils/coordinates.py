@@ -14,7 +14,11 @@ The CoordConverter class provides static methods for coordinate conversions.
 """
 
 import math
-from typing import Any
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from cruiseplan.config.activities import PointDefinition
+    from cruiseplan.runtime.cruise import CruiseInstance
 
 
 class CoordConverter:
@@ -248,14 +252,16 @@ def format_position_latex(lat: float, lon: float) -> str:
     return f"{lat_str}, {lon_str}"
 
 
-def _extract_port_info(port: Any) -> tuple[float, float, str] | None:
+def _extract_port_info(
+    port: "PointDefinition | str | None",
+) -> tuple[float, float, str] | None:
     """
     Extract port information from a port object.
 
     Parameters
     ----------
-    port : Any
-        Port object (PortDefinition or string reference)
+    port : PointDefinition, str or None
+        Port object or unresolved string reference.
 
     Returns
     -------
@@ -274,7 +280,7 @@ def _extract_port_info(port: Any) -> tuple[float, float, str] | None:
 
 
 def extract_coordinates_from_cruise(
-    cruise: Any,
+    cruise: "CruiseInstance",
 ) -> tuple[
     list[float],
     list[float],
@@ -287,7 +293,7 @@ def extract_coordinates_from_cruise(
 
     Parameters
     ----------
-    cruise : Cruise
+    cruise : CruiseInstance
         Cruise object with station registry and configuration
 
     Returns

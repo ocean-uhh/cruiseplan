@@ -34,7 +34,7 @@ class StationPickerResult(BaseResult):
         output_file: Path,
         summary: dict[str, Any],
         pangaea_data: list[dict] | None = None,
-    ):
+    ) -> None:
         """Initialize station picker result."""
         super().__init__(
             files_created=[output_file],

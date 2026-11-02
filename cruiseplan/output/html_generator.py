@@ -15,6 +15,7 @@ tables for each operation type.
 
 import logging
 from pathlib import Path
+from typing import Any
 
 from cruiseplan.config.cruise_config import CruiseConfig
 from cruiseplan.output.output_utils import (
@@ -31,7 +32,7 @@ from cruiseplan.utils.units import NM_PER_KM, hours_to_days
 logger = logging.getLogger(__name__)
 
 
-def _convert_decimal_to_deg_min_html(decimal_degrees):
+def _convert_decimal_to_deg_min_html(decimal_degrees: float) -> str:
     """
     Convert decimal degrees to DD MM.mmm format for HTML display.
 
@@ -67,7 +68,7 @@ class HTMLGenerator:
     schedule data, including summary statistics and detailed activity breakdowns.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the HTML generator."""
 
     def generate_schedule_report(
@@ -512,7 +513,9 @@ class HTMLGenerator:
 
         return legs_data
 
-    def _get_activity_entry_exit_distance(self, activity, activities, index):
+    def _get_activity_entry_exit_distance(
+        self, activity: dict[str, Any], activities: list[dict[str, Any]], index: int
+    ) -> tuple[str, str, str]:
         """
         Determine entry position, exit position, and distance for an activity.
 
@@ -527,8 +530,9 @@ class HTMLGenerator:
 
         Returns
         -------
-        tuple
-            (entry_position, exit_position, distance_nm) as formatted strings and float
+        tuple of str
+            (entry_position, exit_position, distance) formatted for display;
+            distance is "-" when zero.
         """
         # Get current activity position
         if "lat" in activity and "lon" in activity:

@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 
 import cruiseplan
+from cruiseplan.api.types import ValidationResult
 from cruiseplan.config.values import (
     BATHY_SOURCES,
     DEFAULT_BATHY_DIR,
@@ -19,7 +20,7 @@ from cruiseplan.config.values import (
 )
 
 
-def _display_validation_results(result, warnings_only: bool) -> None:
+def _display_validation_results(result: ValidationResult, warnings_only: bool) -> None:
     """Display validation results in formatted output."""
     print("")
     print("=" * 50)
@@ -40,7 +41,7 @@ def _display_validation_results(result, warnings_only: bool) -> None:
             print(f"  • {warning}")
 
 
-def _print_summary_and_exit(result, warnings_only: bool) -> None:
+def _print_summary_and_exit(result: ValidationResult, warnings_only: bool) -> None:
     """Print validation summary and exit with appropriate code."""
     if result.success:
         print(f"Validation passed ({len(result.warnings)} warnings)")

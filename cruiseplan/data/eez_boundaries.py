@@ -20,10 +20,14 @@ at https://www.marineregions.org/. https://doi.org/10.14284/632
 import logging
 import zipfile
 from pathlib import Path
+from typing import TYPE_CHECKING
 from urllib.request import urlretrieve
 
 import geopandas as gpd
 from shapely.geometry import Point
+
+if TYPE_CHECKING:
+    from cruiseplan.runtime.cruise import CruiseInstance
 
 logger = logging.getLogger(__name__)
 
@@ -349,13 +353,13 @@ def get_eez_for_point(lat: float, lon: float) -> dict | None:
     }
 
 
-def get_cruise_area_bbox(cruise) -> tuple[float, float, float, float]:
+def get_cruise_area_bbox(cruise: "CruiseInstance") -> tuple[float, float, float, float]:
     """
     Calculate bounding box for cruise area based on all station positions.
 
     Parameters
     ----------
-    cruise : Cruise
+    cruise : CruiseInstance
         Cruise object with station registry.
 
     Returns

@@ -7,13 +7,12 @@ Cluster, Leg) that form the structural framework for cruise execution and schedu
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Any
 
 from cruiseplan.config.activities import PointDefinition
 from cruiseplan.config.cruise_config import ClusterDefinition, LegDefinition
 from cruiseplan.config.ports import resolve_port_reference
 from cruiseplan.config.values import StrategyEnum
-from cruiseplan.runtime.operations import BaseOperation
+from cruiseplan.runtime.operations import BaseOperation, DurationRules
 from cruiseplan.utils.units import NM_PER_KM
 
 logger = logging.getLogger(__name__)
@@ -114,7 +113,7 @@ class Cluster(BaseOrganizationUnit):
         description: str | None = None,
         strategy: StrategyEnum = StrategyEnum.SEQUENTIAL,
         ordered: bool = True,
-    ):
+    ) -> None:
         """
         Initialize a Cluster with the specified parameters.
 
@@ -219,13 +218,13 @@ class Cluster(BaseOrganizationUnit):
         """
         return self.operations.copy()
 
-    def calculate_total_duration(self, rules: Any) -> float:
+    def calculate_total_duration(self, rules: DurationRules | None) -> float:
         """
         Calculate total duration for all operations in this cluster.
 
         Parameters
         ----------
-        rules : Any
+        rules : DurationRules or None
             Duration calculation rules and parameters.
 
         Returns
@@ -426,7 +425,7 @@ class Leg(BaseOrganizationUnit):
         ordered: bool = True,
         first_activity: str | None = None,
         last_activity: str | None = None,
-    ):
+    ) -> None:
         """
         Initialize a maritime Leg with port-to-port structure.
 
@@ -529,7 +528,7 @@ class Leg(BaseOrganizationUnit):
         """
         return self.clusters.copy()
 
-    def calculate_total_duration_legacy(self, rules: Any) -> float:
+    def calculate_total_duration_legacy(self, rules: DurationRules | None) -> float:
         """
         Calculate total duration for all operations in this leg.
 
@@ -538,7 +537,7 @@ class Leg(BaseOrganizationUnit):
 
         Parameters
         ----------
-        rules : Any
+        rules : DurationRules or None
             Duration calculation rules/parameters containing config.
 
         Returns
@@ -561,13 +560,15 @@ class Leg(BaseOrganizationUnit):
 
         return total
 
-    def _calculate_port_to_port_transit_legacy(self, rules: Any) -> float:
+    def _calculate_port_to_port_transit_legacy(
+        self, rules: DurationRules | None
+    ) -> float:
         """
         Calculate transit time from departure port to arrival port.
 
         Parameters
         ----------
-        rules : Any
+        rules : DurationRules or None
             Duration calculation rules containing config with vessel speed.
 
         Returns
@@ -707,7 +708,9 @@ class Leg(BaseOrganizationUnit):
         """
         return (self.arrival_port.latitude, self.arrival_port.longitude)
 
-    def get_operational_entry_point(self, resolver=None) -> tuple[float, float] | None:
+    def get_operational_entry_point(
+        self, resolver: object | None = None
+    ) -> tuple[float, float] | None:
         """
         Get the geographic entry point for operations within this leg.
 
@@ -731,7 +734,9 @@ class Leg(BaseOrganizationUnit):
                 return (details["lat"], details["lon"])
         return None
 
-    def get_operational_exit_point(self, resolver=None) -> tuple[float, float] | None:
+    def get_operational_exit_point(
+        self, resolver: object | None = None
+    ) -> tuple[float, float] | None:
         """
         Get the geographic exit point for operations within this leg.
 

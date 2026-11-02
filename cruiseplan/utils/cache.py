@@ -27,7 +27,7 @@ class CacheManager:
         Directory where cache files are stored.
     """
 
-    def __init__(self, cache_dir: str = ".cache"):
+    def __init__(self, cache_dir: str = ".cache") -> None:
         """
         Initialize cache manager.
 
@@ -40,7 +40,7 @@ class CacheManager:
         self.cache_dir = Path(cache_dir)
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
-    def get(self, key: str) -> Any | None:
+    def get(self, key: str) -> Any | None:  # noqa: ANN401 - unpickled data of any type
         """
         Retrieve item from cache if it exists.
 
@@ -65,7 +65,7 @@ class CacheManager:
                 logger.warning(f"Cache read error for {key}: {e}")
         return None
 
-    def set(self, key: str, data: Any) -> None:
+    def set(self, key: str, data: object) -> None:
         """
         Save item to cache.
 
@@ -73,7 +73,7 @@ class CacheManager:
         ----------
         key : str
             Cache key identifier.
-        data : Any
+        data : object
             Data to cache. Must be pickle-serializable.
         """
         cache_file = self.cache_dir / f"{key}.pkl"

@@ -22,11 +22,11 @@ class BaseResult:
     def __init__(
         self,
         summary: dict[str, Any],
-        success_indicator: Any = None,
+        success_indicator: object = None,
         files_created: list[Path] | None = None,
         errors: list[str] | None = None,
         warnings: list[str] | None = None,
-    ):
+    ) -> None:
         self.summary = summary
         self.files_created = (
             files_created or []
@@ -83,7 +83,7 @@ class EnrichResult(BaseResult):
 
     def __init__(
         self, output_file: Path, files_created: list[Path], summary: dict[str, Any]
-    ):
+    ) -> None:
         super().__init__(
             summary=summary, success_indicator=output_file, files_created=files_created
         )
@@ -103,7 +103,7 @@ class ValidationResult(BaseResult):
         errors: list[str],
         warnings: list[str],
         summary: dict[str, Any],
-    ):
+    ) -> None:
         super().__init__(
             summary=summary,
             success_indicator=success,
@@ -126,7 +126,7 @@ class ScheduleResult(BaseResult):
         timeline: CruiseSchedule | None,
         files_created: list[Path],
         summary: dict[str, Any],
-    ):
+    ) -> None:
         super().__init__(
             summary=summary,
             success_indicator=timeline is not None and len(timeline) > 0,
@@ -146,10 +146,10 @@ class PangaeaResult(BaseResult):
 
     def __init__(
         self,
-        stations_data: Any | None,
+        stations_data: list[dict[str, Any]] | None,
         files_created: list[Path],
         summary: dict[str, Any],
-    ):
+    ) -> None:
         super().__init__(
             summary=summary,
             success_indicator=stations_data is not None,
@@ -172,12 +172,12 @@ class ProcessResult(BaseResult):
 
     def __init__(
         self,
-        config: Any | None,
+        config: Path | None,
         files_created: list[Path],
         summary: dict[str, Any],
         errors: list[str] | None = None,
         warnings: list[str] | None = None,
-    ):
+    ) -> None:
         super().__init__(
             summary=summary,
             success_indicator=config is not None,
@@ -195,7 +195,9 @@ class ProcessResult(BaseResult):
 class MapResult(BaseResult):
     """Structured result from map operation."""
 
-    def __init__(self, map_files: list[Path], format: str, summary: dict[str, Any]):
+    def __init__(
+        self, map_files: list[Path], format: str, summary: dict[str, Any]
+    ) -> None:
         super().__init__(
             summary=summary,
             success_indicator=len(map_files) > 0,
@@ -212,7 +214,9 @@ class MapResult(BaseResult):
 class BathymetryResult(BaseResult):
     """Structured result from bathymetry operation."""
 
-    def __init__(self, data_file: Path | None, source: str, summary: dict[str, Any]):
+    def __init__(
+        self, data_file: Path | None, source: str, summary: dict[str, Any]
+    ) -> None:
         # Convert single file to list for consistency
         files_created = [data_file] if data_file else []
         super().__init__(

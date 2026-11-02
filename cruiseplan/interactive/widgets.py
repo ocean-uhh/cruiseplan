@@ -33,7 +33,7 @@ class ModeIndicator(Widget):
 
     def __init__(
         self, ax: plt.Axes, modes: list[str], initial_mode: str = "navigation"
-    ):
+    ) -> None:
         """
         Initialize the mode indicator widget.
 
@@ -63,13 +63,13 @@ class ModeIndicator(Widget):
         self.text_obj: plt.Text | None = None
         self._setup_display()
 
-    def _setup_display(self):
+    def _setup_display(self) -> None:
         """Initialize the mode indicator display."""
         self.ax.set_xticks([])
         self.ax.set_yticks([])
         self._update_display()
 
-    def _update_display(self):
+    def _update_display(self) -> None:
         """Update the visual indicator."""
         # Clear the axis content but maintain background properties
         self.ax.clear()
@@ -145,7 +145,7 @@ class StatusDisplay(Widget):
         List of matplotlib text objects for status display lines.
     """
 
-    def __init__(self, ax: plt.Axes):
+    def __init__(self, ax: plt.Axes) -> None:
         """
         Initialize the status display widget.
 
@@ -158,7 +158,7 @@ class StatusDisplay(Widget):
         self.status_lines: list[plt.Text] = []
         self._setup_display()
 
-    def _setup_display(self):
+    def _setup_display(self) -> None:
         """Initialize the status display."""
         self.ax.clear()
         self.ax.set_xlim(0, 1)
