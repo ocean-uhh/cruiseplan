@@ -97,7 +97,7 @@ class Leg(BaseOrganizationUnit):
     @classmethod
     def from_definition(cls, leg_def: LegDefinition) -> "Leg": ...
 
-    def get_effective_speed(self, default_speed: float) -> float: ...
+    def get_vessel_speed(self, default_speed: float) -> float: ...
     def get_entry_point(self) -> tuple[float, float]: ...  # (lat, lon)
     def get_exit_point(self) -> tuple[float, float]: ...
 
@@ -137,15 +137,19 @@ def haversine_distance(start: tuple[float, float], end: tuple[float, float]) -> 
 
 # cruiseplan/timeline/duration.py
 class DurationCalculator:
-    def calculate_ctd_time(self, depth_m: float, operation_type: str) -> float:
+    def calculate_ctd_time(self, depth: float) -> float:
         """Depth-based CTD timing: descent + ascent + turnaround."""
 
-    def calculate_transit_time(self, distance_km: float, speed_knots: float) -> float:
+    def calculate_transit_time(
+        self, distance_km: float, speed_knots: float | None = None
+    ) -> float:
         """Route-based transit timing with unit conversion."""
 
 
 # cruiseplan/timeline/scheduler.py
-def generate_timeline(cruise: CruiseInstance) -> list[dict]: ...
+def generate_timeline(
+    cruise: CruiseInstance, legs: list[Leg] | None = None
+) -> list[dict]: ...
 ```
 
 ## Entry/exit point interface
@@ -214,24 +218,31 @@ class ReferenceError(Exception): ...  # Unresolved port or activity references
 
 ## FlexibleLocationModel
 
-`FlexibleLocationModel` is scheduled for simplification. The current implementation
-stores coordinates internally as a `GeoPoint` object and exposes them via
-`station.latitude` / `station.longitude` properties. Direct field access works
-correctly; the intermediate `GeoPoint` layer is an implementation detail.
+`FlexibleLocationModel` stores `latitude` and `longitude` as plain float fields;
+`latitude_decmin` / `longitude_decmin` are converted to them in a `before`
+model validator. `GeoPoint` is used only for line routes and area corners.
+A legacy `position: "lat, lon"` string is still accepted and is scheduled for
+removal.
 
 ## Testing
 
 ```bash
+pip install -e ".[test]"  # test dependencies only (as in CI)
 pytest tests/unit/        # fast unit tests
 pytest tests/integration/ # end-to-end workflow tests
-pytest --cov=cruiseplan --cov-report=term
+pytest -m "not slow" --cov=cruiseplan --cov-fail-under=70  # CI coverage gate
+ruff check . && ruff format --check .                      # CI lint job
 ```
+
+Coverage reporting is on by default (`addopts` in `pyproject.toml`). CI runs
+the tests on Ubuntu with Python 3.11, 3.12 and 3.13, plus macOS and Windows
+with Python 3.11.
 
 Test fixtures (realistic YAML configs) live in `tests/fixtures/`.
 
 ## Dependencies
 
-- Core: Python 3.11+, Pydantic v2, ruamel.yaml, numpy, xarray, netCDF4, pandas
-- Geospatial: matplotlib, cartopy, geopandas (optional, for EEZ overlays)
-- Interactive: folium
-- Development: pytest, ruff, mypy, sphinx — see the `dev` extra in `pyproject.toml` (`pip install -e ".[dev]"`)
+- Core: Python 3.11+, Pydantic v2, ruamel.yaml, numpy, scipy, xarray, netCDF4, pandas, requests, pangaeapy
+- Maps: matplotlib (PNG maps and the interactive station picker), folium, geopandas (EEZ overlays)
+- Testing: pytest, pytest-cov — the `test` extra (`pip install -e ".[test]"`)
+- Development: the `test` extra plus ruff, mypy, sphinx and notebook tooling — the `dev` extra (`pip install -e ".[dev]"`)

@@ -32,8 +32,11 @@ draws maps or looks up water depths.
 - ``--bathy-source SOURCE``: Dataset to download. Choices:
 
   - ``etopo2022`` — ETOPO 2022, 60 arc-second resolution (~500 MB)
-  - ``gebco2023`` — GEBCO 2023, 15 arc-second resolution (~7.5 GB)
   - ``gebco2025`` — GEBCO 2025, 15 arc-second resolution (~7.5 GB) *(default)*
+  - ``gebco2023`` — GEBCO 2023 (``GEBCO_2023.nc``); read if present in the
+    bathymetry directory, but not downloaded by this command
+  - ``msm142``, ``msm142_jj``, ``msm142_dt`` — local regional files; not
+    downloaded, only checked for in the output directory
 
 - ``-o, --output-dir DIR``: Save location (default: ``data/bathymetry``)
 - ``--citation``: Print the data citation for the chosen source; does not download
@@ -87,7 +90,8 @@ Two modes of operation:
 - ``-o, --output-dir DIR``: Output directory (default: ``data``)
 - ``--output NAME``: Base filename for outputs, without extension
 - ``--rate-limit RATE``: PANGAEA API requests per second (default: 1.0)
-- ``--merge-campaigns``: Combine datasets from the same campaign name (default: on)
+- ``--merge-campaigns``: Combine datasets from the same campaign name (always on;
+  the flag currently has no effect and merging cannot be disabled from the CLI)
 
 **Outputs:** ``{name}_dois.txt`` (search mode) and ``{name}_stations.pkl``
 
@@ -104,9 +108,11 @@ Two modes of operation:
 cruiseplan stations
 -------------------
 
-Interactive station placement tool. Opens a map in the terminal where you can
+Interactive station placement tool. Opens a matplotlib map window where you can
 place point stations, draw line transects, and define area operations. Saves
-the result as a YAML cruise configuration file.
+the result as a YAML cruise configuration file: ``stations.yaml`` by default,
+``{config}_stations_edited.yaml`` when editing ``CONFIG_FILE``, or
+``{pangaea}_stations.yaml`` when ``-p`` is given.
 
 Optionally loads a PANGAEA ``.pkl`` file to show historical stations as
 background context.
@@ -132,16 +138,21 @@ background context.
 - ``--lon MIN MAX``: Initial map longitude extent in decimal degrees E (default: -65 -5)
 - ``--overwrite``: Overwrite the output file without prompting
 - ``-o, --output-dir DIR``: Output directory (default: ``data``)
+- ``--bathy-source SOURCE``, ``--bathy-dir DIR``: Bathymetry dataset and directory
+  (defaults: ``gebco2025``, ``data/bathymetry``)
+- ``--bathy-contours DEPTH [DEPTH ...]``: Contour depths in metres; replaces defaults
 - ``--bathy-stride N``: Bathymetry downsampling factor; higher is faster (default: 10)
 - ``--max-depth METRES``: Depth ceiling for colour scale (useful for shelf seas)
 
 **Interactive controls:**
 
-- **p**: Place point stations
-- **l**: Draw line transects
-- **a**: Define area operations
+- **n**: Navigation mode (pan/zoom, no placement)
+- **p** (or **w**): Place point stations
+- **l** (or **s**): Draw line transects
+- **a**: Define area operations; press **a** again to close the current area
 - **u**: Undo last operation
-- **y**: Save to YAML and exit
+- **r**: Remove an item by clicking it
+- **y**: Save to YAML (the window stays open)
 - **Escape**: Exit without saving
 
 **Examples:**
@@ -168,7 +179,7 @@ enrichment runs once and the enriched YAML is passed directly to the scheduler.
 .. code-block:: bash
 
    cruiseplan run [-h] [-o OUTPUT_DIR] [--leg LEG]
-                  [--bathy-source {etopo2022,gebco2025}]
+                  [--bathy-source SOURCE]
                   [--bathy-dir BATHY_DIR] [--bathy-stride N]
                   [--bathy-contours DEPTH [DEPTH ...]]
                   [--max-depth METRES] [--lat MIN MAX] [--lon MIN MAX]
@@ -188,7 +199,7 @@ enrichment runs once and the enriched YAML is passed directly to the scheduler.
 
 **Bathymetry options** (same as ``cruiseplan process``):
 
-- ``--bathy-source``: Dataset for PNG maps — ``etopo2022`` or ``gebco2025`` (default: ``gebco2025``)
+- ``--bathy-source``: Dataset for PNG maps; same choices as ``cruiseplan bathymetry`` (default: ``gebco2025``)
 - ``--bathy-dir``: Directory containing bathymetry files (default: ``data/bathymetry``)
 - ``--bathy-stride``: Downsampling factor — 1 = full resolution, higher = faster (default: 10)
 - ``--bathy-contours DEPTH [DEPTH ...]``: Contour depths in metres; replaces defaults
@@ -266,6 +277,13 @@ errors, and produce a preview map.
 - ``--output NAME``: Base filename for all outputs (default: derived from cruise name)
 - ``--format FORMAT [FORMAT ...]``: Map formats to generate: ``png`` ``kml``
   (space-separated; omit to generate all)
+- ``--quiet``, ``-q``: Reduce console output
+
+**Bathymetry options:**
+
+- ``--bathy-source SOURCE``, ``--bathy-dir DIR``: Dataset and directory used for
+  depths and maps (defaults: ``gebco2025``, ``data/bathymetry``)
+- ``--bathy-stride N``: Downsampling factor for map bathymetry (default: 10)
 
 **Map display options:**
 
@@ -280,7 +298,7 @@ errors, and produce a preview map.
 
 - Enriched YAML: ``{name}_enriched.yaml``
 - PNG map: ``{name}_map.png``
-- KML file: ``{name}_map.kml``
+- KML file: ``{name}_catalog.kml``
 
 **Examples:**
 
@@ -340,6 +358,8 @@ Run ``cruiseplan process`` first to produce the enriched YAML input.
 
 **Map display options** (same as ``cruiseplan process``):
 
+- ``--bathy-source SOURCE``, ``--bathy-dir DIR``, ``--bathy-stride N``: Bathymetry
+  for the PNG map (defaults: ``gebco2025``, ``data/bathymetry``, 10)
 - ``--figsize WIDTH HEIGHT``: Figure size in inches (default: 10 8.1)
 - ``--lat MIN MAX``, ``--lon MIN MAX``: Map extent
 - ``--max-depth METRES``, ``--bathy-contours DEPTH [DEPTH ...]``
@@ -350,7 +370,8 @@ Run ``cruiseplan process`` first to produce the enriched YAML input.
 
 - ``{name}_schedule.nc`` — NetCDF schedule (required for ``forecast`` and ``list``)
 - ``{name}_schedule.html`` — Interactive HTML timeline
-- ``{name}_schedule.tex`` — LaTeX station table
+- ``{name}_stations.tex`` — LaTeX station table
+- ``{name}_work_days.tex`` — LaTeX work-days-at-sea table
 - ``{name}_schedule.csv`` — Tabular schedule
 - ``{name}_schedule.png`` — PNG map with timeline
 
@@ -514,7 +535,8 @@ as ``--start-index`` input to ``cruiseplan forecast``.
 
 - ``SCHEDULE_FILE``: NetCDF schedule file produced by ``cruiseplan schedule``
 
-**Output:** Table of index, time offset from start, category, duration (hours), and name.
+**Output:** Table of index, time offset from start, category, duration (hours),
+water depth, operation depth, distance (nm), and name.
 
 **Example:**
 
@@ -575,7 +597,8 @@ Two modes of operation:
 - ``--format``: ``text`` (default), ``tex``, ``waypoints``, ``kml``, ``png``
 - ``-o, --output-dir DIR``: Output directory (default: current directory)
 - ``--output FILENAME``: Output filename, relative to ``--output-dir``
-  (default: stdout for text and waypoints)
+  (default: stdout for text and waypoints; ``{schedule}_forecast.tex``,
+  ``.kml`` or ``.png`` next to the schedule file for the other formats)
 
 **TeX output options** (``--format tex``):
 
@@ -589,6 +612,8 @@ Two modes of operation:
 - ``--max-depth METRES``: Depth ceiling for bathymetry colour scale
 - ``--bathy-contours DEPTH [DEPTH ...]``: Contour depths in metres
 - ``--no-title``, ``--no-labels``, ``--no-legend``: Suppress map elements
+- ``--figsize WIDTH HEIGHT``: Figure size in inches (default: 10 8.1)
+- ``--bathy-source SOURCE``, ``--bathy-dir DIR``: Bathymetry dataset and directory
 - ``--bathy-stride N``: Downsampling factor (default: 10)
 
 **Examples:**
@@ -635,7 +660,7 @@ All commands support:
 - ``-V, --version``: Show version and exit (top-level ``cruiseplan -V`` only)
 
 Commands with ``--verbose`` / ``-v``: ``bathymetry``, ``enrich``, ``forecast``,
-``map``, ``pangaea``, ``process``, ``schedule``, ``stations``, ``validate``
+``map``, ``pangaea``, ``process``, ``run``, ``schedule``, ``stations``, ``validate``
 
 Exit Codes
 ==========

@@ -57,8 +57,8 @@ Cruise Metadata
      - Yes
      - Name of your cruise
    * - ``start_date``
-     - Yes
-     - Start date (ISO format)
+     - No
+     - Start date (ISO format); defaults to 1970-01-01 if omitted
    * - ``default_vessel_speed``
      - No
      - Ship speed in knots (default: 10)
@@ -205,15 +205,16 @@ Valid combinations of ``operation_type`` and ``action`` for different activities
      - **Valid Actions**
      - **Use Case**
    * - ``survey``
-     - ``bathymetry``
-     - Area surveys and mapping
+     - ``bathymetry``, ``glider``
+     - Area surveys and mapping (``duration`` required)
 
 Coordinates
 ===========
 
 - **Latitude**: -90 to 90 (negative = South)
 - **Longitude**: -180 to 180 OR 0 to 360 (negative = West)
-- **Decimal degrees only** (e.g., 60.5, not 60°30')
+- **Decimal degrees** (e.g., 60.5, not 60°30'); points also accept
+  ``latitude_decmin`` / ``longitude_decmin`` strings (see :doc:`../reference/yaml-full`)
 
 Example: Atlantic stations
 - Latitude: 60.0 (60°N)

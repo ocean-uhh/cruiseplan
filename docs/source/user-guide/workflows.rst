@@ -19,16 +19,16 @@ CruisePlan has 11 subcommands. Most users need only a handful:
      - ``data/stations.yaml``
    * - ``process``
      - Enrich YAML: add depths, validate, generate map
-     - ``*_enriched.yaml`` + PNG map
+     - ``*_enriched.yaml`` + PNG map + KML
    * - ``schedule``
      - Generate timeline and output files
-     - HTML, NetCDF, CSV, LaTeX, KML
+     - HTML, NetCDF, CSV, LaTeX, PNG
    * - ``run``
      - ``process`` + ``schedule`` in one step
      - All of the above
    * - ``map``
      - Generate a map without scheduling
-     - PNG map
+     - PNG map + KML
    * - ``enrich``
      - Add depths and coordinates only
      - ``*_enriched.yaml``
@@ -37,13 +37,13 @@ CruisePlan has 11 subcommands. Most users need only a handful:
      - Validation report
    * - ``forecast``
      - Generate a real-time workplan from a schedule
-     - Waypoints file or LaTeX table
+     - Text, waypoints, LaTeX, KML, or PNG
    * - ``list``
      - List operations in a schedule file
      - Terminal output
    * - ``pangaea``
      - Search PANGAEA for historical station data
-     - Pickle file + map
+     - DOI list + pickle file
 
 .. note::
    ``cruiseplan run`` is the recommended starting point for most workflows —
@@ -82,7 +82,7 @@ Workflow 2: With Historical Data
 
    # Plan with historical context
    cruiseplan stations -p data/historic_stations.pkl --lat 50 60 --lon -40 -20
-   cruiseplan process data/historic_stations.yaml
+   cruiseplan process data/historic_stations_stations.yaml
    cruiseplan schedule data/{cruise_name}_enriched.yaml
 
 Workflow 3: Manual Control
@@ -95,9 +95,9 @@ Workflow 3: Manual Control
    cruiseplan stations --lat 50 60 --lon -40 -20
 
    # Edit YAML manually to add custom operations, timing, etc.
-   # nano data/{cruise_name}_stations.yaml
+   # nano data/stations.yaml
 
-   cruiseplan enrich data/{cruise_name}_stations.yaml      # Add depths
+   cruiseplan enrich data/stations.yaml --add-depths --add-coords  # Add depths
    cruiseplan validate data/{cruise_name}_enriched.yaml    # Check config
    cruiseplan map data/{cruise_name}_enriched.yaml         # Preview map
    cruiseplan schedule data/{cruise_name}_enriched.yaml    # Generate outputs
@@ -111,7 +111,7 @@ When you run ``cruiseplan stations``, an interactive map opens:
 - **l**: Draw line transects 
 - **a**: Define area surveys
 - **u**: Undo last action
-- **y**: Save and exit
+- **y**: Save (the window stays open)
 - **Escape**: Exit without saving
 
 Tips
