@@ -8,11 +8,8 @@ kilometers and nautical miles.
 """
 
 from cruiseplan.config.activities import GeoPoint
-from cruiseplan.utils.coordinates import EARTH_RADIUS_KM, distance_nm
+from cruiseplan.utils.coordinates import distance_nm
 from cruiseplan.utils.units import NM_PER_KM
-
-# Earth radius in kilometers - used for haversine distance calculation
-R_EARTH_KM = EARTH_RADIUS_KM
 
 
 def to_coords(point: GeoPoint | tuple[float, float]) -> tuple[float, float]:

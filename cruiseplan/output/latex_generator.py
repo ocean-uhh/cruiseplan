@@ -22,7 +22,11 @@ from jinja2 import Environment, FileSystemLoader
 
 from cruiseplan.config.cruise_config import CruiseConfig
 from cruiseplan.config.values import DEFAULT_DEPTH, DEFAULT_MOORING_DURATION_MIN
-from cruiseplan.output.output_utils import is_scientific_operation
+from cruiseplan.output.output_utils import (
+    _duration_hours,
+    _positive_depth,
+    is_scientific_operation,
+)
 from cruiseplan.output.provenance import provenance_lines
 from cruiseplan.timeline.scheduler import ActivityRecord, fill_duration_summary
 from cruiseplan.utils.coordinates import ddm_parts, distance_nm, format_position_latex
@@ -52,9 +56,8 @@ def _format_depth_for_latex(activity: dict) -> str:
     depth = activity.get("operation_depth") or activity.get("water_depth")
     if depth is None:
         return "N/A"
-    if depth == DEFAULT_DEPTH:
-        return "fill"
-    return f"{abs(depth):.0f}"
+    depth = _positive_depth(depth)
+    return "fill" if depth == DEFAULT_DEPTH else f"{depth:.0f}"
 
 
 def _provenance_comment(config: CruiseConfig, timeline: list[ActivityRecord]) -> str:
@@ -82,8 +85,8 @@ def _provenance_comment(config: CruiseConfig, timeline: list[ActivityRecord]) ->
 
 def _format_duration_hours(activity: dict) -> str:
     """Format the duration in hours, marking the fill value."""
-    hours = f"{activity['duration_minutes'] / 60:.1f}"
-    return f"{hours} (fill)" if activity.get("duration_is_fill") else hours
+    hours, is_fill = _duration_hours(activity)
+    return f"{hours} (fill)" if is_fill else hours
 
 
 def _is_station_record(record: ActivityRecord) -> bool:
@@ -698,10 +701,11 @@ class LaTeXGenerator:
                 and record.water_depth is not None
                 and not np.isnan(record.water_depth)
             ):
-                if record.water_depth == DEFAULT_DEPTH:
+                water_depth = _positive_depth(record.water_depth)
+                if water_depth == DEFAULT_DEPTH:
                     depth_str = " & fill"
                 else:
-                    depth_str = f" & {abs(record.water_depth):4.0f} m"
+                    depth_str = f" & {water_depth:4.0f} m"
             else:
                 depth_str = " &       "
 

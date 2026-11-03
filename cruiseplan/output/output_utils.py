@@ -18,6 +18,12 @@ def _positive_depth(value: float) -> float:
     return value if value == DEFAULT_DEPTH else abs(value)
 
 
+def _duration_hours(activity: dict[str, Any]) -> tuple[str, bool]:
+    """Return the duration in hours to one decimal and whether it is the fill value."""
+    hours = f"{activity.get('duration_minutes', 0) / 60:.1f}"
+    return hours, bool(activity.get("duration_is_fill"))
+
+
 def get_activity_depth(activity: dict[str, Any]) -> float:
     """
     Get depth for an activity using the same logic as Operation.get_depth().

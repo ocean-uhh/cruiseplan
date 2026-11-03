@@ -102,35 +102,6 @@ class CoordConverter:
     """
 
     @staticmethod
-    def decimal_degrees_to_ddm(decimal_degrees: float) -> tuple[float, float]:
-        """
-        Convert decimal degrees to degrees and decimal minutes.
-
-        Parameters
-        ----------
-        decimal_degrees : float
-            Coordinate in decimal degrees format.
-
-        Returns
-        -------
-        tuple of float
-            Tuple of (degrees, decimal_minutes).
-
-        Notes
-        -----
-        Minutes are not rounded. For display use ``ddm_parts``, which rounds
-        and carries 60 minutes into the degrees.
-
-        Examples
-        --------
-        >>> CoordConverter.decimal_degrees_to_ddm(65.7458)
-        (65.0, 44.75)
-        """
-        degrees = int(abs(decimal_degrees))
-        minutes = (abs(decimal_degrees) - degrees) * 60
-        return float(degrees), minutes
-
-    @staticmethod
     def format_latitude_decmin(decimal_degrees: float) -> str:
         """
         Convert latitude to decimal minutes format.

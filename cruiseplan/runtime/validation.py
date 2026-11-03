@@ -367,11 +367,14 @@ def validate_depth_accuracy(
         # Check water_depth field (preferred for bathymetry comparison)
         water_depth = getattr(station, "water_depth", None)
         if water_depth == DEFAULT_DEPTH:
+            # Fill value: report it once and skip the depth and mooring checks
             warning_messages.append(
                 f"Station {station_name}: water_depth is the fill value "
                 f"{DEFAULT_DEPTH} (no bathymetry when enriched)"
             )
-        elif water_depth is not None:
+            continue
+
+        if water_depth is not None:
             stations_checked += 1
 
             # Get depth from bathymetry
@@ -403,13 +406,9 @@ def validate_depth_accuracy(
         operation_type = getattr(station, "operation_type", None)
         if operation_type == "mooring":
             operation_depth = getattr(station, "operation_depth", None)
-            water_depth = getattr(station, "water_depth", None) or getattr(
-                station, "depth", None
-            )
+            water_depth = water_depth or getattr(station, "depth", None)
 
-            if water_depth == DEFAULT_DEPTH:
-                pass  # fill value, reported above
-            elif operation_depth is not None and water_depth is not None:
+            if operation_depth is not None and water_depth is not None:
                 # For moorings, operation_depth and water_depth should be very close
                 diff_percent = _calc_percent_diff(operation_depth, water_depth)
 

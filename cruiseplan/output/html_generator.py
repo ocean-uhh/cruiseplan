@@ -21,6 +21,7 @@ from typing import Any
 from cruiseplan.config.cruise_config import CruiseConfig
 from cruiseplan.config.values import DEFAULT_DEPTH, DEFAULT_MOORING_DURATION_MIN
 from cruiseplan.output.output_utils import (
+    _duration_hours,
     format_activity_type,
     get_activity_depth,
     get_activity_position,
@@ -63,8 +64,8 @@ def _convert_decimal_to_deg_min_html(decimal_degrees: float) -> str:
 
 def _duration_cell(activity: dict[str, Any]) -> str:
     """Return the duration in hours for a table cell, marking the fill value."""
-    hours = f"{activity.get('duration_minutes', 0) / 60:.1f}"
-    if activity.get("duration_is_fill"):
+    hours, is_fill = _duration_hours(activity)
+    if is_fill:
         return f'<span class="fill">{hours} (fill)</span>'
     return hours
 

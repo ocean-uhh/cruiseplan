@@ -33,12 +33,9 @@ from cruiseplan.config.values import (
 from cruiseplan.data.bathymetry import DEPTH_CONTOURS, BathymetryManager
 from cruiseplan.data.pangaea import merge_campaign_tracks
 from cruiseplan.interactive.campaign_selector import CampaignSelector
-
-# --- NEW WIDGET IMPORTS (Instruction 1) ---
 from cruiseplan.interactive.widgets import ModeIndicator, StatusDisplay
+from cruiseplan.output.output_utils import _positive_depth
 from cruiseplan.runtime.cruise import CruiseInstance
-
-# Legacy format functions removed - now using Pydantic models directly
 from cruiseplan.utils.plot_config import get_colormap
 
 logger = logging.getLogger(__name__)
@@ -738,7 +735,7 @@ class StationPicker:
         )
 
         # Keep the fill value as is so it is not mistaken for a real depth
-        depth = depth if depth == DEFAULT_DEPTH else abs(depth)
+        depth = _positive_depth(depth)
         data = {"lat": lat, "lon": lon, "depth": depth}
         self.points.append(data)
         self.history.append(("point", data, artist))
@@ -1061,7 +1058,7 @@ class StationPicker:
     def _create_point_definition(self, point_data: dict, index: int) -> PointDefinition:
         """Create a PointDefinition from raw station picker data."""
         water_depth = point_data.get("depth")
-        if water_depth is not None and water_depth != -9999:
+        if water_depth is not None and water_depth != DEFAULT_DEPTH:
             water_depth = round(abs(float(water_depth)), 1)
         else:
             water_depth = None

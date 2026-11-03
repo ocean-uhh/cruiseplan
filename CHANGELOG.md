@@ -39,6 +39,10 @@ versions follow [Semantic Versioning](https://semver.org/).
 
 - NetCDF `creation_date` is UTC with `Z` (was naive local time).
 
+### Removed
+
+- `CoordConverter.decimal_degrees_to_ddm` (did not carry 60 minutes into the degrees); use `utils.coordinates.ddm_parts`.
+
 ## [0.5.0] - 2026-11-02
 
 ### Breaking changes
