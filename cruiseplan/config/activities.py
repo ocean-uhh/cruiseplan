@@ -198,6 +198,8 @@ class PointDefinition(FlexibleLocationModel):
         Equipment required for the operation.
     position_string : Optional[str]
         Original position string for reference.
+    history : Optional[str]
+        Semicolon-delimited provenance string (e.g. how the point was created).
     display_name : Optional[str]
         Human-readable display name (for ports).
     timezone : Optional[str]
@@ -219,6 +221,7 @@ class PointDefinition(FlexibleLocationModel):
     comment: str | None = None
     equipment: str | None = None
     position_string: str | None = None
+    history: str | None = None
 
     # Port-specific fields
     display_name: str | None = None

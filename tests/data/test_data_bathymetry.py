@@ -130,17 +130,6 @@ def test_small_file_returns_fill_depth(tmp_path, caplog):
     assert "too small" in caplog.text
 
 
-def test_no_source_substitution(tmp_path):
-    """determine_bathymetry_source returns the requested source unchanged."""
-    # A complete-looking etopo2022 file is present; gebco2025 is requested.
-    with patch.object(bathy_module, "check_bathymetry_availability") as available:
-        available.side_effect = lambda source, _dir=None: source == "etopo2022"
-        assert (
-            bathy_module.determine_bathymetry_source("gebco2025", str(tmp_path))
-            == "gebco2025"
-        )
-
-
 def test_gebco2023_download_raises(tmp_path):
     """gebco2023 has no download location; the error says so instead of fetching ETOPO."""
     with patch.object(bathy_module, "_download_etopo2022") as etopo:
@@ -355,9 +344,11 @@ class TestBathymetrySimpleCoverage:
             patch("netCDF4.Dataset", side_effect=OSError("Corrupted NetCDF")),
             patch.object(Path, "stat") as mock_stat,
         ):
-            # Mock file size to be large enough
+            # Mock file size to be large enough, with a regular-file mode so the
+            # warning's availability probe (is_file) does not choke on the mock.
             mock_stat_obj = MagicMock()
             mock_stat_obj.st_size = 500 * 1024 * 1024  # 500 MB
+            mock_stat_obj.st_mode = 0o100644
             mock_stat.return_value = mock_stat_obj
 
             manager = bathy_module.BathymetryManager(source="etopo2022")

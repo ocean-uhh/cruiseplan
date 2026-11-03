@@ -24,7 +24,7 @@ from cruiseplan.config.cruise_config import CruiseConfig
 from cruiseplan.config.values import DEFAULT_DEPTH, DEFAULT_MOORING_DURATION_MIN
 from cruiseplan.output.output_utils import is_scientific_operation
 from cruiseplan.output.provenance import provenance_lines
-from cruiseplan.timeline.scheduler import ActivityRecord
+from cruiseplan.timeline.scheduler import ActivityRecord, fill_duration_summary
 from cruiseplan.utils.coordinates import ddm_parts, distance_nm, format_position_latex
 from cruiseplan.utils.units import hours_to_days
 
@@ -70,6 +70,9 @@ def _provenance_comment(config: CruiseConfig, timeline: list[ActivityRecord]) ->
         )
     )
     if filled:
+        summary = fill_duration_summary(timeline)
+        if summary:
+            lines.append(f"% {summary}")
         lines.append(
             f"% fill duration {DEFAULT_MOORING_DURATION_MIN / 60:.0f} h used for: "
             + ", ".join(filled)
@@ -92,8 +95,12 @@ def _is_station_record(record: ActivityRecord) -> bool:
             "port",
             "waypoint",
         }
-    # Files written before operation_class was stored
-    return getattr(record, "activity", None) in {"Station", "Mooring"}
+    # Files written before operation_class was stored: fall back to the activity
+    # value and the station label prefixes the old pattern-matching rule used.
+    if getattr(record, "activity", None) in {"Station", "Mooring", "CTD"}:
+        return True
+    label = str(getattr(record, "label", "") or "").lower()
+    return label.startswith(("ctd", "fd-", "ds-", "svp", "yoyo"))
 
 
 class LaTeXGenerator:
@@ -691,7 +698,10 @@ class LaTeXGenerator:
                 and record.water_depth is not None
                 and not np.isnan(record.water_depth)
             ):
-                depth_str = f" & {record.water_depth:4.0f} m"
+                if record.water_depth == DEFAULT_DEPTH:
+                    depth_str = " & fill"
+                else:
+                    depth_str = f" & {abs(record.water_depth):4.0f} m"
             else:
                 depth_str = " &       "
 

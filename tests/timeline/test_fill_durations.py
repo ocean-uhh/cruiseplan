@@ -40,6 +40,31 @@ def test_schedule_mooring_without_duration_gets_fill():
     assert mooring["duration_is_fill"] is True
 
 
+def test_mooring_with_operation_depth_still_gets_fill(tmp_path):
+    """A mooring with an operation_depth is not timed as a CTD cast."""
+    config = _variant(tmp_path, "tc2_two_legs.yaml", "STN_002", operation_depth=1000.0)
+    timeline = cruiseplan.schedule(config, format=None).timeline
+    mooring = _record(timeline, "STN_002")
+    assert mooring["duration_is_fill"] is True
+    assert mooring["duration_minutes"] == DEFAULT_MOORING_DURATION_MIN
+
+
+def test_fill_duration_summary_excludes_fills():
+    """The summary counts fill operations and totals the schedule without them."""
+    from cruiseplan.timeline.scheduler import fill_duration_summary
+
+    timeline = [
+        {"duration_is_fill": True, "duration_minutes": DEFAULT_MOORING_DURATION_MIN},
+        {"duration_is_fill": False, "duration_minutes": 120.0},
+        {"duration_is_fill": False, "duration_minutes": 360.0},
+    ]
+    summary = fill_duration_summary(timeline)
+    assert "1 operation(s) at the fill duration (1 x 999 h)" in summary
+    assert "schedule total excluding fills" in summary
+    no_fills = [{"duration_is_fill": False, "duration_minutes": 60.0}]
+    assert fill_duration_summary(no_fills) is None
+
+
 def test_enrich_and_schedule_agree_on_mooring_fill(tmp_path):
     """enrich writes the fill value; scheduling the enriched file flags it the same way."""
     result = cruiseplan.enrich(

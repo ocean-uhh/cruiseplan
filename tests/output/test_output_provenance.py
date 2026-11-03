@@ -86,7 +86,8 @@ def test_csv_duration_note(tc2_outputs):
 def test_html_provenance_and_fill_notice(tc2_outputs):
     """HTML names the fill operations at the top and lists provenance at the end."""
     html = tc2_outputs["html"].read_text()
-    assert "2 operation(s) use the fill duration 999 h" in html
+    assert "2 operation(s) at the fill duration (2 x 999 h)" in html
+    assert "schedule total excluding fills:" in html
     assert "999.0 (fill)" in html
     assert "source_config: tc2_two_legs.yaml" in html
     assert "date_created: " in html
@@ -113,6 +114,33 @@ def test_letsgo_station_test_uses_record_kind(tmp_path):
     assert kinds["test_station_2"] is True
     assert kinds["Transit to test_station_1"] is False
     assert kinds["Test Port"] is False
+
+
+def test_is_station_record_fallback_covers_ctd_and_prefixes():
+    """Records without operation_class fall back to the activity value and label prefix."""
+    from types import SimpleNamespace
+
+    def record(**kwargs):
+        kwargs.setdefault("label", "")
+        return SimpleNamespace(**kwargs)
+
+    # Older files: no usable operation_class, fall back to activity / label.
+    assert _is_station_record(record(operation_class="unknown", activity="CTD"))
+    assert _is_station_record(record(operation_class=None, activity="Mooring"))
+    assert _is_station_record(
+        record(operation_class="unknown", activity="T", label="FD-01")
+    )
+    assert _is_station_record(
+        record(operation_class="unknown", activity="T", label="svp-2")
+    )
+    assert not _is_station_record(
+        record(operation_class="unknown", activity="Transit", label="port call")
+    )
+    # Primary path keys on operation_class and op_type.
+    assert _is_station_record(record(operation_class="PointOperation", op_type="CTD"))
+    assert not _is_station_record(
+        record(operation_class="PointOperation", op_type="port")
+    )
 
 
 def test_html_unknown_leg_is_listed_separately():

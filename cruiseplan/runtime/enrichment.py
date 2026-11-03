@@ -416,6 +416,7 @@ def enrich_depths(
     """
     stations_with_depths_added = set()
     stations_filled = []
+    stations_on_land = []
 
     bathymetry = get_bathymetry_manager(bathymetry_source, bathymetry_dir)
 
@@ -443,8 +444,18 @@ def enrich_depths(
             stations_filled.append(station_name)
             continue
 
-        # Bathymetry returns negative elevation; store positive depth to 0.1 m
-        water_depth = round(abs(bathymetry_depth), 1)
+        # Bathymetry returns elevation (negative below sea level): depth = -elevation.
+        # An elevation >= 0 is land (or above sea level) and has no ocean depth, so
+        # use the fill value rather than silently storing abs(elevation).
+        water_depth = -bathymetry_depth
+        if water_depth <= 0:
+            station.__dict__["water_depth"] = DEFAULT_DEPTH
+            station.__dict__.pop("bathymetry_source", None)
+            stations_filled.append(station_name)
+            stations_on_land.append(station_name)
+            continue
+
+        water_depth = round(water_depth, 1)
         station.__dict__["water_depth"] = water_depth
         station.__dict__["bathymetry_source"] = bathymetry_source
         stations_with_depths_added.add(station_name)
@@ -461,6 +472,12 @@ def enrich_depths(
             f"{len(stations_filled)} station(s) set to the fill depth {DEFAULT_DEPTH} "
             f"(no depth from {bathymetry_source} at {bathymetry.file_path}): "
             f"{', '.join(stations_filled)}"
+        )
+    if stations_on_land:
+        logger.warning(
+            f"{len(stations_on_land)} station(s) are on land (bathymetry elevation "
+            f">= 0) and were set to the fill depth {DEFAULT_DEPTH}: "
+            f"{', '.join(stations_on_land)}"
         )
 
     cruise_instance.config.bathymetry_provenance = {

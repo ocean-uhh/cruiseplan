@@ -356,6 +356,48 @@ def _check_transit_direction(
     return is_from_port, is_to_port
 
 
+def fill_duration_summary(timeline: list) -> str | None:
+    """
+    Return a one-line summary of operations scheduled at the fill duration.
+
+    Names how many operations use the fill duration and the schedule total with
+    those operations excluded, so the inflated fill hours do not hide the real
+    total. Accepts a timeline of ``ActivityRecord`` objects or their dicts.
+
+    Parameters
+    ----------
+    timeline : list
+        Activity records (objects or dicts) making up the schedule.
+
+    Returns
+    -------
+    str or None
+        The summary line, or None when no operation uses the fill duration.
+    """
+    from cruiseplan.utils.units import hours_to_days
+
+    def field(activity: object, name: str) -> object:
+        if isinstance(activity, dict):
+            return activity.get(name, 0)
+        return getattr(activity, name, 0)
+
+    filled = [a for a in timeline if field(a, "duration_is_fill")]
+    if not filled:
+        return None
+    fill_hours = DEFAULT_MOORING_DURATION_MIN / 60
+    real_minutes = sum(
+        float(field(a, "duration_minutes") or 0)
+        for a in timeline
+        if not field(a, "duration_is_fill")
+    )
+    real_days = hours_to_days(real_minutes / 60)
+    return (
+        f"{len(filled)} operation(s) at the fill duration "
+        f"({len(filled)} x {fill_hours:.0f} h); schedule total excluding fills: "
+        f"{real_days:.1f} days"
+    )
+
+
 def _calculate_transit_stats(transits: list["ActivityRecord"]) -> dict[str, float]:
     """
     Calculate statistics for transit activities.
@@ -645,6 +687,9 @@ class TimelineGenerator:
                 f"{DEFAULT_MOORING_DURATION_MIN / 60:.0f} h. Add 'duration:' or a "
                 f"depth in the YAML."
             )
+        summary = fill_duration_summary(timeline)
+        if summary:
+            logger.warning(summary)
 
         # Convert ActivityRecord objects to dictionaries for output compatibility
         return [activity.to_dict() for activity in timeline]

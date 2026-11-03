@@ -96,6 +96,21 @@ def _how_to_get(source: str, data_dir: Path) -> str:
     return f"This source is not downloadable; place {filename} in {data_dir}"
 
 
+def _available_alternatives(exclude: str, data_dir: Path) -> list[str]:
+    """Return known bathymetry sources other than ``exclude`` whose file is present."""
+    alternatives = []
+    for name in SOURCE_FILES:
+        if name == exclude:
+            continue
+        try:
+            if check_bathymetry_availability(name, str(data_dir)):
+                alternatives.append(name)
+        except OSError:
+            # Probing the filesystem for a warning hint must never raise.
+            continue
+    return alternatives
+
+
 class BathymetryManager:
     """
     Handles ETOPO bathymetry data with lazy loading and bilinear interpolation.
@@ -145,9 +160,19 @@ class BathymetryManager:
         self._dataset = None
         self._lats = None
         self._lons = None
+        self._lat_flipped = False
+        self._lon_flipped = False
         self._depth_var_name = self._get_depth_variable_name()
 
         self._initialize_data()
+
+    def _file_lat_idx(self, idx: int) -> int:
+        """Map a cached (ascending) latitude index to the file's row index."""
+        return len(self._lats) - 1 - idx if self._lat_flipped else idx
+
+    def _file_lon_idx(self, idx: int) -> int:
+        """Map a cached (ascending) longitude index to the file's column index."""
+        return len(self._lons) - 1 - idx if self._lon_flipped else idx
 
     def _get_depth_variable_name(self) -> str:
         """
@@ -194,9 +219,16 @@ class BathymetryManager:
         try:
             # Load using netCDF4 for efficient lazy slicing
             self._dataset = nc.Dataset(file_path, "r")
-            # Cache 1D coordinate arrays for fast search
-            self._lats = self._dataset.variables["lat"][:]
-            self._lons = self._dataset.variables["lon"][:]
+            # Cache 1D coordinate arrays for fast search. np.searchsorted and the
+            # bounds checks below require ascending coordinates; some grids
+            # (e.g. hand-placed regional files) store latitude north-to-south, so
+            # flip to ascending and remember it to map indices back to the file.
+            lat_arr = self._dataset.variables["lat"][:]
+            lon_arr = self._dataset.variables["lon"][:]
+            self._lat_flipped = bool(np.size(lat_arr) > 1 and lat_arr[0] > lat_arr[-1])
+            self._lon_flipped = bool(np.size(lon_arr) > 1 and lon_arr[0] > lon_arr[-1])
+            self._lats = lat_arr[::-1] if self._lat_flipped else lat_arr
+            self._lons = lon_arr[::-1] if self._lon_flipped else lon_arr
             self._depth_var_name = self._get_depth_variable_name()
             self.available = True
             logger.info(f"Loaded bathymetry from {file_path}")
@@ -205,9 +237,16 @@ class BathymetryManager:
 
     def _warn_unavailable(self, reason: str) -> None:
         """Log why depths will be the fill value and how to get the file."""
+        hint = _how_to_get(self.source, self.data_dir)
+        alternatives = _available_alternatives(self.source, self.data_dir)
+        if alternatives:
+            hint = (
+                f"{', '.join(alternatives)} is available in {self.data_dir}; "
+                f"use --bathy-source {alternatives[0]} to use it instead. {hint}"
+            )
         logger.warning(
             f"{reason}. Depth lookups for '{self.source}' return the fill value "
-            f"{DEFAULT_DEPTH}. {_how_to_get(self.source, self.data_dir)}"
+            f"{DEFAULT_DEPTH}. {hint}"
         )
 
     def get_depth_at_point(self, lat: float, lon: float) -> float:
@@ -300,13 +339,17 @@ class BathymetryManager:
             # Return empty grid if invalid slice
             return np.array([]), np.array([]), np.array([])
 
-        # Slice with stride
-        lats = self._lats[lat_idx_min:lat_idx_max:stride]
-        lons = self._lons[lon_idx_min:lon_idx_max:stride]
+        # Select with stride on the cached (ascending) indices, then map to the
+        # file's row/column order so a north-to-south grid reads correctly.
+        lat_sel = np.arange(lat_idx_min, lat_idx_max, stride)
+        lon_sel = np.arange(lon_idx_min, lon_idx_max, stride)
+        lats = self._lats[lat_sel]
+        lons = self._lons[lon_sel]
 
-        # Read subset from disk
+        # Read subset from disk (orthogonal indexing returns a lat x lon block)
         z = self._dataset.variables[self._depth_var_name][
-            lat_idx_min:lat_idx_max:stride, lon_idx_min:lon_idx_max:stride
+            [self._file_lat_idx(i) for i in lat_sel],
+            [self._file_lon_idx(i) for i in lon_sel],
         ]
 
         xx, yy = np.meshgrid(lons, lats)
@@ -355,9 +398,11 @@ class BathymetryManager:
             return DEFAULT_DEPTH
 
         # 3. Extract 2x2 Grid (Lazy Load from Disk)
-        # Note: z(lat, lon) -> z(y, x)
+        # Note: z(lat, lon) -> z(y, x). Cached indices are ascending; map them to
+        # the file's row/column order (netCDF4 accepts decreasing index lists).
         z_grid = self._dataset.variables[self._depth_var_name][
-            [y0_idx, y1_idx], [x0_idx, x1_idx]
+            [self._file_lat_idx(y0_idx), self._file_lat_idx(y1_idx)],
+            [self._file_lon_idx(x0_idx), self._file_lon_idx(x1_idx)],
         ]
         y_coords = self._lats[[y0_idx, y1_idx]]
         x_coords = self._lons[[x0_idx, x1_idx]]
@@ -770,37 +815,6 @@ def check_bathymetry_availability(
     if not file_path.is_file():
         return False
     return file_path.stat().st_size / (1024 * 1024) >= min_size_mb
-
-
-def determine_bathymetry_source(
-    requested_source: str, data_dir: str = DEFAULT_BATHY_DIR
-) -> str:
-    """
-    Return the requested bathymetry source, warning if its file is unavailable.
-
-    No other source is substituted: depths from a different dataset than the
-    one requested would be recorded under the wrong name.
-
-    Parameters
-    ----------
-    requested_source : str
-        The user's requested bathymetry source.
-    data_dir : str, optional
-        Directory containing bathymetry files (default: "data/bathymetry").
-
-    Returns
-    -------
-    str
-        ``requested_source``, unchanged.
-    """
-    if not check_bathymetry_availability(requested_source, data_dir):
-        filename, _ = source_file(requested_source)
-        logger.warning(
-            f"Bathymetry file {filename} for '{requested_source}' is not available "
-            f"in {Path(data_dir).resolve()}; depths will be the fill value "
-            f"{DEFAULT_DEPTH}. {_how_to_get(requested_source, Path(data_dir).resolve())}"
-        )
-    return requested_source
 
 
 # Managers shared within one pipeline call (see shared_bathymetry)

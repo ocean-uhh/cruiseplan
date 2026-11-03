@@ -64,7 +64,10 @@ def _extra(config: CruiseConfig) -> dict:
 def _parameter(config: CruiseConfig, name: str) -> float | str:
     """Return a numeric planning parameter of ``config``, or 'not set'."""
     value = getattr(config, name, None)
-    return float(value) if isinstance(value, int | float) else "not set"
+    # bool is a subclass of int; a boolean is not a numeric planning parameter.
+    if isinstance(value, bool) or not isinstance(value, int | float):
+        return "not set"
+    return float(value)
 
 
 def _bathymetry_source(config: CruiseConfig) -> tuple[str, int | None]:
@@ -125,7 +128,7 @@ def planning_provenance(config: CruiseConfig) -> dict[str, str | float | int]:
             "ctd_descent_rate_m_s": _parameter(config, "ctd_descent_rate"),
             "ctd_ascent_rate_m_s": _parameter(config, "ctd_ascent_rate"),
             "turnaround_time_min": _parameter(config, "turnaround_time"),
-            "start_date": str(getattr(config, "start_date", "not set")),
+            "start_date": str(getattr(config, "start_date", None) or "not set"),
             "date_created": source.get("date_created") or _utc_now(),
         }
     )

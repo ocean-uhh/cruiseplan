@@ -252,15 +252,16 @@ class PointOperation(BaseOperation):
         """
         Get the appropriate depth for this operation.
 
-        Returns operation_depth if available, otherwise water_depth,
-        otherwise 0.0.
+        Returns operation_depth if set to a real value, otherwise water_depth,
+        otherwise 0.0. A fill-value operation_depth is skipped so a valid
+        water_depth is not discarded.
 
         Returns
         -------
         float
             Depth in meters.
         """
-        if self.operation_depth is not None:
+        if self.operation_depth is not None and self.operation_depth != DEFAULT_DEPTH:
             return self.operation_depth
         if self.water_depth is not None:
             return self.water_depth
@@ -322,7 +323,8 @@ class PointOperation(BaseOperation):
             self.op_type in ["station", "CTD", "ADCP", "XBT", "XCTD"]
             and self.action != "yo_yo"
         ) or (
-            hasattr(self, "operation_depth")
+            self.op_type != "mooring"
+            and hasattr(self, "operation_depth")
             and self.operation_depth is not None
             and self.operation_depth > 0
             and self.action != "yo_yo"

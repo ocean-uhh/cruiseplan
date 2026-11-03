@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Any
 
 from cruiseplan.config.cruise_config import CruiseConfig
-from cruiseplan.config.values import DEFAULT_MOORING_DURATION_MIN
+from cruiseplan.config.values import DEFAULT_DEPTH, DEFAULT_MOORING_DURATION_MIN
 from cruiseplan.output.output_utils import (
     format_activity_type,
     get_activity_depth,
@@ -29,6 +29,7 @@ from cruiseplan.output.provenance import provenance_lines
 from cruiseplan.timeline.scheduler import (
     ActivityRecord,
     calculate_timeline_statistics,
+    fill_duration_summary,
 )
 from cruiseplan.utils.coordinates import ddm_parts
 from cruiseplan.utils.units import NM_PER_KM, hours_to_days
@@ -77,8 +78,9 @@ def _fill_notice(timeline: list[dict[str, Any]]) -> str:
     )
     if not filled:
         return ""
+    summary = escape(fill_duration_summary(timeline) or "")
     return (
-        f'<p class="fill">{len(filled)} operation(s) use the fill duration '
+        f'<p class="fill">{summary}. Operations using the fill duration '
         f"{DEFAULT_MOORING_DURATION_MIN / 60:.0f} h because no duration was stated "
         f"or computable: {', '.join(escape(str(name)) for name in filled)}</p>"
     )
@@ -284,6 +286,7 @@ class HTMLGenerator:
                 lon_ddm = _convert_decimal_to_deg_min_html(lon)
                 comment = mooring.get("comment", "")
                 depth = get_activity_depth(mooring)
+                depth_str = "fill" if depth == DEFAULT_DEPTH else f"{depth:.0f}"
                 action = mooring.get("action", "N/A")
 
                 html_content += f"""
@@ -292,7 +295,7 @@ class HTMLGenerator:
             <td>{comment}</td>
             <td>{lat:.6f}, {lon:.6f}</td>
             <td>{lat_ddm}, {lon_ddm}</td>
-            <td class="number">{depth:.0f}</td>
+            <td class="number">{depth_str}</td>
             <td class="number">{_duration_cell(mooring)}</td>
             <td>{action}</td>
         </tr>
