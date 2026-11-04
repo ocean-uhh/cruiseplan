@@ -21,9 +21,15 @@ import numpy as np
 from jinja2 import Environment, FileSystemLoader
 
 from cruiseplan.config.cruise_config import CruiseConfig
-from cruiseplan.output.output_utils import is_scientific_operation
-from cruiseplan.timeline.scheduler import ActivityRecord
-from cruiseplan.utils.coordinates import format_position_latex
+from cruiseplan.config.values import DEFAULT_DEPTH, DEFAULT_MOORING_DURATION_MIN
+from cruiseplan.output.output_utils import (
+    _duration_hours,
+    _positive_depth,
+    is_scientific_operation,
+)
+from cruiseplan.output.provenance import provenance_lines
+from cruiseplan.timeline.scheduler import ActivityRecord, fill_duration_summary
+from cruiseplan.utils.coordinates import ddm_parts, distance_nm, format_position_latex
 from cruiseplan.utils.units import hours_to_days
 
 logger = logging.getLogger(__name__)
@@ -43,11 +49,61 @@ def _format_depth_for_latex(activity: dict) -> str:
     Returns
     -------
     str
-        Formatted depth string, or "N/A" if no depth available.
+        Formatted depth string, "fill" for the fill value ``DEFAULT_DEPTH``,
+        or "N/A" if no depth available.
     """
     # Use operation_depth (target depth) if available, otherwise water_depth (seafloor depth)
     depth = activity.get("operation_depth") or activity.get("water_depth")
-    return f"{abs(depth):.0f}" if depth is not None else "N/A"
+    if depth is None:
+        return "N/A"
+    depth = _positive_depth(depth)
+    return "fill" if depth == DEFAULT_DEPTH else f"{depth:.0f}"
+
+
+def _provenance_comment(config: CruiseConfig, timeline: list[ActivityRecord]) -> str:
+    """Return TeX comment lines with the schedule provenance and fill durations."""
+    lines = [f"% {line}" for line in provenance_lines(config)]
+    filled = list(
+        dict.fromkeys(
+            str(a.get("label") if isinstance(a, dict) else a.label)
+            for a in timeline
+            if (
+                a.get("duration_is_fill") if isinstance(a, dict) else a.duration_is_fill
+            )
+        )
+    )
+    if filled:
+        summary = fill_duration_summary(timeline)
+        if summary:
+            lines.append(f"% {summary}")
+        lines.append(
+            f"% fill duration {DEFAULT_MOORING_DURATION_MIN / 60:.0f} h used for: "
+            + ", ".join(filled)
+        )
+    return "\n".join(lines) + "\n"
+
+
+def _format_duration_hours(activity: dict) -> str:
+    """Format the duration in hours, marking the fill value."""
+    hours, is_fill = _duration_hours(activity)
+    return f"{hours} (fill)" if is_fill else hours
+
+
+def _is_station_record(record: ActivityRecord) -> bool:
+    """Return True for a point operation at sea (station or mooring), by record kind."""
+    operation_class = getattr(record, "operation_class", None)
+    if operation_class and operation_class != "unknown":
+        op_type = str(getattr(record, "op_type", "") or "").lower()
+        return operation_class == "PointOperation" and op_type not in {
+            "port",
+            "waypoint",
+        }
+    # Files written before operation_class was stored: fall back to the activity
+    # value and the station label prefixes the old pattern-matching rule used.
+    if getattr(record, "activity", None) in {"Station", "Mooring", "CTD"}:
+        return True
+    label = str(getattr(record, "label", "") or "").lower()
+    return label.startswith(("ctd", "fd-", "ds-", "svp", "yoyo"))
 
 
 class LaTeXGenerator:
@@ -170,7 +226,7 @@ class LaTeXGenerator:
                         "position": f"({start_pos_str}) to ({end_pos_str})",
                         "depth_m": depth_str,
                         "start_time": op["start_time"].strftime("%Y-%m-%d %H:%M"),
-                        "duration_hours": f"{op['duration_minutes'] / 60:.1f}",
+                        "duration_hours": _format_duration_hours(op),
                     }
                 )
 
@@ -188,7 +244,7 @@ class LaTeXGenerator:
                         "position": f"Center: {position_str}",
                         "depth_m": "Variable",  # Areas typically span multiple depths
                         "start_time": op["start_time"].strftime("%Y-%m-%d %H:%M"),
-                        "duration_hours": f"{op['duration_minutes'] / 60:.1f}",
+                        "duration_hours": _format_duration_hours(op),
                     }
                 )
 
@@ -204,7 +260,7 @@ class LaTeXGenerator:
                         "position": position_str,
                         "depth_m": _format_depth_for_latex(op),
                         "start_time": op["start_time"].strftime("%Y-%m-%d %H:%M"),
-                        "duration_hours": f"{op['duration_minutes'] / 60:.1f}",
+                        "duration_hours": _format_duration_hours(op),
                     }
                 )
 
@@ -637,36 +693,19 @@ class LaTeXGenerator:
                 # and 'bathy' in record.label.lower()  # Focus on bathymetry surveys - commented out to include all line operations
             )
 
-            # Water depth logic for stations
-            is_station = (
-                record.activity in ["Station", "Mooring", "CTD"]
-                or (
-                    hasattr(record, "op_type")
-                    and record.op_type in ["ctd", "mooring", "station", "CTD"]
-                )
-                or (
-                    hasattr(record, "label")
-                    and any(
-                        pattern in record.label.lower()
-                        for pattern in [
-                            "ctd",
-                            "fd-",
-                            "ds-",
-                            "station",
-                            "mooring",
-                            "svp",
-                            "yoyo",
-                        ]
-                    )
-                )
-            )
+            # Water depth column for point operations other than ports/waypoints
+            is_station = _is_station_record(record)
 
             if (
                 is_station
                 and record.water_depth is not None
                 and not np.isnan(record.water_depth)
             ):
-                depth_str = f" & {record.water_depth:4.0f} m"
+                water_depth = _positive_depth(record.water_depth)
+                if water_depth == DEFAULT_DEPTH:
+                    depth_str = " & fill"
+                else:
+                    depth_str = f" & {water_depth:4.0f} m"
             else:
                 depth_str = " &       "
 
@@ -998,14 +1037,12 @@ Time & Position & Depth & Distance & Station & Comment \\\\
     def _format_lat_lon_dms(self, lat: float, lon: float) -> tuple[str, str]:
         """Format latitude/longitude in degrees/minutes like MATLAB gllfancy."""
         # Format latitude - use ASCII characters for LaTeX compatibility
-        lat_deg = int(abs(lat))
-        lat_min = (abs(lat) - lat_deg) * 60
+        lat_deg, lat_min = ddm_parts(lat, 2)
         lat_hem = "N" if lat >= 0 else "S"
         lat_str = f"{lat_deg:02d}\\textdegree{lat_min:05.2f}'{lat_hem}"
 
         # Format longitude - use ASCII characters for LaTeX compatibility
-        lon_deg = int(abs(lon))
-        lon_min = (abs(lon) - lon_deg) * 60
+        lon_deg, lon_min = ddm_parts(lon, 2)
         lon_hem = "E" if lon >= 0 else "W"
         lon_str = f"{lon_deg:03d}\\textdegree{lon_min:05.2f}'{lon_hem}"
 
@@ -1016,21 +1053,12 @@ Time & Position & Depth & Distance & Station & Comment \\\\
         distances = [0.0]  # First station has no distance
 
         for i in range(1, len(records)):
-            prev_lat = np.radians(records[i - 1].entry_lat)
-            prev_lon = np.radians(records[i - 1].entry_lon)
-            curr_lat = np.radians(records[i].entry_lat)
-            curr_lon = np.radians(records[i].entry_lon)
-
-            # Haversine formula
-            dlat = curr_lat - prev_lat
-            dlon = curr_lon - prev_lon
-            a = (
-                np.sin(dlat / 2) ** 2
-                + np.cos(prev_lat) * np.cos(curr_lat) * np.sin(dlon / 2) ** 2
+            distances.append(
+                distance_nm(
+                    (records[i - 1].entry_lat, records[i - 1].entry_lon),
+                    (records[i].entry_lat, records[i].entry_lon),
+                )
             )
-            c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1 - a))
-            dist_nm = 6371.0 * c * 0.539957  # Convert km to nautical miles
-            distances.append(dist_nm)
 
         return distances
 
@@ -1147,8 +1175,9 @@ def generate_latex_tables(
     stations_file = output_dir / f"{base_name}_stations.tex"
     work_days_file = output_dir / f"{base_name}_work_days.tex"
 
-    stations_file.write_text(stations_table, encoding="utf-8")
-    work_days_file.write_text(work_days_table, encoding="utf-8")
+    header = _provenance_comment(config, timeline)
+    stations_file.write_text(header + stations_table, encoding="utf-8")
+    work_days_file.write_text(header + work_days_table, encoding="utf-8")
 
     files_created.append(stations_file)
     files_created.append(work_days_file)

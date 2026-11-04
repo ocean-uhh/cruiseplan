@@ -7,12 +7,12 @@ across all NetCDF output types. Eliminates duplication and ensures adherence
 to CF conventions.
 """
 
-from datetime import datetime
 from typing import Any
 
 from numpy.typing import ArrayLike
 
 from cruiseplan.config.cruise_config import CruiseConfig
+from cruiseplan.output.provenance import planning_provenance
 
 
 # Global attributes factory functions
@@ -39,8 +39,12 @@ def create_global_attributes(
     Returns
     -------
     Dict[str, Any]
-        Dictionary of global attributes following CF-1.8 conventions
+        Dictionary of global attributes following CF-1.8 conventions, with
+        the provenance fields of ``planning_provenance`` (version, source
+        configuration and hash, bathymetry source, planning parameters,
+        ``date_created`` in UTC).
     """
+    provenance = planning_provenance(config)
     return {
         "featureType": feature_type,
         "title": title_template.format(cruise_name=config.cruise_name),
@@ -48,9 +52,10 @@ def create_global_attributes(
         "source": source,
         "Conventions": "CF-1.8",
         "cruise_name": config.cruise_name,
-        "creation_date": datetime.now().replace(microsecond=0).isoformat(),
+        "creation_date": provenance["date_created"],
         "coordinate_system": "WGS84",
         "depth_datum": "Mean Sea Level",
+        **provenance,
     }
 
 

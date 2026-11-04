@@ -9,6 +9,20 @@ code duplication.
 from datetime import datetime
 from typing import Any
 
+from cruiseplan.config.values import DEFAULT_DEPTH
+
+
+def _positive_depth(value: float) -> float:
+    """Return ``abs(value)``, or the fill value unchanged so it stays visible."""
+    value = float(value)
+    return value if value == DEFAULT_DEPTH else abs(value)
+
+
+def _duration_hours(activity: dict[str, Any]) -> tuple[str, bool]:
+    """Return the duration in hours to one decimal and whether it is the fill value."""
+    hours = f"{activity.get('duration_minutes', 0) / 60:.1f}"
+    return hours, bool(activity.get("duration_is_fill"))
+
 
 def get_activity_depth(activity: dict[str, Any]) -> float:
     """
@@ -25,19 +39,20 @@ def get_activity_depth(activity: dict[str, Any]) -> float:
     Returns
     -------
     float
-        Depth value as float, or 0.0 if no depth available
+        Depth value as float (``DEFAULT_DEPTH`` kept as is), or 0.0 if no
+        depth available
     """
     operation_depth = activity.get("operation_depth")
     if operation_depth is not None:
-        return abs(float(operation_depth))
+        return _positive_depth(operation_depth)
 
     water_depth = activity.get("water_depth")
     if water_depth is not None:
-        return abs(float(water_depth))
+        return _positive_depth(water_depth)
 
     legacy_depth = activity.get("depth")  # Backward compatibility
     if legacy_depth is not None:
-        return abs(float(legacy_depth))
+        return _positive_depth(legacy_depth)
 
     return 0.0
 

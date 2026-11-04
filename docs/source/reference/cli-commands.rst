@@ -22,6 +22,12 @@ cruiseplan bathymetry
 Download a bathymetry dataset. Run this once before using any command that
 draws maps or looks up water depths.
 
+Without the file for the chosen ``--bathy-source``, commands still run: each
+depth lookup returns the fill value ``-9999.0`` and a warning names the missing
+file and the command that fetches it. No other dataset is substituted. Maps are
+drawn without bathymetry. The enriched YAML records the source and the number
+of filled depths under ``bathymetry_provenance``.
+
 .. code-block:: bash
 
    cruiseplan bathymetry [-h] [--citation] [-o OUTPUT_DIR]
@@ -33,10 +39,12 @@ draws maps or looks up water depths.
 
   - ``etopo2022`` — ETOPO 2022, 60 arc-second resolution (~500 MB)
   - ``gebco2025`` — GEBCO 2025, 15 arc-second resolution (~7.5 GB) *(default)*
-  - ``gebco2023`` — GEBCO 2023 (``GEBCO_2023.nc``); read if present in the
-    bathymetry directory, but not downloaded by this command
   - ``msm142``, ``msm142_jj``, ``msm142_dt`` — local regional files; not
     downloaded, only checked for in the output directory
+
+  ``gebco2023`` is not a choice here: there is no download for it. Place
+  ``GEBCO_2023.nc`` in the bathymetry directory by hand to use
+  ``--bathy-source gebco2023`` in the other commands.
 
 - ``-o, --output-dir DIR``: Save location (default: ``data/bathymetry``)
 - ``--citation``: Print the data citation for the chosen source; does not download
@@ -199,7 +207,7 @@ enrichment runs once and the enriched YAML is passed directly to the scheduler.
 
 **Bathymetry options** (same as ``cruiseplan process``):
 
-- ``--bathy-source``: Dataset for PNG maps; same choices as ``cruiseplan bathymetry`` (default: ``gebco2025``)
+- ``--bathy-source``: Dataset for depths and PNG maps: ``etopo2022``, ``gebco2023``, ``gebco2025``, ``msm142``, ``msm142_jj``, ``msm142_dt`` (default: ``gebco2025``)
 - ``--bathy-dir``: Directory containing bathymetry files (default: ``data/bathymetry``)
 - ``--bathy-stride``: Downsampling factor — 1 = full resolution, higher = faster (default: 10)
 - ``--bathy-contours DEPTH [DEPTH ...]``: Contour depths in metres; replaces defaults

@@ -53,6 +53,19 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+# Cruise-level parameters written to the enriched YAML, in this order
+CRUISE_PARAMETER_FIELDS = (
+    "start_date",
+    "start_time",
+    "default_vessel_speed",
+    "default_distance_between_stations",
+    "turnaround_time",
+    "ctd_descent_rate",
+    "ctd_ascent_rate",
+    "day_start_hour",
+    "day_end_hour",
+)
+
 
 def deserialize_inline_definition(
     definition_dict: dict,
@@ -366,6 +379,14 @@ def to_commented_dict(cruise_instance: "CruiseInstance") -> dict[str, Any]:
             if value is not None:
                 output[yaml_field] = value
 
+    # Cruise-level planning parameters: the schedule is computed from these,
+    # so the enriched file must carry them (including defaults in effect)
+    for param in CRUISE_PARAMETER_FIELDS:
+        if param not in output:
+            value = getattr(cruise_instance.config, param, None)
+            if value is not None:
+                output[param] = value
+
     # Handle special port serialization for global departure/arrival ports
     if (
         hasattr(cruise_instance.config, DEPARTURE_PORT_FIELD)
@@ -412,6 +433,11 @@ def to_commented_dict(cruise_instance: "CruiseInstance") -> dict[str, Any]:
         output[LEGS_FIELD] = [
             serialize_leg_definition(leg) for leg in cruise_instance.config.legs
         ]
+
+    # Where the water depths came from (written by enrich_depths)
+    provenance = (cruise_instance.config.model_extra or {}).get("bathymetry_provenance")
+    if provenance:
+        output["bathymetry_provenance"] = dict(provenance)
 
     return output
 

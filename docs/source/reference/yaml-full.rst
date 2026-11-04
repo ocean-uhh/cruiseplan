@@ -333,7 +333,10 @@ Group activities within legs for advanced scheduling:
 Operation Types
 ===============
 
-How duration is determined when ``duration`` is not set:
+How duration is determined when ``duration`` is not set. The 999-hour fill
+is large on purpose so it cannot be overlooked: the schedule log warns for each
+operation that uses it, the NetCDF schedule sets ``duration_fill_flag = 1``,
+and the CSV, HTML and TeX outputs mark it.
 
 .. list-table::
    :header-rows: 1
@@ -344,7 +347,8 @@ How duration is determined when ``duration`` is not set:
      - **Description**
    * - ``CTD`` (point)
      - Depth-based
-     - Descent + ascent at ``ctd_descent_rate`` / ``ctd_ascent_rate``, plus ``turnaround_time``
+     - Descent + ascent at ``ctd_descent_rate`` / ``ctd_ascent_rate``, plus ``turnaround_time``.
+       Without a usable depth (missing, zero or the fill value ``-9999``): 999 hours fill
    * - ``underway``, ``towing``, ``CTD`` (line)
      - Transit time
      - Route length at the line's ``vessel_speed`` (or the leg/cruise default)
@@ -353,7 +357,10 @@ How duration is determined when ``duration`` is not set:
      - ``duration`` is required
    * - ``mooring``
      - 999 hours
-     - Placeholder added by enrichment; set ``duration`` explicitly
+     - Fill value, the same in ``enrich`` and ``schedule``; set ``duration`` explicitly
+   * - ``water_sampling``, ``calibration``
+     - Depth-based
+     - As ``CTD`` when ``operation_depth`` or ``water_depth`` is set; otherwise 999 hours fill
    * - ``port``, ``waypoint``
      - 0
      - No operation time

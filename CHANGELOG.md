@@ -6,6 +6,43 @@ versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Missing, partial or unreadable bathymetry file: depth lookups return the fill value `-9999.0` (`DEFAULT_DEPTH`) with a WARNING naming the file and the `cruiseplan bathymetry` command, instead of formula ("mock") depths. Maps are drawn without bathymetry. Mock mode removed.
+- A requested bathymetry source is never silently switched for another dataset. When its file is missing the WARNING names the other sources present in the directory and the `--bathy-source` value to use one of them.
+- A station over land (bathymetry elevation `>= 0`) was stored as a positive depth via `abs(elevation)`; it now gets the fill value `-9999.0` and a WARNING. Ocean depth is `-elevation`.
+- Bathymetry grids stored north-to-south (descending latitude) returned the fill value for every point; the coordinate axes are flipped to ascending on load and indices are mapped back to the file on read.
+- A fill-value depth printed as `-9999 m`/`-9999` in the LaTeX letsgo table and the HTML mooring table; both now show `fill`, as the other tables already did.
+- `get_depth` returned a fill-value `operation_depth` in preference to a valid `water_depth`, and a mooring carrying an `operation_depth` was timed as a CTD cast; the fill value is skipped and moorings take the mooring-duration path.
+- `cruiseplan bathymetry --bathy-source gebco2023` downloaded ETOPO 2022. `gebco2023` is no longer a download choice (no download location); `download_bathymetry` raises `ValueError` for it and for unknown sources. It stays a lookup source for a hand-placed `GEBCO_2023.nc`.
+- Enriched YAML dropped `start_date`, `start_time`, `default_vessel_speed`, `default_distance_between_stations`, CTD rates and day hours, so `run` scheduled from defaults (e.g. a 1970 start). It also wrote the ports catalog under `port:`.
+- Mooring or yo-yo cast without `duration` got 60 min in `schedule` (from a config field that does not exist) and 999 h in `enrich`. A CTD without a usable depth and an operation type without a duration rule got 0 min. All now get the 999 h fill (`DEFAULT_MOORING_DURATION_MIN`), with one WARNING per operation.
+- Degrees-decimal-minutes output did not carry (`59°60.00'`). One `utils.coordinates.ddm_parts` with carry is used by LaTeX, HTML, CSV, bridge waypoints, forecast text, YAML decmin fields and the station picker.
+- LaTeX letsgo table chose the depth column by label text (`ctd`, `fd-`, `ds-`, …); it now uses the record kind.
+- HTML report put activities with an unknown leg into the first leg; they are listed under an "Unassigned" heading with a WARNING.
+- `Leg.get_operational_entry_point` / `get_operational_exit_point` imported a removed module; they resolve through `OperationFactory`.
+- Depth validation treated `-9999` from the bathymetry as a 9999 m depth; the fill value is reported as unverifiable.
+- Missing-bathymetry messages referred to a `cruiseplan download` command that does not exist.
+- `data/pycnmix-2026-v1.yaml` referenced seven activities by site name; they now name the `_recovery` / `_deployment` points.
+
+### Added
+
+- `water_depth` accepts the fill value `-9999.0`; `enrich --add-depths` writes it where no depth can be looked up and retries it on the next run. The enriched YAML records `bathymetry_provenance` (source, file, found, depths from source, depths filled).
+- Provenance in outputs: NetCDF global attributes (all files) `cruiseplan_version`, `source_config`, `source_config_sha256`, `bathymetry_source`, planning parameters and `date_created` (UTC, `Z`); the same fields as `%` comments at the top of the TeX tables and in a Provenance section of the HTML report.
+- Fill-duration markers: `ActivityRecord.duration_is_fill`; NetCDF `duration_fill_flag` with `fill_duration_count`; CSV `Duration note` column; `(fill)` in HTML and TeX durations.
+- `utils.coordinates.ddm_parts`, `utils.coordinates.distance_nm` (one haversine; the KML, LaTeX and timeline distances use it).
+- `data.bathymetry.shared_bathymetry` and `get_bathymetry_manager`: `run` opens each bathymetry file once.
+- Stations expanded from a line operation carry a `history` field recording their origin (the point model now has a `history` field).
+- Fill-duration summary line (count, `N x 999 h`, and the schedule total excluding fills) in the WARNING log and at the top of the HTML and TeX reports, so the inflated fill hours do not hide the real total.
+
+### Changed
+
+- NetCDF `creation_date` is UTC with `Z` (was naive local time).
+
+### Removed
+
+- `CoordConverter.decimal_degrees_to_ddm` (did not carry 60 minutes into the degrees); use `utils.coordinates.ddm_parts`.
+
 ## [0.5.0] - 2026-11-02
 
 ### Breaking changes

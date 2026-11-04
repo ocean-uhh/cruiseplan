@@ -35,7 +35,7 @@ from cruiseplan.config.values import (
     DEFAULT_UPDATE_PREFIX,
 )
 from cruiseplan.config.yaml_io import load_yaml, load_yaml_safe, save_yaml
-from cruiseplan.data.bathymetry import BathymetryManager
+from cruiseplan.data.bathymetry import get_bathymetry_manager
 from cruiseplan.runtime.validation import (
     check_complete_duplicates,
     check_cruise_metadata,
@@ -641,9 +641,7 @@ def _validate_configuration(
 
         # Depth validation if requested
         if check_depths:
-            bathymetry = BathymetryManager(
-                source=bathymetry_source, data_dir=bathymetry_dir
-            )
+            bathymetry = get_bathymetry_manager(bathymetry_source, bathymetry_dir)
             stations_checked, depth_warnings = validate_depth_accuracy(
                 cruise, bathymetry, tolerance
             )

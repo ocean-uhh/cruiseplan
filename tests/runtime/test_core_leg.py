@@ -2,8 +2,6 @@
 
 from unittest.mock import MagicMock
 
-import pytest
-
 from cruiseplan.config.values import StrategyEnum
 from cruiseplan.runtime.organizational import Cluster, Leg
 
@@ -459,33 +457,21 @@ class TestLegOperationalActivities:
         exit_point = leg.get_operational_exit_point()
         assert exit_point is None
 
-    @pytest.mark.skip(
-        reason="Obsolete after scheduler refactor - _resolve_station_details removed"
-    )
     def test_get_operational_points_with_resolver(self):
-        """Test operational points with mock resolver."""
-        departure_port = {"name": "Port_A", "latitude": 60.0, "longitude": -20.0}
-        arrival_port = {"name": "Port_B", "latitude": 64.0, "longitude": -22.0}
+        """tc2: entry/exit points come from the leg's first/last activity."""
+        from pathlib import Path
 
-        leg = Leg(
-            name="Test_Leg",
-            departure_port=departure_port,
-            arrival_port=arrival_port,
-            first_activity="WP_Start",
-            last_activity="WP_End",
-        )
+        from cruiseplan.runtime.cruise import CruiseInstance
 
-        # Mock resolver that returns coordinates
-        mock_resolver = MagicMock()
+        fixture = Path(__file__).parent.parent / "fixtures" / "tc2_two_legs.yaml"
+        cruise = CruiseInstance(fixture)
+        legs = {leg.name: leg for leg in cruise.runtime_legs}
 
-        # These methods import from scheduler, which might not be available
-        # So we test the basic structure
-        entry_point = leg.get_operational_entry_point(mock_resolver)
-        exit_point = leg.get_operational_exit_point(mock_resolver)
-
-        # These should return None since _resolve_station_details is from scheduler
-        assert entry_point is None
-        assert exit_point is None
+        atlantic = legs["Leg_Atlantic"]
+        assert atlantic.get_operational_entry_point(cruise.config) == (50.0, -50.0)
+        assert atlantic.get_operational_exit_point(cruise.config) == (50.0, -50.0)
+        north = legs["Leg_North"]
+        assert north.get_operational_entry_point(cruise.config) == (60.0, -30.0)
 
 
 class TestLegFactoryMethod:

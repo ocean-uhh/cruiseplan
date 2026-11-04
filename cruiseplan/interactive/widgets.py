@@ -5,6 +5,8 @@ from collections.abc import Callable
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Widget
 
+from cruiseplan.utils.coordinates import ddm_parts
+
 
 class ModeIndicator(Widget):
     """
@@ -213,17 +215,15 @@ class StatusDisplay(Widget):
             # Format: DD MM.mmm Dir, DDD MM.mmm Dir
 
             # --- Latitude Conversion ---
-            lat_deg, lat_frac = divmod(abs(lat), 1)
-            lat_min = lat_frac * 60
+            lat_deg, lat_min = ddm_parts(lat, 2)
             lat_dir = "N" if lat >= 0 else "S"
 
             # --- Longitude Conversion ---
-            lon_deg, lon_frac = divmod(abs(lon), 1)
-            lon_min = lon_frac * 60
+            lon_deg, lon_min = ddm_parts(lon, 2)
             lon_dir = "E" if lon >= 0 else "W"
 
             # Format string for display (e.g., 53° 07.40'N, 050° 34.07'W)
-            coord_str = f"{lat_deg:02.0f}° {lat_min:05.2f}'{lat_dir}, {lon_deg:03.0f}° {lon_min:05.2f}'{lon_dir}"
+            coord_str = f"{lat_deg:02d}° {lat_min:05.2f}'{lat_dir}, {lon_deg:03d}° {lon_min:05.2f}'{lon_dir}"
             self.status_lines[0].set_text(f"Coordinates: {coord_str}")
         else:
             self.status_lines[0].set_text("Coordinates: --")

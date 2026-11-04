@@ -785,18 +785,18 @@ def stationplan_waypoints(
 
 def _format_ddm_coordinate(decimal_degrees: float, coord_type: str) -> str:
     """Format a coordinate in degrees decimal minutes for bridge waypoints."""
-    from cruiseplan.utils.coordinates import CoordConverter
+    from cruiseplan.utils.coordinates import ddm_parts
 
-    degrees, minutes = CoordConverter.decimal_degrees_to_ddm(decimal_degrees)
+    degrees, minutes = ddm_parts(decimal_degrees, 2)
 
     if coord_type == "lat":
         # Latitude: 2 digits for degrees, N/S direction with space
         direction = "N" if decimal_degrees >= 0 else "S"
-        return f"{int(abs(degrees)):02d} {minutes:05.2f} {direction}"
+        return f"{degrees:02d} {minutes:05.2f} {direction}"
     # longitude
     # Longitude: 3 digits for degrees, E/W direction with space
     direction = "E" if decimal_degrees >= 0 else "W"
-    return f"{int(abs(degrees)):03d} {minutes:05.2f} {direction}"
+    return f"{degrees:03d} {minutes:05.2f} {direction}"
 
 
 def _format_decimal_degrees(decimal_degrees: float, coord_type: str) -> str:

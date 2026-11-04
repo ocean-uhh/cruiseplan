@@ -5,41 +5,37 @@ Tests for coordinate formatting utilities.
 import pytest
 
 from cruiseplan.utils.coordinates import (
-    CoordConverter,
     calculate_map_bounds,
     compute_final_limits,
+    ddm_parts,
     extract_coordinates_from_cruise,
     format_ddm_comment,
     format_position_latex,
 )
 
 
-class TestCoordConverter:
-    """Test coordinate unit conversion utilities."""
+class TestDdmParts:
+    """Test splitting decimal degrees into whole degrees and minutes."""
 
-    def test_decimal_degrees_to_ddm_positive(self):
+    def test_ddm_parts_positive(self):
         """Test conversion of positive decimal degrees to DMM."""
-        degrees, minutes = CoordConverter.decimal_degrees_to_ddm(65.7458)
-        assert degrees == 65.0
+        degrees, minutes = ddm_parts(65.7458)
+        assert degrees == 65
         assert minutes == pytest.approx(44.75, abs=0.01)
 
-    def test_decimal_degrees_to_ddm_negative(self):
-        """Test conversion of negative decimal degrees to DMM."""
-        degrees, minutes = CoordConverter.decimal_degrees_to_ddm(-24.4792)
-        assert degrees == 24.0
+    def test_ddm_parts_negative(self):
+        """Test that the sign is dropped for negative decimal degrees."""
+        degrees, minutes = ddm_parts(-24.4792)
+        assert degrees == 24
         assert minutes == pytest.approx(28.75, abs=0.01)
 
-    def test_decimal_degrees_to_ddm_zero(self):
+    def test_ddm_parts_zero(self):
         """Test conversion of zero degrees."""
-        degrees, minutes = CoordConverter.decimal_degrees_to_ddm(0.0)
-        assert degrees == 0.0
-        assert minutes == 0.0
+        assert ddm_parts(0.0) == (0, 0.0)
 
-    def test_decimal_degrees_to_ddm_exact_degrees(self):
+    def test_ddm_parts_exact_degrees(self):
         """Test conversion of exact degree values."""
-        degrees, minutes = CoordConverter.decimal_degrees_to_ddm(45.0)
-        assert degrees == 45.0
-        assert minutes == 0.0
+        assert ddm_parts(45.0) == (45, 0.0)
 
 
 class TestFormatDmmComment:
@@ -115,9 +111,9 @@ class TestCoordinateFormatConsistency:
     )
     def test_coordinate_format_consistency(self, lat, lon):
         """Test that all formats produce consistent coordinate values."""
-        # Get DMM values from CoordConverter
-        lat_deg, lat_min = CoordConverter.decimal_degrees_to_ddm(lat)
-        lon_deg, lon_min = CoordConverter.decimal_degrees_to_ddm(lon)
+        # Get DMM values from ddm_parts
+        lat_deg, lat_min = ddm_parts(lat)
+        lon_deg, lon_min = ddm_parts(lon)
 
         # Test DMM comment format
         ddm_result = format_ddm_comment(lat, lon)

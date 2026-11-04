@@ -10,8 +10,8 @@ import logging
 from typing import TYPE_CHECKING
 
 from cruiseplan.config.activities import PointDefinition
-from cruiseplan.config.values import DEFAULT_STATION_SPACING_KM
-from cruiseplan.data.bathymetry import BathymetryManager
+from cruiseplan.config.values import DEFAULT_DEPTH, DEFAULT_STATION_SPACING_KM
+from cruiseplan.data.bathymetry import get_bathymetry_manager
 from cruiseplan.timeline.distance import haversine_distance
 from cruiseplan.utils.plot_config import interpolate_great_circle_position
 
@@ -391,6 +391,12 @@ def enrich_depths(
     for stations that don't have them specified. Optionally can overwrite
     existing depth values with new bathymetry source data.
 
+    A station whose depth cannot be looked up (file missing, point outside the
+    grid) gets ``water_depth = DEFAULT_DEPTH`` (-9999.0) and no
+    ``bathymetry_source``; a station already at the fill value is looked up
+    again. The source, file and counts are recorded on the configuration as
+    ``bathymetry_provenance`` and written to the enriched YAML.
+
     Parameters
     ----------
     cruise_instance : CruiseInstance
@@ -405,50 +411,83 @@ def enrich_depths(
     Returns
     -------
     set[str]
-        Set of station names that had depths added or updated
+        Set of station names that had depths added or updated from the
+        bathymetry file (stations set to the fill value are not included).
     """
     stations_with_depths_added = set()
+    stations_filled = []
+    stations_on_land = []
 
-    # Initialize bathymetry manager
-    bathymetry = BathymetryManager(source=bathymetry_source, data_dir=bathymetry_dir)
+    bathymetry = get_bathymetry_manager(bathymetry_source, bathymetry_dir)
 
     for station_name, station in cruise_instance.point_registry.items():
-        # Check if station already has water_depth and we're not overwriting
+        # Keep a real stated depth unless overwriting; retry the fill value
+        existing = getattr(station, "water_depth", None)
         if (
-            hasattr(station, "water_depth")
-            and station.water_depth is not None
+            existing is not None
+            and existing != DEFAULT_DEPTH
             and not overwrite_existing
         ):
             continue
 
-        # Get depth from bathymetry
         try:
             bathymetry_depth = bathymetry.get_depth_at_point(
                 station.latitude, station.longitude
             )
-
-            if bathymetry_depth is not None:
-                # Convert to positive depth value (bathymetry returns negative elevation)
-                # Round to nearest 0.1 meter
-                water_depth = round(abs(bathymetry_depth), 1)
-
-                # Add depth and bathymetry source to station
-                station.__dict__["water_depth"] = water_depth
-                station.__dict__["bathymetry_source"] = bathymetry_source
-                stations_with_depths_added.add(station_name)
-
-                logger.debug(
-                    f"Added depth to {station_name}: {water_depth:.1f}m from {bathymetry_source}"
-                )
-
         except Exception as e:  # noqa: BLE001 - per-station depth lookup; skip the station
             logger.warning(f"Failed to get depth for station {station_name}: {e}")
             continue
+
+        if bathymetry_depth is None or bathymetry_depth == DEFAULT_DEPTH:
+            station.__dict__["water_depth"] = DEFAULT_DEPTH
+            station.__dict__.pop("bathymetry_source", None)
+            stations_filled.append(station_name)
+            continue
+
+        # Bathymetry returns elevation (negative below sea level): depth = -elevation.
+        # An elevation >= 0 is land (or above sea level) and has no ocean depth, so
+        # use the fill value rather than silently storing abs(elevation).
+        water_depth = -bathymetry_depth
+        if water_depth <= 0:
+            station.__dict__["water_depth"] = DEFAULT_DEPTH
+            station.__dict__.pop("bathymetry_source", None)
+            stations_filled.append(station_name)
+            stations_on_land.append(station_name)
+            continue
+
+        water_depth = round(water_depth, 1)
+        station.__dict__["water_depth"] = water_depth
+        station.__dict__["bathymetry_source"] = bathymetry_source
+        stations_with_depths_added.add(station_name)
+        logger.debug(
+            f"Added depth to {station_name}: {water_depth:.1f}m from {bathymetry_source}"
+        )
 
     if stations_with_depths_added:
         logger.info(
             f"Added depths to {len(stations_with_depths_added)} stations using {bathymetry_source}"
         )
+    if stations_filled:
+        logger.warning(
+            f"{len(stations_filled)} station(s) set to the fill depth {DEFAULT_DEPTH} "
+            f"(no depth from {bathymetry_source} at {bathymetry.file_path}): "
+            f"{', '.join(stations_filled)}"
+        )
+    if stations_on_land:
+        logger.warning(
+            f"{len(stations_on_land)} station(s) are on land (bathymetry elevation "
+            f">= 0) and were set to the fill depth {DEFAULT_DEPTH}: "
+            f"{', '.join(stations_on_land)}"
+        )
+
+    cruise_instance.config.bathymetry_provenance = {
+        "source": bathymetry_source,
+        "file": bathymetry.file_path.name,
+        "file_found": bool(bathymetry.available),
+        "depths_from_source": len(stations_with_depths_added),
+        "depths_filled": len(stations_filled),
+        "fill_value": DEFAULT_DEPTH,
+    }
 
     return stations_with_depths_added
 

@@ -519,17 +519,11 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
                 route_distance = getattr(line, "distance", None)
                 if route_distance is None or route_distance == "calculated":
                     # Calculate distance if not provided
-                    import math
+                    from cruiseplan.utils.coordinates import distance_nm
 
-                    lat1, lon1 = math.radians(start_lat), math.radians(start_lon)
-                    lat2, lon2 = math.radians(end_lat), math.radians(end_lon)
-                    dlat, dlon = lat2 - lat1, lon2 - lon1
-                    a = (
-                        math.sin(dlat / 2) ** 2
-                        + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
+                    route_distance = distance_nm(
+                        (start_lat, start_lon), (end_lat, end_lon)
                     )
-                    c = 2 * math.asin(math.sqrt(a))
-                    route_distance = 3440.065 * c  # Earth radius in nautical miles
                     route_distance = f"{route_distance:.1f}"
 
                 # Get the actual operation type from the config

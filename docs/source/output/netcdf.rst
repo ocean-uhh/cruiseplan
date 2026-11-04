@@ -39,6 +39,22 @@ CF Convention Alignment
 - **Coordinate Requirements**: All data variables include `coordinates` attribute
 - **Standard Names**: Use CF standard name table for oceanographic variables
 
+Provenance Attributes
+---------------------
+
+Every file also carries these global attributes, so a schedule can be traced
+to its inputs:
+
+- ``cruiseplan_version``
+- ``source_config``, ``source_config_sha256``: YAML file the schedule was computed from
+- ``bathymetry_source`` (and ``bathymetry_depths_filled`` when depths were enriched)
+- ``default_vessel_speed_kt``, ``ctd_descent_rate_m_s``, ``ctd_ascent_rate_m_s``,
+  ``turnaround_time_min``, ``start_date``
+- ``date_created``: UTC, ISO 8601 with ``Z``; ``creation_date`` holds the same value
+
+The schedule file adds ``fill_duration_count``, ``fill_duration_hours`` and the
+variable ``duration_fill_flag`` (1 where the duration is the 999-hour fill value).
+
 Output File Structure
 =====================
 

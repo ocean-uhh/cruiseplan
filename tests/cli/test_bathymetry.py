@@ -293,3 +293,29 @@ class TestBathymetryResultType:
         assert result.data_file is None
         assert bool(result) is False
         assert "❌ Bathymetry download (etopo2022) failed" in str(result)
+
+
+def _bathymetry_parser() -> argparse.ArgumentParser:
+    """Return the bathymetry subparser as the CLI builds it."""
+    from cruiseplan.cli.bathymetry import build_parser
+
+    parser = argparse.ArgumentParser()
+    return build_parser(parser.add_subparsers())
+
+
+def test_bathymetry_choices_exclude_gebco2023():
+    """--bathy-source lists only sources the command can fetch or check."""
+    parser = _bathymetry_parser()
+    help_text = parser.format_help()
+    assert "gebco2025" in help_text
+    assert "etopo2022" in help_text
+    with pytest.raises(SystemExit):
+        parser.parse_args(["--bathy-source", "gebco2023"])
+
+
+def test_lookup_commands_still_accept_gebco2023():
+    """A hand-placed GEBCO_2023.nc stays usable for depth lookups."""
+    from cruiseplan.config.values import BATHY_DOWNLOAD_SOURCES, BATHY_SOURCES
+
+    assert "gebco2023" in BATHY_SOURCES
+    assert "gebco2023" not in BATHY_DOWNLOAD_SOURCES

@@ -19,6 +19,7 @@ from cruiseplan.config.cruise_config import CruiseConfig, LegDefinition
 from cruiseplan.config.values import (
     DEFAULT_ARRIVAL_PORT,
     DEFAULT_DEPARTURE_PORT,
+    DEFAULT_DEPTH,
     DEFAULT_FIRST_ACTIVITY,
     DEFAULT_LAST_ACTIVITY,
     DEFAULT_STRATEGY,
@@ -32,12 +33,9 @@ from cruiseplan.config.values import (
 from cruiseplan.data.bathymetry import DEPTH_CONTOURS, BathymetryManager
 from cruiseplan.data.pangaea import merge_campaign_tracks
 from cruiseplan.interactive.campaign_selector import CampaignSelector
-
-# --- NEW WIDGET IMPORTS (Instruction 1) ---
 from cruiseplan.interactive.widgets import ModeIndicator, StatusDisplay
+from cruiseplan.output.output_utils import _positive_depth
 from cruiseplan.runtime.cruise import CruiseInstance
-
-# Legacy format functions removed - now using Pydantic models directly
 from cruiseplan.utils.plot_config import get_colormap
 
 logger = logging.getLogger(__name__)
@@ -387,6 +385,9 @@ class StationPicker:
         xx, yy, zz = self.bathymetry.get_grid_subset(
             lat_min, lat_max, lon_min, lon_max, stride=self.bathymetry_stride
         )
+        if zz.size == 0:
+            logger.warning("No bathymetry grid for this view; drawing without it")
+            return
 
         # 1. Filled Contours (The "Map" feel)
         if self.max_depth is not None and self.max_depth > 0:
@@ -733,7 +734,9 @@ class StationPicker:
             lon, lat, "ro", markersize=8, markeredgecolor="k", zorder=10
         )
 
-        data = {"lat": lat, "lon": lon, "depth": abs(depth)}
+        # Keep the fill value as is so it is not mistaken for a real depth
+        depth = _positive_depth(depth)
+        data = {"lat": lat, "lon": lon, "depth": depth}
         self.points.append(data)
         self.history.append(("point", data, artist))
         self._update_status_display(lat, lon, depth, message="Point added.")
@@ -1055,7 +1058,7 @@ class StationPicker:
     def _create_point_definition(self, point_data: dict, index: int) -> PointDefinition:
         """Create a PointDefinition from raw station picker data."""
         water_depth = point_data.get("depth")
-        if water_depth is not None and water_depth != -9999:
+        if water_depth is not None and water_depth != DEFAULT_DEPTH:
             water_depth = round(abs(float(water_depth)), 1)
         else:
             water_depth = None
