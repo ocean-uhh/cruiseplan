@@ -6,17 +6,17 @@ dictionary and YAML formats with proper field ordering and comment preservation.
 
 **I/O Module Architecture:**
 - **cruiseplan.utils.io**: File system validation, path handling, directory creation
-- **cruiseplan.schema.yaml_io**: YAML file format reading/writing with comment preservation (used by this module)
-- **cruiseplan.core.serialization** (this module): High-level CruiseInstance object serialization to YAML
+- **cruiseplan.config.yaml_io**: YAML file format reading/writing with comment preservation (used by this module)
+- **cruiseplan.runtime.serialization** (this module): High-level CruiseInstance object serialization to YAML
 - **cruiseplan.output.*_generator**: Specialized output format generators (HTML, LaTeX, CSV, etc.)
 
-**Dependencies**: Uses `cruiseplan.schema.yaml_io` for YAML operations and `cruiseplan.utils.io` for file handling.
+**Dependencies**: Uses `cruiseplan.config.yaml_io` for YAML operations and `cruiseplan.utils.io` for file handling.
 
 **See Also**:
 - For file system operations: `cruiseplan.utils.io`
-- For YAML file operations: `cruiseplan.schema.yaml_io`
+- For YAML file operations: `cruiseplan.config.yaml_io`
 - For generating specific output formats: `cruiseplan.output.html_generator`, `cruiseplan.output.latex_generator`, etc.
-- For the enrichment process that uses these functions: `cruiseplan.core.enrichment`
+- For the enrichment process that uses these functions: `cruiseplan.runtime.enrichment`
 """
 
 import logging

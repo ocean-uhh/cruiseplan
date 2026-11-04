@@ -1,5 +1,5 @@
 """
-Tests for enrichment and validation functions in core/validation.py.
+Tests for enrichment and validation functions in cruiseplan.api.process_cruise.
 """
 
 from pathlib import Path

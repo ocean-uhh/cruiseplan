@@ -30,54 +30,54 @@ Pydantic models for parsing and validating YAML input:
 # cruiseplan/config/cruise_config.py
 class CruiseConfig(BaseModel):
     cruise_name: str
-    description: Optional[str] = None
+    description: str | None = None
     default_vessel_speed: float  # knots
     default_distance_between_stations: float  # km
     turnaround_time: float  # minutes
-    departure_port: Optional[Union[str, PointDefinition]] = None
-    arrival_port: Optional[Union[str, PointDefinition]] = None
-    points: Optional[List[PointDefinition]] = None
-    legs: Optional[List[LegDefinition]] = None
+    departure_port: str | PointDefinition | None = None
+    arrival_port: str | PointDefinition | None = None
+    points: list[PointDefinition] | None = None
+    legs: list[LegDefinition] | None = None
     # ... more fields; see cruise_config.py
 
 
 class LegDefinition(BaseModel):
     name: str
-    departure_port: Union[str, PointDefinition]  # required
-    arrival_port: Union[str, PointDefinition]  # required
-    activities: Optional[List[Union[str, dict]]] = None
-    vessel_speed: Optional[float] = None  # knots; inherits from cruise
-    delay_start: Optional[float] = None  # minutes
-    buffer_time: Optional[float] = None  # minutes
-    ordered: Optional[bool] = None
-    clusters: Optional[List[ClusterDefinition]] = None
+    departure_port: str | PointDefinition  # required
+    arrival_port: str | PointDefinition  # required
+    activities: list[str | dict] | None = None
+    vessel_speed: float | None = None  # knots; inherits from cruise
+    delay_start: float | None = None  # minutes
+    buffer_time: float | None = None  # minutes
+    ordered: bool | None = None
+    clusters: list[ClusterDefinition] | None = None
 
 
 # cruiseplan/config/activities.py
 class PointDefinition(FlexibleLocationModel):
     name: str
-    operation_type: Optional[OperationTypeEnum] = None
-    action: Optional[ActionEnum] = None
-    operation_depth: Optional[float] = None  # metres
-    water_depth: Optional[float] = None  # metres
-    duration: Optional[float] = None  # minutes
-    delay_start: Optional[float] = None  # minutes
-    delay_end: Optional[float] = None  # minutes
-    equipment: Optional[str] = None
+    operation_type: OperationTypeEnum | None = None
+    action: ActionEnum | None = None
+    operation_depth: float | None = None  # metres
+    water_depth: float | None = None  # metres
+    duration: float | None = None  # minutes
+    delay_start: float | None = None  # minutes
+    delay_end: float | None = None  # minutes
+    equipment: str | None = None
 
 
 class LineDefinition(BaseModel):
     name: str
-    route: List[GeoPoint]
-    vessel_speed: Optional[float] = None
-    distance_between_stations: Optional[float] = None  # km
-    max_depth: Optional[float] = None  # metres
+    route: list[GeoPoint]
+    vessel_speed: float | None = None
+    distance_between_stations: float | None = None  # km
+    max_depth: float | None = None  # metres
 
 
 class AreaDefinition(BaseModel):
     name: str
-    corners: List[GeoPoint]
-    duration: Optional[float] = None  # minutes; required for area ops
+    corners: list[GeoPoint]
+    duration: float | None = None  # minutes; required for area ops
 ```
 
 ### Runtime layer (`cruiseplan/runtime/`)
@@ -88,7 +88,7 @@ Objects used during scheduling. Built from the config layer via factory methods.
 # cruiseplan/runtime/cruise.py
 class CruiseInstance:
     def __init__(
-        self, config_path: Union[str, Path]
+        self, config_path: str | Path
     ): ...  # loads YAML, validates, builds runtime leg/cluster/operation tree
 
 
@@ -224,7 +224,65 @@ model validator. `GeoPoint` is used only for line routes and area corners.
 A legacy `position: "lat, lon"` string is still accepted and is scheduled for
 removal.
 
+## Code conventions
+
+`ruff check .` and `ruff format --check .` are the CI lint job; the rule set in
+`pyproject.toml` covers numpy docstrings, annotations, import order and Python
+3.11 syntax (`list[str]`, `T | None`).
+
+- **Docstrings**: numpy style on every public function and class, with typed
+  `Parameters`, `Returns` and `Raises` sections. A private helper (leading
+  underscore) has a one-line docstring and a typed signature; a reason the code
+  cannot show goes in a `#` comment at the line it explains.
+- **Logging**: library modules log through `logging.getLogger(__name__)` and
+  never configure logging (no `logging.basicConfig`, no handlers) or `print`.
+  The `cruiseplan` command line configures logging once. An API function's
+  `verbose=True` sets the `cruiseplan` logger to DEBUG for that call only.
+  Log messages are plain text, without emoji. Results meant for the terminal
+  (tables, summaries) are printed by the modules in `cruiseplan/cli/`.
+
+### Naming
+
+Public names are spelling-neutral: never a word spelled differently in British
+and American English (`-ise`/`-ize`, `-isation`/`-ization`). Say what the
+function makes instead:
+
+| Pattern | Returns | Example |
+|---|---|---|
+| `to_<form>(obj)` | the object converted to another form | `to_canonical_units(ds)`, not `canonicalise_units` |
+| `canonical_<thing>(value)` | the one accepted form of a string | `canonical_role(value)`, not `normalize_role` |
+| noun | a computed result | `warning_summary(…)`, not `summarise_warnings` |
+
+Private names follow the same rule; where no neutral word exists the spelling is
+American, as in Python and matplotlib (`color` and `gray` are never renamed).
+Prefer naming the job over finding a synonym (`_rename_`, `_fix_`,
+`_canonical_` rather than `_normalize_`, `_sanitize_`). A private helper's name
+says what comes back, with one verb per job:
+
+| Verb | Returns |
+|---|---|
+| `_read_<what>(path)` | an object read from a file |
+| `_parse_<what>(text)` | a typed value from a string in hand, no I/O |
+| `_resolve_<what>(…)` | the one value that applies, from several sources by precedence |
+| `_format_<what>(value)` | a display string |
+| `_build_<what>(…)` | rows, a dict or a dataset |
+| `_render_<what>(…)` | an HTML or LaTeX fragment |
+| `_draw_<what>(…)` | a matplotlib Figure (public: `draw_<what>`) |
+| `_has_<what>` / `_is_<what>` | a bool |
+| `_apply_<what>(obj, …)` | the object after one processing step |
+| `_add_<what>(…)` | the target with fields or attributes added |
+| noun (`_positive_depth`) | a computed result |
+
+Module names say what the module holds or does (`scheduler.py`,
+`bathymetry.py`, `kml_generator.py`). Do not add modules named for a grade of
+code (`*_utils.py`, `helpers.py`, `misc.py`); the existing `*_utils.py` modules
+are not a pattern to copy.
+
 ## Testing
+
+Tests write only into `tmp_path` (or the `temp_output_dir` fixture): a test run
+leaves the repository tree unchanged. Pass an explicit output directory to any
+API call that writes files, since the default is `data/`.
 
 ```bash
 pip install -e ".[test]"  # test dependencies only (as in CI)

@@ -6,15 +6,15 @@ used by API functions to ensure consistent error handling across the package.
 
 **I/O Module Architecture:**
 - **cruiseplan.utils.io** (this module): File system validation, path handling, directory creation
-- **cruiseplan.schema.yaml_io**: YAML file format reading/writing with comment preservation
-- **cruiseplan.core.serialization**: High-level CruiseInstance object serialization to YAML
+- **cruiseplan.config.yaml_io**: YAML file format reading/writing with comment preservation
+- **cruiseplan.runtime.serialization**: High-level CruiseInstance object serialization to YAML
 - **cruiseplan.output.*_generator**: Specialized output format generators (HTML, LaTeX, CSV, etc.)
 
 **Dependencies**: This is the lowest layer - other I/O modules may use these utilities.
 
 **See Also**:
-- For YAML file operations: `cruiseplan.schema.yaml_io`
-- For converting CruiseInstance objects to YAML: `cruiseplan.core.serialization`
+- For YAML file operations: `cruiseplan.config.yaml_io`
+- For converting CruiseInstance objects to YAML: `cruiseplan.runtime.serialization`
 - For generating specific output formats: `cruiseplan.output.html_generator`, `cruiseplan.output.latex_generator`, etc.
 """
 
@@ -168,7 +168,6 @@ def setup_output_paths(
     """
     Set up the output directory and base filename from the config file and parameters.
 
-    This is the consolidated output path utility, migrated from utils/config.py.
     It handles both explicit output naming and automatic name derivation from
     config files with YAML cruise_name extraction.
 

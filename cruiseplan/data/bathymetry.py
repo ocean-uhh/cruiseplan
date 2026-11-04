@@ -456,11 +456,11 @@ class BathymetryManager:
             ):  # 6.9GB threshold (allows for slight compression differences)
                 if not silent_if_exists:
                     logger.info(
-                        f"✅ GEBCO 2025 already available at {gebco_nc_path} ({file_size_gb:.1f} GB)"
+                        f"GEBCO 2025 already available at {gebco_nc_path} ({file_size_gb:.1f} GB)"
                     )
                 return True
             logger.warning(
-                f"⚠️ GEBCO 2025 file is incomplete ({file_size_gb:.1f} GB). Re-downloading..."
+                f"GEBCO 2025 file is incomplete ({file_size_gb:.1f} GB). Re-downloading..."
             )
             gebco_nc_path.unlink()
 
@@ -469,11 +469,11 @@ class BathymetryManager:
             free_space_gb = shutil.disk_usage(self.data_dir).free / (1024**3)
             if free_space_gb < 12:
                 logger.error(
-                    f"❌ Insufficient disk space. Need ~12GB, have {free_space_gb:.1f}GB free."
+                    f"Insufficient disk space. Need ~12GB, have {free_space_gb:.1f}GB free."
                 )
                 return False
         except OSError as e:
-            logger.warning(f"⚠️ Could not check disk space: {e}")
+            logger.warning(f"Could not check disk space: {e}")
 
         # User confirmation for large download
         # Check if running in test environment
@@ -506,7 +506,7 @@ class BathymetryManager:
         # Download and extract
         success = self._download_and_extract_gebco()
         if success:
-            print("✅ GEBCO 2025 download completed successfully.")
+            logger.info("GEBCO 2025 download completed successfully.")
         return success
 
     def _download_and_extract_gebco(self) -> bool:
@@ -544,14 +544,14 @@ class BathymetryManager:
                     file.write(chunk)
                     bar.update(len(chunk))
 
-            logger.info("✅ Download complete. Extracting...")
+            logger.info("Download complete. Extracting...")
 
             # Extract NetCDF from zip
             with zipfile.ZipFile(zip_path, "r") as zip_ref:
                 # Find the .nc file in the zip
                 nc_files = [name for name in zip_ref.namelist() if name.endswith(".nc")]
                 if not nc_files:
-                    logger.error("❌ No NetCDF file found in GEBCO zip archive.")
+                    logger.error("No NetCDF file found in GEBCO zip archive.")
                     return False
 
                 # Extract the first .nc file found (with path validation)
@@ -563,7 +563,7 @@ class BathymetryManager:
                 ).name  # Only get filename, no path components
                 if nc_filename != nc_file_in_zip:
                     logger.warning(
-                        f"⚠️ Suspicious filename in zip: {nc_file_in_zip}. Expected flat structure."
+                        f"Suspicious filename in zip: {nc_file_in_zip}. Expected flat structure."
                     )
                     return False
 
@@ -578,31 +578,31 @@ class BathymetryManager:
 
             # Cleanup: remove zip file to save space
             zip_path.unlink()
-            logger.info(f"✅ GEBCO 2025 ready at {nc_path}")
+            logger.info(f"GEBCO 2025 ready at {nc_path}")
 
             # Verify extracted file size
             file_size_gb = nc_path.stat().st_size / (1024**3)
             if file_size_gb < 6.9:
                 logger.warning(
-                    f"⚠️ Extracted file seems small ({file_size_gb:.1f} GB). May be corrupted."
+                    f"Extracted file seems small ({file_size_gb:.1f} GB). May be corrupted."
                 )
                 return False
 
-            logger.info(f"✅ GEBCO 2025 extraction complete ({file_size_gb:.1f} GB)")
+            logger.info(f"GEBCO 2025 extraction complete ({file_size_gb:.1f} GB)")
             return True
 
         except requests.RequestException:
-            logger.exception("❌ Download failed")
+            logger.exception("Download failed")
             if zip_path.exists():
                 zip_path.unlink()
             return False
         except zipfile.BadZipFile:
-            logger.exception("❌ Invalid zip file")
+            logger.exception("Invalid zip file")
             if zip_path.exists():
                 zip_path.unlink()
             return False
         except Exception:
-            logger.exception("❌ Unexpected error")
+            logger.exception("Unexpected error")
             # Cleanup on failure
             for path in [zip_path, nc_path]:
                 if path.exists():
@@ -620,19 +620,18 @@ class BathymetryManager:
 
 
 def _check_local_bathy_file(target_dir: str, filename: str, label: str) -> str | bool:
-    """Check whether a local-only bathymetry file exists and print its size.
-
-    Returns the file path string if found, False otherwise.
-    """
+    """Return the path of a local-only bathymetry file if it exists, else False."""
     output_dir = Path(target_dir).resolve()
     file_path = output_dir / filename
     if file_path.exists():
         file_size_kb = file_path.stat().st_size / 1024
-        print(f"{label} bathymetry available at {file_path} ({file_size_kb:.1f} KB)")
+        logger.info(
+            f"{label} bathymetry available at {file_path} ({file_size_kb:.1f} KB)"
+        )
         return str(file_path)
-    print(f"ERROR: {label} bathymetry file not found at {file_path}")
-    print(
-        "   This is a local dataset that should be manually placed in the data/bathymetry directory."
+    logger.error(
+        f"{label} bathymetry file not found at {file_path}. This is a local dataset "
+        "that should be manually placed in the data/bathymetry directory."
     )
     return False
 
@@ -649,26 +648,28 @@ def _download_gebco2025(target_dir: str) -> str | bool:
     if gebco_path.exists():
         file_size_gb = gebco_path.stat().st_size / (1024**3)
         if file_size_gb >= 6.9:
-            print(f"File already exists at {gebco_path} ({file_size_gb:.1f} GB)")
+            logger.info(f"File already exists at {gebco_path} ({file_size_gb:.1f} GB)")
             return str(gebco_path)
-        print(f"Existing file at {gebco_path} is incomplete ({file_size_gb:.1f} GB)")
+        logger.warning(
+            f"Existing file at {gebco_path} is incomplete ({file_size_gb:.1f} GB)"
+        )
         try:
             response = (
                 input("Delete incomplete file and redownload? (y/N): ").lower().strip()
             )
             if response in ("y", "yes"):
                 gebco_path.unlink()
-                print("Deleted incomplete file. Starting download...")
+                logger.info("Deleted incomplete file. Starting download...")
             else:
-                print("Keeping incomplete file. Download cancelled.")
+                logger.info("Keeping incomplete file. Download cancelled.")
                 return False
         except (EOFError, KeyboardInterrupt):
-            print("Non-interactive environment. Keeping incomplete file.")
+            logger.info("Non-interactive environment. Keeping incomplete file.")
             return False
 
     manager = BathymetryManager(source="gebco2025", data_dir=target_dir)
     if not manager.ensure_gebco_2025(silent_if_exists=True):
-        print("ERROR: GEBCO 2025 download failed.")
+        logger.error("GEBCO 2025 download failed.")
         return False
     return str(gebco_path)
 
@@ -686,27 +687,29 @@ def _download_etopo2022(target_dir: str) -> str | bool | None:
     if local_path.exists():
         file_size_mb = local_path.stat().st_size / (1024 * 1024)
         if file_size_mb >= 450:
-            print(f"File already exists at {local_path} ({file_size_mb:.1f} MB)")
+            logger.info(f"File already exists at {local_path} ({file_size_mb:.1f} MB)")
             return str(local_path)
-        print(f"Existing file at {local_path} is incomplete ({file_size_mb:.1f} MB)")
+        logger.warning(
+            f"Existing file at {local_path} is incomplete ({file_size_mb:.1f} MB)"
+        )
         try:
             response = (
                 input("Delete incomplete file and redownload? (y/N): ").lower().strip()
             )
             if response in ("y", "yes"):
                 local_path.unlink()
-                print("Deleted incomplete file. Starting download...")
+                logger.info("Deleted incomplete file. Starting download...")
             else:
-                print("Keeping incomplete file. Download cancelled.")
+                logger.info("Keeping incomplete file. Download cancelled.")
                 return str(local_path)
         except (EOFError, KeyboardInterrupt):
-            print("Non-interactive environment. Keeping incomplete file.")
+            logger.info("Non-interactive environment. Keeping incomplete file.")
             return str(local_path)
 
-    print(f"Downloading ETOPO dataset to {local_path}...")
+    logger.info(f"Downloading ETOPO dataset to {local_path}...")
     for url in ETOPO_URLS:
         try:
-            print(f"Attempting download from: {url}")
+            logger.info(f"Attempting download from: {url}")
             resp = requests.get(url, stream=True, timeout=10)
             resp.raise_for_status()
             total_size = int(resp.headers.get("Content-Length", 0))
@@ -723,21 +726,17 @@ def _download_etopo2022(target_dir: str) -> str | bool | None:
                 for chunk in resp.iter_content(chunk_size=8192):
                     file.write(chunk)
                     bar.update(len(chunk))
-            print("\nDownload complete!")
+            logger.info("Download complete.")
             return str(local_path)
         except Exception as e:  # noqa: BLE001 - download fallback: try the next URL
-            print(f"Failed to download from {url}")
-            print(f"   Error: {e}")
+            logger.warning(f"Failed to download from {url}: {e}")
             if local_path.exists():
                 local_path.unlink()
 
-    print("\n" + "=" * 60)
-    print("⛔ AUTOMATIC DOWNLOAD FAILED")
-    print("=" * 60)
-    print("Please download the file manually using your browser:")
-    print(f"URL: {ETOPO_URLS[0]}")
-    print(f"Save to: {local_path}")
-    print("=" * 60 + "\n")
+    logger.error(
+        "Automatic download failed. Download the file manually from "
+        f"{ETOPO_URLS[0]} and save it to {local_path}"
+    )
     return None
 
 

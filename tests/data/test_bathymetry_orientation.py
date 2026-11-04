@@ -114,14 +114,8 @@ def _enrich_station_at(tmp_path, source: str, lat: float, lon: float) -> dict:
 
 def test_land_point_gets_fill_depth(tmp_path, halifax_source, caplog):
     """A station over land (elevation >= 0) is set to the fill value, not abs(elevation)."""
-    # enrich() reconfigures the root logger (basicConfig force=True), which
-    # drops caplog's root handler, so listen on the enrichment logger itself.
-    enrich_logger = logging.getLogger("cruiseplan.runtime.enrichment")
-    enrich_logger.addHandler(caplog.handler)
-    try:
+    with caplog.at_level(logging.WARNING, logger="cruiseplan.runtime.enrichment"):
         stn = _enrich_station_at(tmp_path, halifax_source, *LAND_POINT)
-    finally:
-        enrich_logger.removeHandler(caplog.handler)
     assert stn["water_depth"] == DEFAULT_DEPTH
     assert "bathymetry_source" not in stn
     assert any(

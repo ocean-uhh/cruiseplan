@@ -1,46 +1,72 @@
 """
-Centralized logging configuration utilities.
+Logging helpers for the cruiseplan package.
 
-This module provides common logging setup functions used across
-multiple CLI commands and API modules for consistent logging behavior.
+The library never configures logging handlers: modules log through
+``logging.getLogger(__name__)`` and the application (the ``cruiseplan``
+command line, a script or a notebook) decides where messages go. The
+API functions' ``verbose=`` parameter only lowers the level of the
+``cruiseplan`` logger for the duration of the call.
 """
 
+import functools
+import inspect
 import logging
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
+from typing import ParamSpec, TypeVar
+
+PACKAGE_LOGGER = "cruiseplan"
+
+P = ParamSpec("P")
+R = TypeVar("R")
 
 
-def configure_logging(verbose: bool = False) -> None:
+@contextmanager
+def debug_logging(enabled: bool = True) -> Iterator[None]:
     """
-    Configure logging level and format for cruiseplan operations.
+    Set the ``cruiseplan`` logger to DEBUG inside the block, then restore it.
 
-    This standardizes logging configuration across all API modules,
-    replacing multiple inconsistent basicConfig calls.
+    Handlers are left alone, so the messages reach whatever handlers the
+    application configured.
 
     Parameters
     ----------
-    verbose : bool, optional
-        Enable verbose (DEBUG) logging. If False, uses INFO level.
-
-    Notes
-    -----
-    Uses a consistent format: "%(levelname)s: %(message)s"
-    Forces reconfiguration with force=True to override any existing config.
+    enabled : bool, optional
+        If False, the block runs with the logger unchanged (default True).
     """
-    level = logging.DEBUG if verbose else logging.INFO
-    logging.basicConfig(level=level, format="%(levelname)s: %(message)s", force=True)
+    package_logger = logging.getLogger(PACKAGE_LOGGER)
+    previous = package_logger.level
+    if enabled:
+        package_logger.setLevel(logging.DEBUG)
+    try:
+        yield
+    finally:
+        package_logger.setLevel(previous)
 
 
-def get_logger(name: str) -> logging.Logger:
+def honors_verbose(func: Callable[P, R]) -> Callable[P, R]:
     """
-    Get a logger with consistent naming convention.
+    Run *func* under :func:`debug_logging` when it is called with ``verbose=True``.
 
     Parameters
     ----------
-    name : str
-        Logger name, typically __name__
+    func : callable
+        A function with a ``verbose`` parameter.
 
     Returns
     -------
-    logging.Logger
-        Configured logger instance
+    callable
+        The wrapped function, with the same signature and docstring.
     """
-    return logging.getLogger(name)
+    signature = inspect.signature(func)
+
+    @functools.wraps(func)
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
+        bound = signature.bind_partial(*args, **kwargs)
+        verbose = bound.arguments.get(
+            "verbose", signature.parameters["verbose"].default
+        )
+        with debug_logging(bool(verbose)):
+            return func(*args, **kwargs)
+
+    return wrapper

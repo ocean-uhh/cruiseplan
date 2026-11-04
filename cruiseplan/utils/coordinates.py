@@ -535,9 +535,8 @@ def _validate_coordinate_bounds(
     """
     Validate and normalize coordinate bounds with sophisticated longitude format checking.
 
-    # NOTE: This sophisticated validation is now used by validation/base_models.py
-    # and core/validation_old.py for consistent coordinate validation across the codebase.
-    # It handles format consistency and meridian crossing properly.
+    Used by :func:`cruiseplan.api.stations_api.stations` to check the map bounds;
+    it handles format consistency and meridian crossing.
 
     This function enforces that longitude coordinates use consistent formats and handles
     meridian crossing correctly. It supports both -180/180 and 0/360 longitude formats

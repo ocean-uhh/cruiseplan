@@ -44,7 +44,7 @@ from cruiseplan.runtime.validation import (
     format_validation_warnings,
     validate_depth_accuracy,
 )
-from cruiseplan.utils.logging import configure_logging
+from cruiseplan.utils.logging import honors_verbose
 
 logger = logging.getLogger(__name__)
 
@@ -187,7 +187,7 @@ def _process_warnings(captured_warnings: list[str]) -> None:
         List of captured warning messages.
     """
     if captured_warnings:
-        logger.warning("⚠️ Configuration Warnings:")
+        logger.warning("Configuration Warnings:")
         for warning in captured_warnings:
             for line in warning.split("\n"):
                 if line.strip():
@@ -358,6 +358,7 @@ def enrich_with_config(
     )
 
 
+@honors_verbose
 def enrich(
     config_file: str | Path,
     output_dir: str = "data",
@@ -421,8 +422,6 @@ def enrich(
     >>> print(f"Summary: {result.summary}")
     """
     try:
-        # Setup verbose logging if requested
-        configure_logging(verbose)
         if verbose:
             logger.debug("Verbose logging enabled")
 
@@ -470,12 +469,12 @@ def enrich(
         # Determine final output file path
         output_path = output_dir_path / f"{base_name}_enriched.yaml"
 
-        logger.info(f"🔧 Enriching {config_path}")
+        logger.info(f"Enriching {config_path}")
         if verbose:
-            logger.info(f"📁 Output directory: {output_dir_path}")
-            logger.info(f"📄 Output file: {output_path}")
+            logger.info(f"Output directory: {output_dir_path}")
+            logger.info(f"Output file: {output_path}")
             logger.info(
-                f"⚙️  Operations: depths={add_depths}, coords={add_coords}, sections={expand_sections}"
+                f"Operations: depths={add_depths}, coords={add_coords}, sections={expand_sections}"
             )
 
         # Perform the actual enrichment
@@ -536,7 +535,7 @@ def enrich(
             **summary,  # Include detailed summary from _enrich_configuration
         }
 
-        logger.info(f"✅ Configuration enriched successfully: {output_path}")
+        logger.info(f"Configuration enriched successfully: {output_path}")
 
         return EnrichResult(
             output_file=output_path,
@@ -619,7 +618,7 @@ def _validate_configuration(
         cruise = CruiseInstance(config_path)
 
         # Basic validation passed if we get here
-        logger.debug("✓ YAML structure and schema validation passed")
+        logger.debug("YAML structure and schema validation passed")
 
         # Duplicate detection (always run)
         duplicate_errors, duplicate_warnings = check_duplicate_names(cruise)
@@ -708,8 +707,7 @@ def _validate_configuration(
         python_warnings.showwarning = old_showwarning
 
 
-# --- Business Logic Functions (moved to core modules) ---
-# All validation business logic has been moved to cruiseplan.core.validation
+# --- Raw-config checks; the model-level validation is in cruiseplan.runtime.validation ---
 
 
 def _check_unexpanded_ctd_sections_raw(config_dict: dict[str, Any]) -> list[str]:
@@ -950,6 +948,7 @@ def validate_with_config(
     )
 
 
+@honors_verbose
 def validate(
     config_file: str | Path,
     bathy_source: str = "gebco2025",
@@ -957,7 +956,7 @@ def validate(
     check_depths: bool = True,
     tolerance: float = 10.0,
     warnings_only: bool = False,  # noqa: ARG001 - mirrors the CLI flag; the CLI applies it
-    verbose: bool = False,
+    verbose: bool = False,  # noqa: ARG001 - read by @honors_verbose
 ) -> ValidationResult:
     """
     Validate a cruise configuration file (mirrors: cruiseplan validate).
@@ -996,8 +995,6 @@ def validate(
     >>> if is_valid:
     ...     print("✅ Configuration is valid")
     """
-    configure_logging(verbose)
-
     # Validate input file path using centralized utility
     from cruiseplan.utils.io import validate_input_file
 
@@ -1005,7 +1002,7 @@ def validate(
         config_path = validate_input_file(config_file)
     except ValueError as e:
         raise FileError(str(e)) from e
-    logger.info(f"🔍 Validating {config_path}")
+    logger.info(f"Validating {config_path}")
 
     try:
         success, errors, warnings = _validate_configuration(
@@ -1035,12 +1032,12 @@ def validate(
 
         # Report results (UI layer responsibility)
         if errors:
-            logger.error("❌ Validation Errors:")
+            logger.error("Validation Errors:")
             for error in errors:
                 logger.error(f"  • {error}")
 
         if warnings:
-            logger.warning("⚠️ Validation Warnings:")
+            logger.warning("Validation Warnings:")
             for warning in warnings:
                 logger.warning(f"  • {warning}")
 
@@ -1048,9 +1045,9 @@ def validate(
         final_success = success
 
         if final_success:
-            logger.info("✅ Validation passed")
+            logger.info("Validation passed")
         else:
-            logger.error("❌ Validation failed")
+            logger.error("Validation failed")
 
         return ValidationResult(
             success=final_success,
@@ -1060,7 +1057,7 @@ def validate(
         )
 
     except Exception as e:
-        logger.exception("💥 Validation failed")
+        logger.exception("Validation failed")
         return ValidationResult(
             success=False,
             errors=[f"Validation failed: {e}"],
@@ -1141,6 +1138,7 @@ def process_with_config(
     )
 
 
+@honors_verbose
 def process(
     config_file: str | Path,
     output_dir: str = "data",
@@ -1249,15 +1247,13 @@ def process(
     >>> # Custom processing workflow
     >>> result = cruiseplan.process("cruise.yaml", run_map_generation=False, depth_check=False)
     """
-    configure_logging(verbose)
-
     valid_formats = {"png", "kml", "all"}
     if format is not None and format not in valid_formats:
         raise ValueError(
             f"Invalid format {format!r}. Must be one of: {sorted(valid_formats)}"
         )
 
-    logger.info(f"🚀 Processing cruise configuration: {config_file}")
+    logger.info(f"Processing cruise configuration: {config_file}")
 
     from cruiseplan.utils.io import validate_input_file
 
@@ -1272,7 +1268,7 @@ def process(
 
     try:
         # Step 1: Enrichment (always run)
-        logger.info("🔧 Enriching cruise configuration...")
+        logger.info("Enriching cruise configuration...")
         try:
             enrich_result = enrich(
                 config_file=config_file,
@@ -1288,15 +1284,15 @@ def process(
             enriched_config_path = enrich_result.output_file
             generated_files.append(enriched_config_path)
         except Exception:
-            logger.exception("❌ Enrichment failed")
-            logger.info("💡 Try running validation only on your original config:")
+            logger.exception("Enrichment failed")
+            logger.info("Try running validation only on your original config:")
             logger.info(f"   cruiseplan.validate(config_file='{config_file}')")
             logger.info("   Or use the CLI: cruiseplan validate {config_file}")
             raise
 
         # Step 2: Validation (optional)
         if run_validation:
-            logger.info("✅ Validating cruise configuration...")
+            logger.info("Validating cruise configuration...")
             validation_result = validate(
                 config_file=enriched_config_path,  # Use enriched config if available
                 bathy_source=bathy_source,
@@ -1306,11 +1302,11 @@ def process(
                 verbose=verbose,
             )
             if not validation_result.success:
-                logger.warning("⚠️ Validation completed with warnings/errors")
+                logger.warning("Validation completed with warnings/errors")
 
         # Step 3: Map generation (optional)
         if run_map_generation:
-            logger.info("🗺️ Generating cruise maps...")
+            logger.info("Generating cruise maps...")
 
             # Import here to avoid circular import
             from cruiseplan.api.map_cruise import map
@@ -1361,7 +1357,7 @@ def process(
             ),
         }
 
-        logger.info(f"✅ Processing complete! Generated {len(generated_files)} files")
+        logger.info(f"Processing complete! Generated {len(generated_files)} files")
 
         # Extract validation errors/warnings for cleaner API
         validation_errors = validation_result.errors if validation_result else []
@@ -1376,7 +1372,7 @@ def process(
         )
 
     except Exception:
-        logger.exception("💥 Processing failed")
+        logger.exception("Processing failed")
         raise
 
 

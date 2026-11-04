@@ -6,8 +6,6 @@ import pytest
 # Adjust imports to match your structure
 from cruiseplan.data.pangaea import PangaeaManager, merge_campaign_tracks
 
-# Setup logging to see what happens
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 

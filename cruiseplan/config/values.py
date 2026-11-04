@@ -3,7 +3,7 @@ YAML field values and enumeration types for cruise configuration.
 
 This module defines valid values that can appear in YAML configuration fields
 (right-hand side of YAML), along with their defaults. This complements
-cruiseplan.schema.fields which defines field names (left-hand side of YAML).
+cruiseplan.config.fields which defines field names (left-hand side of YAML).
 
 Contains:
 - Default value constants for YAML fields

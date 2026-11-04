@@ -2,14 +2,14 @@
 Schema definitions for cruise configuration operations.
 
 Defines Pydantic models that validate and parse YAML configuration data for
-points, lines, and areas. These are the "schema layer" that ensures
+points, lines, and areas. These are the config layer that ensures
 your YAML is structured correctly.
 
-**Relationship to core/operations.py:**
+**Relationship to runtime/operations.py:**
 - This module: Pydantic models that validate YAML → Python data
-- core/operations.py: Runtime business objects that do the actual work
+- runtime/operations.py: Runtime business objects that do the actual work
 
-Example flow: YAML → PointDefinition (this module) → PointOperation (core)
+Example flow: YAML → PointDefinition (this module) → PointOperation (runtime)
 
 Also includes base geographic models used throughout the validation system.
 """

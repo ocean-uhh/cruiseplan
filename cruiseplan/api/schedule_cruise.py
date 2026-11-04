@@ -11,6 +11,7 @@ from pathlib import Path
 from cruiseplan.api.config import ScheduleConfig
 from cruiseplan.api.types import ScheduleResult
 from cruiseplan.config.exceptions import FileError, ValidationError
+from cruiseplan.utils.logging import honors_verbose
 
 logger = logging.getLogger(__name__)
 
@@ -74,6 +75,7 @@ def schedule_with_config(
     )
 
 
+@honors_verbose
 def schedule(
     config_file: str | Path,
     output_dir: str = "data",
@@ -186,9 +188,6 @@ def schedule(
     from cruiseplan.output.provenance import record_source_config
     from cruiseplan.runtime.cruise import CruiseInstance
     from cruiseplan.timeline.scheduler import generate_timeline
-    from cruiseplan.utils.logging import configure_logging
-
-    configure_logging(verbose)
 
     if figsize is None:
         figsize = [12, 8]
@@ -201,7 +200,7 @@ def schedule(
     except ValueError as e:
         raise FileError(str(e)) from e
 
-    logger.info(f"📅 Generating schedule from {config_path}")
+    logger.info(f"Generating schedule from {config_path}")
 
     try:
         # Load and validate cruise configuration
@@ -234,7 +233,7 @@ def schedule(
 
         # Handle format=None case (timeline only)
         if format is None:
-            logger.info("📊 Computing timeline only (no file output)")
+            logger.info("Computing timeline only (no file output)")
             return ScheduleResult(
                 timeline=timeline,
                 files_created=[],
@@ -332,7 +331,7 @@ def schedule(
 
         if generated_files:
             logger.info(
-                f"📅 Schedule generation complete! Generated {len(generated_files)} files"
+                f"Schedule generation complete! Generated {len(generated_files)} files"
             )
             return ScheduleResult(
                 timeline=timeline,
@@ -348,7 +347,7 @@ def schedule(
         raise RuntimeError("Schedule generation failed: No output files were created")
 
     except Exception:
-        logger.exception("❌ Schedule generation failed")
+        logger.exception("Schedule generation failed")
         if verbose:
             import traceback
 

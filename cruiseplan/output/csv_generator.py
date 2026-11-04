@@ -228,7 +228,7 @@ def generate_csv_schedule(
         Path to generated CSV file
     """
     logger = logging.getLogger(__name__)
-    logger.info(f"📊 CSV Generator: Starting generation of {output_file}")
+    logger.info(f"CSV Generator: Starting generation of {output_file}")
     logger.info(f"   Timeline contains {len(timeline)} activities")
 
     generator = CSVGenerator()

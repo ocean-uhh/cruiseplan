@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING
 from cruiseplan.api.config import BathymetryDownloadConfig, PangaeaConfig
 from cruiseplan.api.types import BathymetryResult, PangaeaResult
 from cruiseplan.config.exceptions import ValidationError
+from cruiseplan.utils.logging import honors_verbose
 
 if TYPE_CHECKING:
     from cruiseplan.data.pangaea import PangaeaManager
@@ -113,7 +114,7 @@ def bathymetry(
     data_dir = data_dir.resolve()
     data_dir.mkdir(parents=True, exist_ok=True)
 
-    logger.info(f"🌊 Downloading {bathy_source} bathymetry data to {data_dir}")
+    logger.info(f"Downloading {bathy_source} bathymetry data to {data_dir}")
     result = download_bathymetry(target_dir=str(data_dir), source=bathy_source)
     # Determine the data file path and gather metadata
     data_file = Path(result) if result else None
@@ -198,14 +199,14 @@ def _process_doi_file(
 
     from cruiseplan.data.pangaea import read_doi_list
 
-    logger.info(f"📁 Processing DOI file: '{query_terms}'")
+    logger.info(f"Processing DOI file: '{query_terms}'")
     clean_dois = read_doi_list(query_terms)
-    logger.info(f"✅ Loaded {len(clean_dois)} DOIs from file")
+    logger.info(f"Loaded {len(clean_dois)} DOIs from file")
 
     # Copy the input file as dois_file for consistency
     shutil.copy(query_terms, dois_file)
     generated_files = [dois_file]
-    logger.info(f"📂 DOI file: {dois_file}")
+    logger.info(f"DOI file: {dois_file}")
 
     return clean_dois, generated_files
 
@@ -214,12 +215,12 @@ def _process_single_doi(
     query_terms: str, dois_file: Path, manager: "PangaeaManager"
 ) -> tuple[list[str], list[Path]]:
     """Process single DOI input mode."""
-    logger.info(f"📄 Processing single DOI: '{query_terms}'")
+    logger.info(f"Processing single DOI: '{query_terms}'")
 
     # Validate DOI format and clean it
     clean_doi = manager._clean_doi(query_terms)
     clean_dois = [clean_doi]
-    logger.info(f"✅ Validated DOI: {clean_doi}")
+    logger.info(f"Validated DOI: {clean_doi}")
 
     # Save single DOI to file for consistency with header
     with Path(dois_file).open("w") as f:
@@ -228,7 +229,7 @@ def _process_single_doi(
         f.write("#\n")
         f.write(f"{clean_doi}\n")
     generated_files = [dois_file]
-    logger.info(f"📂 DOI file: {dois_file}")
+    logger.info(f"DOI file: {dois_file}")
 
     return clean_dois, generated_files
 
@@ -243,9 +244,9 @@ def _process_search_query(
     manager: "PangaeaManager",
 ) -> tuple[list[str], list[Path]]:
     """Process search query input mode."""
-    logger.info(f"🔍 Searching PANGAEA for: '{query_terms}'")
+    logger.info(f"Searching PANGAEA for: '{query_terms}'")
     if bbox:
-        logger.info(f"📍 Geographic bounds: lat {lat_bounds}, lon {lon_bounds}")
+        logger.info(f"Geographic bounds: lat {lat_bounds}, lon {lon_bounds}")
 
     try:
         from pangaeapy.panquery import PanQuery
@@ -263,10 +264,10 @@ def _process_search_query(
         )
 
         if not clean_dois:
-            logger.warning("❌ No DOIs found. Try broadening your search criteria.")
+            logger.warning("No DOIs found. Try broadening your search criteria.")
             raise RuntimeError("No DOIs found for the given search criteria")
 
-        logger.info(f"✅ Found {len(clean_dois)} datasets")
+        logger.info(f"Found {len(clean_dois)} datasets")
 
         # Save DOI list (intermediate file) with query header
         with Path(dois_file).open("w") as f:
@@ -285,12 +286,12 @@ def _process_search_query(
                 f.write(f"{doi}\n")
         generated_files = [dois_file]
 
-        logger.info(f"📂 DOI file: {dois_file}")
+        logger.info(f"DOI file: {dois_file}")
         return clean_dois, generated_files
 
     except ImportError as e:
         logger.exception(
-            "❌ pangaeapy not available. Please install with: pip install pangaeapy"
+            "pangaeapy not available. Please install with: pip install pangaeapy"
         )
         raise RuntimeError(
             "pangaeapy package not available - please install with: pip install pangaeapy"
@@ -376,15 +377,15 @@ def _fetch_and_save_datasets(
     from cruiseplan.data.pangaea import PangaeaManager, save_campaign_data
 
     # Common processing for all modes - fetch detailed data
-    logger.info(f"📂 Stations file: {stations_file}")
+    logger.info(f"Stations file: {stations_file}")
 
     # Now fetch detailed PANGAEA data with proper rate limiting
     if clean_dois is None:
-        logger.error("❌ No DOIs to process (clean_dois is None)")
+        logger.error("No DOIs to process (clean_dois is None)")
         return []
 
-    logger.info(f"⚙️ Processing {len(clean_dois)} DOIs...")
-    logger.info(f"🕐 Rate limit: {rate_limit} requests/second")
+    logger.info(f"Processing {len(clean_dois)} DOIs...")
+    logger.info(f"Rate limit: {rate_limit} requests/second")
 
     manager = PangaeaManager()
     detailed_datasets = manager.fetch_datasets(
@@ -392,9 +393,7 @@ def _fetch_and_save_datasets(
     )
 
     if not detailed_datasets:
-        logger.warning(
-            "⚠️ No datasets retrieved. Check DOI list and network connection."
-        )
+        logger.warning("No datasets retrieved. Check DOI list and network connection.")
         raise RuntimeError("No datasets could be retrieved from PANGAEA")
 
     # Save results using data function
@@ -436,8 +435,8 @@ def _build_pangaea_result(
     PangaeaResult
         Structured result with data, files, and summary
     """
-    logger.info("✅ PANGAEA processing completed successfully!")
-    logger.info(f"🚀 Next step: cruiseplan stations -p {stations_file}")
+    logger.info("PANGAEA processing completed successfully!")
+    logger.info(f"Next step: cruiseplan stations -p {stations_file}")
 
     return PangaeaResult(
         stations_data=detailed_datasets,
@@ -453,6 +452,7 @@ def _build_pangaea_result(
     )
 
 
+@honors_verbose
 def pangaea(
     query_terms: str,
     output_dir: str = "data",
@@ -510,9 +510,6 @@ def pangaea(
     """
     from cruiseplan.api.init_utils import _handle_error_with_logging
     from cruiseplan.data.pangaea import PangaeaManager
-    from cruiseplan.utils.logging import configure_logging
-
-    configure_logging(verbose)
 
     try:
         # Validate inputs and prepare paths

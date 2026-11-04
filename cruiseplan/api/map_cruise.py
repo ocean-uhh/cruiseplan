@@ -10,6 +10,7 @@ from pathlib import Path
 
 from cruiseplan.api.config import MapConfig
 from cruiseplan.api.types import MapResult
+from cruiseplan.utils.logging import honors_verbose
 
 logger = logging.getLogger(__name__)
 
@@ -72,6 +73,7 @@ def map_with_config(
     )
 
 
+@honors_verbose
 def map(
     config_file: str | Path,
     output_dir: str = "data",
@@ -159,9 +161,6 @@ def map(
     from cruiseplan.output.kml_generator import generate_kml_catalog
     from cruiseplan.output.map_generator import generate_map
     from cruiseplan.runtime.cruise import CruiseInstance
-    from cruiseplan.utils.logging import configure_logging
-
-    configure_logging(verbose)
 
     if figsize is None:
         figsize = [10, 8.1]

@@ -37,7 +37,7 @@ Brief description of changes and motivation.
 - [ ] Docstrings updated
 - [ ] User documentation updated
 - [ ] Examples/tutorials updated if needed
-- [ ] I have followed the coding conventions in CONTRIBUTING.md
+- [ ] I have followed the code conventions in the developer guide (`docs/source/advanced/developer_guide.md`)
 
 ## Scientific Validation
 (For calculation/algorithm changes)

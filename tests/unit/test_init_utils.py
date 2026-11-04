@@ -20,7 +20,7 @@ class TestHandleErrorWithLogging:
         error = ValueError("Test error")
         _handle_error_with_logging(error, "Operation failed", verbose=True)
 
-        mock_logger.error.assert_called_once_with("❌ Operation failed: Test error")
+        mock_logger.error.assert_called_once_with("Operation failed: Test error")
         mock_traceback.assert_called_once()
 
     @patch("cruiseplan.api.init_utils.logger")
@@ -30,7 +30,7 @@ class TestHandleErrorWithLogging:
         error = RuntimeError("Another error")
         _handle_error_with_logging(error, "Task failed", verbose=False)
 
-        mock_logger.error.assert_called_once_with("❌ Task failed: Another error")
+        mock_logger.error.assert_called_once_with("Task failed: Another error")
         mock_traceback.assert_not_called()
 
 

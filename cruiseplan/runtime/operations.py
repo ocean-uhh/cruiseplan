@@ -2,13 +2,13 @@
 Runtime operation classes for cruise planning activities.
 
 Provides the business logic classes that represent active cruise operations.
-These are the "core layer" that actually perform cruise planning work.
+These are the runtime layer that performs the cruise planning work.
 
-**Relationship to schema/definitions.py:**
-- schema/definitions.py: Pydantic models that validate YAML → Python data
+**Relationship to config/activities.py:**
+- config/activities.py: Pydantic models that validate YAML → Python data
 - This module: Runtime business objects that do the actual work
 
-Example flow: YAML → PointDefinition (schema) → PointOperation (this module)
+Example flow: YAML → PointDefinition (config) → PointOperation (this module)
 
 This module provides the base operation classes and specialized implementations
 for stations, moorings, areas, and transects.

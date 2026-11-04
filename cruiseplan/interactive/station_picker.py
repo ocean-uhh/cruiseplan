@@ -380,7 +380,7 @@ class StationPicker:
         lon_min, lon_max = xmin - buffer, xmax + buffer
         lat_min, lat_max = ymin - buffer, ymax + buffer
 
-        print("Rendering bathymetry layers...")
+        logger.info("Rendering bathymetry layers...")
 
         xx, yy, zz = self.bathymetry.get_grid_subset(
             lat_min, lat_max, lon_min, lon_max, stride=self.bathymetry_stride
@@ -700,7 +700,7 @@ class StationPicker:
             self.ax_map.set_xlim(current_xlim)
             self.ax_map.set_ylim(current_ylim)
         else:
-            print(f"Warning: Attempted to set invalid mode: {new_mode}")
+            logger.warning(f"Attempted to set invalid mode: {new_mode}")
 
     def _reset_line_state(self) -> None:
         """Reset line drawing state."""
@@ -1008,8 +1008,8 @@ class StationPicker:
             or abs(min_lon) > 360
             or abs(max_lon) > 360
         ):
-            print(
-                f"⚠️ Limits exploded (lat: {min_lat:.1e}, {max_lat:.1e}; lon: {min_lon:.1e}, {max_lon:.1e}). Resetting view."
+            logger.warning(
+                f"Limits exploded (lat: {min_lat:.1e}, {max_lat:.1e}; lon: {min_lon:.1e}, {max_lon:.1e}). Resetting view."
             )
             self.ax_map.set_xlim(-65, -5)
             self.ax_map.set_ylim(45, 70)
@@ -1214,20 +1214,20 @@ class StationPicker:
                     backup_path = output_path.parent / new_name
                     self.output_file = str(backup_path)
                     output_path = backup_path
-                    print(f"📁 Saving to new file: {backup_path}")
+                    logger.info(f"Saving to new file: {backup_path}")
                 elif response == "cancel":
-                    print("💾 Save cancelled by user.")
+                    logger.info("Save cancelled by user.")
                     return
                 # If response is "overwrite", proceed with original filename
 
             # Use CruiseInstance to generate validated YAML
             cruise_instance.to_yaml(output_path)
 
-            print(
-                f"✅ Saved {len(point_definitions)} stations, {len(line_definitions)} transects, {len(area_definitions)} areas."
+            logger.info(
+                f"Saved {len(point_definitions)} stations, {len(line_definitions)} transects, {len(area_definitions)} areas."
             )
         except Exception as e:  # noqa: BLE001 - interactive save: report error, keep the session
-            print(f"❌ Save Error: {e}")
+            logger.error(f"Save error: {e}")
 
     def _prompt_overwrite(self, file_path: Path) -> str:
         """
@@ -1253,7 +1253,7 @@ class StationPicker:
 
         # Handle non-interactive environments
         if not sys.stdin.isatty():
-            print("Non-interactive environment detected. Creating backup file...")
+            logger.info("Non-interactive environment detected. Creating backup file...")
             return "rename"
 
         while True:

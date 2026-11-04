@@ -23,14 +23,6 @@ cruiseplan.timeline.duration module
    :undoc-members:
    :show-inheritance:
 
-cruiseplan.timeline.routing module
------------------------------------
-
-.. automodule:: cruiseplan.timeline.routing
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 cruiseplan.timeline.scheduler module
 -------------------------------------
 

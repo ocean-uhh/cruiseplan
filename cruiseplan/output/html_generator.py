@@ -690,7 +690,7 @@ def generate_html_schedule(
     Path
         Path to generated HTML file
     """
-    logger.info(f"🌐 HTML Generator: Starting generation of {output_file}")
+    logger.info(f"HTML Generator: Starting generation of {output_file}")
     logger.info(f"   Timeline contains {len(timeline)} activities")
 
     generator = HTMLGenerator()

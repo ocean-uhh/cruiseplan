@@ -1,4 +1,4 @@
-"""Tests for cruiseplan.core.operations module."""
+"""Tests for cruiseplan.runtime.operations module."""
 
 from unittest.mock import MagicMock, patch
 
