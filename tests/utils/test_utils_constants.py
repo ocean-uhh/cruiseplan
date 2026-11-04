@@ -1,4 +1,4 @@
-"""Tests for cruiseplan.utils.constants module."""
+"""Tests for cruiseplan.utils.units module."""
 
 import pytest
 

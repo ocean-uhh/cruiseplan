@@ -20,7 +20,7 @@ from cruiseplan.utils.io import (
     validate_input_file,
     validate_output_directory,
 )
-from cruiseplan.utils.logging import configure_logging
+from cruiseplan.utils.logging import honors_verbose
 from cruiseplan.utils.plot_config import check_matplotlib_available
 
 logger = logging.getLogger(__name__)
@@ -125,8 +125,6 @@ def determine_coordinate_bounds(
 def load_pangaea_campaign_data(pangaea_file: Path) -> list[dict]:
     """
     Load PANGAEA campaign data from pickle file with validation and summary.
-
-    Moved from cli_utils.py with no changes to logic.
 
     Parameters
     ----------
@@ -302,7 +300,7 @@ def _log_configuration_info(
 
     # Performance warning for GEBCO 2025 at full resolution
     if bathy_source == "gebco2025" and bathy_stride == 1:
-        logger.warning("⚠️  PERFORMANCE WARNING:")
+        logger.warning("PERFORMANCE WARNING:")
         logger.warning(
             "   GEBCO 2025 with stride=1 can be very slow for interactive use!"
         )
@@ -323,7 +321,7 @@ def _display_usage_instructions() -> None:
     logger.info("  'y'        - Save to YAML file")
     logger.info("  'Escape'   - Exit without saving")
     logger.info("")
-    logger.info("🎯 Launching interactive station picker...")
+    logger.info("Launching interactive station picker...")
 
 
 def stations_with_config(
@@ -383,6 +381,7 @@ def stations_with_config(
     )
 
 
+@honors_verbose
 def stations(
     lat_bounds: tuple[float, float] | None = None,
     lon_bounds: tuple[float, float] | None = None,
@@ -396,7 +395,7 @@ def stations(
     bathy_stride: int = 10,
     max_depth: int | None = None,
     overwrite: bool = False,
-    verbose: bool = False,
+    verbose: bool = False,  # noqa: ARG001 - read by @honors_verbose
 ) -> StationPickerResult:
     """
     Launch interactive station picker for cruise planning.
@@ -448,8 +447,7 @@ def stations(
     FileNotFoundError
         If config file, PANGAEA file, or bathymetry data not found
     """
-    # Configure logging and check dependencies
-    configure_logging(verbose)
+    # Check dependencies
     check_matplotlib_available()
 
     # Load config file data if provided

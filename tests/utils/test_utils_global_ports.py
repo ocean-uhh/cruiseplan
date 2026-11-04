@@ -1,4 +1,4 @@
-"""Tests for cruiseplan.utils.global_ports module - Global port registry system."""
+"""Tests for cruiseplan.config.ports - global port registry."""
 
 import warnings
 

@@ -95,7 +95,7 @@ class TestStationplanTransitDistances:
             # (1 degree latitude = 60 nautical miles)
             print(f"Found transit distance lines: {transit_distance_lines}")
 
-    def test_schedule_contains_transit_activities(self):
+    def test_schedule_contains_transit_activities(self, tmp_path):
         """
         Verify that the generated schedule contains Transit activities with distances.
 
@@ -105,7 +105,10 @@ class TestStationplanTransitDistances:
             Path(__file__).parent.parent / "fixtures" / "test_transit_distance.yaml"
         )
 
-        schedule_result = schedule_with_config(config_file=fixture_path, config=None)
+        schedule_config = ScheduleConfig(output=OutputConfig(directory=str(tmp_path)))
+        schedule_result = schedule_with_config(
+            config_file=fixture_path, config=schedule_config
+        )
 
         assert bool(schedule_result), (
             f"Schedule generation failed: {schedule_result.errors}"

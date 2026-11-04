@@ -8,6 +8,7 @@ dispatches to the appropriate run(args) function.
 
 import argparse
 import importlib
+import logging
 import sys
 
 try:
@@ -28,6 +29,25 @@ _SUBCOMMAND_MODULES = {
     "forecast": "cruiseplan.cli.forecast",
     "list": "cruiseplan.cli.list",
 }
+
+
+# Subcommands whose stdout is the result (a table, a forecast) log warnings only.
+_WARNINGS_ONLY_SUBCOMMANDS = frozenset({"list", "forecast"})
+
+
+def _configure_logging(subcommand: str, verbose: bool) -> None:
+    """Send log messages to stderr at the subcommand's level, or DEBUG with ``--verbose``."""
+    if verbose:
+        level = logging.DEBUG
+    elif subcommand in _WARNINGS_ONLY_SUBCOMMANDS:
+        level = logging.WARNING
+    else:
+        level = logging.INFO
+    logging.basicConfig(
+        level=level,
+        format="%(levelname)s: %(message)s",
+        force=True,
+    )
 
 
 def main() -> None:
@@ -75,6 +95,8 @@ For detailed help on a subcommand:
     if not args.subcommand:
         parser.print_help()
         sys.exit(1)
+
+    _configure_logging(args.subcommand, getattr(args, "verbose", False))
 
     try:
         mod = importlib.import_module(_SUBCOMMAND_MODULES[args.subcommand])

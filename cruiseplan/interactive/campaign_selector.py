@@ -176,7 +176,7 @@ class CampaignSelector:
             with Path(file_path).open("wb") as f:
                 pickle.dump(selected_campaigns, f, protocol=pickle.HIGHEST_PROTOCOL)
             logger.info(
-                f"💾 Saved {len(selected_campaigns)} selected campaigns to {file_path}"
+                f"Saved {len(selected_campaigns)} selected campaigns to {file_path}"
             )
         except Exception:
             logger.exception(f"Failed to save campaign selection to {file_path}")

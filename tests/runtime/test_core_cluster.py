@@ -1,4 +1,4 @@
-"""Tests for cruiseplan.core.cluster module - Maritime Cluster architecture."""
+"""Tests for the Cluster class in cruiseplan.runtime.organizational."""
 
 from cruiseplan.config.values import StrategyEnum
 from cruiseplan.runtime.organizational import Cluster

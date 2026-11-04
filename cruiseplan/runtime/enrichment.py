@@ -325,7 +325,7 @@ def expand_sections(
         del cruise_instance.line_registry[section_name]
 
     logger.info(
-        f"Section expansion complete: {sections_expanded} sections → {total_stations_created} stations"
+        f"Section expansion complete: {sections_expanded} sections -> {total_stations_created} stations"
     )
 
     return {

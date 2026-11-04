@@ -449,7 +449,7 @@ def _log_debug_counts(
         + len(area_activities)
     )
 
-    logger.info("🔍 Cruise-level operation counts:")
+    logger.info("Cruise-level operation counts:")
     logger.info(f"   Stations: {len(station_activities)}")
     logger.info(f"   Moorings: {len(mooring_activities)}")
     logger.info(f"   Scientific transits (surveys): {len(scientific_transits)}")
@@ -460,7 +460,7 @@ def _log_debug_counts(
 
     # Debug output for leg-specific counts
     for leg_name, stats in leg_stats.items():
-        logger.info(f"🔍 Leg '{leg_name}' operation counts:")
+        logger.info(f"Leg '{leg_name}' operation counts:")
         logger.info(f"   Stations: {stats['stations']}")
         logger.info(f"   Moorings: {stats['moorings']}")
         logger.info(f"   Surveys: {stats['surveys']}")
@@ -1103,7 +1103,7 @@ def generate_timeline(
 
     Parameters
     ----------
-    cruise : cruiseplan.core.cruise.CruiseInstance
+    cruise : cruiseplan.runtime.cruise.CruiseInstance
         CruiseInstance object with enhanced data
     legs : Optional[List[Any]]
         Runtime legs (if None, will be created from config)

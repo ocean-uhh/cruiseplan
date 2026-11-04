@@ -1,4 +1,4 @@
-"""Tests for cruiseplan.core.leg module - Maritime Leg architecture."""
+"""Tests for the Leg class in cruiseplan.runtime.organizational."""
 
 from unittest.mock import MagicMock
 

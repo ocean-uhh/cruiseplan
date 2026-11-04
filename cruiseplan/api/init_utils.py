@@ -20,7 +20,7 @@ def _handle_error_with_logging(
     error: Exception, message: str, verbose: bool = False
 ) -> None:
     """Log error with optional traceback."""
-    logger.error(f"❌ {message}: {error}")
+    logger.error(f"{message}: {error}")
     if verbose:
         import traceback
 
@@ -136,7 +136,7 @@ def generate_html_format(
 
     output_path = output_dir_path / f"{base_name}_schedule.html"
     generate_html_schedule(cruise_config, timeline, output_path)
-    logger.info(f"✅ Generated HTML schedule: {output_path}")
+    logger.info(f"Generated HTML schedule: {output_path}")
     return output_path
 
 
@@ -155,7 +155,7 @@ def generate_latex_format(
     output_path = (
         latex_files[0] if latex_files else output_dir_path / f"{base_name}_schedule.tex"
     )
-    logger.info(f"✅ Generated LaTeX schedule: {output_path}")
+    logger.info(f"Generated LaTeX schedule: {output_path}")
     return output_path
 
 
@@ -170,7 +170,7 @@ def generate_csv_format(
 
     output_path = output_dir_path / f"{base_name}_schedule.csv"
     generate_csv_schedule(cruise_config, timeline, output_path)
-    logger.info(f"✅ Generated CSV schedule: {output_path}")
+    logger.info(f"Generated CSV schedule: {output_path}")
     return output_path
 
 
@@ -184,12 +184,12 @@ def generate_netcdf_format(
     from cruiseplan.output.netcdf_generator import NetCDFGenerator
 
     output_path = output_dir_path / f"{base_name}_schedule.nc"
-    logger.info(f"📄 NetCDF Generator: Starting generation of {output_path}")
+    logger.info(f"NetCDF Generator: Starting generation of {output_path}")
     logger.info(f"   Timeline contains {len(timeline)} activities")
 
     generator = NetCDFGenerator()
     generator.generate_master_schedule(timeline, cruise_config, output_path)
-    logger.info(f"✅ Generated NetCDF schedule: {output_path}")
+    logger.info(f"Generated NetCDF schedule: {output_path}")
     return output_path
 
 
@@ -203,9 +203,7 @@ def generate_specialized_netcdf(
     specialized_files = generator.generate_all_netcdf_outputs(
         cruise_config, timeline, output_dir_path
     )
-    logger.info(
-        f"✅ Generated specialized NetCDF files: {len(specialized_files)} files"
-    )
+    logger.info(f"Generated specialized NetCDF files: {len(specialized_files)} files")
     return specialized_files
 
 
@@ -292,7 +290,7 @@ def generate_png_format(
     from cruiseplan.output.map_generator import generate_map_from_timeline
 
     output_path = output_dir_path / f"{base_name}_{suffix}.png"
-    logger.info(f"🗺️ PNG Map Generator: Starting generation of {output_path}")
+    logger.info(f"PNG Map Generator: Starting generation of {output_path}")
 
     map_file = generate_map_from_timeline(
         timeline=timeline,
@@ -314,7 +312,7 @@ def generate_png_format(
     )
 
     if map_file:
-        logger.info(f"✅ Generated PNG map: {map_file}")
+        logger.info(f"Generated PNG map: {map_file}")
     else:
         logger.warning("PNG map generation failed")
 

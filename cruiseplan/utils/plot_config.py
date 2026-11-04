@@ -2,7 +2,7 @@
 Centralized plotting configuration for consistent visualization across cruiseplan.
 
 This module provides:
-1. Colormaps for bathymetry and oceanographic data (moved from interactive/colormaps.py)
+1. Colormaps for bathymetry and oceanographic data
 2. Centralized styling configuration for all plot elements
 3. Symbol definitions for consistent plotting across PNG, KML, and interactive maps
 """

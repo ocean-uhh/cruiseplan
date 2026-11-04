@@ -38,10 +38,15 @@ versions follow [Semantic Versioning](https://semver.org/).
 ### Changed
 
 - NetCDF `creation_date` is UTC with `Z` (was naive local time).
+- The library no longer configures logging: API functions do not call `logging.basicConfig` (it reset the caller's root handlers). The `cruiseplan` command line configures logging; `verbose=True` sets the `cruiseplan` logger to DEBUG for that call only. Scripts and notebooks that want the INFO messages configure logging themselves (`logging.basicConfig(level=logging.INFO)`).
+- Bathymetry download and station-picker status messages go through `logging` instead of `print`. Log messages carry no emoji.
 
 ### Removed
 
 - `CoordConverter.decimal_degrees_to_ddm` (did not carry 60 minutes into the degrees); use `utils.coordinates.ddm_parts`.
+- `cruiseplan.timeline.routing` (`optimize_composite_route`, never called).
+- `cruiseplan.utils.logging.configure_logging` and `get_logger`.
+- `CONVENTIONS.md`; code conventions and naming are in the developer guide.
 
 ## [0.5.0] - 2026-11-02
 

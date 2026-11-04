@@ -266,13 +266,10 @@ def test_download_bathymetry_success_path(
 @patch("cruiseplan.data.bathymetry.Path.unlink")
 @patch("cruiseplan.data.bathymetry.requests.get")
 def test_download_bathymetry_failure_cleanup_and_fallback(
-    mock_requests_get, mock_unlink, mock_exists, temp_output_dir
+    mock_requests_get, mock_unlink, mock_exists, temp_output_dir, caplog
 ):
-    """Tests failure of all URLs, cleanup, and printing manual instructions."""
+    """Tests failure of all URLs, cleanup, and logging manual instructions."""
     mock_exists.return_value = False
-
-    # Mock the existence of a partial download before cleanup
-    mock_unlink.side_effect = lambda: print("Cleanup attempted")
 
     # Set both URLs to fail with an exception
     mock_requests_get.side_effect = [
@@ -280,8 +277,7 @@ def test_download_bathymetry_failure_cleanup_and_fallback(
         requests.exceptions.RequestException("URL 2 failed"),
     ]
 
-    # We must patch Path.exists inside the function call logic.
-    with patch("builtins.print") as mock_print:
+    with caplog.at_level("ERROR", logger="cruiseplan.data.bathymetry"):
         bathy_module.download_bathymetry(
             target_dir=str(temp_output_dir), source="etopo2022"
         )
@@ -289,12 +285,8 @@ def test_download_bathymetry_failure_cleanup_and_fallback(
     # Assert requests were made to both URLs
     assert mock_requests_get.call_count == 2
 
-    # Assert cleanup (unlink) was attempted for both failures
-    # Since unlink is patched, we check its calls (or the side effect if you used print)
-
-    # Assert final fallback instructions are printed (this will be complex to test precisely
-    # due to multiple print calls, so check the final, critical message)
-    mock_print.assert_any_call("⛔ AUTOMATIC DOWNLOAD FAILED")
+    # The final message tells the user where to download the file manually
+    assert any("Automatic download failed" in r.getMessage() for r in caplog.records)
 
 
 """
