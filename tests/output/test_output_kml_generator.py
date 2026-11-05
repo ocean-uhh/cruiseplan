@@ -9,6 +9,8 @@ from datetime import datetime
 from pathlib import Path
 from unittest.mock import MagicMock
 
+from legacy_records import as_records
+
 from cruiseplan.config.cruise_config import CruiseConfig
 from cruiseplan.output.kml_generator import KMLGenerator
 
@@ -78,19 +80,21 @@ class TestKMLGenerator:
         """Test KML generation when config has no description."""
         self.mock_config.description = None
 
-        timeline = [
-            {
-                "activity": "Station",
-                "label": "STN_001",
-                "start_time": datetime(2024, 1, 1, 12, 0),
-                "end_time": datetime(2024, 1, 1, 13, 0),
-                "duration_minutes": 60.0,
-                "lat": 45.0,
-                "lon": -45.0,
-                "depth": 1000.0,
-                "action": "profile",
-            }
-        ]
+        timeline = as_records(
+            [
+                {
+                    "activity": "Station",
+                    "label": "STN_001",
+                    "start_time": datetime(2024, 1, 1, 12, 0),
+                    "end_time": datetime(2024, 1, 1, 13, 0),
+                    "duration_minutes": 60.0,
+                    "lat": 45.0,
+                    "lon": -45.0,
+                    "depth": 1000.0,
+                    "action": "profile",
+                }
+            ]
+        )
 
         with tempfile.NamedTemporaryFile(suffix=".kml", delete=False) as tmp_file:
             output_file = Path(tmp_file.name)
@@ -129,8 +133,8 @@ class TestKMLGeneratorCatalogMode:
         mock_station.latitude = 65.0
         mock_station.longitude = -25.0
         mock_station.operation_type.value = "CTD"
-        mock_station.operation_depth = 800.0
-        mock_station.water_depth = 3200.0
+        mock_station.operation_depth_m = 800.0
+        mock_station.water_depth_m = 3200.0
         self.mock_config.points = [mock_station]
 
         # Mock areas

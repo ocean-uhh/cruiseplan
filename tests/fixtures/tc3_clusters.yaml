@@ -1,5 +1,5 @@
 cruise_name: "TC3_Clusters_Test"
-default_vessel_speed: 10.0
+default_vessel_speed_kt: 10.0
 
 points:
   - name: STN_001
@@ -16,13 +16,13 @@ points:
     latitude: 46.0
     longitude: -50
     operation_type: mooring
-    duration: 60
+    duration_minutes: 60
     action: deployment  
   - name: STN_004
     latitude: 46.5
     longitude: -50
     operation_type: mooring  
-    duration: 60
+    duration_minutes: 60
     action: deployment
 
 legs:
@@ -46,7 +46,7 @@ legs:
     arrival_port: port_halifax
     first_activity: STN_001
     last_activity: STN_004
-    vessel_speed: 12.0
+    vessel_speed_kt: 12.0
     clusters:
       - name: "CTD_Cluster2"
         activities: [STN_001, STN_002]

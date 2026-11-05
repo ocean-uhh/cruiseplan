@@ -1,14 +1,14 @@
 cruise_name: "Transit Distance Test"
-default_vessel_speed: 10.0
-turnaround_time: 30.0
+default_vessel_speed_kt: 10.0
+turnaround_time_minutes: 30.0
 start_date: '1970-01-01T00:00:00+00:00'
 
 points:
   - name: "Mooring_A"
     latitude: 60.0
     longitude: -30.0
-    water_depth: 2000
-    operation_depth: 1500
+    water_depth_m: 2000
+    operation_depth_m: 1500
     operation_type: "mooring"
     action: "deployment"
     duration_minutes: 60
@@ -17,8 +17,8 @@ points:
   - name: "Mooring_B" 
     latitude: 61.0
     longitude: -30.0
-    water_depth: 1800
-    operation_depth: 1400
+    water_depth_m: 1800
+    operation_depth_m: 1400
     operation_type: "mooring"
     action: "deployment" 
     duration_minutes: 60

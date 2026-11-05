@@ -107,7 +107,7 @@ class TestTC2TwoLegsIntegration:
         assert stn_002.longitude == -30.0
         assert stn_002.operation_type.value == "mooring"
         assert stn_002.action.value == "deployment"
-        assert stn_002.duration == DEFAULT_MOORING_DURATION_MIN
+        assert stn_002.duration_minutes == DEFAULT_MOORING_DURATION_MIN
 
         # Validate legs
         assert len(config.legs) == 2
@@ -209,9 +209,9 @@ class TestTC2TwoLegsIntegration:
         # Load enriched config and verify duration
         enriched_cruise = CruiseInstance(enriched_path)
         mooring_station = enriched_cruise.point_registry["STN_MOORING"]
-        assert hasattr(mooring_station, "duration")
-        assert mooring_station.duration == DEFAULT_MOORING_DURATION_MIN
-        assert mooring_station.duration == 59940.0  # 999 hours
+        assert hasattr(mooring_station, "duration_minutes")
+        assert mooring_station.duration_minutes == DEFAULT_MOORING_DURATION_MIN
+        assert mooring_station.duration_minutes == 59940.0  # 999 hours
 
     def test_timeline_generation_with_expected_structure(self, base_config_path):
         """Test timeline generation produces expected two-leg structure."""
@@ -226,10 +226,7 @@ class TestTC2TwoLegsIntegration:
         )
 
         # Check activity types and sequence
-        activities = [
-            (act["activity"], act.get("label", ""), act.get("leg_name", ""))
-            for act in timeline
-        ]
+        activities = [(act.activity, act.label, act.leg_name) for act in timeline]
 
         # Leg_Atlantic activities (first 5)
         assert activities[0][0] == "Port"  # Halifax departure
@@ -279,7 +276,7 @@ class TestTC2TwoLegsIntegration:
         timeline = generate_timeline(cruise)
 
         # Extract transit distances
-        transit_activities = [act for act in timeline if act.get("dist_nm", 0) > 0]
+        transit_activities = [act for act in timeline if act.dist_nm > 0]
 
         # Should have 4 transit activities (Port_Departure and Port_Arrival for each leg)
         assert len(transit_activities) >= 4, (
@@ -291,12 +288,12 @@ class TestTC2TwoLegsIntegration:
         halifax_to_stn001_activity = next(
             act
             for act in timeline
-            if act.get("activity") == "Transit" and "STN_001" in act.get("label", "")
+            if act.activity == "Transit" and "STN_001" in act.label
         )
 
         # Halifax to STN_001: 637.7 nm
         expected_distance_1 = 637.7
-        actual_distance_1 = halifax_to_stn001_activity.get("dist_nm", 0)
+        actual_distance_1 = halifax_to_stn001_activity.dist_nm
         assert (
             abs(actual_distance_1 - expected_distance_1) / expected_distance_1 < 0.01
         ), (
@@ -307,12 +304,11 @@ class TestTC2TwoLegsIntegration:
         stn001_to_bremerhaven_activity = next(
             act
             for act in timeline
-            if act.get("activity") == "Transit"
-            and "Bremerhaven" in act.get("label", "")
+            if act.activity == "Transit" and "Bremerhaven" in act.label
         )
 
         expected_distance_2 = 2124.8
-        actual_distance_2 = stn001_to_bremerhaven_activity.get("dist_nm", 0)
+        actual_distance_2 = stn001_to_bremerhaven_activity.dist_nm
         assert (
             abs(actual_distance_2 - expected_distance_2) / expected_distance_2 < 0.01
         ), (
@@ -323,22 +319,22 @@ class TestTC2TwoLegsIntegration:
         bremerhaven_to_stn002_activity = next(
             act
             for act in timeline
-            if act.get("activity") == "Transit"
-            and "STN_002" in act.get("label", "")
-            and act.get("leg_name") == "Leg_North"
+            if act.activity == "Transit"
+            and "STN_002" in act.label
+            and act.leg_name == "Leg_North"
         )
 
         stn002_to_reykjavik_activity = next(
             act
             for act in timeline
-            if act.get("activity") == "Transit" and "Reykjavik" in act.get("label", "")
+            if act.activity == "Transit" and "Reykjavik" in act.label
         )
 
         # These should be > 0 and reasonable (rough bounds check)
-        assert bremerhaven_to_stn002_activity.get("dist_nm", 0) > 1000, (
+        assert bremerhaven_to_stn002_activity.dist_nm > 1000, (
             "Bremerhaven to STN_002 should be substantial distance"
         )
-        assert stn002_to_reykjavik_activity.get("dist_nm", 0) > 200, (
+        assert stn002_to_reykjavik_activity.dist_nm > 200, (
             "STN_002 to Reykjavik should be reasonable distance"
         )
 
@@ -430,27 +426,11 @@ class TestTC2TwoLegsIntegration:
             "Should have at least one mooring operation in NetCDF"
         )
 
-        # Check that mooring duration matches DEFAULT_MOORING_DURATION_MIN (converted to hours)
-        expected_duration_hours = (
-            DEFAULT_MOORING_DURATION_MIN / 60.0
-        )  # Convert minutes to hours
+        # Mooring duration in minutes (the units attribute says so)
+        assert ds["duration"].attrs["units"] == "minute"
+        expected_duration_hours = DEFAULT_MOORING_DURATION_MIN / 60.0
         for idx in mooring_indices:
-            mooring_duration = durations[idx]
-            # Handle different duration representations
-            if hasattr(mooring_duration, "total_seconds"):
-                # pandas Timedelta object
-                mooring_duration_hours = mooring_duration.total_seconds() / 3600.0
-            elif (
-                isinstance(mooring_duration, (int, float)) and mooring_duration > 10000
-            ):
-                # Likely nanoseconds, convert to hours
-                mooring_duration_hours = float(mooring_duration) / (
-                    1e9 * 3600.0
-                )  # ns to hours
-            else:
-                # Regular float/int value
-                mooring_duration_hours = float(mooring_duration)
-
+            mooring_duration_hours = float(durations[idx]) / 60.0
             assert abs(mooring_duration_hours - expected_duration_hours) < 0.1, (
                 f"Mooring duration in NetCDF should be {expected_duration_hours} hours, got {mooring_duration_hours}"
             )
@@ -528,8 +508,8 @@ class TestTC2TwoLegsIntegration:
             )
 
         # 4. Validate key metrics
-        total_duration = sum(act.get("duration_minutes", 0) for act in timeline)
-        total_distance = sum(act.get("dist_nm", 0) for act in timeline)
+        total_duration = sum(act.duration_minutes for act in timeline)
+        total_distance = sum(act.dist_nm for act in timeline)
 
         assert total_duration > 0, "Total cruise duration should be positive"
         assert total_distance > 0, "Total cruise distance should be positive"
@@ -544,9 +524,7 @@ class TestTC2TwoLegsIntegration:
 
         # Validate mooring duration is substantial part of total
         mooring_duration = sum(
-            act.get("duration_minutes", 0)
-            for act in timeline
-            if act.get("activity") == "Mooring"
+            act.duration_minutes for act in timeline if act.activity == "Mooring"
         )
         assert mooring_duration >= DEFAULT_MOORING_DURATION_MIN, (
             "Should include full mooring duration"
@@ -554,11 +532,9 @@ class TestTC2TwoLegsIntegration:
 
         # Final check: ensure leg separation is maintained
         leg_atlantic_activities = [
-            act for act in timeline if act.get("leg_name") == "Leg_Atlantic"
+            act for act in timeline if act.leg_name == "Leg_Atlantic"
         ]
-        leg_north_activities = [
-            act for act in timeline if act.get("leg_name") == "Leg_North"
-        ]
+        leg_north_activities = [act for act in timeline if act.leg_name == "Leg_North"]
 
         assert len(leg_atlantic_activities) == 5, (
             f"Leg_Atlantic should have exactly 5 activities. Got: {len(leg_atlantic_activities)}"

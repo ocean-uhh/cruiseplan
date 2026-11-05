@@ -13,6 +13,7 @@ from typing import Any
 from cruiseplan.api.config import StationsConfig
 from cruiseplan.api.types import BaseResult
 from cruiseplan.config.cruise_config import CruiseConfig
+from cruiseplan.config.loader import prepare_config
 from cruiseplan.config.yaml_io import load_yaml
 from cruiseplan.utils.coordinates import _validate_coordinate_bounds
 from cruiseplan.utils.io import (
@@ -195,7 +196,7 @@ def load_config_stations_data(
     """
     try:
         # Load and validate the YAML configuration
-        raw_data = load_yaml(config_file)
+        raw_data = prepare_config(load_yaml(config_file), Path(config_file).name)
         config = CruiseConfig(**raw_data)
 
         # Extract stations from points catalog
@@ -208,7 +209,7 @@ def load_config_stations_data(
                 station = {
                     "lat": point.latitude,
                     "lon": point.longitude,
-                    "depth": getattr(point, "water_depth", None),
+                    "depth": point.water_depth_m,
                     "name": point.name,
                     "operation_type": (
                         str(
@@ -223,7 +224,7 @@ def load_config_stations_data(
                         else None
                     ),
                     "comment": point.comment if hasattr(point, "comment") else None,
-                    "duration": point.duration if hasattr(point, "duration") else None,
+                    "duration": point.duration_minutes,
                 }
                 stations_data.append(station)
                 all_lats.append(point.latitude)

@@ -19,7 +19,7 @@ class TestProcessIntegration:
         # Create a minimal but complete cruise configuration
         cruise_config = {
             "cruise_name": "Process Integration Test",
-            "default_vessel_speed": 10.0,
+            "default_vessel_speed_kt": 10.0,
             "start_date": "2025-06-01T00:00:00Z",
             "points": [
                 {

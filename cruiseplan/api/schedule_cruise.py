@@ -187,7 +187,7 @@ def schedule(
     from cruiseplan.api.init_utils import _parse_schedule_formats
     from cruiseplan.output.provenance import record_source_config
     from cruiseplan.runtime.cruise import CruiseInstance
-    from cruiseplan.timeline.scheduler import generate_timeline
+    from cruiseplan.timeline.scheduler import generate_timeline, timeline_minutes
 
     if figsize is None:
         figsize = [12, 8]
@@ -237,7 +237,11 @@ def schedule(
             return ScheduleResult(
                 timeline=timeline,
                 files_created=[],
-                summary={"activities": len(timeline), "files_generated": 0},
+                summary={
+                    "activities": len(timeline),
+                    "files_generated": 0,
+                    "total_duration_hours": timeline_minutes(timeline) / 60.0,
+                },
             )
 
         # Setup output paths using helper function
@@ -338,6 +342,7 @@ def schedule(
                 files_created=generated_files,
                 summary={
                     "activities": len(timeline),
+                    "total_duration_hours": timeline_minutes(timeline) / 60.0,
                     "files_generated": len(generated_files),
                     "formats": list(formats),
                     "leg": leg,

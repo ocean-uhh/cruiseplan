@@ -57,11 +57,11 @@ logger = logging.getLogger(__name__)
 CRUISE_PARAMETER_FIELDS = (
     "start_date",
     "start_time",
-    "default_vessel_speed",
-    "default_distance_between_stations",
-    "turnaround_time",
-    "ctd_descent_rate",
-    "ctd_ascent_rate",
+    "default_vessel_speed_kt",
+    "default_distance_between_stations_km",
+    "turnaround_time_minutes",
+    "ctd_descent_rate_m_s",
+    "ctd_ascent_rate_m_s",
     "day_start_hour",
     "day_end_hour",
 )
@@ -435,7 +435,7 @@ def to_commented_dict(cruise_instance: "CruiseInstance") -> dict[str, Any]:
         ]
 
     # Where the water depths came from (written by enrich_depths)
-    provenance = (cruise_instance.config.model_extra or {}).get("bathymetry_provenance")
+    provenance = cruise_instance.config.bathymetry_provenance
     if provenance:
         output["bathymetry_provenance"] = dict(provenance)
 

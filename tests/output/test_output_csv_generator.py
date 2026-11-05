@@ -9,6 +9,8 @@ from datetime import datetime
 from pathlib import Path
 from unittest.mock import MagicMock
 
+from legacy_records import as_records
+
 from cruiseplan.config.cruise_config import CruiseConfig
 from cruiseplan.output.csv_generator import CSVGenerator, generate_csv_schedule
 
@@ -49,25 +51,27 @@ class TestCSVGenerator:
 
     def test_basic_field_formatting(self):
         """Test CSV generation formats fields correctly."""
-        timeline = [
-            {
-                "activity": "Station",
-                "label": "TEST_STN",
-                "start_time": datetime(2024, 1, 1, 10, 30),
-                "end_time": datetime(2024, 1, 1, 12, 45),
-                "duration_minutes": 135.6,  # Should become 2.3 hours
-                "entry_lat": 45.123456,
-                "entry_lon": -123.987654,
-                "exit_lat": 45.123456,
-                "exit_lon": -123.987654,
-                "operation_depth": 1500.7,  # Should round to 1501
-                "dist_nm": 0.0,
-                "vessel_speed_kt": 0,
-                "op_type": "station",
-                "action": "profile",
-                "leg_name": "Test_Leg",
-            }
-        ]
+        timeline = as_records(
+            [
+                {
+                    "activity": "Station",
+                    "label": "TEST_STN",
+                    "start_time": datetime(2024, 1, 1, 10, 30),
+                    "end_time": datetime(2024, 1, 1, 12, 45),
+                    "duration_minutes": 135.6,  # Should become 2.3 hours
+                    "entry_lat": 45.123456,
+                    "entry_lon": -123.987654,
+                    "exit_lat": 45.123456,
+                    "exit_lon": -123.987654,
+                    "operation_depth": 1500.7,  # Should round to 1501
+                    "dist_nm": 0.0,
+                    "vessel_speed_kt": 0,
+                    "op_type": "station",
+                    "action": "profile",
+                    "leg_name": "Test_Leg",
+                }
+            ]
+        )
 
         with tempfile.NamedTemporaryFile(suffix=".csv", delete=False) as tmp_file:
             output_file = Path(tmp_file.name)
@@ -106,20 +110,22 @@ class TestCSVGenerator:
 
     def test_missing_fields_defaults(self):
         """Test CSV generation with missing optional fields."""
-        timeline = [
-            {
-                "activity": "Station",
-                "label": "Minimal_Station",
-                "start_time": datetime(2024, 1, 1, 12, 0),
-                "end_time": datetime(2024, 1, 1, 13, 0),
-                "duration_minutes": 60.0,
-                "entry_lat": 45.0,
-                "entry_lon": -45.0,
-                "exit_lat": 45.0,
-                "exit_lon": -45.0,
-                # Missing: operation_depth, water_depth, dist_nm, op_type, action, leg_name
-            }
-        ]
+        timeline = as_records(
+            [
+                {
+                    "activity": "Station",
+                    "label": "Minimal_Station",
+                    "start_time": datetime(2024, 1, 1, 12, 0),
+                    "end_time": datetime(2024, 1, 1, 13, 0),
+                    "duration_minutes": 60.0,
+                    "entry_lat": 45.0,
+                    "entry_lon": -45.0,
+                    "exit_lat": 45.0,
+                    "exit_lon": -45.0,
+                    # Missing: operation_depth, water_depth, dist_nm, op_type, action, leg_name
+                }
+            ]
+        )
 
         with tempfile.NamedTemporaryFile(suffix=".csv", delete=False) as tmp_file:
             output_file = Path(tmp_file.name)
@@ -148,23 +154,25 @@ class TestCSVGenerator:
 
     def test_transit_formatting(self):
         """Test CSV generation for transit activities."""
-        timeline = [
-            {
-                "activity": "Transit",
-                "label": "Test_Transit",
-                "start_time": datetime(2024, 1, 1, 8, 0),
-                "end_time": datetime(2024, 1, 1, 12, 0),
-                "duration_minutes": 240.0,
-                "entry_lat": 50.0,
-                "entry_lon": -50.0,
-                "exit_lat": 51.0,
-                "exit_lon": -49.0,
-                "dist_nm": 25.5,
-                "vessel_speed_kt": 8.0,
-                "op_type": "transit",
-                "leg_name": "Test_Leg",
-            }
-        ]
+        timeline = as_records(
+            [
+                {
+                    "activity": "Transit",
+                    "label": "Test_Transit",
+                    "start_time": datetime(2024, 1, 1, 8, 0),
+                    "end_time": datetime(2024, 1, 1, 12, 0),
+                    "duration_minutes": 240.0,
+                    "entry_lat": 50.0,
+                    "entry_lon": -50.0,
+                    "exit_lat": 51.0,
+                    "exit_lon": -49.0,
+                    "dist_nm": 25.5,
+                    "vessel_speed_kt": 8.0,
+                    "op_type": "transit",
+                    "leg_name": "Test_Leg",
+                }
+            ]
+        )
 
         with tempfile.NamedTemporaryFile(suffix=".csv", delete=False) as tmp_file:
             output_file = Path(tmp_file.name)
@@ -192,19 +200,21 @@ class TestCSVGenerator:
 def test_convenience_function():
     """Test the convenience function generate_csv_schedule."""
     mock_config = MagicMock(spec=CruiseConfig)
-    timeline = [
-        {
-            "activity": "Station",
-            "label": "STN_001",
-            "start_time": datetime(2024, 1, 1, 12, 0),
-            "end_time": datetime(2024, 1, 1, 13, 0),
-            "duration_minutes": 60.0,
-            "entry_lat": 45.0,
-            "entry_lon": -45.0,
-            "exit_lat": 45.0,
-            "exit_lon": -45.0,
-        }
-    ]
+    timeline = as_records(
+        [
+            {
+                "activity": "Station",
+                "label": "STN_001",
+                "start_time": datetime(2024, 1, 1, 12, 0),
+                "end_time": datetime(2024, 1, 1, 13, 0),
+                "duration_minutes": 60.0,
+                "entry_lat": 45.0,
+                "entry_lon": -45.0,
+                "exit_lat": 45.0,
+                "exit_lon": -45.0,
+            }
+        ]
+    )
 
     with tempfile.NamedTemporaryFile(suffix=".csv", delete=False) as tmp_file:
         output_file = Path(tmp_file.name)

@@ -1,0 +1,44 @@
+cruise_name: "TC4_Mixed_Test"
+
+
+points:
+  - name: STN_001
+    operation_type: CTD
+    action: profile
+    latitude: 45.0
+    operation_depth: 58.0
+    longitude: -50.0
+
+lines:
+  - name: ADCP_Survey  
+    operation_type: underway
+    action: ADCP
+    vessel_speed: 5.0
+    route:
+      - latitude: 46.0
+        longitude: -50
+      - latitude: 47.0  
+        longitude: -50.0
+
+areas:
+  - name: Area_01
+    operation_type: survey  
+    action: bathymetry
+    duration: 120
+    corners:
+      - latitude: 47.5
+        longitude: -50.5  
+      - latitude: 48.5
+        longitude: -50.5
+      - latitude: 48.5
+        longitude: -49.5
+      - latitude: 47.5
+        longitude: -49.5
+
+legs:
+  - name: "Mixed_Survey"
+    departure_port: port_halifax
+    arrival_port: port_cadiz
+    first_activity: STN_001
+    last_activity: Area_01
+    activities: [STN_001, ADCP_Survey, Area_01]

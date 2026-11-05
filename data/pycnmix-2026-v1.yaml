@@ -10,11 +10,11 @@ start_date: "2026-02-24"
 start_time: "12:00"
 
 # Global cruise parameters (inheritable to legs)
-default_vessel_speed: 10.0  # knots
-default_distance_between_stations: 10.0  # km
-turnaround_time: 30.0  # minutes
-ctd_descent_rate: 1.0  # m/s
-ctd_ascent_rate: 1.0  # m/s
+default_vessel_speed_kt: 10.0  # knots
+default_distance_between_stations_km: 10.0  # km
+turnaround_time_minutes: 30.0  # minutes
+ctd_descent_rate_m_s: 1.0  # m/s
+ctd_ascent_rate_m_s: 1.0  # m/s
 
 
 # Add this section back - these are the "base" ports for reference
@@ -45,7 +45,7 @@ points:
     longitude: 173
     operation_type: "CTD"
     action: "profile"
-    duration: 10.0
+    duration_minutes: 10.0
   # ================================================================  
   # MOORING OPERATIONS - Combined with stations
   # ================================================================
@@ -56,7 +56,7 @@ points:
     longitude: 163.42
     operation_type: "Mooring"
     action: "deployment"
-    duration: 120
+    duration_minutes: 120
 
   - name: "LDEO_heavy_shallow_recovery"
     comment: "LDEO heavy shallow station recovery"
@@ -64,7 +64,7 @@ points:
     longitude: 163.9636
     operation_type: "mooring"
     action: "recovery"
-    duration: 120.0
+    duration_minutes: 120.0
 
   - name: "LDEO_heavy_shallow_deployment"
     comment: "LDEO heavy shallow station deployment"
@@ -72,7 +72,7 @@ points:
     longitude: 163.9636
     operation_type: "mooring"
     action: "deployment"
-    duration: 120.0
+    duration_minutes: 120.0
 
   - name: "LDEO_heavy_deep_recovery"
     comment: "LDEO heavy deep station recovery"
@@ -80,7 +80,7 @@ points:
     longitude: 164.4623
     operation_type: "mooring"
     action: "recovery"
-    duration: 120.0
+    duration_minutes: 120.0
 
   - name: "LDEO_heavy_deep_deployment"
     comment: "LDEO heavy deep station deployment"
@@ -88,7 +88,7 @@ points:
     longitude: 164.4623
     operation_type: "mooring"
     action: "deployment"
-    duration: 120.0
+    duration_minutes: 120.0
 
   - name: "LDEO_bottom1_recovery"
     comment: "LDEO bottom station 1 recovery"
@@ -96,7 +96,7 @@ points:
     longitude: 165.5531
     operation_type: "mooring"
     action: "recovery"
-    duration: 120.0
+    duration_minutes: 120.0
 
   - name: "LDEO_bottom1_deployment"
     comment: "LDEO bottom station 1 deployment"
@@ -104,7 +104,7 @@ points:
     longitude: 165.5531
     operation_type: "mooring"
     action: "deployment"
-    duration: 120.0
+    duration_minutes: 120.0
 
   - name: "LDEO_bottom2_recovery"
     comment: "LDEO bottom station 2 recovery"
@@ -112,7 +112,7 @@ points:
     longitude: 167.1584
     operation_type: "mooring"
     action: "recovery"
-    duration: 120.0
+    duration_minutes: 120.0
 
   - name: "LDEO_bottom2_deployment"
     comment: "LDEO bottom station 2 deployment"
@@ -120,7 +120,7 @@ points:
     longitude: 167.1584
     operation_type: "mooring"
     action: "deployment"
-    duration: 120.0
+    duration_minutes: 120.0
 
   - name: "LDEO_bottom3_recovery"
     comment: "LDEO bottom station 3 recovery"
@@ -128,7 +128,7 @@ points:
     longitude: 170.6318
     operation_type: "mooring"
     action: "recovery"
-    duration: 120.0
+    duration_minutes: 120.0
   
   - name: "LDEO_bottom3_deployment"
     comment: "LDEO bottom station 3 deployment"
@@ -136,7 +136,7 @@ points:
     longitude: 170.6318
     operation_type: "mooring"
     action: "deployment"
-    duration: 120.0
+    duration_minutes: 120.0
 
   - name: "LDEO_bottom4_recovery"
     comment: "LDEO bottom station 4 recovery"
@@ -144,7 +144,7 @@ points:
     longitude: 171.4218
     operation_type: "mooring"
     action: "recovery"
-    duration: 120.0
+    duration_minutes: 120.0
 
   - name: "LDEO_bottom4_deployment"
     comment: "LDEO bottom station 4 deployment"
@@ -152,7 +152,7 @@ points:
     longitude: 171.4218
     operation_type: "mooring"
     action: "deployment"
-    duration: 120.0
+    duration_minutes: 120.0
 
   - name: "NIWA_DITN"
     comment: "NIWA DITN station"
@@ -160,7 +160,7 @@ points:
     longitude: 164.8010
     operation_type: "mooring"
     action: "recovery"
-    duration: 120.0
+    duration_minutes: 120.0
 
   - name: "NIWA_DITD_deployment"
     comment: "NIWA DITD station deployment"
@@ -168,7 +168,7 @@ points:
     longitude: 164.8010
     operation_type: "mooring"
     action: "deployment"
-    duration: 120.0
+    duration_minutes: 120.0
 
   - name: "NIWA_DITD_recovery"
     comment: "NIWA DITD station recovery"
@@ -176,7 +176,7 @@ points:
     longitude: 164.8010
     operation_type: "mooring"
     action: "recovery"
-    duration: 120.0
+    duration_minutes: 120.0
 
   - name: "NIWA_WBAT"
     comment: "NIWA WBAT station"
@@ -184,7 +184,7 @@ points:
     longitude: 164.2419
     operation_type: "mooring"
     action: "recovery"
-    duration: 120.0
+    duration_minutes: 120.0
 
 # Pycnogen
 
@@ -194,7 +194,7 @@ points:
     longitude: 170.500000
     operation_type: "mooring"
     action: "deployment"
-    duration: 120.0
+    duration_minutes: 120.0
 
   - name: "Pycnogen_inner2"
     comment: "Pycnogen station 2 (southeast vertex of equilateral triangle)"
@@ -202,7 +202,7 @@ points:
     longitude: 170.523980
     operation_type: "mooring"
     action: "deployment"
-    duration: 120.0 
+    duration_minutes: 120.0 
 
   - name: "Pycnogen_inner3"
     comment: "Pycnogen station 3 (southwest vertex of equilateral triangle)"
@@ -210,7 +210,7 @@ points:
     longitude: 170.476020
     operation_type: "mooring"
     action: "deployment"
-    duration: 120.0
+    duration_minutes: 120.0
 
   - name: "Pycnogen_outer1"
     comment: "Pycnogen station 4 (north vertex of 10km equilateral triangle)"
@@ -218,7 +218,7 @@ points:
     longitude: 170.500000
     operation_type: "mooring"
     action: "deployment"
-    duration: 120.0
+    duration_minutes: 120.0
 
   - name: "Pycnogen_outer2"
     comment: "Pycnogen station 5 (southeast vertex of 10km equilateral triangle)"
@@ -226,7 +226,7 @@ points:
     longitude: 170.619901
     operation_type: "mooring"
     action: "deployment"
-    duration: 120.0
+    duration_minutes: 120.0
 
   - name: "Pycnogen_outer3"
     comment: "Pycnogen station 6 (southwest vertex of 10km equilateral triangle)"
@@ -234,7 +234,7 @@ points:
     longitude: 170.380099
     operation_type: "mooring"
     action: "deployment"
-    duration: 120.0
+    duration_minutes: 120.0
 
   - name: "Pycnogen_rafos1"
     comment: "Pycnogen rafos station"
@@ -242,7 +242,7 @@ points:
     longitude: 170.5
     operation_type: "mooring"
     action: "deployment"
-    duration: 120.0
+    duration_minutes: 120.0
 
   - name: "Pycnogen_rafos2"
     comment: "Pycnogen rafos station"
@@ -250,7 +250,7 @@ points:
     longitude: 170.5
     operation_type: "mooring"
     action: "deployment"
-    duration: 120.0
+    duration_minutes: 120.0
 # ================================================================
 # MARITIME LEG DEFINITIONS (Port-to-Port Segments)
 # ================================================================
@@ -260,8 +260,8 @@ legs:
     description: "Christchurch to Jang Bogo"
     departure_port: "port_lyttelton"
     arrival_port: "port_jang_bogo"  # Intermediate port for crew change
-    vessel_speed: 10.0
-    buffer_time: 360.0  # 6h weather buffer for mooring operations
+    vessel_speed_kt: 10.0
+    buffer_time_minutes: 360.0  # 6h weather buffer for mooring operations
     first_activity: "Option_AD" 
     last_activity: "SouthCapeAdair"
     start_date: "2026-02-24"
@@ -285,8 +285,8 @@ legs:
     description: "Terra Nova Bay operations"
     departure_port: "port_jang_bogo"
     arrival_port: "port_jang_bogo"  # Return to Jang Bogo
-    vessel_speed: 10.0
-    buffer_time: 360.0  # 6h weather buffer for mooring operations
+    vessel_speed_kt: 10.0
+    buffer_time_minutes: 360.0  # 6h weather buffer for mooring operations
     first_activity: "NISS" 
     last_activity: "NIWA_WBAT"
     start_date: "2026-03-05"
@@ -323,8 +323,8 @@ legs:
     description: "Southern and Northern Cape Adair operations, then return to Christchurch"
     departure_port: "port_jang_bogo"
     arrival_port: "port_lyttelton"
-    vessel_speed: 10.0
-    buffer_time: 360.0  # 6h weather buffer for mooring operations
+    vessel_speed_kt: 10.0
+    buffer_time_minutes: 360.0  # 6h weather buffer for mooring operations
     first_activity: "SouthCapeAdair" 
     last_activity: "Option_AD"
     start_date: "2026-03-17"
@@ -355,7 +355,7 @@ areas:
     description: "Gliders at PycnoGen location"
     operation_type: "survey"
     action: "glider"
-    duration: 1080.0  # 18 hours deployment/recovery
+    duration_minutes: 1080.0  # 18 hours deployment/recovery
     # Location for glider operations
     corners:
       - latitude: -68.2
@@ -371,7 +371,7 @@ areas:
     description: "Ship doesn't detour, gliders transit to PycnoGen"
     operation_type: "survey"
     action: "glider"
-    duration: 1080.0  # 18 hours deployment/recovery
+    duration_minutes: 1080.0  # 18 hours deployment/recovery
     # Location for glider operations
     corners:
       - latitude: -68.2
@@ -387,7 +387,7 @@ areas:
     description: "New survey location to the east"
     operation_type: "survey"
     action: "glider"
-    duration: 1080.0  # 18 hours deployment/recovery
+    duration_minutes: 1080.0  # 18 hours deployment/recovery
     # Location for glider operations
     corners:
       - latitude: -68.2
@@ -403,7 +403,7 @@ areas:
     description: "Trough"
     operation_type: "survey"
     action: "glider"
-    duration: 1080.0  # 18 hours deployment/recovery
+    duration_minutes: 1080.0  # 18 hours deployment/recovery
     # Location for glider operations
     corners:
       - latitude: -73.2

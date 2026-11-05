@@ -10,8 +10,8 @@ from cruiseplan.timeline.scheduler import generate_timeline
 _BASE_YAML = """
 cruise_name: "Delay_Start_Test"
 start_date: "2025-01-01T08:00:00"
-default_vessel_speed: 10.0
-default_distance_between_stations: 15.0
+default_vessel_speed_kt: 10.0
+default_distance_between_stations_km: 15.0
 
 points:
   - name: STN_001
@@ -42,8 +42,8 @@ legs:
 _DELAYED_YAML = """
 cruise_name: "Delay_Start_Test"
 start_date: "2025-01-01T08:00:00"
-default_vessel_speed: 10.0
-default_distance_between_stations: 15.0
+default_vessel_speed_kt: 10.0
+default_distance_between_stations_km: 15.0
 
 points:
   - name: STN_001
@@ -81,12 +81,12 @@ class TestDelayStart:
         base_file = tmp_path / "base.yaml"
         base_file.write_text(_BASE_YAML)
         base_timeline = generate_timeline(CruiseInstance(base_file))
-        base_end = base_timeline[-1]["end_time"]
+        base_end = base_timeline[-1].end_time
 
         delayed_file = tmp_path / "delayed.yaml"
         delayed_file.write_text(_DELAYED_YAML)
         delayed_timeline = generate_timeline(CruiseInstance(delayed_file))
-        delayed_end = delayed_timeline[-1]["end_time"]
+        delayed_end = delayed_timeline[-1].end_time
 
         diff_minutes = (delayed_end - base_end).total_seconds() / 60
         assert diff_minutes == pytest.approx(120.0), (
@@ -101,7 +101,7 @@ class TestDelayStart:
         file_a.write_text(_BASE_YAML)
         file_b.write_text(_BASE_YAML)
 
-        end_a = generate_timeline(CruiseInstance(file_a))[-1]["end_time"]
-        end_b = generate_timeline(CruiseInstance(file_b))[-1]["end_time"]
+        end_a = generate_timeline(CruiseInstance(file_a))[-1].end_time
+        end_b = generate_timeline(CruiseInstance(file_b))[-1].end_time
 
         assert end_a == end_b

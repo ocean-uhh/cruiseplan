@@ -42,9 +42,10 @@ logger = logging.getLogger(__name__)
 
 
 class DurationRules(Protocol):
-    """Rules object passed to duration calculations; carries the cruise config."""
+    """Rules object passed to duration calculations: the cruise config and leg values."""
 
     config: "CruiseConfig"
+    turnaround_time_minutes: float | None
 
 
 class BaseOperation(ABC):
@@ -85,6 +86,8 @@ class BaseOperation(ABC):
         self.name = name
         self.comment = comment
         self.display_name = display_name or name
+        # Actual minutes of the transit into this operation, when given
+        self.transit_minutes: float | None = None
 
     @abstractmethod
     def calculate_duration(self, rules: DurationRules | None) -> float:
@@ -271,7 +274,7 @@ class PointOperation(BaseOperation):
         """
         Calculate duration based on operation type and rules.
 
-        If ``manual_duration > 0`` (set via ``duration:`` in YAML, in minutes),
+        If ``manual_duration > 0`` (set via ``duration_minutes:`` in YAML),
         that value is returned immediately and all type-based calculations
         (CTD cast time, etc.) are skipped.  This is the intended per-station
         override mechanism.
@@ -280,7 +283,7 @@ class PointOperation(BaseOperation):
         ``DEFAULT_MOORING_DURATION_MIN`` (999 h) is returned and
         ``duration_is_fill`` / ``duration_fill_reason`` are set (the scheduler
         logs one warning per operation): a mooring or yo-yo cast
-        without ``duration``, a depth-driven cast without a usable depth
+        without ``duration_minutes``, a depth-driven cast without a usable depth
         (missing, zero or the fill depth), and an operation type with no
         duration rule. Ports and waypoints take 0 minutes.
 
@@ -296,7 +299,7 @@ class PointOperation(BaseOperation):
         """
         self.duration_is_fill = False
         self.duration_fill_reason = None
-        # Manual duration (from YAML `duration:` field, minutes) always wins.
+        # Manual duration (YAML `duration_minutes:`) always wins.
         if self.manual_duration > 0:
             # The enrich step writes the fill value for moorings without one
             if self.manual_duration == DEFAULT_MOORING_DURATION_MIN:
@@ -314,7 +317,9 @@ class PointOperation(BaseOperation):
             # No operation time; waiting time is handled separately
             return 0.0
 
-        calc = DurationCalculator(rules.config)
+        calc = DurationCalculator(
+            rules.config, getattr(rules, "turnaround_time_minutes", None)
+        )
 
         # TODO - why is ADCP on the list? what is this hardcoded list for?
         # Check for station-like operations (CTD, ADCP, etc.) that need CTD time calculation
@@ -439,20 +444,24 @@ class PointOperation(BaseOperation):
 
         # Use water_depth as fallback for operation_depth
         operation_depth = (
-            obj.operation_depth if obj.operation_depth is not None else obj.water_depth
+            obj.operation_depth_m
+            if obj.operation_depth_m is not None
+            else obj.water_depth_m
         )
 
-        return cls(
+        op = cls(
             name=obj.name,
             position=pos,
             operation_depth=operation_depth,
-            water_depth=obj.water_depth,
-            duration=obj.duration if obj.duration else 0.0,
+            water_depth=obj.water_depth_m,
+            duration=obj.duration_minutes if obj.duration_minutes else 0.0,
             comment=obj.comment,
             op_type=display_op_type,
             action=action,
-            delay_start=obj.delay_start,
+            delay_start=obj.delay_start_minutes,
         )
+        op.transit_minutes = getattr(obj, "transit_minutes", None)
+        return op
 
     @classmethod
     def from_port(cls, obj: PointDefinition) -> "PointOperation":
@@ -471,20 +480,22 @@ class PointOperation(BaseOperation):
         """
         pos = GeoPoint(latitude=obj.latitude, longitude=obj.longitude)
 
-        return cls(
+        op = cls(
             name=obj.name,
             position=pos,
             operation_depth=None,  # Ports don't have operation depth
             water_depth=None,  # Ports don't need water depth
-            duration=obj.duration if obj.duration else 0.0,
+            duration=obj.duration_minutes if obj.duration_minutes else 0.0,
             comment=getattr(obj, "description", None),
             op_type="port",
             action=getattr(
                 obj, ACTION_FIELD, "mob"
             ),  # Use port's action or default to mob
             display_name=getattr(obj, "display_name", None),
-            delay_start=obj.delay_start,
+            delay_start=obj.delay_start_minutes,
         )
+        op.transit_minutes = getattr(obj, "transit_minutes", None)
+        return op
 
 
 class LineOperation(BaseOperation):
@@ -569,7 +580,7 @@ class LineOperation(BaseOperation):
             effective_speed = (
                 self.speed
                 if self.speed and self.speed > 0
-                else rules.config.default_vessel_speed
+                else rules.config.default_vessel_speed_kt
             )
             return calc.calculate_transit_time(route_distance_km, effective_speed)
         # Fallback for cases without config
@@ -609,6 +620,17 @@ class LineOperation(BaseOperation):
         if not self.route:
             return (0.0, 0.0)  # Fallback for empty routes
         return (self.route[-1].latitude, self.route[-1].longitude)
+
+    def get_vessel_speed(self) -> float:
+        """
+        Return the speed the line is run at (its own, else the leg or cruise speed).
+
+        Returns
+        -------
+        float
+            Speed in knots.
+        """
+        return self.speed
 
     def get_operation_distance_nm(self) -> float:
         """
@@ -657,15 +679,17 @@ class LineOperation(BaseOperation):
         display_op_type = obj.operation_type.value if obj.operation_type else "line"
         action = obj.action.value if obj.action else None
 
-        return cls(
+        op = cls(
             name=obj.name,
             route=route_geopoints,
-            speed=obj.vessel_speed if obj.vessel_speed else default_speed,
+            speed=obj.vessel_speed_kt if obj.vessel_speed_kt else default_speed,
             comment=obj.comment,
             display_name=getattr(obj, "display_name", None),
             op_type=display_op_type,
             action=action,
         )
+        op.transit_minutes = getattr(obj, "transit_minutes", None)
+        return op
 
 
 class AreaOperation(BaseOperation):
@@ -779,7 +803,7 @@ class AreaOperation(BaseOperation):
             return self.duration
         raise ValueError(
             f"Area operation '{self.name}' requires user-specified duration. "
-            "Add 'duration: <minutes>' to the area definition in YAML."
+            "Add 'duration_minutes: <minutes>' to the area definition in YAML."
         )
 
     def get_entry_point(self) -> tuple[float, float]:
@@ -828,10 +852,10 @@ class AreaOperation(BaseOperation):
         ValueError
             If duration is not specified in the area definition.
         """
-        if obj.duration is None:
+        if obj.duration_minutes is None:
             raise ValueError(
                 f"Area operation '{obj.name}' requires user-specified duration. "
-                "Add 'duration: <minutes>' to the area definition in YAML."
+                "Add 'duration_minutes: <minutes>' to the area definition in YAML."
             )
 
         # Convert List[GeoPoint] -> List[tuple]
@@ -850,11 +874,11 @@ class AreaOperation(BaseOperation):
         display_op_type = obj.operation_type.value if obj.operation_type else "area"
         action = obj.action.value if obj.action else None
 
-        return cls(
+        op = cls(
             name=obj.name,
             boundary_polygon=boundary_geopoints,
             area_km2=area_km2,
-            duration=obj.duration,
+            duration=obj.duration_minutes,
             start_point=start_point,
             end_point=end_point,
             comment=obj.comment,
@@ -862,6 +886,8 @@ class AreaOperation(BaseOperation):
             op_type=display_op_type,
             action=action,
         )
+        op.transit_minutes = getattr(obj, "transit_minutes", None)
+        return op
 
     @staticmethod
     def _calculate_polygon_area(coords: list[tuple[float, float]]) -> float:
@@ -898,3 +924,114 @@ class AreaOperation(BaseOperation):
         # (very approximate, assumes mid-latitude ~45°)
         km_per_degree = 111.0  # Rough conversion
         return area * (km_per_degree**2)
+
+
+class NavigationalTransit(BaseOperation):
+    """
+    Navigational connection between two operations.
+
+    Parameters
+    ----------
+    from_op : BaseOperation
+        Operation the transit leaves from (its exit point).
+    to_op : BaseOperation
+        Operation the transit leads to (its entry point).
+    config : CruiseConfig
+        Cruise configuration (default vessel speed).
+    leg_name : str
+        Name of the leg the transit belongs to.
+    vessel_speed : float, optional
+        Transit speed in knots; the cruise default when not given.
+    """
+
+    def __init__(
+        self,
+        from_op: BaseOperation,
+        to_op: BaseOperation,
+        config: "CruiseConfig",
+        leg_name: str,
+        vessel_speed: float | None = None,
+    ) -> None:
+        super().__init__(f"Transit to {to_op.get_label()}")
+        self.from_op = from_op
+        self.to_op = to_op
+        self.config = config
+        self.leg_name = leg_name
+        self.vessel_speed = vessel_speed or config.default_vessel_speed_kt
+
+    def calculate_duration(self, rules: DurationRules | None) -> float:  # noqa: ARG002 - interface; transit uses its own speed
+        """
+        Return the transit time in minutes at the transit speed.
+
+        Parameters
+        ----------
+        rules : DurationRules or None
+            Not used; the transit speed is set on the transit.
+
+        Returns
+        -------
+        float
+            Duration in minutes.
+        """
+        return (self.get_operation_distance_nm() / self.vessel_speed) * 60.0
+
+    def get_entry_point(self) -> tuple[float, float]:
+        """
+        Return where the previous operation ended.
+
+        Returns
+        -------
+        tuple of float
+            (latitude, longitude).
+        """
+        return self.from_op.get_exit_point()
+
+    def get_exit_point(self) -> tuple[float, float]:
+        """
+        Return where the next operation begins.
+
+        Returns
+        -------
+        tuple of float
+            (latitude, longitude).
+        """
+        return self.to_op.get_entry_point()
+
+    def get_operation_type(self) -> str:
+        """
+        Return the display type, ``Transit``.
+
+        Returns
+        -------
+        str
+            ``"Transit"``.
+        """
+        return "Transit"
+
+    def get_operation_distance_nm(self) -> float:
+        """
+        Return the great-circle distance between the two operations.
+
+        Returns
+        -------
+        float
+            Distance in nautical miles.
+        """
+        from cruiseplan.timeline.distance import haversine_distance
+        from cruiseplan.utils.units import km_to_nm
+
+        distance_km = haversine_distance(
+            self.from_op.get_exit_point(), self.to_op.get_entry_point()
+        )
+        return km_to_nm(distance_km)
+
+    def get_vessel_speed(self) -> float:
+        """
+        Return the transit speed (leg speed, or the cruise default).
+
+        Returns
+        -------
+        float
+            Speed in knots.
+        """
+        return self.vessel_speed

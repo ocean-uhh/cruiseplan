@@ -52,11 +52,56 @@ to its inputs:
   ``turnaround_time_min``, ``start_date``
 - ``date_created``: UTC, ISO 8601 with ``Z``; ``creation_date`` holds the same value
 
-The schedule file adds ``fill_duration_count``, ``fill_duration_hours`` and the
-variable ``duration_fill_flag`` (1 where the duration is the 999-hour fill value)
-and ``delay_start`` (minutes, as set on the operation; already included in
-``time``; NaN for transits and buffers). Schedules written before
-``delay_start`` was stored still read and forecast the same.
+The schedule file adds ``fill_duration_count``, ``fill_duration_hours``,
+``schedule_format`` (``"0.6.0"``) and the variable ``duration_fill_flag`` (1
+where the duration is the 999-hour fill value).
+
+Units
+-----
+
+Every numeric variable has a ``units`` attribute in UDUNITS-2 form (a test
+checks each one with ``cf_units``); flags such as ``duration_fill_flag`` and
+text variables have none. Readers should take the unit from the attribute.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 28 20 52
+
+   * - Variable
+     - ``units``
+     - Notes
+   * - ``time``, ``end_time``
+     - ``seconds since 1970-01-01``
+     - CF-encoded UTC (``calendar = "standard"``); ``xarray`` decodes them to
+       datetimes
+   * - ``duration``
+     - ``minute``
+     - Actual duration, ``end_time - time``
+   * - ``planned_duration``
+     - ``minute``
+     - From the planning rules; differs from ``duration`` where the next
+       operation of the leg has a ``delay_start``, and for a transit with
+       ``transit_minutes`` (whose ``vessel_speed`` is then distance / time)
+   * - ``delay_start``
+     - ``minute``
+     - As set on the operation; already in the ``duration`` of the operation
+       before it. NaN for transits and buffers
+   * - ``distance``, ``distance_to_next``
+     - ``nautical_mile``
+     - Distance covered by the row; distance to the next waypoint
+   * - ``vessel_speed``
+     - ``knot``
+     -
+   * - ``water_depth``, ``operation_depth``
+     - ``m``
+     - Positive down
+   * - ``latitude``, ``longitude`` and the start, end and exit positions
+     - ``degrees_north``, ``degrees_east``
+     -
+
+Schedules written by cruiseplan 0.5.0 store ``duration`` in hours and the
+row distance as ``dist_nm``. ``cruiseplan list`` and ``cruiseplan forecast``
+read them, converting durations by their ``units`` attribute, until 0.7.0.
 
 Output File Structure
 =====================
@@ -117,11 +162,10 @@ The following files organize cruise data by operation geometry:
         flag_values = "CTD_profile water_sampling calibration Mooring_deployment Mooring_recovery"
         coordinates = "lat lon waterdepth"
 
-    duration(obs): float32
+    duration(obs): float64
         long_name = "planned operation duration"
-        units = "hour"
+        units = "minute"
         coordinates = "lat lon waterdepth"
-        _FillValue = -1.0
 
     comment(obs): |S256
         long_name = "operation comments from cruise plan"
@@ -179,12 +223,12 @@ The following files organize cruise data by operation geometry:
 
     vessel_speed(operations): float32
         long_name = "planned vessel speed for operation"
-        units = "knots"
+        units = "knot"
         _FillValue = NaN
 
-    duration(operations): float32
+    duration(operations): float64
         long_name = "planned operation duration"
-        units = "hour"
+        units = "minute"
         _FillValue = NaN
 
     # Global attributes
@@ -240,7 +284,7 @@ The following files organize cruise data by operation geometry:
 
     estimated_duration(operations): float32
         long_name = "estimated operation duration"
-        units = "hours" 
+        units = "minute"
         _FillValue = NaN
 
     # Derived geometric properties (useful for analysis)
@@ -275,8 +319,9 @@ The following files organize cruise data by operation geometry:
     # Coordinate variables (CF required)
     time(obs): float64
         standard_name = "time"
-        long_name = "time of ship position"
-        units = "days since 1970-01-01 00:00:00"
+        long_name = "activity start time (UTC)"
+        units = "seconds since 1970-01-01"
+        calendar = "standard"
 
     lon(obs): float32
         standard_name = "longitude"
@@ -358,9 +403,14 @@ The following files organize cruise data by operation geometry:
         long_name = "cruise leg identifier"
         coordinates = "time latitude longitude waterdepth"
 
-    duration(obs): float32
-        long_name = "activity duration"
-        units = "hour"
+    duration(obs): float64
+        long_name = "activity duration (actual: end_time - time)"
+        units = "minute"
+        coordinates = "time latitude longitude waterdepth"
+
+    planned_duration(obs): float64
+        long_name = "planned activity duration"
+        units = "minute"
         coordinates = "time latitude longitude waterdepth"
 
     delay_start(obs): float32
@@ -370,8 +420,21 @@ The following files organize cruise data by operation geometry:
 
     vessel_speed(obs): float32
         long_name = "vessel speed"
-        units = "knots"
+        units = "knot"
         coordinates = "time latitude longitude waterdepth"
+
+    distance(obs): float64
+        long_name = "activity distance"
+        units = "nautical_mile"
+
+    distance_to_next(obs): float64
+        long_name = "distance to next waypoint"
+        units = "nautical_mile"
+
+    end_time(obs): float64
+        standard_name = "time"
+        long_name = "activity end time (UTC)"
+        units = "seconds since 1970-01-01"
 
     # Global attributes
     :featureType = "trajectory"
@@ -391,7 +454,7 @@ CF Alignment (not compliance)
 1. **FeatureType Specification**: Each file must have exactly one `featureType` global attribute. The ``_schedule.nc`` file violates this because we have a mix of line and point operations.
 2. **Coordinate Variables**: Must include proper `units`, `standard_name`, and `long_name` attributes
 3. **Coordinates Attribute**: All data variables must include `coordinates = "time lat lon ..."` attribute
-4. **Time Variables**: Use CF-standard time encoding (`days since 1970-01-01 00:00:00`)
+4. **Time Variables**: Use CF-standard time encoding (UTC, `seconds since 1970-01-01`)
 5. **Global Attributes**: Include mandatory CF attributes (`Conventions`, `title`, `institution`, `featureType`)
 6. **Standard Names**: Use CF standard name table for oceanographic variables
 7. **Fill Values**: Use appropriate `_FillValue` for missing or optional data
@@ -400,8 +463,8 @@ Data Type Specifications
 ------------------------
 
 - **Coordinates**: `float64` for time precision, `float32` for spatial coordinates
-- **Time**: `float64` (days since epoch for CF compliance)
-- **Durations and Speeds**: `float32`
+- **Time**: `float64` (seconds since the epoch, UTC)
+- **Durations and distances**: `float64` (minutes, nautical miles); speeds `float32`
 - **Strings**: Unicode strings with maximum length (`<U32`, `<U64`, `<U256`)
 
 

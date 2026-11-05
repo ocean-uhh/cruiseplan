@@ -253,7 +253,7 @@ def _enrich_configuration(
     from cruiseplan.runtime.cruise import CruiseInstance
 
     with _validation_warning_capture() as captured_warnings:
-        cruise = CruiseInstance.from_dict(processed_config)
+        cruise = CruiseInstance.from_dict(processed_config, Path(config_path).name)
 
     # 4. Cruise enhancement phase - all business logic in Cruise object methods
     sections_expanded = 0

@@ -12,16 +12,16 @@ ROOT = Path(__file__).parent.parent.parent
 CONFIGS = [
     ROOT / "data" / "pycnmix-2026-v1.yaml",
     ROOT / "tests" / "fixtures" / "tc1_single.yaml",
-    ROOT / "tests" / "fixtures" / "coldsnap-2028-newformat.yaml",
+    ROOT / "tests" / "fixtures" / "mooring_sequence_greenland.yaml",
 ]
 PARAMETERS = [
     "start_date",
     "start_time",
-    "default_vessel_speed",
-    "default_distance_between_stations",
-    "turnaround_time",
-    "ctd_descent_rate",
-    "ctd_ascent_rate",
+    "default_vessel_speed_kt",
+    "default_distance_between_stations_km",
+    "turnaround_time_minutes",
+    "ctd_descent_rate_m_s",
+    "ctd_ascent_rate_m_s",
 ]
 
 

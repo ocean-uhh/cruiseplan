@@ -116,7 +116,7 @@ def test_land_point_gets_fill_depth(tmp_path, halifax_source, caplog):
     """A station over land (elevation >= 0) is set to the fill value, not abs(elevation)."""
     with caplog.at_level(logging.WARNING, logger="cruiseplan.runtime.enrichment"):
         stn = _enrich_station_at(tmp_path, halifax_source, *LAND_POINT)
-    assert stn["water_depth"] == DEFAULT_DEPTH
+    assert stn["water_depth_m"] == DEFAULT_DEPTH
     assert "bathymetry_source" not in stn
     assert any(
         "on land" in rec.getMessage() and "STN_001" in rec.getMessage()
@@ -128,5 +128,5 @@ def test_land_point_gets_fill_depth(tmp_path, halifax_source, caplog):
 def test_ocean_point_gets_positive_depth(tmp_path, halifax_source):
     """A station over ocean (negative elevation) is stored as depth = -elevation."""
     stn = _enrich_station_at(tmp_path, halifax_source, *OCEAN_POINT)
-    assert stn["water_depth"] == pytest.approx(-OCEAN_ELEVATION)
+    assert stn["water_depth_m"] == pytest.approx(-OCEAN_ELEVATION)
     assert stn["bathymetry_source"] == halifax_source

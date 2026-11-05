@@ -7,6 +7,7 @@ Tests both backward compatibility and new features provided by the BaseResult ba
 from pathlib import Path
 
 import pytest
+from legacy_records import as_records
 
 from cruiseplan.api.types import (
     BaseResult,
@@ -209,10 +210,12 @@ class TestBackwardCompatibility:
     def test_schedule_result_preserves_timeline_logic(self):
         """Test ScheduleResult preserves timeline-based success logic."""
         # Mock timeline data
-        timeline_data = [
-            {"activity": "transit", "duration_minutes": 60},
-            {"activity": "ctd_station", "duration_minutes": 45},
-        ]
+        timeline_data = as_records(
+            [
+                {"activity": "transit", "duration_minutes": 60},
+                {"activity": "ctd_station", "duration_minutes": 45},
+            ]
+        )
         files_created = [Path("schedule.html"), Path("timeline.csv")]
         summary = {"total_duration_hours": 1.75, "activities": 2}
 

@@ -175,11 +175,11 @@ def _build_station_attrs(
         "history": f"expanded from line operation: {section['name']};",
     }
     if section["max_depth"] is not None:
-        attrs["water_depth"] = section["max_depth"]
-    if section["duration"] is not None:
-        attrs["duration"] = section["duration"]
+        attrs["water_depth_m"] = section["max_depth"]
+    if section["duration_minutes"] is not None:
+        attrs["duration_minutes"] = section["duration_minutes"]
     elif section["planned_duration_hours"] is not None:
-        attrs["duration"] = f"{section['planned_duration_hours']}h"
+        attrs["duration_minutes"] = f"{section['planned_duration_hours']}h"
     return attrs
 
 
@@ -213,7 +213,7 @@ def expand_sections(
 
     cruise_default_spacing = getattr(
         cruise_instance.config,
-        "default_distance_between_stations",
+        "default_distance_between_stations_km",
         DEFAULT_STATION_SPACING_KM,
     )
 
@@ -230,15 +230,15 @@ def expand_sections(
                 {
                     "name": line_name,
                     "route": line_def.route,
-                    "distance_between_stations": (
-                        getattr(line_def, "distance_between_stations", None)
+                    "distance_between_stations_km": (
+                        getattr(line_def, "distance_between_stations_km", None)
                         or cruise_default_spacing
                     ),
                     "max_depth": getattr(line_def, "max_depth", None),
                     "planned_duration_hours": getattr(
                         line_def, "planned_duration_hours", None
                     ),
-                    "duration": getattr(line_def, "duration", None),
+                    "duration_minutes": getattr(line_def, "duration_minutes", None),
                 }
             )
 
@@ -246,7 +246,7 @@ def expand_sections(
     sections_to_remove = []
     for section in ctd_sections:
         route = section["route"]
-        distance_km = section["distance_between_stations"]
+        distance_km = section["distance_between_stations_km"]
         section_name = section["name"]
 
         # Sanitize section name for station naming
@@ -358,12 +358,12 @@ def add_station_defaults(cruise_instance: "CruiseInstance") -> int:
         if (
             hasattr(station, "operation_type")
             and station.operation_type == "mooring"
-            and (not hasattr(station, "duration") or station.duration is None)
+            and station.duration_minutes is None
         ):
             # Default mooring deployment/recovery duration: 999 hours (59940 minutes)
             from cruiseplan.config.values import DEFAULT_MOORING_DURATION_MIN
 
-            station.__dict__["duration"] = DEFAULT_MOORING_DURATION_MIN
+            station.duration_minutes = DEFAULT_MOORING_DURATION_MIN
             defaults_added += 1
             logger.debug(
                 f"Added default duration to mooring {station_name}: {DEFAULT_MOORING_DURATION_MIN} min"
@@ -422,7 +422,7 @@ def enrich_depths(
 
     for station_name, station in cruise_instance.point_registry.items():
         # Keep a real stated depth unless overwriting; retry the fill value
-        existing = getattr(station, "water_depth", None)
+        existing = station.water_depth_m
         if (
             existing is not None
             and existing != DEFAULT_DEPTH
@@ -439,8 +439,8 @@ def enrich_depths(
             continue
 
         if bathymetry_depth is None or bathymetry_depth == DEFAULT_DEPTH:
-            station.__dict__["water_depth"] = DEFAULT_DEPTH
-            station.__dict__.pop("bathymetry_source", None)
+            station.water_depth_m = DEFAULT_DEPTH
+            station.bathymetry_source = None
             stations_filled.append(station_name)
             continue
 
@@ -449,15 +449,15 @@ def enrich_depths(
         # use the fill value rather than silently storing abs(elevation).
         water_depth = -bathymetry_depth
         if water_depth <= 0:
-            station.__dict__["water_depth"] = DEFAULT_DEPTH
-            station.__dict__.pop("bathymetry_source", None)
+            station.water_depth_m = DEFAULT_DEPTH
+            station.bathymetry_source = None
             stations_filled.append(station_name)
             stations_on_land.append(station_name)
             continue
 
         water_depth = round(water_depth, 1)
-        station.__dict__["water_depth"] = water_depth
-        station.__dict__["bathymetry_source"] = bathymetry_source
+        station.water_depth_m = water_depth
+        station.bathymetry_source = bathymetry_source
         stations_with_depths_added.add(station_name)
         logger.debug(
             f"Added depth to {station_name}: {water_depth:.1f}m from {bathymetry_source}"
@@ -575,10 +575,10 @@ def add_coordinate_displays(
             # Always add individual decimal minutes fields for oceanographic use
             from cruiseplan.utils.coordinates import CoordConverter
 
-            point.__dict__["latitude_decmin"] = CoordConverter.format_latitude_decmin(
+            point.latitude_decmin = CoordConverter.format_latitude_decmin(
                 point.latitude
             )
-            point.__dict__["longitude_decmin"] = CoordConverter.format_longitude_decmin(
+            point.longitude_decmin = CoordConverter.format_longitude_decmin(
                 point.longitude
             )
             coord_changes_made += 1
@@ -596,10 +596,10 @@ def add_coordinate_displays(
                     # Add individual decimal minutes fields for route points
                     from cruiseplan.utils.coordinates import CoordConverter
 
-                    route_point.__dict__["latitude_decmin"] = (
-                        CoordConverter.format_latitude_decmin(route_point.latitude)
+                    route_point.latitude_decmin = CoordConverter.format_latitude_decmin(
+                        route_point.latitude
                     )
-                    route_point.__dict__["longitude_decmin"] = (
+                    route_point.longitude_decmin = (
                         CoordConverter.format_longitude_decmin(route_point.longitude)
                     )
                     coord_changes_made += 1
@@ -617,11 +617,11 @@ def add_coordinate_displays(
                     # Add individual decimal minutes fields for area vertices
                     from cruiseplan.utils.coordinates import CoordConverter
 
-                    vertex.__dict__["latitude_decmin"] = (
-                        CoordConverter.format_latitude_decmin(vertex.latitude)
+                    vertex.latitude_decmin = CoordConverter.format_latitude_decmin(
+                        vertex.latitude
                     )
-                    vertex.__dict__["longitude_decmin"] = (
-                        CoordConverter.format_longitude_decmin(vertex.longitude)
+                    vertex.longitude_decmin = CoordConverter.format_longitude_decmin(
+                        vertex.longitude
                     )
                     coord_changes_made += 1
 

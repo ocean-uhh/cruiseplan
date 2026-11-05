@@ -115,6 +115,7 @@ def format_letsgo_output(
     ],
     start_time: str,
     transit_speed: float = 10.0,
+    anchor_note: str | None = None,
 ) -> str:
     """
     Format forecast activities as letsgo.m compatible text.
@@ -127,6 +128,9 @@ def format_letsgo_output(
         Start time for header metadata
     transit_speed : float, optional
         Ship transit speed in knots (default: 10.0)
+    anchor_note : str, optional
+        How the forecast is anchored (``generator.anchor_rule``); written as
+        an ``% Anchor =`` header line.
 
     Returns
     -------
@@ -159,6 +163,7 @@ def format_letsgo_output(
         f"% Start_Date = {start_date_str}",
         f"% Ship_Speed = {transit_speed:.0f}",
         f"% Transit_Speed = {transit_speed:.0f}",
+        *([f"% Anchor = {anchor_note}"] if anchor_note else []),
         "%",
         "% (1: Transit, 2: CTD, 3: Mooring, 4: PIES, 5: Float/Drifter, 6: Survey)",
         "%",

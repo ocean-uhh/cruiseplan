@@ -2,7 +2,7 @@
 YAML Basics
 ===========
 
-CruisePlan uses YAML files to define cruise configurations. This guide covers the essential fields you need to know.
+CruisePlan uses YAML files to define cruise configurations. This guide covers the essential fields you need to know. Every numeric key names its unit (``_minutes``, ``_m``, ``_kt``, ``_km``, ``_m_s``); see the units table in :doc:`../reference/yaml-full`.
 
 Basic Structure
 ===============
@@ -12,8 +12,8 @@ Basic Structure
    # Cruise metadata
    cruise_name: "North Atlantic Survey 2025"
    start_date: "2025-06-15"
-   default_vessel_speed: 10.0
-   turnaround_time: 30.0
+   default_vessel_speed_kt: 10.0
+   turnaround_time_minutes: 30.0
    
    # Global catalog - define your operations
    points:
@@ -59,12 +59,12 @@ Cruise Metadata
    * - ``start_date``
      - No
      - Start date (ISO format); defaults to 1970-01-01 if omitted
-   * - ``default_vessel_speed``
+   * - ``default_vessel_speed_kt``
      - No
      - Ship speed in knots (default: 10)
-   * - ``turnaround_time``
+   * - ``turnaround_time_minutes``
      - No
-     - Time between operations in minutes
+     - Time added to each depth-based CTD cast, in minutes (default: 30)
 
 Point Operations
 ----------------
@@ -77,8 +77,8 @@ CTD stations, moorings, sample collection:
      - name: "MOOR_001"
        operation_type: mooring
        action: deployment
-       water_depth: 3500    # Optional - auto-added by 'process'
-       duration: 45         # Optional - in minutes
+       water_depth_m: 3500     # Optional - auto-added by 'process'
+       duration_minutes: 45    # Optional
        latitude: 60.0
        longitude: -30.0
 
@@ -110,7 +110,7 @@ Box surveys, mapping:
      - name: "survey_box"
        operation_type: survey
        action: bathymetry
-       duration: 120        # minutes
+       duration_minutes: 120        # minutes
        corners:
          - latitude: 60.5
            longitude: -28.0
@@ -206,7 +206,7 @@ Valid combinations of ``operation_type`` and ``action`` for different activities
      - **Use Case**
    * - ``survey``
      - ``bathymetry``, ``glider``
-     - Area surveys and mapping (``duration`` required)
+     - Area surveys and mapping (``duration_minutes`` required)
 
 Coordinates
 ===========
@@ -225,7 +225,7 @@ Common Workflow
 
 1. **Start with generated stub**: Run ``cruiseplan stations`` to create a basic file
 2. **Edit operation types**: Add appropriate ``operation_type`` fields
-3. **Adjust timing**: Modify ``duration`` if needed
+3. **Adjust timing**: Modify ``duration_minutes`` if needed
 4. **Organize legs**: Group activities into logical cruise phases
 5. **Process**: Run ``cruiseplan process`` to validate and enrich
 

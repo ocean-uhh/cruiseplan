@@ -209,7 +209,7 @@ class TestCTDSectionExpansion:
 
         # All stations should have the overridden depth
         for station in result_config[POINTS_FIELD]:
-            assert station["water_depth"] == 3500.0
+            assert station["water_depth_m"] == 3500.0
 
     def test_expand_section_insufficient_route_points(self):
         """Test CTD section expansion with insufficient route points."""

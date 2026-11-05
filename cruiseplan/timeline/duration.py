@@ -29,14 +29,25 @@ class DurationCalculator:
     ----------
     config : CruiseConfig
         Cruise configuration object containing operational parameters.
+    turnaround_time_minutes : float
+        Turnaround added to each CTD cast: the leg value when given, else the
+        cruise value.
     day_start_hour : int
         Hour when daytime operations begin (0-23).
     day_end_hour : int
         Hour when daytime operations end (0-23).
     """
 
-    def __init__(self, config: CruiseConfig) -> None:
+    def __init__(
+        self, config: CruiseConfig, turnaround_time_minutes: float | None = None
+    ) -> None:
         self.config = config
+        # A leg's turnaround time overrides the cruise value
+        self.turnaround_time_minutes = (
+            config.turnaround_time_minutes
+            if turnaround_time_minutes is None
+            else turnaround_time_minutes
+        )
         # Pull from config (defaulting to 8/20 via Pydantic if not set)
         self.day_start_hour = config.day_start_hour
         self.day_end_hour = config.day_end_hour
@@ -62,8 +73,8 @@ class DurationCalculator:
         if depth <= 0:
             return 0.0
 
-        descent_m_sec = self.config.ctd_descent_rate
-        ascent_m_sec = self.config.ctd_ascent_rate
+        descent_m_sec = self.config.ctd_descent_rate_m_s
+        ascent_m_sec = self.config.ctd_ascent_rate_m_s
         # Convert rates (m/s) to m/min
         descent_m_min = rate_per_second_to_rate_per_minute(descent_m_sec)
         ascent_m_min = rate_per_second_to_rate_per_minute(ascent_m_sec)
@@ -73,7 +84,7 @@ class DurationCalculator:
             return 0.0
 
         profile_time = (depth / descent_m_min) + (depth / ascent_m_min)
-        return profile_time + self.config.turnaround_time
+        return profile_time + self.turnaround_time_minutes
 
     def calculate_transit_time(
         self, distance_km: float, speed_knots: float | None = None
@@ -94,7 +105,9 @@ class DurationCalculator:
             Transit duration in minutes.
         """
         speed = (
-            speed_knots if speed_knots is not None else self.config.default_vessel_speed
+            speed_knots
+            if speed_knots is not None
+            else self.config.default_vessel_speed_kt
         )
         if speed <= 0:
             return 0.0

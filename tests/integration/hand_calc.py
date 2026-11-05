@@ -7,26 +7,33 @@ files with ``yaml.safe_load`` and every number follows the written rules:
 - distance: haversine on a sphere of radius 6371 km, nm = km / 1.852
 - transit minutes: nm / knots * 60
 - CTD cast minutes: depth / (descent * 60) + depth / (ascent * 60) + turnaround
-- an operation starts at arrival + its ``delay_start``; a leg starts at the
-  previous leg's end + the leg's ``delay_start``
+- a leg starts at the previous leg's end + the leg's ``delay_start``
+- an operation's ``delay_start`` (either sign) is added to the actual minutes
+  of the operation before it in the same leg (the nearest earlier row that
+  is not a transit or a buffer; the departure port when there is none), never
+  below zero; within a leg each row starts where the one before ends, so the
+  transit between them keeps its length and only moves (``hand_actual``)
 - a leg's ``buffer_time`` is a stationary block at the last operation's exit
   position, after the last operation and before the transit to the arrival port
 - an area is entered at its first corner and left at its last corner; a line
   is entered at its first route point and left at its last
 - a transit of zero length is not scheduled
+- an operation's ``transit_minutes`` replaces the minutes of the transit
+  into it (distance unchanged; planned minutes kept)
 
 Forecast (at-sea re-anchoring), ``hand_forecast``:
 
-- the anchor is the row at the given index; a transit row anchors on the
-  row after it
-- the anchored row starts at the start time; with a current position, a
-  transit from it to the anchored row's entry (at the leg speed) comes first
-- every later row keeps its planned offset from the anchored row
-- a row that runs past the next row's start is shortened to end there
+- without a current position the anchor is the row at the given index and
+  it starts at the start time; on a transit row the ship starts that
+  transit at the start time
+- with a current position the position wins: a transit row anchors on the
+  row after it, and a transit from the position to the anchored row's entry
+  (at the leg speed) comes first
+- every later row keeps its offset from the anchored row in the schedule
 """
 
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timedelta
 
 R_EARTH_KM = 6371.0
@@ -42,6 +49,28 @@ REGISTRY_PORTS = {
     "port_bremerhaven": ("Bremerhaven", 53.5395, 8.5809),
     "port_reykjavik": ("Reykjavik", 64.1466, -21.9426),
 }
+
+
+# Pre-0.6.0 key names, read from configs that still use them
+OLD_KEYS = {
+    "duration_minutes": "duration",
+    "delay_start_minutes": "delay_start",
+    "buffer_time_minutes": "buffer_time",
+    "turnaround_time_minutes": "turnaround_time",
+    "water_depth_m": "water_depth",
+    "operation_depth_m": "operation_depth",
+    "vessel_speed_kt": "vessel_speed",
+    "default_vessel_speed_kt": "default_vessel_speed",
+    "ctd_descent_rate_m_s": "ctd_descent_rate",
+    "ctd_ascent_rate_m_s": "ctd_ascent_rate",
+}
+
+
+def key(d: dict, name: str, default: object = None) -> object:
+    """Value of the key *name* in a YAML mapping, or of its pre-0.6.0 name."""
+    if name in d:
+        return d[name]
+    return d.get(OLD_KEYS.get(name, name), default)
 
 
 def gc_nm(a: tuple[float, float], b: tuple[float, float]) -> float:
@@ -78,6 +107,7 @@ class Stop:
     depth: float | None = None
     is_fill: bool = False
     speed: float | None = None  # line operations: own speed
+    transit: float | None = None  # transit_minutes: actual minutes of the transit in
 
 
 @dataclass
@@ -94,6 +124,8 @@ class Row:
     depth: float | None = None
     is_fill: bool = False
     entry: tuple[float, float] | None = None
+    delay: float = 0.0  # the row's own delay_start (operations and ports)
+    planned: float | None = None  # planned minutes, when the actual differs
 
 
 @dataclass
@@ -134,6 +166,9 @@ def run_legs(start: datetime, legs: list[HandLeg]) -> list[Row]:
                 nm = gc_nm(src, stop.entry)
                 minutes = transit_min(nm, leg.speed)
                 if minutes > 0:
+                    planned = None
+                    if stop.transit is not None:
+                        planned, minutes = minutes, stop.transit
                     out.append(
                         Row(
                             f"Transit to {stop.name}",
@@ -144,6 +179,7 @@ def run_legs(start: datetime, legs: list[HandLeg]) -> list[Row]:
                             minutes,
                             nm,
                             entry=src,
+                            planned=planned,
                         )
                     )
                     t += timedelta(minutes=minutes)
@@ -164,6 +200,7 @@ def run_legs(start: datetime, legs: list[HandLeg]) -> list[Row]:
                     stop.depth,
                     stop.is_fill,
                     stop.entry,
+                    stop.delay,
                 )
             )
             t = end
@@ -184,8 +221,8 @@ def port_stop(cfg: dict, ref: str | dict) -> Stop:
             ref.get("display_name", ref["name"]).split(",")[0].strip(),
             (ref["latitude"], ref["longitude"]),
             (ref["latitude"], ref["longitude"]),
-            float(ref.get("duration") or 0.0),
-            float(ref.get("delay_start") or 0.0),
+            float(key(ref, "duration_minutes") or 0.0),
+            float(key(ref, "delay_start_minutes") or 0.0),
             kind="port",
         )
     for p in cfg.get("ports") or []:
@@ -202,21 +239,21 @@ def activity_stop(
     turnaround: float | None = None,
 ) -> Stop:
     """Resolve an activity name to a Stop using the documented duration rules."""
-    descent = float(cfg.get("ctd_descent_rate", 1.0))
-    ascent = float(cfg.get("ctd_ascent_rate", 1.0))
+    descent = float(key(cfg, "ctd_descent_rate_m_s", 1.0))
+    ascent = float(key(cfg, "ctd_ascent_rate_m_s", 1.0))
     if turnaround is None:
-        turnaround = float(cfg.get("turnaround_time", 30.0))
+        turnaround = float(key(cfg, "turnaround_time_minutes", 30.0))
     for p in cfg.get("points") or []:
         if p["name"] != name:
             continue
         pos = (p["latitude"], p["longitude"])
-        depth = p.get("operation_depth", p.get("water_depth"))
+        depth = key(p, "operation_depth_m", key(p, "water_depth_m"))
         if depth == FILL_DEPTH:
-            depth = p.get("water_depth")
+            depth = key(p, "water_depth_m")
         op_type = str(p.get("operation_type", "")).lower()
-        delay = float(p.get("delay_start") or 0.0)
-        if p.get("duration"):
-            minutes = float(p["duration"])
+        delay = float(key(p, "delay_start_minutes") or 0.0)
+        if key(p, "duration_minutes"):
+            minutes = float(key(p, "duration_minutes"))
             return Stop(
                 name, pos, pos, minutes, delay, depth=depth, is_fill=minutes == FILL_MIN
             )
@@ -237,13 +274,13 @@ def activity_stop(
                 name,
                 (first["latitude"], first["longitude"]),
                 (last["latitude"], last["longitude"]),
-                float(area["duration"]),
+                float(key(area, "duration_minutes")),
             )
     for line in cfg.get("lines") or []:
         if line["name"] == name:
             route = [(r["latitude"], r["longitude"]) for r in line["route"]]
             nm = sum(gc_nm(route[i], route[i + 1]) for i in range(len(route) - 1))
-            speed = float(line.get("vessel_speed") or leg_speed)
+            speed = float(key(line, "vessel_speed_kt") or leg_speed)
             return Stop(
                 name,
                 route[0],
@@ -255,6 +292,15 @@ def activity_stop(
     raise KeyError(name)
 
 
+def transit_override(cfg: dict, name: str) -> float | None:
+    """``transit_minutes`` of the point, line, area or port called *name*."""
+    for catalog in ("points", "lines", "areas", "ports"):
+        for item in cfg.get(catalog) or []:
+            if item.get("name") == name:
+                return key(item, "transit_minutes")
+    return None
+
+
 def leg_activities(leg: dict) -> list[str]:
     """Activities of a leg in order: cluster lists concatenated, else activities."""
     if leg.get("clusters"):
@@ -264,24 +310,31 @@ def leg_activities(leg: dict) -> list[str]:
 
 def hand_legs(cfg: dict, leg_speed_for_lines: bool = True) -> list[HandLeg]:
     """Build HandLeg objects for every leg in a YAML config."""
-    default_speed = float(cfg.get("default_vessel_speed", 10.0))
+    default_speed = float(key(cfg, "default_vessel_speed_kt", 10.0))
     legs = []
     for leg in cfg["legs"]:
-        speed = float(leg.get("vessel_speed") or default_speed)
+        speed = float(key(leg, "vessel_speed_kt") or default_speed)
         line_speed = speed if leg_speed_for_lines else default_speed
-        turnaround = leg.get("turnaround_time")
+        turnaround = key(leg, "turnaround_time_minutes")
         stops = [port_stop(cfg, leg["departure_port"])]
         stops += [
             activity_stop(cfg, a, line_speed, turnaround) for a in leg_activities(leg)
         ]
         stops.append(port_stop(cfg, leg["arrival_port"]))
+        for stop, name in zip(
+            stops[1:],
+            [*leg_activities(leg), leg["arrival_port"]],
+            strict=True,
+        ):
+            if isinstance(name, str):
+                stop.transit = transit_override(cfg, name)
         legs.append(
             HandLeg(
                 leg["name"],
                 stops,
                 speed,
-                leg.get("buffer_time"),
-                float(leg.get("delay_start") or 0.0),
+                key(leg, "buffer_time_minutes"),
+                float(key(leg, "delay_start_minutes") or 0.0),
             )
         )
     return legs
@@ -299,7 +352,43 @@ def cruise_start(cfg: dict) -> datetime:
 
 def hand_schedule(cfg: dict, **kwargs: bool) -> list[Row]:
     """Full hand schedule for a YAML config dict."""
-    return run_legs(cruise_start(cfg), hand_legs(cfg, **kwargs))
+    return hand_actual(run_legs(cruise_start(cfg), hand_legs(cfg, **kwargs)))
+
+
+def hand_actual(rows: list[Row]) -> list[Row]:
+    """Move each operation's delay into the operation before it (same leg)."""
+    minutes = [r.minutes for r in rows]
+    prev_op = None
+    for i, row in enumerate(rows):
+        if i == 0 or row.leg != rows[i - 1].leg:
+            prev_op = None
+        if row.kind in ("transit", "buffer"):
+            continue
+        if row.delay and prev_op is not None:
+            minutes[prev_op] = max(0.0, minutes[prev_op] + row.delay)
+        prev_op = i
+    out: list[Row] = []
+    for i, row in enumerate(rows):
+        if i == 0:
+            start = row.start
+        elif row.leg != rows[i - 1].leg:
+            gap = row.start - rows[i - 1].end
+            start = out[-1].end + max(gap, timedelta(0))
+        else:
+            start = out[-1].end
+        planned = row.planned
+        if planned is None and minutes[i] != row.minutes:
+            planned = row.minutes
+        out.append(
+            replace(
+                row,
+                start=start,
+                end=start + timedelta(minutes=minutes[i]),
+                minutes=minutes[i],
+                planned=planned,
+            )
+        )
+    return out
 
 
 # -----------------------------------------------------------------------------
@@ -316,8 +405,12 @@ class ForecastRow:
     minutes: float
 
 
-def hand_anchor(rows: list[Row], index: int) -> int:
-    """Anchored row: the index itself, or the row after a transit."""
+def hand_anchor(
+    rows: list[Row], index: int, position: tuple[float, float] | None = None
+) -> int:
+    """Anchored row: the index itself; with a position, the row after a transit."""
+    if position is None:
+        return index
     while rows[index].kind == "transit":
         index += 1
     return index
@@ -331,7 +424,7 @@ def hand_forecast(
     knots: float = 10.0,
 ) -> list[ForecastRow]:
     """Re-anchored forecast of a hand schedule (no forecast window)."""
-    k = hand_anchor(rows, index)
+    k = hand_anchor(rows, index, position)
     out = []
     t_k = start
     if position is not None:
@@ -339,9 +432,7 @@ def hand_forecast(
         out.append(ForecastRow(-1, start, minutes))
         t_k = start + timedelta(minutes=minutes)
     for j in range(k, len(rows)):
-        minutes = rows[j].minutes
-        if j + 1 < len(rows):
-            gap = (rows[j + 1].start - rows[j].start).total_seconds() / 60.0
-            minutes = max(0.0, min(minutes, gap))
-        out.append(ForecastRow(j, t_k + (rows[j].start - rows[k].start), minutes))
+        out.append(
+            ForecastRow(j, t_k + (rows[j].start - rows[k].start), rows[j].minutes)
+        )
     return out

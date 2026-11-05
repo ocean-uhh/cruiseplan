@@ -12,9 +12,6 @@ from pathlib import Path
 
 from cruiseplan.config.cruise_config import CruiseConfig
 
-# Key under which the configuration file name and hash are kept on the config
-SOURCE_CONFIG_KEY = "source_config_provenance"
-
 
 def _utc_now() -> str:
     """Return the current UTC time as ISO 8601 with a trailing Z, to the second."""
@@ -44,21 +41,11 @@ def record_source_config(config: CruiseConfig, config_path: str | Path) -> None:
         YAML file ``config`` was loaded from.
     """
     path = Path(config_path)
-    setattr(
-        config,
-        SOURCE_CONFIG_KEY,
-        {
-            "file": path.name,
-            "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
-            "date_created": _utc_now(),
-        },
-    )
-
-
-def _extra(config: CruiseConfig) -> dict:
-    """Return the extra (non-schema) fields of ``config``, or an empty dict."""
-    extra = getattr(config, "model_extra", None)
-    return extra if isinstance(extra, dict) else {}
+    config.source_config_provenance = {
+        "file": path.name,
+        "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+        "date_created": _utc_now(),
+    }
 
 
 def _parameter(config: CruiseConfig, name: str) -> float | str:
@@ -72,7 +59,7 @@ def _parameter(config: CruiseConfig, name: str) -> float | str:
 
 def _bathymetry_source(config: CruiseConfig) -> tuple[str, int | None]:
     """Return the bathymetry source description and fill count recorded on ``config``."""
-    record = _extra(config).get("bathymetry_provenance")
+    record = getattr(config, "bathymetry_provenance", None)
     if record:
         source = str(record.get("source", "unknown"))
         if not record.get("file_found", True):
@@ -112,7 +99,7 @@ def planning_provenance(config: CruiseConfig) -> dict[str, str | float | int]:
         ``turnaround_time_min``, ``start_date``, and ``date_created`` (UTC,
         ISO 8601 with ``Z``).
     """
-    source = _extra(config).get(SOURCE_CONFIG_KEY) or {}
+    source = getattr(config, "source_config_provenance", None) or {}
     bathymetry_source, depths_filled = _bathymetry_source(config)
     fields: dict[str, str | float | int] = {
         "cruiseplan_version": _package_version(),
@@ -124,10 +111,10 @@ def planning_provenance(config: CruiseConfig) -> dict[str, str | float | int]:
         fields["bathymetry_depths_filled"] = depths_filled
     fields.update(
         {
-            "default_vessel_speed_kt": _parameter(config, "default_vessel_speed"),
-            "ctd_descent_rate_m_s": _parameter(config, "ctd_descent_rate"),
-            "ctd_ascent_rate_m_s": _parameter(config, "ctd_ascent_rate"),
-            "turnaround_time_min": _parameter(config, "turnaround_time"),
+            "default_vessel_speed_kt": _parameter(config, "default_vessel_speed_kt"),
+            "ctd_descent_rate_m_s": _parameter(config, "ctd_descent_rate_m_s"),
+            "ctd_ascent_rate_m_s": _parameter(config, "ctd_ascent_rate_m_s"),
+            "turnaround_time_min": _parameter(config, "turnaround_time_minutes"),
             "start_date": str(getattr(config, "start_date", None) or "not set"),
             "date_created": source.get("date_created") or _utc_now(),
         }

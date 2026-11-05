@@ -50,6 +50,9 @@ class GeoPoint(BaseModel):
 
     latitude: float
     longitude: float
+    # Display strings written by enrich (add_coordinate_displays); not serialized
+    latitude_decmin: str | None = None
+    longitude_decmin: str | None = None
 
     @field_validator("latitude")
     def validate_lat(cls, v: float) -> float:
@@ -182,16 +185,18 @@ class PointDefinition(FlexibleLocationModel):
         Type of scientific operation to perform.
     action : ActionEnum
         Specific action for the operation.
-    operation_depth : Optional[float]
+    operation_depth_m : Optional[float]
         Target operation depth (e.g., CTD cast depth) in meters.
-    water_depth : Optional[float]
+    water_depth_m : Optional[float]
         Water depth at location (seafloor depth) in meters.
-    duration : Optional[float]
+    duration_minutes : Optional[float]
         Manual duration override in minutes.
-    delay_start : Optional[float]
-        Time to wait before operation begins in minutes (e.g., for daylight).
-    delay_end : Optional[float]
-        Time to wait after operation ends in minutes (e.g., for equipment settling).
+    delay_start_minutes : Optional[float]
+        Change to the actual duration of the previous operation in the leg,
+        in minutes: positive, it ran long; negative, it ended early.
+    transit_minutes : Optional[float]
+        Actual duration of the transit into this operation in minutes,
+        replacing distance / speed (e.g. a faster or slower passage).
     comment : Optional[str]
         Human-readable comment or description.
     equipment : Optional[str]
@@ -200,6 +205,8 @@ class PointDefinition(FlexibleLocationModel):
         Original position string for reference.
     history : Optional[str]
         Semicolon-delimited provenance string (e.g. how the point was created).
+    bathymetry_source : Optional[str]
+        Bathymetry dataset the water depth was read from (set by enrich).
     display_name : Optional[str]
         Human-readable display name (for ports).
     timezone : Optional[str]
@@ -209,25 +216,29 @@ class PointDefinition(FlexibleLocationModel):
     name: str
     operation_type: OperationTypeEnum | None = None
     action: ActionEnum | None = None
-    operation_depth: float | None = Field(
-        None, description="Target operation depth (e.g., CTD cast depth)"
+    operation_depth_m: float | None = Field(
+        None, description="Target operation depth in meters (e.g., CTD cast depth)"
     )
-    water_depth: float | None = Field(
-        None, description="Water depth at location (seafloor depth)"
+    water_depth_m: float | None = Field(
+        None, description="Water depth at location (seafloor depth) in meters"
     )
-    duration: float | None = None
-    delay_start: float | None = None  # Time to wait before operation begins (minutes)
-    delay_end: float | None = None  # Time to wait after operation ends (minutes)
+    duration_minutes: float | None = None
+    delay_start_minutes: float | None = None  # wait before the operation begins
+    transit_minutes: float | None = Field(
+        None, ge=0, description="Actual minutes of the transit into this point"
+    )
     comment: str | None = None
     equipment: str | None = None
     position_string: str | None = None
     history: str | None = None
+    # Set by enrich when water_depth came from a bathymetry file
+    bathymetry_source: str | None = None
 
     # Port-specific fields
     display_name: str | None = None
     timezone: str | None = None
 
-    @field_validator("operation_depth")
+    @field_validator("operation_depth_m")
     @classmethod
     def validate_operation_depth(cls, v: float | None) -> float | None:
         """Validate operation depth is positive."""
@@ -236,7 +247,7 @@ class PointDefinition(FlexibleLocationModel):
             raise ValueError(msg)
         return v
 
-    @field_validator("water_depth")
+    @field_validator("water_depth_m")
     @classmethod
     def validate_water_depth(cls, v: float | None) -> float | None:
         """Validate water depth is positive or the fill value DEFAULT_DEPTH."""
@@ -294,8 +305,10 @@ class LineDefinition(BaseModel):
         List of waypoints defining the transect route.
     comment : Optional[str]
         Human-readable comment or description.
-    vessel_speed : Optional[float]
+    vessel_speed_kt : Optional[float]
         Speed for this transect in knots.
+    transit_minutes : Optional[float]
+        Actual duration of the transit into this line in minutes.
     operation_type : Optional[LineOperationTypeEnum]
         Type of operation for scientific transects.
     action : Optional[ActionEnum]
@@ -305,11 +318,14 @@ class LineDefinition(BaseModel):
     name: str
     route: list[GeoPoint]
     comment: str | None = None
-    vessel_speed: float | None = None
+    vessel_speed_kt: float | None = None
     # Optional fields for scientific transects
     operation_type: LineOperationTypeEnum | None = None
     action: ActionEnum | None = None
-    distance_between_stations: float | None = None
+    distance_between_stations_km: float | None = None
+    transit_minutes: float | None = Field(
+        None, ge=0, description="Actual minutes of the transit into this line"
+    )
     max_depth: float | None = None  # Override default depth for CTD sections
 
     @field_validator("route", mode="before")
@@ -341,7 +357,7 @@ class LineDefinition(BaseModel):
                 parsed.append(point)
         return parsed
 
-    @field_validator("vessel_speed")
+    @field_validator("vessel_speed_kt")
     @classmethod
     def validate_vessel_speed(cls, v: float | None) -> float | None:
         """Validate vessel speed is positive."""
@@ -370,8 +386,10 @@ class AreaDefinition(BaseModel):
         Type of operation for the area (default: "survey").
     action : Optional[ActionEnum]
         Specific action for the area operation.
-    duration : Optional[float]
+    duration_minutes : Optional[float]
         Duration for the area operation in minutes.
+    transit_minutes : Optional[float]
+        Actual duration of the transit into this area in minutes.
     """
 
     name: str
@@ -379,9 +397,12 @@ class AreaDefinition(BaseModel):
     comment: str | None = None
     operation_type: AreaOperationTypeEnum | None = AreaOperationTypeEnum.SURVEY
     action: ActionEnum | None = None
-    duration: float | None = None  # Duration in minutes
+    duration_minutes: float | None = None
+    transit_minutes: float | None = Field(
+        None, ge=0, description="Actual minutes of the transit into this area"
+    )
 
-    @field_validator("duration")
+    @field_validator("duration_minutes")
     @classmethod
     def validate_duration(cls, v: float | None) -> float | None:
         """Validate duration is positive."""

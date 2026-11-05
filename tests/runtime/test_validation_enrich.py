@@ -46,7 +46,7 @@ class TestEnrichConfiguration:
         # Mock station without water_depth
         mock_station = MagicMock()
         mock_station.depth = None
-        mock_station.water_depth = None
+        mock_station.water_depth_m = None
         mock_station.latitude = 50.0
         mock_station.longitude = -40.0
         mock_cruise.point_registry = {"STN_001": mock_station}
@@ -349,7 +349,7 @@ class TestValidateDepthAccuracy:
         # Setup mock cruise and station
         mock_cruise = MagicMock()
         mock_station = MagicMock()
-        mock_station.water_depth = 1000.0
+        mock_station.water_depth_m = 1000.0
         mock_station.depth = None
         mock_station.latitude = 50.0
         mock_station.longitude = -40.0
@@ -373,7 +373,7 @@ class TestValidateDepthAccuracy:
         # Setup mock cruise and station
         mock_cruise = MagicMock()
         mock_station = MagicMock()
-        mock_station.water_depth = 1000.0
+        mock_station.water_depth_m = 1000.0
         mock_station.depth = None
         mock_station.latitude = 50.0
         mock_station.longitude = -40.0
@@ -399,7 +399,7 @@ class TestValidateDepthAccuracy:
         # Setup mock cruise and station
         mock_cruise = MagicMock()
         mock_station = MagicMock()
-        mock_station.water_depth = 1000.0
+        mock_station.water_depth_m = 1000.0
         mock_station.depth = None
         mock_station.latitude = 50.0
         mock_station.longitude = -40.0
@@ -424,7 +424,7 @@ class TestValidateDepthAccuracy:
         # Setup mock cruise and station without depth
         mock_cruise = MagicMock()
         mock_station = MagicMock()
-        mock_station.water_depth = None
+        mock_station.water_depth_m = None
         mock_station.depth = None
         mock_cruise.point_registry = {"STN_001": mock_station}
 

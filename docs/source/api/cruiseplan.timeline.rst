@@ -4,8 +4,15 @@ Timeline & Scheduling
 Scheduling algorithms and timeline generation for cruise planning.
 
 .. automodule:: cruiseplan.timeline
-   :members:
+   :no-index:
 
+
+cruiseplan.timeline.record module
+----------------------------------
+
+.. automodule:: cruiseplan.timeline.record
+   :members:
+   :show-inheritance:
 
 cruiseplan.timeline.distance module
 ------------------------------------

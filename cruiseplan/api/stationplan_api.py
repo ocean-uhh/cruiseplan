@@ -9,19 +9,20 @@ import logging
 from dataclasses import dataclass
 from datetime import timedelta
 from pathlib import Path
-from typing import Any
 
 import numpy as np
 import xarray as xr
 
 from cruiseplan.forecast.formatter import format_letsgo_output
 from cruiseplan.forecast.generator import (
+    anchor_rule,
     format_activities_table,
     generate_forecast,
     list_activities,
 )
 from cruiseplan.forecast.reader import read_schedule
 from cruiseplan.output.kml_generator import KMLGenerator
+from cruiseplan.timeline.record import ActivityRecord, kind_of
 
 logger = logging.getLogger(__name__)
 
@@ -102,17 +103,17 @@ def stationplan_list(schedule_file: str | Path) -> StationplanResult:
 
     except FileNotFoundError as e:
         error_msg = f"Schedule file not found: {e}"
-        logger.exception(error_msg)
+        logger.error(error_msg)
         return StationplanResult(success=False, message=error_msg, output="")
 
     except ValueError as e:
         error_msg = f"Invalid schedule file: {e}"
-        logger.exception(error_msg)
+        logger.error(error_msg)
         return StationplanResult(success=False, message=error_msg, output="")
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - reported in the result; logged with a traceback
         error_msg = f"Unexpected error processing schedule: {e}"
-        logger.exception(error_msg)
+        _log_failure(error_msg, e)
         return StationplanResult(success=False, message=error_msg, output="")
 
 
@@ -136,11 +137,14 @@ def stationplan_forecast(
     schedule_file : str or Path
         Path to NetCDF schedule file (e.g., 'MSM142_leg_2_schedule.nc')
     start_index : int
-        Row index (0-based, as in ``cruiseplan list``); a transit row anchors
-        on the operation it leads to
+        Row index (0-based, as in ``cruiseplan list``); an operation row
+        starts at ``start_time``, a transit row starts at ``start_time`` from
+        where it begins (with ``current_position``, the operation it leads to
+        is used)
     start_time : str
         Start time of the anchored operation, or of the ship at
-        ``current_position`` (ISO format: "2026-08-30T14:00:00")
+        ``current_position`` (ISO format, UTC: "2026-08-30T14:00:00"; a time
+        without a zone is taken as UTC)
     duration_hours : float, optional
         Forecast duration in hours (default: 24.0)
     transit_speed : float, optional
@@ -188,7 +192,12 @@ def stationplan_forecast(
 
         # Format as letsgo.m output
         output_text = format_letsgo_output(
-            forecast_activities, start_time, transit_speed
+            forecast_activities,
+            start_time,
+            transit_speed,
+            anchor_note=anchor_rule(
+                schedule, start_index, start_time, current_position
+            ),
         )
 
         logger.info(
@@ -203,17 +212,17 @@ def stationplan_forecast(
 
     except FileNotFoundError as e:
         error_msg = f"Schedule file not found: {e}"
-        logger.exception(error_msg)
+        logger.error(error_msg)
         return StationplanResult(success=False, message=error_msg, output="")
 
     except ValueError as e:
         error_msg = f"Invalid forecast parameters: {e}"
-        logger.exception(error_msg)
+        logger.error(error_msg)
         return StationplanResult(success=False, message=error_msg, output="")
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - reported in the result; logged with a traceback
         error_msg = f"Unexpected error generating forecast: {e}"
-        logger.exception(error_msg)
+        _log_failure(error_msg, e)
         return StationplanResult(success=False, message=error_msg, output="")
 
 
@@ -288,21 +297,13 @@ def stationplan_tex(
 
     except FileNotFoundError as e:
         error_msg = f"Schedule file not found: {e}"
-        logger.exception(error_msg)
+        logger.error(error_msg)
         return StationplanResult(success=False, message=error_msg, output="")
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - reported in the result; logged with a traceback
         error_msg = f"Error generating TeX table: {e}"
-        logger.exception(error_msg)
+        _log_failure(error_msg, e)
         return StationplanResult(success=False, message=error_msg, output="")
-
-
-class _ForecastRecord:
-    """Lightweight record holding processed forecast activity data for TeX output."""
-
-    def __init__(self, data: dict) -> None:
-        for key, value in data.items():
-            setattr(self, key, value)
 
 
 def _lookup_schedule_depth_data(
@@ -360,11 +361,8 @@ def _lookup_tex_exit_coords(
 
 def _build_tex_forecast_record(
     schedule: xr.Dataset, index: int, activity_tuple: tuple
-) -> "_ForecastRecord | None":
-    """Convert one forecast activity tuple to a _ForecastRecord for TeX output.
-
-    Returns None for transit activities.
-    """
+) -> "ActivityRecord | None":
+    """Convert one forecast row to a record for TeX output; None for transits."""
     (
         _idx,
         time,
@@ -385,8 +383,8 @@ def _build_tex_forecast_record(
     end_time = time + timedelta(hours=duration)
 
     operation_distance = (
-        float(schedule.dist_nm[index].values)
-        if "dist_nm" in schedule.variables
+        float(schedule.distance[index].values)
+        if "distance" in schedule.variables
         else 0.0
     )
     next_transit_distance = (
@@ -395,30 +393,33 @@ def _build_tex_forecast_record(
         else 0.0
     )
 
-    record_data = {
-        "activity": category,
-        "label": name,
-        "entry_lat": float(latitude),
-        "entry_lon": float(longitude),
-        "exit_lat": float(exit_lat),
-        "exit_lon": float(exit_lon),
-        "start_time": time,
-        "end_time": end_time,
-        "duration_minutes": float(duration) * 60.0,
-        "water_depth": water_depth,
-        "operation_depth": operation_depth,
-        "dist_nm": operation_distance,
-        "transit_dist_nm": next_transit_distance,
-        "vessel_speed_kt": 10.0,
-        "leg_name": "forecast",
-        "op_type": activity_type,
-        "operation_class": (
+    from cruiseplan.forecast.reader import stored_kind
+
+    return ActivityRecord(
+        kind="transit" if index < 0 else stored_kind(schedule, index),
+        activity=category,
+        label=name,
+        entry_lat=float(latitude),
+        entry_lon=float(longitude),
+        exit_lat=float(exit_lat),
+        exit_lon=float(exit_lon),
+        start_time=time,
+        end_time=end_time,
+        duration_minutes=float(duration) * 60.0,
+        planned_duration_minutes=float(duration) * 60.0,
+        water_depth_m=water_depth,
+        operation_depth_m=operation_depth,
+        dist_nm=operation_distance,
+        transit_dist_nm=next_transit_distance,
+        vessel_speed_kt=10.0,
+        leg_name="forecast",
+        op_type=activity_type,
+        operation_class=(
             "LineOperation" if operation_distance > 0.1 else "PointOperation"
         ),
-        "action": action if action else None,
-        "comment": comment,
-    }
-    return _ForecastRecord(record_data)
+        action=action if action else None,
+        comment=comment,
+    )
 
 
 def stationplan_forecast_tex(
@@ -443,11 +444,14 @@ def stationplan_forecast_tex(
     schedule_file : str or Path
         Path to NetCDF schedule file
     start_index : int
-        Row index (0-based, as in ``cruiseplan list``); a transit row anchors
-        on the operation it leads to
+        Row index (0-based, as in ``cruiseplan list``); an operation row
+        starts at ``start_time``, a transit row starts at ``start_time`` from
+        where it begins (with ``current_position``, the operation it leads to
+        is used)
     start_time : str
         Start time of the anchored operation, or of the ship at
-        ``current_position`` (ISO format: "2026-08-30T14:00:00")
+        ``current_position`` (ISO format, UTC: "2026-08-30T14:00:00"; a time
+        without a zone is taken as UTC)
     duration_hours : float
         Forecast duration in hours (default: 24.0)
     output_path : str or Path, optional
@@ -515,6 +519,9 @@ def stationplan_forecast_tex(
             logo_path=logo_path,
             workplan_number=workplan_number,
             cruise_title=cruise_title,
+            anchor_note=anchor_rule(
+                schedule, start_index, start_time, current_position
+            ),
         )
 
         # Write to file
@@ -529,9 +536,9 @@ def stationplan_forecast_tex(
             output=str(output_file),
         )
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - reported in the result; logged with a traceback
         error_msg = f"Error generating TeX forecast: {e}"
-        logger.exception(error_msg)
+        _log_failure(error_msg, e)
         return StationplanResult(success=False, message=error_msg, output="")
 
 
@@ -640,11 +647,13 @@ def stationplan_waypoints(
     schedule_file : str or Path
         Path to NetCDF schedule file
     start_index : int, optional
-        Row index (0-based, as in ``cruiseplan list``); a transit row anchors
-        on the operation it leads to. If None, the full schedule from row 0.
+        Row index (0-based, as in ``cruiseplan list``); an operation row
+        starts at ``start_time``, a transit row starts at ``start_time`` from
+        where it begins. If None, the full schedule from row 0.
     start_time : str, optional
         Start time of the anchored operation, or of the ship at
-        ``current_position`` (ISO format). If None, now rounded to 10 minutes.
+        ``current_position`` (ISO format, UTC; a time without a zone is taken
+        as UTC). If None, now (UTC) rounded to 10 minutes.
     duration_hours : float, optional
         Forecast duration in hours (if None, uses remaining schedule)
     current_position : tuple of float, optional
@@ -674,11 +683,12 @@ def stationplan_waypoints(
 
         # Default start_time to now, rounded to 10 minutes (like letsgo.m)
         if start_time is None:
-            from datetime import datetime
+            from datetime import UTC, datetime
 
             from cruiseplan.utils.units import round_to_minutes
 
-            start_time = round_to_minutes(datetime.now(), 10).isoformat()
+            now = datetime.now(UTC).replace(tzinfo=None)
+            start_time = round_to_minutes(now, 10).isoformat()
 
         # Always use forecast mode for waypoints (from start_index forward)
         activities = generate_forecast(
@@ -793,9 +803,9 @@ def stationplan_waypoints(
             output=waypoint_content_ddm,
         )
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - reported in the result; logged with a traceback
         error_msg = f"Error generating bridge waypoints: {e}"
-        logger.exception(error_msg)
+        _log_failure(error_msg, e)
         return StationplanResult(success=False, message=error_msg, output="")
 
 
@@ -825,21 +835,12 @@ def _format_decimal_degrees(decimal_degrees: float, coord_type: str) -> str:
     return f"{decimal_degrees:9.5f}"
 
 
-def _add_depth_data_to_timeline_record(
-    record: dict, schedule: object, index: int
-) -> None:
-    """Populate water_depth and operation_depth on *record* from *schedule* if available."""
-    try:
-        if "water_depth" in schedule.variables:
-            depth_val = schedule.water_depth[index].values
-            if not np.isnan(float(depth_val)):
-                record["water_depth"] = float(depth_val)
-        if "operation_depth" in schedule.variables:
-            op_depth_val = schedule.operation_depth[index].values
-            if not np.isnan(float(op_depth_val)):
-                record["operation_depth"] = float(op_depth_val)
-    except (AttributeError, TypeError, ValueError, IndexError):
-        pass
+def _log_failure(message: str, error: Exception) -> None:
+    """Log a failed forecast: a bad input without a traceback, anything else with one."""
+    if isinstance(error, ValueError):
+        logger.error(message)
+    else:
+        logger.exception(message)
 
 
 _WORK_CODE_BY_TYPE: dict[str, int] = {
@@ -878,7 +879,7 @@ def _map_activity_to_work_code(
 
 def _convert_raw_activity_to_kml_record(
     activity: tuple, schedule: xr.Dataset | None = None
-) -> dict | None:
+) -> "ActivityRecord | None":
     """Convert a forecast row to a KML record; None for transits or invalid positions."""
     import pandas as pd
 
@@ -908,24 +909,37 @@ def _convert_raw_activity_to_kml_record(
             return str(schedule[var][index].values).strip()
         return default
 
-    start = pd.to_datetime(time)
-    return {
-        "name": name,
-        "label": name,
-        "latitude": latitude,
-        "longitude": longitude,
-        "lat": latitude,
-        "lon": longitude,
-        "time": start,
-        "start_time": start,
-        "category": category,
-        "activity": stored("activity", "Station"),
-        "operation_class": stored("operation_class", "PointOperation"),
-        "activity_type": activity_type,
-        "action": action,
-        "duration": duration,
-        "duration_minutes": float(duration) * 60.0,
-    }
+    from cruiseplan.forecast.reader import stored_kind
+
+    operation_class = stored("operation_class", "PointOperation")
+    if operation_class not in {"PointOperation", "LineOperation", "AreaOperation"}:
+        return None  # only scientific operations and ports are shown
+    if schedule is not None and index >= 0:
+        kind = stored_kind(schedule, index)
+    else:
+        kind = kind_of(operation_class, activity_type)
+
+    start = pd.to_datetime(time).to_pydatetime()
+    minutes = float(duration) * 60.0
+    return ActivityRecord(
+        kind=kind,
+        activity=stored("activity", "Station"),
+        label=name,
+        entry_lat=float(latitude),
+        entry_lon=float(longitude),
+        exit_lat=float(latitude),
+        exit_lon=float(longitude),
+        start_time=start,
+        end_time=start + timedelta(minutes=minutes),
+        duration_minutes=minutes,
+        planned_duration_minutes=minutes,
+        dist_nm=0.0,
+        vessel_speed_kt=0.0,
+        leg_name=stored("leg_assignment", "forecast"),
+        op_type=activity_type,
+        operation_class=operation_class,
+        action=action or None,
+    )
 
 
 def stationplan_forecast_kml(
@@ -947,11 +961,13 @@ def stationplan_forecast_kml(
     schedule_file : Union[str, Path]
         Path to the NetCDF schedule file
     start_index : int
-        Row index (0-based, as in ``cruiseplan list``); a transit row anchors
-        on the operation it leads to
+        Row index (0-based, as in ``cruiseplan list``); an operation row
+        starts at ``start_time``, a transit row starts at ``start_time`` from
+        where it begins (with ``current_position``, the operation it leads to
+        is used)
     start_time : str
         Start time of the anchored operation, or of the ship at
-        ``current_position`` (ISO format, e.g. '2026-05-05 08:00')
+        ``current_position`` (ISO format, UTC, e.g. '2026-05-05 08:00')
     duration_hours : float
         Forecast duration in hours
     output_path : Union[str, Path, None], optional
@@ -1006,24 +1022,7 @@ def stationplan_forecast_kml(
 
         mock_config = MockCruiseConfig()
 
-        # Convert to ActivityRecord-like objects for KMLGenerator
-        class MockActivityRecord:
-            def __init__(self, data: dict[str, Any]) -> None:
-                for key, value in data.items():
-                    setattr(self, key, value)
-
-                # Convert to dict access for KML generator compatibility
-                self.data = data
-
-            def __getitem__(self, key: str) -> Any:  # noqa: ANN401 - activity dict values are heterogeneous
-                return self.data[key]
-
-            def get(self, key: str, default: Any = None) -> Any:  # noqa: ANN401 - mirrors dict.get
-                return self.data.get(key, default)
-
-        activity_records = [
-            MockActivityRecord(activity) for activity in forecast_activities
-        ]
+        activity_records = forecast_activities
 
         # Determine output path
         if output_path is None:
@@ -1048,9 +1047,9 @@ def stationplan_forecast_kml(
             output=str(output_file),
         )
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - reported in the result; logged with a traceback
         error_msg = f"Error generating KML forecast: {e}"
-        logger.exception(error_msg)
+        _log_failure(error_msg, e)
         return StationplanResult(success=False, message=error_msg, output="")
 
 
@@ -1085,11 +1084,13 @@ def stationplan_forecast_png(
     schedule_file : Union[str, Path]
         Path to the NetCDF schedule file
     start_index : int
-        Row index (0-based, as in ``cruiseplan list``); a transit row anchors
-        on the operation it leads to
+        Row index (0-based, as in ``cruiseplan list``); an operation row
+        starts at ``start_time``, a transit row starts at ``start_time`` from
+        where it begins (with ``current_position``, the operation it leads to
+        is used)
     start_time : str
         Start time of the anchored operation, or of the ship at
-        ``current_position`` (ISO format, e.g. '2026-05-05 08:00')
+        ``current_position`` (ISO format, UTC, e.g. '2026-05-05 08:00')
     duration_hours : float
         Forecast duration in hours
     output_path : Union[str, Path, None], optional
@@ -1175,23 +1176,30 @@ def stationplan_forecast_png(
             if category == "transit":
                 continue
 
-            # Create timeline record compatible with map generator
-            # The map generator extracts lat/lon and labels from these records
-            timeline_record = {
-                "activity": category,
-                "label": name,
-                "lat": float(latitude),  # Map generator expects "lat", not "entry_lat"
-                "lon": float(longitude),  # Map generator expects "lon", not "entry_lon"
-                "entry_lat": float(latitude),
-                "entry_lon": float(longitude),
-                "start_time": time,
-                "duration_minutes": float(duration) * 60.0,
-                "operation_class": "PointOperation",  # Simplified for forecast map
-                "leg_name": "forecast",
-                "op_type": activity_type,
-            }
-
-            _add_depth_data_to_timeline_record(timeline_record, schedule, index)
+            water_depth, operation_depth, _ = _lookup_schedule_depth_data(
+                schedule, index
+            )
+            minutes = float(duration) * 60.0
+            timeline_record = ActivityRecord(
+                kind="station",
+                activity=category,
+                label=name,
+                entry_lat=float(latitude),
+                entry_lon=float(longitude),
+                exit_lat=float(latitude),
+                exit_lon=float(longitude),
+                start_time=time,
+                end_time=time + timedelta(minutes=minutes),
+                duration_minutes=minutes,
+                planned_duration_minutes=minutes,
+                dist_nm=0.0,
+                vessel_speed_kt=0.0,
+                operation_class="PointOperation",
+                leg_name="forecast",
+                op_type=activity_type,
+                water_depth_m=water_depth,
+                operation_depth_m=operation_depth,
+            )
 
             timeline_for_map.append(timeline_record)
 
@@ -1236,7 +1244,7 @@ def stationplan_forecast_png(
             output="",
         )
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - reported in the result; logged with a traceback
         error_msg = f"Error generating PNG forecast: {e}"
-        logger.exception(error_msg)
+        _log_failure(error_msg, e)
         return StationplanResult(success=False, message=error_msg, output="")

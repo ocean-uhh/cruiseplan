@@ -6,7 +6,7 @@ points:
     longitude: -45.0
     operation_type: "mooring"
     action: "deployment"
-    # Note: duration field is intentionally missing
+    # Note: duration_minutes field is intentionally missing
 
 legs:
   - name: "Test_Leg"

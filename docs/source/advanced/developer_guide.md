@@ -31,9 +31,9 @@ Pydantic models for parsing and validating YAML input:
 class CruiseConfig(BaseModel):
     cruise_name: str
     description: str | None = None
-    default_vessel_speed: float  # knots
-    default_distance_between_stations: float  # km
-    turnaround_time: float  # minutes
+    default_vessel_speed_kt: float  # knots
+    default_distance_between_stations_km: float  # km
+    turnaround_time_minutes: float  # minutes
     departure_port: str | PointDefinition | None = None
     arrival_port: str | PointDefinition | None = None
     points: list[PointDefinition] | None = None
@@ -46,9 +46,9 @@ class LegDefinition(BaseModel):
     departure_port: str | PointDefinition  # required
     arrival_port: str | PointDefinition  # required
     activities: list[str | dict] | None = None
-    vessel_speed: float | None = None  # knots; inherits from cruise
-    delay_start: float | None = None  # minutes
-    buffer_time: float | None = None  # minutes
+    vessel_speed_kt: float | None = None  # knots; inherits from cruise
+    delay_start_minutes: float | None = None  # minutes
+    buffer_time_minutes: float | None = None  # minutes
     ordered: bool | None = None
     clusters: list[ClusterDefinition] | None = None
 
@@ -58,26 +58,25 @@ class PointDefinition(FlexibleLocationModel):
     name: str
     operation_type: OperationTypeEnum | None = None
     action: ActionEnum | None = None
-    operation_depth: float | None = None  # metres
-    water_depth: float | None = None  # metres
-    duration: float | None = None  # minutes
-    delay_start: float | None = None  # minutes
-    delay_end: float | None = None  # minutes
+    operation_depth_m: float | None = None  # metres
+    water_depth_m: float | None = None  # metres
+    duration_minutes: float | None = None  # minutes
+    delay_start_minutes: float | None = None  # minutes
     equipment: str | None = None
 
 
 class LineDefinition(BaseModel):
     name: str
     route: list[GeoPoint]
-    vessel_speed: float | None = None
-    distance_between_stations: float | None = None  # km
+    vessel_speed_kt: float | None = None
+    distance_between_stations_km: float | None = None  # km
     max_depth: float | None = None  # metres
 
 
 class AreaDefinition(BaseModel):
     name: str
     corners: list[GeoPoint]
-    duration: float | None = None  # minutes; required for area ops
+    duration_minutes: float | None = None  # minutes; required for area ops
 ```
 
 ### Runtime layer (`cruiseplan/runtime/`)
@@ -149,8 +148,40 @@ class DurationCalculator:
 # cruiseplan/timeline/scheduler.py
 def generate_timeline(
     cruise: CruiseInstance, legs: list[Leg] | None = None
-) -> list[dict]: ...
+) -> Timeline: ...
+
+
+# cruiseplan/timeline/record.py
+@dataclass(frozen=True, kw_only=True, slots=True)
+class ActivityRecord:
+    kind: str  # station, mooring, line, area, transit, port, buffer
+    label: str
+    start_time: datetime  # UTC, no zone attached
+    end_time: datetime
+    duration_minutes: float  # actual (end - start)
+    planned_duration_minutes: float  # from the planning rules
+    dist_nm: float
+    vessel_speed_kt: float
+    water_depth_m: float | None = None
+    operation_depth_m: float | None = None
+    delay_start_minutes: float | None = None
+    # ... more fields; see record.py
+
+
+Timeline = list[ActivityRecord]
 ```
+
+Writers (CSV, HTML, LaTeX, KML, NetCDF, maps) and the forecast take records
+and read attributes. `record.kind` replaces classification by label text.
+
+## Deprecations
+
+Renamed YAML keys and API names live in one table each in
+`cruiseplan/_deprecated.py`, with the release that removes them
+(`REMOVED_IN`). The configuration loader (`cruiseplan/config/loader.py`)
+renames old keys before validation and warns once per key per file. A test
+fails once the package version reaches `REMOVED_IN`, and another checks the
+migration page against the tables.
 
 ## Entry/exit point interface
 

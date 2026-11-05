@@ -18,6 +18,7 @@ from cruiseplan.config.activities import (
     PointDefinition,
 )
 from cruiseplan.config.cruise_config import CruiseConfig
+from cruiseplan.config.loader import prepare_config
 from cruiseplan.config.ports import resolve_port_reference
 from cruiseplan.config.values import StrategyEnum
 from cruiseplan.config.yaml_io import load_yaml
@@ -87,7 +88,7 @@ class CruiseInstance:
             If referenced points or lines are not found in the catalog.
         """
         self.config_path = Path(config_path)
-        self.raw_data = self._load_yaml()
+        self.raw_data = prepare_config(self._load_yaml(), self.config_path.name)
 
         # 1. Validation Pass (Pydantic)
         self.config = CruiseConfig(**self.raw_data)
@@ -487,18 +488,18 @@ class CruiseInstance:
             )
 
             # Apply parameter inheritance (leg overrides cruise defaults)
-            runtime_leg.vessel_speed = leg_def.vessel_speed or getattr(
-                self.config, "default_vessel_speed", None
+            runtime_leg.vessel_speed = (
+                leg_def.vessel_speed_kt or self.config.default_vessel_speed_kt
             )
             runtime_leg.distance_between_stations = (
-                leg_def.distance_between_stations
-                or getattr(self.config, "default_distance_between_stations", None)
+                leg_def.distance_between_stations_km
+                or self.config.default_distance_between_stations_km
             )
-            runtime_leg.turnaround_time = leg_def.turnaround_time or getattr(
-                self.config, "turnaround_time", None
+            runtime_leg.turnaround_time = (
+                leg_def.turnaround_time_minutes or self.config.turnaround_time_minutes
             )
-            runtime_leg.delay_start = leg_def.delay_start
-            runtime_leg.buffer_time = leg_def.buffer_time
+            runtime_leg.delay_start = leg_def.delay_start_minutes
+            runtime_leg.buffer_time = leg_def.buffer_time_minutes
 
             # Create clusters within the leg
             if leg_def.clusters:
@@ -547,7 +548,9 @@ class CruiseInstance:
         )
 
     @classmethod
-    def from_dict(cls, config_dict: dict[str, Any]) -> "CruiseInstance":
+    def from_dict(
+        cls, config_dict: dict[str, Any], source: str = "configuration"
+    ) -> "CruiseInstance":
         """
         Create a CruiseInstance from a dictionary without file I/O.
 
@@ -559,6 +562,8 @@ class CruiseInstance:
         ----------
         config_dict : Dict[str, Any]
             Dictionary containing cruise configuration data (e.g., from YAML parsing).
+        source : str, optional
+            File name used in configuration warnings (default: "configuration").
 
         Returns
         -------
@@ -576,7 +581,7 @@ class CruiseInstance:
         --------
         >>> config = {
         ...     "cruise_name": "Test Cruise",
-        ...     "default_vessel_speed": 10.0,
+        ...     "default_vessel_speed_kt": 10.0,
         ...     "points": [{"name": "P1", "latitude": 60.0, "longitude": 5.0}],
         ...     "legs": [{"name": "Leg1", "departure_port": "Bergen", "arrival_port": "Tromsø"}]
         ... }
@@ -589,7 +594,7 @@ class CruiseInstance:
 
         # Set path to None since we're creating from dict
         instance.config_path = None
-        instance.raw_data = config_dict.copy()
+        instance.raw_data = prepare_config(config_dict, source)
 
         # 1. Validation Pass (Pydantic)
         instance.config = CruiseConfig(**instance.raw_data)

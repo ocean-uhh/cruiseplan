@@ -74,7 +74,7 @@ COORDINATE_VARIABLES = {
     "time": {
         "standard_name": "time",
         "long_name": "time of ship position",
-        "units": "days since 1970-01-01 00:00:00",
+        "units": "seconds since 1970-01-01 00:00:00",
         "calendar": "gregorian",
     },
 }
@@ -84,21 +84,21 @@ DEPTH_VARIABLES = {
     "water_depth": {
         "standard_name": "sea_floor_depth_below_sea_surface",
         "long_name": "water depth at station location",
-        "units": "meters",
+        "units": "m",
         "positive": "down",
         "description": "Depth from sea level to seafloor at station location",
     },
     "operation_depth": {
         "standard_name": "depth",
         "long_name": "target operation depth",
-        "units": "meters",
+        "units": "m",
         "positive": "down",
         "description": "Target depth for operation (e.g., CTD cast depth)",
     },
     # Legacy depth variable for backward compatibility
     "waterdepth": {
         "long_name": "water depth",
-        "units": "meters",
+        "units": "m",
         "positive": "down",
         "description": "DEPRECATED: Use water_depth for seafloor depth or operation_depth for target operation depth",
     },
@@ -119,7 +119,7 @@ STATION_VARIABLES = {
     },
     "duration": {
         "long_name": "operation duration",
-        "units": "hours",
+        "units": "minute",
         "description": "Duration of the operation in hours",
     },
     "comment": {
@@ -128,7 +128,7 @@ STATION_VARIABLES = {
     },
     "distance_to_next": {
         "long_name": "distance to next waypoint",
-        "units": "nautical_miles",
+        "units": "nautical_mile",
         "description": "Great circle distance to the next waypoint in the schedule",
     },
     # Additional ActivityRecord fields for complete preservation
@@ -147,19 +147,19 @@ STATION_VARIABLES = {
     "end_time": {
         "standard_name": "time",
         "long_name": "activity end time",
-        "units": "days since 1970-01-01 00:00:00",
+        "units": "seconds since 1970-01-01 00:00:00",
         "calendar": "gregorian",
         "description": "Time when activity completes",
     },
-    "dist_nm": {
+    "distance": {
         "long_name": "activity distance",
-        "units": "nautical_miles",
+        "units": "nautical_mile",
         "description": "Distance associated with this activity (transit or operation distance)",
     },
     "water_depth": {
         "standard_name": "sea_floor_depth_below_sea_surface",
         "long_name": "water depth at location",
-        "units": "meters",
+        "units": "m",
         "positive": "down",
         "description": "Depth from sea level to seafloor at activity location",
     },
@@ -185,23 +185,23 @@ SCHEDULE_VARIABLES = {
     "start_time": {
         "standard_name": "time",
         "long_name": "activity start time",
-        "units": "days since 1970-01-01 00:00:00",
+        "units": "seconds since 1970-01-01 00:00:00",
         "calendar": "gregorian",
     },
     "end_time": {
         "standard_name": "time",
         "long_name": "activity end time",
-        "units": "days since 1970-01-01 00:00:00",
+        "units": "seconds since 1970-01-01 00:00:00",
         "calendar": "gregorian",
     },
     "duration_minutes": {
         "long_name": "activity duration",
-        "units": "minutes",
+        "units": "minute",
         "description": "Duration of the activity in minutes",
     },
     "dist_nm": {
         "long_name": "distance",
-        "units": "nautical_miles",
+        "units": "nautical_mile",
         "description": "Distance associated with this activity (transit distance or operation distance)",
     },
 }
@@ -209,12 +209,12 @@ SCHEDULE_VARIABLES = {
 TRANSIT_VARIABLES = {
     "route_length": {
         "long_name": "route length",
-        "units": "nautical_miles",
+        "units": "nautical_mile",
         "description": "Total length of the transit route",
     },
     "vessel_speed": {
         "long_name": "vessel speed",
-        "units": "knots",
+        "units": "knot",
         "description": "Vessel speed during transit",
     },
 }
@@ -393,7 +393,11 @@ def create_operation_variables(
         op_vars["end_time"] = (["obs"], end_times, get_variable_attributes("end_time"))
 
     if dist_nms is not None:
-        op_vars["dist_nm"] = (["obs"], dist_nms, get_variable_attributes("dist_nm"))
+        op_vars["distance"] = (
+            ["obs"],
+            dist_nms,
+            get_variable_attributes("distance"),
+        )
 
     if water_depths is not None:
         op_vars["water_depth"] = (

@@ -10,6 +10,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+from legacy_records import as_records
 
 from cruiseplan.output.map_generator import (
     extract_map_data,
@@ -79,7 +80,7 @@ class TestExtractMapData:
             },
         ]
 
-        data = extract_map_data(timeline, "timeline")
+        data = extract_map_data(as_records(timeline), "timeline")
 
         # Timeline extraction should work now
         assert "points" in data
@@ -120,7 +121,7 @@ class TestExtractMapData:
         mock_config.departure_port = mock_dep_port
         mock_config.arrival_port = None
 
-        timeline_data = {"timeline": timeline, "config": mock_config}
+        timeline_data = {"timeline": as_records(timeline), "config": mock_config}
 
         data = extract_map_data(timeline_data, "timeline")
 
@@ -154,7 +155,7 @@ class TestExtractMapData:
             {"lat": 61.0, "lon": -21.0, "activity": "STN_002", "operation_type": "CTD"},
         ]
 
-        data = extract_map_data(timeline, "timeline")
+        data = extract_map_data(as_records(timeline), "timeline")
 
         # Timeline extraction should skip zero coordinates
         assert "points" in data
