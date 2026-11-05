@@ -8,6 +8,14 @@ versions follow [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- `forecast --current-position` changed only the waypoints header line. It now adds a transit from that position to the anchored operation at the leg speed, in every format (text, tex, waypoints, kml, png).
+- `forecast --current-position -74.62,164.30` (negative first coordinate after a space) was rejected as an unknown option; that form, `lat lon` as two values and the `=` form all parse.
+- TeX plan: a time rounded past midnight (23:56 → 00:00) is printed under the next day.
+- Waypoints without `--start-time` at 23:55 or later started at 00:00 of the same day; the rounding carries into the date.
+- Forecast rows overlapped where an operation has a negative `delay_start`; the row before it is shortened to end where the operation starts.
+- KML forecast had no placemarks (records lacked the fields the KML writer reads).
+- NetCDF schedule stores `delay_start` (minutes) so it round-trips; files without it still read.
+
 - Missing, partial or unreadable bathymetry file: depth lookups return the fill value `-9999.0` (`DEFAULT_DEPTH`) with a WARNING naming the file and the `cruiseplan bathymetry` command, instead of formula ("mock") depths. Maps are drawn without bathymetry. Mock mode removed.
 - A requested bathymetry source is never silently switched for another dataset. When its file is missing the WARNING names the other sources present in the directory and the `--bathy-source` value to use one of them.
 - A station over land (bathymetry elevation `>= 0`) was stored as a positive depth via `abs(elevation)`; it now gets the fill value `-9999.0` and a WARNING. Ocean depth is `-elevation`.
@@ -36,6 +44,8 @@ versions follow [Semantic Versioning](https://semver.org/).
 - Fill-duration summary line (count, `N x 999 h`, and the schedule total excluding fills) in the WARNING log and at the top of the HTML and TeX reports, so the inflated fill hours do not hide the real total.
 
 ### Changed
+
+- `forecast --start-index`: the operation at the index starts at `--start-time`, without the transit into it. A transit row anchors on the operation it leads to, with a warning, so `Transit to X` and `X` give the same forecast. With `--current-position`, `--start-time` is the time at that position.
 
 - NetCDF `creation_date` is UTC with `Z` (was naive local time).
 - The library no longer configures logging: API functions do not call `logging.basicConfig` (it reset the caller's root handlers). The `cruiseplan` command line configures logging; `verbose=True` sets the `cruiseplan` logger to DEBUG for that call only. Scripts and notebooks that want the INFO messages configure logging themselves (`logging.basicConfig(level=logging.INFO)`).

@@ -12,6 +12,9 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
+from cruiseplan.timeline.distance import haversine_distance
+from cruiseplan.utils.units import km_to_nm
+
 logger = logging.getLogger(__name__)
 
 
@@ -70,23 +73,7 @@ def list_activities(
     """
     activities = []
 
-    # Convert time to pandas datetime for easier formatting
-    time_data = schedule.time.values
-
-    # Handle different time formats that might exist in NetCDF
-    if hasattr(time_data[0], "total_seconds"):
-        # If it's already timedelta objects
-        time_offsets = [
-            pd.Timedelta(seconds=float(t.total_seconds())) for t in time_data
-        ]
-    elif np.issubdtype(time_data.dtype, np.number):
-        # If it's numeric (hours from start)
-        time_offsets = [pd.Timedelta(hours=float(t)) for t in time_data]
-    else:
-        # If it's datetime, convert to offset from first time
-        times = pd.to_datetime(time_data)
-        start_time = times[0]
-        time_offsets = [t - start_time for t in times]
+    time_offsets = _time_offsets(schedule)
 
     for i, (time_offset, category, duration, name) in enumerate(
         zip(
@@ -198,36 +185,150 @@ def format_activities_table(
     return "\n".join(lines)
 
 
+FORECAST_TRANSIT_INDEX = -1
+"""Index given to the transit from ``current_position`` in forecast rows."""
+
+
+def _time_offsets(schedule: xr.Dataset) -> list[pd.Timedelta]:
+    """Row start times as offsets from the first row."""
+    time_data = schedule.time.values
+    if hasattr(time_data[0], "total_seconds"):
+        return [pd.Timedelta(seconds=float(t.total_seconds())) for t in time_data]
+    if np.issubdtype(time_data.dtype, np.number):
+        return [pd.Timedelta(hours=float(t)) for t in time_data]
+    times = pd.to_datetime(time_data)
+    return [t - times[0] for t in times]
+
+
+def _category(schedule: xr.Dataset, i: int) -> str:
+    """Category of row i, stripped."""
+    return str(schedule.category[i].values).strip()
+
+
+def resolve_anchor_index(schedule: xr.Dataset, start_index: int) -> int:
+    """
+    Return the row a forecast is anchored on.
+
+    Indices are the rows of ``cruiseplan list`` (ports, transits, operations
+    and buffers). A forecast is anchored on an operation: if ``start_index``
+    is a transit row, the anchor moves to the operation that transit leads
+    to and a warning is logged.
+
+    Parameters
+    ----------
+    schedule : xr.Dataset
+        Schedule dataset from read_schedule().
+    start_index : int
+        Row index given by the user (0-based).
+
+    Returns
+    -------
+    int
+        Index of the anchored (non-transit) row.
+
+    Raises
+    ------
+    ValueError
+        If ``start_index`` is out of range, or a transit with no row after it.
+    """
+    num_activities = len(schedule.time)
+    if start_index < 0 or start_index >= num_activities:
+        raise ValueError(
+            f"start_index {start_index} out of range (0-{num_activities - 1})"
+        )
+    anchor = start_index
+    while anchor < num_activities and _category(schedule, anchor) == "transit":
+        anchor += 1
+    if anchor == num_activities:
+        raise ValueError(
+            f"start_index {start_index} is a transit with no operation after it"
+        )
+    if anchor != start_index:
+        logger.warning(
+            f"Index {start_index} is a transit "
+            f"('{str(schedule.name[start_index].values).strip()}'); anchoring on "
+            f"index {anchor} ('{str(schedule.name[anchor].values).strip()}'), "
+            "which starts at the start time"
+        )
+    return anchor
+
+
+def _leg_speed(schedule: xr.Dataset, anchor: int) -> float:
+    """Transit speed (kt) of the anchored row's leg; 10 kt if none is stored."""
+    if "vessel_speed" not in schedule.variables:
+        return 10.0
+    legs = (
+        [str(v).strip() for v in schedule.leg_assignment.values]
+        if "leg_assignment" in schedule.variables
+        else None
+    )
+    n = len(schedule.time)
+    # nearest transit row of the same leg: before the anchor first, then after
+    for i in [*range(anchor - 1, -1, -1), *range(anchor + 1, n)]:
+        if _category(schedule, i) != "transit":
+            continue
+        if legs is not None and legs[i] != legs[anchor]:
+            continue
+        speed = float(schedule.vessel_speed[i].values)
+        if np.isfinite(speed) and speed > 0:
+            return speed
+    return 10.0
+
+
+def _gc_nm(a: tuple[float, float], b: tuple[float, float]) -> float:
+    """Great-circle distance in nm between (lat, lon) points."""
+    return km_to_nm(haversine_distance(a, b))
+
+
 def generate_forecast(
     schedule: xr.Dataset,
     start_index: int,
     start_time: str,
     duration_hours: float = 24.0,
+    current_position: tuple[float, float] | None = None,
 ) -> list[tuple[int, datetime, str, str, str, float, float, float, str]]:
     """
-    Generate time-shifted forecast starting from specified activity.
+    Generate a re-anchored forecast starting from an operation.
+
+    The anchored operation starts at ``start_time``: the ship is there, so the
+    transit into it is not included. If ``start_index`` is a transit row, the
+    anchor is the operation that transit leads to (see
+    ``resolve_anchor_index``). With ``current_position``, ``start_time`` is
+    the time at that position: a transit from it to the anchored operation,
+    at the leg's speed, is inserted first and the operation starts when it
+    ends. Every later row keeps its planned offset from the anchored
+    operation. The anchored operation's own ``delay_start`` is replaced by
+    the anchor time.
+
+    A row that runs past the start of the next row (the next operation has a
+    negative ``delay_start``: the previous activity ended early) is shortened
+    to end where the next row starts.
 
     Parameters
     ----------
     schedule : xr.Dataset
-        Schedule dataset from read_schedule()
+        Schedule dataset from read_schedule().
     start_index : int
-        Index of first activity in forecast (0-based)
+        Row index (0-based, as in ``cruiseplan list``).
     start_time : str
-        New absolute start time for the selected activity (ISO format: "2026-08-30T14:00:00")
+        Absolute start time (ISO format, e.g. "2026-08-30T14:00:00"): of the
+        anchored operation, or of the ship at ``current_position``.
     duration_hours : float, optional
-        Forecast duration in hours (default: 24.0)
+        Forecast window in hours from ``start_time`` (default: 24.0).
+    current_position : tuple of float, optional
+        Ship position (lat, lon) in decimal degrees at ``start_time``.
 
     Returns
     -------
-    List[Tuple[int, datetime, str, str, str, float, float, float, str]]
-        List of forecast activities containing:
-        (original_index, absolute_time, category, type, action, duration_hours, latitude, longitude, name)
+    list of tuple
+        Forecast rows ``(original_index, absolute_time, category, type,
+        action, duration_hours, latitude, longitude, name)``. The transit
+        from ``current_position`` has index ``FORECAST_TRANSIT_INDEX``.
 
     Raises
     ------
     ValueError
-        If start_index is out of range or start_time format is invalid
+        If ``start_index`` is out of range or ``start_time`` is invalid.
 
     Examples
     --------
@@ -235,84 +336,77 @@ def generate_forecast(
     >>> for idx, abs_time, cat, typ, act, dur, lat, lon, name in forecast:
     ...     print(f"{abs_time:%Y-%m-%d %H:%M} | {name}")
     """
-    # Validate start_index
+    anchor = resolve_anchor_index(schedule, start_index)
     num_activities = len(schedule.time)
-    if start_index < 0 or start_index >= num_activities:
-        raise ValueError(
-            f"start_index {start_index} out of range (0-{num_activities - 1})"
-        )
 
-    # Parse start_time
     try:
         new_start_time = pd.to_datetime(start_time)
     except (ValueError, TypeError, OverflowError) as e:
         raise ValueError(f"Invalid start_time format '{start_time}': {e}") from e
 
-    # Convert time data to pandas timedeltas for easier calculation
-    time_data = schedule.time.values
-    if hasattr(time_data[0], "total_seconds"):
-        time_offsets = [
-            pd.Timedelta(seconds=float(t.total_seconds())) for t in time_data
-        ]
-    elif np.issubdtype(time_data.dtype, np.number):
-        time_offsets = [pd.Timedelta(hours=float(t)) for t in time_data]
-    else:
-        times = pd.to_datetime(time_data)
-        # Always use first time entry as reference, regardless of its absolute value
-        start_time_orig = times[0]
-        time_offsets = [t - start_time_orig for t in times]
-
-    # Get time offset of start activity
-    start_activity_offset = time_offsets[start_index]
-
-    # Truncate activities from start_index onwards
+    time_offsets = _time_offsets(schedule)
+    forecast_end_time = new_start_time + pd.Timedelta(hours=duration_hours)
     forecast_activities = []
 
-    for i in range(start_index, num_activities):
-        activity_offset = time_offsets[i]
+    anchor_time = new_start_time
+    if current_position is not None:
+        target = (
+            float(schedule.latitude[anchor].values),
+            float(schedule.longitude[anchor].values),
+        )
+        nm = _gc_nm(tuple(current_position), target)
+        hours = nm / _leg_speed(schedule, anchor)
+        forecast_activities.append(
+            (
+                FORECAST_TRANSIT_INDEX,
+                new_start_time.to_pydatetime(),
+                "transit",
+                "transit",
+                "",
+                hours,
+                float(current_position[0]),
+                float(current_position[1]),
+                f"Transit to {str(schedule.name[anchor].values).strip()}",
+            )
+        )
+        anchor_time = new_start_time + pd.Timedelta(hours=hours)
 
-        # Calculate new absolute time: new_start_time + (activity_offset - start_activity_offset)
-        # This ensures the activity at start_index occurs exactly at new_start_time
-        time_diff = activity_offset - start_activity_offset
-        absolute_time = new_start_time + time_diff
-
-        # Check if activity falls within forecast window
-        forecast_end_time = new_start_time + pd.Timedelta(hours=duration_hours)
+    for i in range(anchor, num_activities):
+        absolute_time = anchor_time + (time_offsets[i] - time_offsets[anchor])
         if absolute_time > forecast_end_time:
             break
 
-        # Extract activity data
-        category = str(schedule.category[i].values).strip()
-        activity_type = (
-            str(schedule.type[i].values).strip() if "type" in schedule.variables else ""
-        )
-        action = (
-            str(schedule.action[i].values).strip()
-            if "action" in schedule.variables
-            else ""
-        )
         duration = float(schedule.duration[i].values)
-        latitude = float(schedule.latitude[i].values)
-        longitude = float(schedule.longitude[i].values)
-        name = str(schedule.name[i].values).strip()
+        if i + 1 < num_activities:
+            gap_hours = (time_offsets[i + 1] - time_offsets[i]).total_seconds() / 3600
+            if gap_hours < duration:
+                duration = max(gap_hours, 0.0)
 
         forecast_activities.append(
             (
                 i,
                 absolute_time.to_pydatetime(),
-                category,
-                activity_type,
-                action,
+                _category(schedule, i),
+                (
+                    str(schedule.type[i].values).strip()
+                    if "type" in schedule.variables
+                    else ""
+                ),
+                (
+                    str(schedule.action[i].values).strip()
+                    if "action" in schedule.variables
+                    else ""
+                ),
                 duration,
-                latitude,
-                longitude,
-                name,
+                float(schedule.latitude[i].values),
+                float(schedule.longitude[i].values),
+                str(schedule.name[i].values).strip(),
             )
         )
 
     logger.info(
         f"Generated forecast with {len(forecast_activities)} activities "
-        f"from index {start_index} for {duration_hours}h"
+        f"from index {anchor} for {duration_hours}h"
     )
 
     return forecast_activities

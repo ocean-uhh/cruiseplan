@@ -48,6 +48,7 @@ class TestForecastThinCLI:
                 start_time="2026-08-30T14:00:00",
                 duration_hours=24.0,
                 transit_speed=10.0,
+                current_position=None,
             )
 
     def test_xor_validation_index_only(self):

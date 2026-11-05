@@ -53,7 +53,10 @@ to its inputs:
 - ``date_created``: UTC, ISO 8601 with ``Z``; ``creation_date`` holds the same value
 
 The schedule file adds ``fill_duration_count``, ``fill_duration_hours`` and the
-variable ``duration_fill_flag`` (1 where the duration is the 999-hour fill value).
+variable ``duration_fill_flag`` (1 where the duration is the 999-hour fill value)
+and ``delay_start`` (minutes, as set on the operation; already included in
+``time``; NaN for transits and buffers). Schedules written before
+``delay_start`` was stored still read and forecast the same.
 
 Output File Structure
 =====================
@@ -359,6 +362,11 @@ The following files organize cruise data by operation geometry:
         long_name = "activity duration"
         units = "hour"
         coordinates = "time latitude longitude waterdepth"
+
+    delay_start(obs): float32
+        long_name = "delay before the operation starts"
+        units = "minute"
+        coordinates = "time latitude longitude water_depth"
 
     vessel_speed(obs): float32
         long_name = "vessel speed"

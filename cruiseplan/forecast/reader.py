@@ -219,6 +219,10 @@ def netcdf_to_activity_records(schedule: xr.Dataset) -> list[ActivityRecord]:
             water_depth = float(schedule.water_depth[i].values)
             data["water_depth"] = water_depth if not np.isnan(water_depth) else None
 
+        if "delay_start" in schedule.variables:
+            delay = float(schedule.delay_start[i].values)
+            data["delay_start"] = delay if not np.isnan(delay) else None
+
         if "duration_fill_flag" in schedule.variables:
             data["duration_is_fill"] = bool(int(schedule.duration_fill_flag[i].values))
 

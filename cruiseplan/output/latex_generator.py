@@ -30,7 +30,7 @@ from cruiseplan.output.output_utils import (
 from cruiseplan.output.provenance import provenance_lines
 from cruiseplan.timeline.scheduler import ActivityRecord, fill_duration_summary
 from cruiseplan.utils.coordinates import ddm_parts, distance_nm, format_position_latex
-from cruiseplan.utils.units import hours_to_days
+from cruiseplan.utils.units import hours_to_days, round_to_minutes
 
 logger = logging.getLogger(__name__)
 
@@ -643,19 +643,21 @@ class LaTeXGenerator:
 
         # First print the date
         if station_records:
-            first_date = station_records[0].start_time.strftime("%d.%m.%Y")
-            first_day = station_records[0].start_time.strftime("%A")
+            first_time = self._round_time_to_10min(station_records[0].start_time)
+            first_date = first_time.strftime("%d.%m.%Y")
+            first_day = first_time.strftime("%A")
             date_line = f"\\rowcolor{{pink!40}}\\multicolumn{{2}}{{l}}{{\\textbf{{{first_date} {first_day}}}}} & & & & \\\\"
             current_table_lines.append(date_line)
             line_count += 1
-            current_date = station_records[0].start_time.date()
+            current_date = first_time.date()
 
         for i, record in enumerate(station_records):
-            # Check for new day and potential table break point
-            if record.start_time.date() != current_date:
-                current_date = record.start_time.date()
-                date_str = record.start_time.strftime("%d.%m.%Y")
-                day_str = record.start_time.strftime("%A")
+            # Date headers follow the printed (rounded) time
+            rounded_time = self._round_time_to_10min(record.start_time)
+            if rounded_time.date() != current_date:
+                current_date = rounded_time.date()
+                date_str = rounded_time.strftime("%d.%m.%Y")
+                day_str = rounded_time.strftime("%A")
 
                 # Check if we need to break the table before adding this date
                 if line_count > max_lines_per_table:
@@ -673,7 +675,6 @@ class LaTeXGenerator:
                 line_count += 1
 
             # Time and position
-            rounded_time = self._round_time_to_10min(record.start_time)
             time_str = rounded_time.strftime("%H:%M")
 
             # Use entry coordinates from NetCDF data
@@ -816,8 +817,8 @@ class LaTeXGenerator:
 
         # Calculate date range from records
         if station_records:
-            start_date = station_records[0].start_time
-            end_date = station_records[-1].start_time
+            start_date = self._round_time_to_10min(station_records[0].start_time)
+            end_date = self._round_time_to_10min(station_records[-1].start_time)
 
             # Format dates for title using portable day formatting
             start_str = str(start_date.day)  # Day without leading zero
@@ -1021,18 +1022,8 @@ Time & Position & Depth & Distance & Station & Comment \\\\
         return orig_lat, orig_lon, ""
 
     def _round_time_to_10min(self, dt: datetime) -> datetime:
-        """Round time to nearest 10 minutes like letsgo.m (rnd = 144)."""
-        # Convert to total minutes
-        total_minutes = dt.hour * 60 + dt.minute
-
-        # Round to nearest 10 minutes
-        rounded_minutes = round(total_minutes / 10) * 10
-
-        # Convert back to datetime
-        hours = rounded_minutes // 60
-        minutes = rounded_minutes % 60
-
-        return dt.replace(hour=hours % 24, minute=minutes, second=0, microsecond=0)
+        """Round time to nearest 10 minutes like letsgo.m, carrying into the date."""
+        return round_to_minutes(dt, 10)
 
     def _format_lat_lon_dms(self, lat: float, lon: float) -> tuple[str, str]:
         """Format latitude/longitude in degrees/minutes like MATLAB gllfancy."""

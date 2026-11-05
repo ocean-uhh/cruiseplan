@@ -6,6 +6,8 @@ for time, distance, and other measurements. These are mathematical constants
 that do not change based on cruise configuration.
 """
 
+from datetime import datetime, timedelta
+
 # --- Time Conversion Factors ---
 SECONDS_PER_MINUTE = 60.0
 MINUTES_PER_HOUR = 60.0
@@ -158,3 +160,27 @@ def nm_to_km(nm: float) -> float:
         Distance in kilometers.
     """
     return nm * KM_PER_NM
+
+
+def round_to_minutes(dt: datetime, step: int = 10) -> datetime:
+    """
+    Round a time to the nearest ``step`` minutes, carrying into the date.
+
+    Seconds are dropped before rounding, as in letsgo.m. 23:56 with
+    ``step=10`` gives 00:00 on the next day.
+
+    Parameters
+    ----------
+    dt : datetime
+        Time to round.
+    step : int, optional
+        Rounding step in minutes (default: 10).
+
+    Returns
+    -------
+    datetime
+        Rounded time, with seconds and microseconds set to zero.
+    """
+    midnight = dt.replace(hour=0, minute=0, second=0, microsecond=0)
+    total_minutes = dt.hour * 60 + dt.minute
+    return midnight + timedelta(minutes=round(total_minutes / step) * step)

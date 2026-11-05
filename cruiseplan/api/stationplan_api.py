@@ -122,6 +122,7 @@ def stationplan_forecast(
     start_time: str,
     duration_hours: float = 24.0,
     transit_speed: float = 10.0,
+    current_position: tuple[float, float] | None = None,
 ) -> StationplanResult:
     """
     Generate station plan forecast starting from specified activity.
@@ -135,13 +136,19 @@ def stationplan_forecast(
     schedule_file : str or Path
         Path to NetCDF schedule file (e.g., 'MSM142_leg_2_schedule.nc')
     start_index : int
-        Index of first activity in forecast (0-based)
+        Row index (0-based, as in ``cruiseplan list``); a transit row anchors
+        on the operation it leads to
     start_time : str
-        New absolute start time for the selected activity (ISO format: "2026-08-30T14:00:00")
+        Start time of the anchored operation, or of the ship at
+        ``current_position`` (ISO format: "2026-08-30T14:00:00")
     duration_hours : float, optional
         Forecast duration in hours (default: 24.0)
     transit_speed : float, optional
         Ship transit speed in knots for header metadata (default: 10.0)
+    current_position : tuple of float, optional
+        Ship position (lat, lon) in decimal degrees at ``start_time``. A
+        transit from it to the anchored operation is inserted at the leg's
+        speed, and the operation starts when it ends.
 
     Returns
     -------
@@ -169,7 +176,7 @@ def stationplan_forecast(
 
         # Generate forecast
         forecast_activities = generate_forecast(
-            schedule, start_index, start_time, duration_hours
+            schedule, start_index, start_time, duration_hours, current_position
         )
 
         if not forecast_activities:
@@ -423,6 +430,7 @@ def stationplan_forecast_tex(
     logo_path: str | Path | None = None,
     workplan_number: str | None = None,
     cruise_title: str | None = None,
+    current_position: tuple[float, float] | None = None,
 ) -> StationplanResult:
     """
     Generate TeX station forecast starting from specified activity.
@@ -435,9 +443,11 @@ def stationplan_forecast_tex(
     schedule_file : str or Path
         Path to NetCDF schedule file
     start_index : int
-        Index of first activity in forecast (0-based)
+        Row index (0-based, as in ``cruiseplan list``); a transit row anchors
+        on the operation it leads to
     start_time : str
-        New absolute start time (ISO format: "2026-08-30T14:00:00")
+        Start time of the anchored operation, or of the ship at
+        ``current_position`` (ISO format: "2026-08-30T14:00:00")
     duration_hours : float
         Forecast duration in hours (default: 24.0)
     output_path : str or Path, optional
@@ -448,6 +458,10 @@ def stationplan_forecast_tex(
         Workplan number printed in the TeX header (e.g. ``"28"``).
     cruise_title : str, optional
         Cruise title printed in the TeX header (e.g. ``"MSM142"``).
+    current_position : tuple of float, optional
+        Ship position (lat, lon) in decimal degrees at ``start_time``. A
+        transit from it to the anchored operation is inserted at the leg's
+        speed, and the operation starts when it ends.
 
     Returns
     -------
@@ -465,7 +479,7 @@ def stationplan_forecast_tex(
         # Read schedule and generate forecast with time shifting
         schedule = read_schedule(schedule_path)
         forecast_activities = generate_forecast(
-            schedule, start_index, start_time, duration_hours
+            schedule, start_index, start_time, duration_hours, current_position
         )
 
         if not forecast_activities:
@@ -626,13 +640,17 @@ def stationplan_waypoints(
     schedule_file : str or Path
         Path to NetCDF schedule file
     start_index : int, optional
-        Starting activity index for forecast mode (if None, uses full schedule)
+        Row index (0-based, as in ``cruiseplan list``); a transit row anchors
+        on the operation it leads to. If None, the full schedule from row 0.
     start_time : str, optional
-        New start time for forecast mode (ISO format)
+        Start time of the anchored operation, or of the ship at
+        ``current_position`` (ISO format). If None, now rounded to 10 minutes.
     duration_hours : float, optional
         Forecast duration in hours (if None, uses remaining schedule)
-    current_position : tuple[float, float], optional
-        Current ship position as (lat, lon) in decimal degrees
+    current_position : tuple of float, optional
+        Ship position (lat, lon) in decimal degrees at ``start_time``. A
+        transit from it to the anchored operation is inserted at the leg's
+        speed, and the operation starts when it ends.
     output_path : str or Path, optional
         Output file path. If None, returns content as string
 
@@ -654,23 +672,21 @@ def stationplan_waypoints(
         if start_index is None:
             start_index = 0
 
-        # Default start_time to now, rounded to 10 minutes
+        # Default start_time to now, rounded to 10 minutes (like letsgo.m)
         if start_time is None:
             from datetime import datetime
 
-            now = datetime.now()
-            # Round to nearest 10 minutes (like letsgo.m)
-            total_minutes = now.hour * 60 + now.minute
-            rounded_minutes = round(total_minutes / 10) * 10
-            hours = rounded_minutes // 60
-            minutes = rounded_minutes % 60
-            start_time = now.replace(
-                hour=hours % 24, minute=minutes, second=0, microsecond=0
-            ).isoformat()
+            from cruiseplan.utils.units import round_to_minutes
+
+            start_time = round_to_minutes(datetime.now(), 10).isoformat()
 
         # Always use forecast mode for waypoints (from start_index forward)
         activities = generate_forecast(
-            schedule, start_index, start_time, duration_hours or 1000
+            schedule,
+            start_index,
+            start_time,
+            duration_hours or 1000,
+            current_position,
         )
 
         if not activities:
@@ -860,18 +876,17 @@ def _map_activity_to_work_code(
     return 2
 
 
-def _convert_raw_activity_to_kml_record(activity: tuple) -> dict | None:
-    """Convert a raw forecast activity tuple to a KML-compatible record dict.
-
-    Returns None if the activity should be skipped (invalid coordinates or transit).
-    """
+def _convert_raw_activity_to_kml_record(
+    activity: tuple, schedule: xr.Dataset | None = None
+) -> dict | None:
+    """Convert a forecast row to a KML record; None for transits or invalid positions."""
     import pandas as pd
 
     if len(activity) < 9:
         return None
 
     (
-        _index,
+        index,
         time,
         category,
         activity_type,
@@ -888,15 +903,28 @@ def _convert_raw_activity_to_kml_record(activity: tuple) -> dict | None:
     if category == "transit":
         return None
 
+    def stored(var: str, default: str) -> str:
+        if schedule is not None and var in schedule.variables and index >= 0:
+            return str(schedule[var][index].values).strip()
+        return default
+
+    start = pd.to_datetime(time)
     return {
         "name": name,
+        "label": name,
         "latitude": latitude,
         "longitude": longitude,
-        "time": pd.to_datetime(time),
+        "lat": latitude,
+        "lon": longitude,
+        "time": start,
+        "start_time": start,
         "category": category,
+        "activity": stored("activity", "Station"),
+        "operation_class": stored("operation_class", "PointOperation"),
         "activity_type": activity_type,
         "action": action,
         "duration": duration,
+        "duration_minutes": float(duration) * 60.0,
     }
 
 
@@ -906,6 +934,7 @@ def stationplan_forecast_kml(
     start_time: str,
     duration_hours: float,
     output_path: str | Path | None = None,
+    current_position: tuple[float, float] | None = None,
 ) -> StationplanResult:
     """
     Generate KML forecast from a cruise schedule for a specific time window.
@@ -918,13 +947,19 @@ def stationplan_forecast_kml(
     schedule_file : Union[str, Path]
         Path to the NetCDF schedule file
     start_index : int
-        Activity index to start forecast from
+        Row index (0-based, as in ``cruiseplan list``); a transit row anchors
+        on the operation it leads to
     start_time : str
-        Forecast start time in ISO format (e.g., '2026-05-05 08:00')
+        Start time of the anchored operation, or of the ship at
+        ``current_position`` (ISO format, e.g. '2026-05-05 08:00')
     duration_hours : float
         Forecast duration in hours
     output_path : Union[str, Path, None], optional
         Path to output KML file, by default None
+    current_position : tuple of float, optional
+        Ship position (lat, lon) in decimal degrees at ``start_time``. A
+        transit from it to the anchored operation is inserted at the leg's
+        speed, and the operation starts when it ends.
 
     Returns
     -------
@@ -944,14 +979,15 @@ def stationplan_forecast_kml(
         # Read schedule and generate forecast with proper time shifting
         schedule = read_schedule(schedule_file)
         forecast_activities_raw = generate_forecast(
-            schedule, start_index, start_time, duration_hours
+            schedule, start_index, start_time, duration_hours, current_position
         )
 
         # Convert forecast activities to the format expected by KML generation
         forecast_activities = [
             record
             for activity in forecast_activities_raw
-            if (record := _convert_raw_activity_to_kml_record(activity)) is not None
+            if (record := _convert_raw_activity_to_kml_record(activity, schedule))
+            is not None
         ]
 
         if not forecast_activities:
@@ -1035,6 +1071,7 @@ def stationplan_forecast_png(
     no_title: bool = False,
     no_labels: bool = False,
     no_legend: bool = False,
+    current_position: tuple[float, float] | None = None,
 ) -> StationplanResult:
     """
     Generate PNG map forecast from a cruise schedule for a specific time window.
@@ -1048,9 +1085,11 @@ def stationplan_forecast_png(
     schedule_file : Union[str, Path]
         Path to the NetCDF schedule file
     start_index : int
-        Activity index to start forecast from
+        Row index (0-based, as in ``cruiseplan list``); a transit row anchors
+        on the operation it leads to
     start_time : str
-        Forecast start time in ISO format (e.g., '2026-05-05 08:00')
+        Start time of the anchored operation, or of the ship at
+        ``current_position`` (ISO format, e.g. '2026-05-05 08:00')
     duration_hours : float
         Forecast duration in hours
     output_path : Union[str, Path, None], optional
@@ -1077,6 +1116,10 @@ def stationplan_forecast_png(
         Suppress station name labels, by default False
     no_legend : bool, optional
         Suppress the map legend, by default False
+    current_position : tuple of float, optional
+        Ship position (lat, lon) in decimal degrees at ``start_time``. A
+        transit from it to the anchored operation is inserted at the leg's
+        speed, and the operation starts when it ends.
 
     Returns
     -------
@@ -1101,7 +1144,7 @@ def stationplan_forecast_png(
         # Read schedule and generate forecast with time shifting
         schedule = read_schedule(schedule_path)
         forecast_activities = generate_forecast(
-            schedule, start_index, start_time, duration_hours
+            schedule, start_index, start_time, duration_hours, current_position
         )
 
         if not forecast_activities:

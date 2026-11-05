@@ -33,3 +33,36 @@ class TestResolveOutputPath:
         args = Namespace(output=Path("result.TXT"), output_dir=Path("out"))
         result = _resolve_output_path(args, ".kml", {".txt", ".tex", ".png"})
         assert result == Path("out/result.kml")
+
+
+class TestPositionArguments:
+    """--current-position parsing and argv joining."""
+
+    def test_parse_forms(self):
+        from cruiseplan.cli.forecast import parse_position
+
+        assert parse_position("-74.62,164.30") == (-74.62, 164.30)
+        assert parse_position("-74.62 164.30") == (-74.62, 164.30)
+        assert parse_position(" 65.0268, -31.3702 ") == (65.0268, -31.3702)
+
+    def test_parse_rejects_bad_values(self):
+        import pytest
+
+        from cruiseplan.cli.forecast import parse_position
+
+        for text in ("65.0", "1,2,3", "95,10", "abc,def"):
+            with pytest.raises(ValueError):
+                parse_position(text)
+
+    def test_join_argv(self):
+        from cruiseplan.cli.forecast import join_position_argv
+
+        assert join_position_argv(["--current-position", "-74.6,164.3", "x"]) == [
+            "--current-position=-74.6,164.3",
+            "x",
+        ]
+        assert join_position_argv(["--current-position", "-74.6", "-164.3"]) == [
+            "--current-position=-74.6,-164.3"
+        ]
+        unchanged = ["--current-position", "65.0,-31.3", "--lat", "-5", "5"]
+        assert join_position_argv(unchanged) == unchanged

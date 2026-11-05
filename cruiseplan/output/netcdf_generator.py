@@ -305,7 +305,7 @@ class NetCDFGenerator:
             start_lons = []
             end_lats = []
             end_lons = []
-            # Additional ActivityRecord fields for comprehensive preservation
+            # Additional ActivityRecord fields kept for the round trip
             exit_lats = []
             exit_lons = []
             end_times = []
@@ -313,6 +313,7 @@ class NetCDFGenerator:
             activities = []
             operation_classes = []
             fill_flags = []  # 1 where the duration is the fill value
+            delay_starts = []  # minutes; NaN for rows without a delay field
 
             for event in timeline:
                 # Convert time to days since epoch for CF compliance
@@ -334,11 +335,13 @@ class NetCDFGenerator:
                 leg_names.append(event["leg_name"])
                 durations.append(event["duration_minutes"] / 60.0)  # Convert to hours
                 fill_flags.append(1 if event.get("duration_is_fill") else 0)
+                delay = event.get("delay_start")
+                delay_starts.append(np.nan if delay is None else float(delay))
                 vessel_speeds.append(event["vessel_speed_kt"])
                 # Will compute distance to next waypoint after processing all events
                 distances_to_next.append(0.0)  # Placeholder, will be computed below
 
-                # Extract additional ActivityRecord fields for comprehensive preservation
+                # Extract additional ActivityRecord fields kept for the round trip
                 exit_lats.append(
                     event.get("exit_lat", event["entry_lat"])
                 )  # Use entry_lat as fallback
@@ -507,6 +510,7 @@ class NetCDFGenerator:
             end_times = np.array(end_times, dtype=np.float64)
             dist_nms = np.array(dist_nms, dtype=np.float32)
             fill_flags = np.array(fill_flags, dtype=np.int8)
+            delay_starts = np.array(delay_starts, dtype=np.float32)
 
             # Create xarray Dataset
             ds = xr.Dataset(
@@ -641,6 +645,20 @@ class NetCDFGenerator:
                             "coordinates": "time latitude longitude water_depth",
                         },
                     ),
+                    "delay_start": (
+                        ["obs"],
+                        delay_starts,
+                        {
+                            "long_name": "delay before the operation starts",
+                            "units": "minute",
+                            "comment": (
+                                "Included in time. Negative: the previous "
+                                "activity ended early. NaN for rows without "
+                                "a delay (transits, buffers)"
+                            ),
+                            "coordinates": "time latitude longitude water_depth",
+                        },
+                    ),
                     "vessel_speed": (
                         ["obs"],
                         vessel_speeds,
@@ -704,7 +722,7 @@ class NetCDFGenerator:
                             "_FillValue": np.nan,
                         },
                     ),
-                    # Additional ActivityRecord fields for comprehensive preservation
+                    # Additional ActivityRecord fields kept for the round trip
                     "exit_latitude": (
                         ["obs"],
                         exit_lats,

@@ -90,7 +90,9 @@ For detailed help on a subcommand:
         mod = importlib.import_module(module_path)
         mod.build_parser(subparsers)
 
-    args = parser.parse_args()
+    from cruiseplan.cli.forecast import join_position_argv
+
+    args = parser.parse_args(join_position_argv(sys.argv[1:]))
 
     if not args.subcommand:
         parser.print_help()

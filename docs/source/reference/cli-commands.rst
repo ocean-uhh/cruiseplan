@@ -556,7 +556,7 @@ cruiseplan forecast
 -------------------
 
 Generate a rolling station plan from a NetCDF schedule, starting from a given
-activity at a new wall-clock time. Useful for updating the workplan at sea
+operation at a new wall-clock time (see the anchoring rule below). Useful for updating the workplan at sea
 as the ship's position changes.
 
 Two modes of operation:
@@ -590,15 +590,38 @@ Two modes of operation:
 
 **Forecast mode options:**
 
-- ``--start-index N``: Activity index to start from (0-based; see ``cruiseplan list``);
-  required together with ``--start-time``
-- ``--start-time DATETIME``: Wall-clock start time for that activity, ISO format
-  (e.g. ``"2026-08-30T14:00:00"`` or ``"2026-08-30 14:00"``); required together
-  with ``--start-index``
-- ``--duration HOURS``: Forecast window in hours (default: 24)
-- ``--transit-speed KNOTS``: Ship transit speed for text forecast (default: 10 kt)
-- ``--current-position LAT,LON``: Current ship position in decimal degrees
-  (e.g. ``"65.123,-30.456"``); used in waypoints output
+- ``--start-index N``: Row index from ``cruiseplan list`` (0-based) of the
+  operation to anchor on; required together with ``--start-time``
+- ``--start-time DATETIME``: Start time of the anchored operation, or of the
+  ship at ``--current-position`` if given; ISO format (e.g.
+  ``"2026-08-30T14:00:00"`` or ``"2026-08-30 14:00"``); required together with
+  ``--start-index``
+- ``--duration HOURS``: Forecast window in hours from ``--start-time`` (default: 24)
+- ``--transit-speed KNOTS``: Ship speed printed in the text forecast header
+  (default: 10 kt); transit times use the planned leg speed
+- ``--current-position LAT,LON``: Ship position at ``--start-time`` in decimal
+  degrees (e.g. ``-74.62,164.30``, ``"-74.62 164.30"`` or
+  ``--current-position=-74.62,164.30``); changes the times in every format
+
+**Anchoring rule:**
+
+- The operation at ``--start-index`` starts at ``--start-time``: the ship is
+  there, so the transit into it is not part of the forecast. Its own
+  ``delay_start`` is replaced by the start time.
+- Indices are the rows of ``cruiseplan list`` (ports, transits, operations,
+  buffers). If the index is a transit row, the forecast anchors on the
+  operation that transit leads to and prints a warning. Anchoring on
+  ``Transit to X`` and on ``X`` gives the same forecast.
+- With ``--current-position``, ``--start-time`` is the time at that position.
+  A transit from it to the anchored operation is added at the leg's planned
+  speed, and the operation starts when it ends.
+- Every later row keeps its planned offset from the anchored operation.
+- A row followed by an operation with a negative ``delay_start`` (the
+  previous activity ended early) is shortened to end where that operation
+  starts.
+- The TeX plan rounds times to 10 minutes. Re-anchoring with a time read off
+  a printed plan can shift the new plan by up to 5 minutes; take the start
+  time from the clock or from the text forecast instead.
 
 **Output options:**
 
@@ -640,10 +663,11 @@ Two modes of operation:
        --start-index 5 --start-time "2026-08-29T08:00:00" \
        --duration 36 --output forecast.txt
 
-   # Bridge waypoints with current ship position
+   # Bridge waypoints from the current ship position (times include the
+   # transit from it to activity 2)
    cruiseplan forecast data/MSM142_schedule.nc \
        --start-index 2 --start-time "2026-05-05 08:00" --duration 24 \
-       --current-position "65.027,-31.370" \
+       --current-position 65.027,-31.370 \
        --format waypoints --output-dir route/ --output Stationsplan28.txt
 
    # TeX workplan with logo

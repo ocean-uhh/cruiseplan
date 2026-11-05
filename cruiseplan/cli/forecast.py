@@ -137,7 +137,7 @@ def _forecast_tex(args: argparse.Namespace, schedule_file: Path) -> None:
     ----------
     args : argparse.Namespace
         Parsed CLI args; reads output, logo, number, title, start_index,
-        start_time, duration.
+        start_time, duration, current_position.
     schedule_file : Path
         NetCDF schedule file.
     """
@@ -151,6 +151,7 @@ def _forecast_tex(args: argparse.Namespace, schedule_file: Path) -> None:
         logo_path=args.logo,
         workplan_number=args.number,
         cruise_title=args.title,
+        current_position=_parse_current_position(args),
     )
     if result.success:
         print(f"Generated TeX forecast: {result.output}")
@@ -198,7 +199,8 @@ def _forecast_kml(args: argparse.Namespace, schedule_file: Path) -> None:
     Parameters
     ----------
     args : argparse.Namespace
-        Parsed CLI args; reads output, start_index, start_time, duration.
+        Parsed CLI args; reads output, start_index, start_time, duration,
+        current_position.
     schedule_file : Path
         NetCDF schedule file.
     """
@@ -209,6 +211,7 @@ def _forecast_kml(args: argparse.Namespace, schedule_file: Path) -> None:
         start_time=args.start_time,
         duration_hours=args.duration,
         output_path=output_path,
+        current_position=_parse_current_position(args),
     )
     if result.success:
         print(f"Generated KML forecast: {result.output}")
@@ -226,7 +229,7 @@ def _forecast_png(args: argparse.Namespace, schedule_file: Path) -> None:
     args : argparse.Namespace
         Parsed CLI args; reads output, bathy_source, bathy_dir, bathy_stride,
         figsize, lat, lon, max_depth, bathy_contours, no_title, no_labels,
-        no_legend, start_index, start_time, duration.
+        no_legend, start_index, start_time, duration, current_position.
     schedule_file : Path
         NetCDF schedule file.
     """
@@ -248,6 +251,7 @@ def _forecast_png(args: argparse.Namespace, schedule_file: Path) -> None:
         no_title=args.no_title,
         no_labels=args.no_labels,
         no_legend=args.no_legend,
+        current_position=_parse_current_position(args),
     )
     if result.success:
         print(f"Generated PNG forecast map: {result.output}")
@@ -264,7 +268,7 @@ def _forecast_text(args: argparse.Namespace, schedule_file: Path) -> None:
     ----------
     args : argparse.Namespace
         Parsed CLI args; reads output, transit_speed, start_index,
-        start_time, duration.
+        start_time, duration, current_position.
     schedule_file : Path
         NetCDF schedule file.
     """
@@ -274,6 +278,7 @@ def _forecast_text(args: argparse.Namespace, schedule_file: Path) -> None:
         start_time=args.start_time,
         duration_hours=args.duration,
         transit_speed=args.transit_speed,
+        current_position=_parse_current_position(args),
     )
     if not result.success:
         print(f"ERROR: {result.message}", file=sys.stderr)
@@ -365,18 +370,100 @@ def _run_static_mode(
         sys.exit(1)
 
 
+def parse_position(text: str) -> tuple[float, float]:
+    """
+    Parse a position given as ``"lat,lon"`` or ``"lat lon"`` in decimal degrees.
+
+    Parameters
+    ----------
+    text : str
+        Latitude and longitude separated by a comma and/or spaces, e.g.
+        ``"-74.62,164.30"`` or ``"-74.62 164.30"``.
+
+    Returns
+    -------
+    tuple of float
+        (latitude, longitude).
+
+    Raises
+    ------
+    ValueError
+        If there are not exactly two numbers, or they are out of range.
+    """
+    parts = text.replace(",", " ").split()
+    if len(parts) != 2:
+        raise ValueError(f"expected 'lat,lon', got '{text}'")
+    lat, lon = float(parts[0]), float(parts[1])
+    if not -90.0 <= lat <= 90.0 or not -180.0 <= lon <= 360.0:
+        raise ValueError(f"position out of range: {lat}, {lon}")
+    return lat, lon
+
+
+def join_position_argv(argv: list[str]) -> list[str]:
+    """
+    Join a ``--current-position`` value that starts with '-' to its option.
+
+    argparse reads ``-74.62,164.30`` as an unknown option. This rewrites
+    ``--current-position -74.62,164.30`` and ``--current-position -74.62
+    164.30`` to ``--current-position=-74.62,164.30``.
+
+    Parameters
+    ----------
+    argv : list of str
+        Command-line arguments without the program name.
+
+    Returns
+    -------
+    list of str
+        Arguments with the position joined to its option.
+    """
+    out: list[str] = []
+    i = 0
+    while i < len(argv):
+        arg = argv[i]
+        if arg == "--current-position" and i + 1 < len(argv):
+            value = argv[i + 1]
+            if _is_number_start(value):
+                if (
+                    ("," not in value or value.endswith(","))
+                    and i + 2 < len(argv)
+                    and _is_number(argv[i + 2].lstrip(","))
+                ):
+                    value = f"{value.rstrip(',')},{argv[i + 2].lstrip(',')}"
+                    i += 1
+                out.append(f"--current-position={value}")
+                i += 2
+                continue
+        out.append(arg)
+        i += 1
+    return out
+
+
+def _is_number_start(text: str) -> bool:
+    """Check whether text starts like a signed number ('-7', '-.5')."""
+    return len(text) > 1 and text[0] == "-" and (text[1].isdigit() or text[1] == ".")
+
+
+def _is_number(text: str) -> bool:
+    """Check whether text parses as a float."""
+    try:
+        float(text)
+    except ValueError:
+        return False
+    return True
+
+
 def _parse_current_position(
     args: argparse.Namespace,
 ) -> tuple[float, float] | None:
-    """Parse --current-position 'lat,lon' string into a (lat, lon) float tuple."""
+    """Parse --current-position into a (lat, lon) float tuple, or None."""
     if not getattr(args, "current_position", None):
         return None
     try:
-        lat_str, lon_str = args.current_position.split(",")
-        return (float(lat_str.strip()), float(lon_str.strip()))
+        return parse_position(args.current_position)
     except ValueError as e:
         print(
-            f"ERROR: Invalid current position format. Use 'lat,lon' like '65.123,-30.456': {e}",
+            f"ERROR: Invalid current position. Use 'lat,lon' like '-74.62,164.30': {e}",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -391,10 +478,18 @@ def build_parser(subparsers: argparse._SubParsersAction) -> argparse.ArgumentPar
         epilog="""
 Run 'cruiseplan list SCHEDULE_FILE' first to see activity indices.
 
+Anchoring: the operation at --start-index starts at --start-time (the ship is
+there; the transit into it is not included). If the index is a transit row,
+the forecast anchors on the operation that transit leads to and says so.
+With --current-position, --start-time is the time at that position: a transit
+from it to the operation is added at the leg's speed, and the operation starts
+when it ends. Later rows keep their planned offsets.
+
 Forecast mode (--start-index and --start-time required together):
   cruiseplan forecast MSM142_schedule.nc --start-index 18 --start-time "2026-08-30T14:00:00"
   cruiseplan forecast MSM142_schedule.nc --start-index 5 --start-time "2026-08-29T08:00:00" --duration 36 --output forecast.txt
-  cruiseplan forecast MSM142_schedule.nc --start-index 5 --start-time "2026-08-29T08:00:00" --current-position "65.123,-30.456"
+  cruiseplan forecast MSM142_schedule.nc --start-index 5 --start-time "2026-08-29T08:00:00" --current-position 65.123,-30.456
+  cruiseplan forecast pycnmix_schedule.nc --start-index 12 --start-time "2026-03-09 08:00" --current-position -74.98,163.48
   cruiseplan forecast MSM142_schedule.nc --start-index 5 --start-time "2026-08-29T08:00:00" --duration 48 --format waypoints
   cruiseplan forecast MSM142_schedule.nc --start-index 2 --start-time "2026-05-05 08:00" --duration 24 --format png
 
@@ -412,11 +507,15 @@ Static format mode (no start params):
     p.add_argument(
         "--start-index",
         type=int,
-        help="Starting activity index (0-based); required with --start-time",
+        help="Row index from 'cruiseplan list' (0-based) of the operation to "
+        "anchor on; a transit row anchors on the operation it leads to; "
+        "required with --start-time",
     )
     p.add_argument(
         "--start-time",
-        help="New start time for first activity (ISO format: '2026-08-30T14:00:00'); required with --start-index",
+        help="Start time of the anchored operation, or of the ship at "
+        "--current-position if given (ISO format: '2026-08-30T14:00:00'); "
+        "required with --start-index",
     )
     p.add_argument(
         "--duration",
@@ -432,7 +531,10 @@ Static format mode (no start params):
     )
     p.add_argument(
         "--current-position",
-        help="Current ship position as 'lat,lon' in decimal degrees (e.g., '65.123,-30.456')",
+        metavar="LAT,LON",
+        help="Ship position at --start-time in decimal degrees (e.g. "
+        "-74.62,164.30 or '-74.62 164.30'); adds a transit from it to the "
+        "anchored operation in every format",
     )
     p.add_argument(
         "--format",
