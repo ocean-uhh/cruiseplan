@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from cruiseplan.timeline.record import ActivityRecord, kind_of
+from cruiseplan.timeline.record import KIND_CATEGORY, ActivityRecord, kind_of
 
 logger = logging.getLogger(__name__)
 
@@ -120,10 +120,11 @@ def _text(schedule: xr.Dataset, var: str, i: int, default: str | None) -> str | 
     return default if text in {"", "nan", "None"} else text
 
 
+# Categories that name one kind (point_operation covers several; see type)
 _KIND_BY_CATEGORY = {
-    "line_operation": "line",
-    "area_operation": "area",
-    "transit": "transit",
+    category: kind
+    for kind, category in KIND_CATEGORY.items()
+    if list(KIND_CATEGORY.values()).count(category) == 1
 }
 
 

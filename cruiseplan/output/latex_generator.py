@@ -447,12 +447,20 @@ class LaTeXGenerator:
 
         # 2. Discover and process all scientific operations dynamically
         # Group science records by (kind, op_type); ports, transits and
-        # buffers are reported separately
+        # buffers are reported separately. CTD casts and generic stations
+        # are one group.
         operation_groups = {}
         for activity in timeline:
             if not activity.is_science:
                 continue
-            key = (activity.kind, activity.op_type)
+            op_type = activity.op_type
+            if activity.kind == "station" and (op_type or "").lower() in {
+                "ctd",
+                "station",
+                "",
+            }:
+                op_type = "station"
+            key = (activity.kind, op_type)
             if key not in operation_groups:
                 operation_groups[key] = []
             operation_groups[key].append(activity)
@@ -620,16 +628,8 @@ class LaTeXGenerator:
             )
             position = f"{time_str} & {lat_str}\\quad{lon_str}"
 
-            # Determine if this is a line operation (has different exit coordinates)
-            is_line_operation = (
-                hasattr(record, "exit_lat")
-                and hasattr(record, "exit_lon")
-                and (
-                    abs(record.exit_lat - record.entry_lat) > 0.001
-                    or abs(record.exit_lon - record.entry_lon) > 0.001
-                )
-                # and 'bathy' in record.label.lower()  # Focus on bathymetry surveys - commented out to include all line operations
-            )
+            # Lines and areas also print their exit position
+            is_line_operation = record.kind in {"line", "area"}
 
             # Water depth column for point operations other than ports/waypoints
             is_station = _is_station_record(record)
