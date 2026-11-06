@@ -30,6 +30,7 @@ from cruiseplan.timeline.record import ActivityRecord, Timeline
 from cruiseplan.timeline.scheduler import (
     calculate_timeline_statistics,
     fill_duration_summary,
+    timeline_minutes,
 )
 from cruiseplan.utils.coordinates import ddm_parts
 from cruiseplan.utils.units import NM_PER_KM, hours_to_days
@@ -125,10 +126,8 @@ class HTMLGenerator:
         # Calculate summary statistics using scheduler function
         stats = calculate_timeline_statistics(timeline)
 
-        # Calculate total statistics - use simple sum like CLI to avoid categorization errors
-        total_duration_h = (
-            sum(activity.duration_minutes for activity in timeline) / 60.0
-        )
+        # Elapsed time, including waiting from positive delays
+        total_duration_h = timeline_minutes(timeline) / 60.0
         total_duration_days = hours_to_days(total_duration_h)
 
         # Create HTML content
@@ -385,17 +384,10 @@ class HTMLGenerator:
         </tr>
 """
 
-            total_leg_duration = 0
-
-            # Transit information is now handled by scheduler Port_Departure/Port_Arrival activities
-            # No need to add separate transit rows as they would be duplicated
-
-            # Add leg activities
+            # Leg total: elapsed time, including waiting from positive delays
             activities = leg_data["activities"]
+            total_leg_duration = timeline_minutes(activities) / 60.0
             for i, activity in enumerate(activities):
-                duration_hrs = activity.duration_minutes / 60
-                total_leg_duration += duration_hrs
-
                 # Determine entry and exit positions based on activity type
                 entry_position, exit_position, distance_nm = (
                     self._get_activity_entry_exit_distance(activity, activities, i)

@@ -26,12 +26,14 @@ from hand_calc import (
     ctd_min,
     gc_nm,
     hand_schedule,
+    hand_trim,
     transit_min,
 )
 
 import cruiseplan
 import cruiseplan.data.bathymetry as bathy_module
 from cruiseplan.timeline import ActivityRecord
+from cruiseplan.timeline.scheduler import timeline_minutes
 
 ROOT = Path(__file__).parent.parent.parent
 FIXTURES = ROOT / "tests" / "fixtures"
@@ -42,7 +44,10 @@ CONFIGS = {
     "tc3_clusters": FIXTURES / "tc3_clusters.yaml",
     "tc4_mixed_ops": FIXTURES / "tc4_mixed_ops.yaml",
     "tc5_sections": FIXTURES / "tc5_sections.yaml",
-    "coldsnap": FIXTURES / "coldsnap-2028-newformat.yaml",
+    # every activity listed twice (group and pair clusters): 164 rows
+    "coldsnap": FIXTURES / "coldsnap-2028-newformat_old.yaml",
+    # the same activities listed once, K1 first in West Greenland: 84 rows
+    "mooring_sequence": FIXTURES / "mooring_sequence_greenland.yaml",
     "pycnmix": ROOT / "data" / "pycnmix-2026-v1.yaml",
 }
 HALIFAX_FILE = "gebco2025_halifax_subset.nc"
@@ -188,6 +193,7 @@ def test_leg_totals(name):
         ("tc2_two_legs", 2438.47, 4404.70),
         ("pycnmix", 610.42, 4840.91),
         ("coldsnap", 908.36, 6047.70),
+        ("mooring_sequence", 377.33, 2225.39),
     ],
 )
 def test_schedule_totals(name, hours, nm):
@@ -234,6 +240,9 @@ def test_tc3_leg_vessel_speed():
         ("coldsnap", "K7_Recovery", 0, 240.0, 1380.0),
         ("coldsnap", "K7_Recovery", 1, 240.0, 1380.0),
         ("coldsnap", "AE1_Recovery", 0, 120.0, 300.0),
+        ("mooring_sequence", "STN68", 0, 2329 / 60 * 2 + 30, 2329.0),
+        ("mooring_sequence", "K7_Recovery", 0, 240.0, 1380.0),
+        ("mooring_sequence", "AE1_Recovery", 0, 120.0, 300.0),
         ("pycnmix", "SouthCapeAdair", 0, 10.0, None),
         ("pycnmix", "SouthCapeAdair", 1, 10.0, None),
         ("pycnmix", "NISS", 0, 120.0, None),
@@ -269,6 +278,13 @@ def test_named_operations(name, label, nth, minutes, depth):
         ("pycnmix", "NIWA_WBAT", "Jangbogo Station", (-74.6901, 164.2419), None),
         ("tc2_two_legs", "Bremerhaven", "STN_002", (53.5395, 8.5809), (60.0, -30.0)),
         ("coldsnap", "STN68", "Reykjavik", (64.75, -30.3333), (64.1466, -21.9426)),
+        (
+            "mooring_sequence",
+            "STN68",
+            "Reykjavik",
+            (64.75, -30.3333),
+            (64.1466, -21.9426),
+        ),
     ],
 )
 def test_transit_between_named_points(name, src, dst, lat_lon_src, lat_lon_dst):
@@ -306,6 +322,7 @@ def test_transit_between_named_points(name, src, dst, lat_lon_src, lat_lon_dst):
         ("pycnmix", "Leg2", "NIWA_WBAT", "Jangbogo Station"),
         ("pycnmix", "Leg3", "Pycnogen_inner1", "Lyttelton"),
         ("coldsnap", "COLDSNAP", "STN68", "Reykjavik"),
+        ("mooring_sequence", "Mooring_Sequence", "STN68", "Reykjavik"),
     ],
 )
 def test_buffer_block(name, leg, last_op, arrival):
@@ -390,9 +407,11 @@ def pycnmix_with_negative_delays() -> dict:
 
 
 def test_negative_delay_start_every_row(tmp_path):
-    """Negative delays: start = arrival + delay; all rows match the hand schedule."""
+    """Negative delays: start = arrival + delay, the row before ends there (hand_trim)."""
     cfg = pycnmix_with_negative_delays()
-    assert_rows_match(timeline(write(tmp_path, cfg, "neg")), hand_schedule(cfg))
+    assert_rows_match(
+        timeline(write(tmp_path, cfg, "neg")), hand_trim(hand_schedule(cfg))
+    )
 
 
 def test_negative_delay_start_effects(tmp_path):
@@ -410,33 +429,42 @@ def test_negative_delay_start_effects(tmp_path):
     assert shift("NIWA_WBAT") == pytest.approx(-90)
     # The model accepts the negative value and the record carries it
     assert by_label(tl, "NIWA_DITN").delay_start_minutes == -60.0
-    # Not clamped: the deployment starts 30 min before the recovery record ends
+    # The recovery ended 30 min early: its record ends where the deployment
+    # starts, 120 - 30 = 90 min actual, 120 min planned
     rec = by_label(tl, "LDEO_heavy_shallow_recovery")
     dep = by_label(tl, "LDEO_heavy_shallow_deployment")
-    assert (rec.end_time - dep.start_time).total_seconds() / 60 == pytest.approx(30)
-    # The transit into NIWA_DITN keeps its full length; the op starts 60 min
-    # before the transit record ends
+    assert rec.end_time == dep.start_time
+    assert rec.duration_minutes == pytest.approx(120 - 30)
+    assert rec.planned_duration_minutes == pytest.approx(120)
+    # The transit into NIWA_DITN is 60 min shorter than planned
     transit = by_label(tl, "Transit to NIWA_DITN")
-    assert transit.duration_minutes == pytest.approx(
-        by_label(base, "Transit to NIWA_DITN").duration_minutes
-    )
-    ditn = by_label(tl, "NIWA_DITN")
-    assert (transit.end_time - ditn.start_time).total_seconds() / 60 == pytest.approx(
-        60
-    )
-
-
-@pytest.mark.xfail(
-    strict=True,
-    reason="Schedule total (sum of durations, as printed by the CLI) leaves out "
-    "delay_start waiting time: 330 min (45 + 120 + 30 + 90 + 45) short of the "
-    "end-minus-start span",
-)
-def test_total_duration_includes_delays(tmp_path):
-    """The schedule total equals the elapsed span from first start to last end."""
-    tl = timeline(write(tmp_path, pycnmix_with_delays(), "delays"))
+    planned = by_label(base, "Transit to NIWA_DITN").duration_minutes
+    assert transit.planned_duration_minutes == pytest.approx(planned)
+    assert transit.duration_minutes == pytest.approx(planned - 60)
+    assert transit.end_time == by_label(tl, "NIWA_DITN").start_time
+    # Totals stay right: the durations add up to the elapsed time
     span_min = (tl[-1].end_time - tl[0].start_time).total_seconds() / 60
-    assert sum(r.duration_minutes for r in tl) == pytest.approx(span_min, abs=1)
+    assert sum(r.duration_minutes for r in tl) == pytest.approx(span_min, abs=0.01)
+
+
+def test_total_duration_includes_delays(tmp_path):
+    """The schedule total (CLI and result summary) is the elapsed span, waiting included.
+
+    pycnmix with positive delays of 45 + 120 + 30 + 90 + 45 = 330 min: the sum
+    of the durations is 330 min short of the span, the reported total is not.
+    """
+    path = write(tmp_path, pycnmix_with_delays(), "delays")
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        result = cruiseplan.schedule(config_file=path, format=None)
+    tl = result.timeline
+    span_min = (tl[-1].end_time - tl[0].start_time).total_seconds() / 60
+    durations = sum(r.duration_minutes for r in tl)
+    assert span_min - durations == pytest.approx(330, abs=0.01)
+    assert result.summary["total_duration_hours"] * 60 == pytest.approx(
+        span_min, abs=0.01
+    )
+    assert timeline_minutes(tl) == pytest.approx(span_min, abs=0.01)
 
 
 # =============================================================================
@@ -444,11 +472,6 @@ def test_total_duration_includes_delays(tmp_path):
 # =============================================================================
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="Leg turnaround_time is documented as overriding the cruise value, "
-    "but CTD cast time always uses the cruise-level turnaround_time",
-)
 def test_leg_turnaround_time(tmp_path):
     """tc1_single with leg turnaround_time 20: 2850/60 * 2 + 20 = 115 min."""
     cfg = load("tc1_single")
@@ -480,11 +503,6 @@ def test_leg_speed_applies_to_line_without_speed(tmp_path):
     assert line.duration_minutes == pytest.approx(nm / 12 * 60, abs=MIN_TOL)
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="Line operation records report vessel_speed_kt = cruise default (10) "
-    "instead of the line's own speed (5 kt for ADCP_Survey)",
-)
 def test_line_record_reports_its_speed():
     """ADCP_Survey runs at 5 kt and its record says so."""
     line = by_label(timeline(CONFIGS["tc4_mixed_ops"]), "ADCP_Survey")
@@ -506,6 +524,7 @@ def test_line_record_reports_its_speed():
         ("tc4_mixed_ops", 0),  # operation_depth 58 kept
         ("tc5_sections", 19),  # int(270.76 km / 15 km) + 1 = 19 section stations
         ("coldsnap", 0),
+        ("mooring_sequence", 0),
         ("pycnmix", 0),  # every point has a duration
     ],
 )
@@ -587,7 +606,9 @@ def schedule_files(tmp_path: Path, name: str) -> tuple[list[dict], Path]:
         return list(csv.DictReader(fh)), nc_path
 
 
-@pytest.mark.parametrize("name", ["pycnmix", "coldsnap", "tc2_two_legs"])
+@pytest.mark.parametrize(
+    "name", ["pycnmix", "coldsnap", "mooring_sequence", "tc2_two_legs"]
+)
 def test_csv_columns(tmp_path, name):
     """CSV duration (0.1 h), distance (0.1 nm) and times (within the minute)."""
     rows, _ = schedule_files(tmp_path, name)
@@ -603,12 +624,6 @@ def test_csv_columns(tmp_path, name):
         assert abs((start - h.start).total_seconds()) < 60
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="CSV times are truncated to the minute although round_time_to_minute "
-    "and the CSV generator say 'round to nearest minute' (pycnmix Option_AD "
-    "starts 12:59:59, CSV shows 12:59)",
-)
 def test_csv_times_nearest_minute(tmp_path):
     """CSV start times equal the hand start rounded to the nearest minute."""
     rows, _ = schedule_files(tmp_path, "pycnmix")
@@ -618,9 +633,11 @@ def test_csv_times_nearest_minute(tmp_path):
         assert datetime.fromisoformat(r["start_time"]) == nearest, h.name
 
 
-@pytest.mark.parametrize("name", ["pycnmix", "coldsnap", "tc2_two_legs"])
+@pytest.mark.parametrize(
+    "name", ["pycnmix", "coldsnap", "mooring_sequence", "tc2_two_legs"]
+)
 def test_netcdf_values(tmp_path, name):
-    """NetCDF start times, durations (hours) and distances match hand values."""
+    """NetCDF start times, durations (minutes) and distances match hand values."""
     _, nc_path = schedule_files(tmp_path, name)
     hand = hand_schedule(load(name))
     with xr.open_dataset(nc_path) as ds:
@@ -629,6 +646,8 @@ def test_netcdf_values(tmp_path, name):
         for i, h in enumerate(hand):
             assert str(ds.name[i].values) == h.name
             assert_time(times[i], h.start)
-            assert float(ds.duration[i]) * 60 == pytest.approx(h.minutes, abs=0.01)
-            assert float(ds.dist_nm[i]) == pytest.approx(h.nm, abs=NM_TOL)
+            assert ds.duration.attrs["units"] == "minute"
+            assert float(ds.duration[i]) == pytest.approx(h.minutes, abs=0.01)
+            assert float(ds.planned_duration[i]) == pytest.approx(h.minutes, abs=0.01)
+            assert float(ds.distance[i]) == pytest.approx(h.nm, abs=NM_TOL)
             assert int(ds.duration_fill_flag[i]) == int(h.is_fill)

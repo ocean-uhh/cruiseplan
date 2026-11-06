@@ -18,6 +18,7 @@ from cruiseplan.config.values import (
     DEFAULT_BATHY_DIR,
     DEFAULT_BATHY_SOURCE,
 )
+from cruiseplan.timeline.scheduler import timeline_minutes
 
 
 def run(args: argparse.Namespace) -> None:
@@ -78,9 +79,7 @@ def run(args: argparse.Namespace) -> None:
             for file_path in result.files_created:
                 print(f"  • {file_path}")
 
-            total_duration_hours = (
-                sum(activity.duration_minutes for activity in result.timeline) / 60.0
-            )
+            total_duration_hours = timeline_minutes(result.timeline) / 60.0
             print(f"Total timeline duration: {total_duration_hours:.1f} hours")
             print(f"Timeline activities: {len(result.timeline)}")
         else:

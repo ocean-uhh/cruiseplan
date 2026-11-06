@@ -6,7 +6,7 @@ format generators (CSV, HTML, LaTeX, etc.) to ensure consistency and reduce
 code duplication.
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from cruiseplan.config.values import DEFAULT_DEPTH
 from cruiseplan.timeline.record import ActivityRecord
@@ -85,10 +85,7 @@ def format_activity_type(activity: ActivityRecord) -> str:
 
 def round_time_to_minute(dt: datetime) -> datetime:
     """
-    Round datetime to nearest minute for clean output timestamps.
-
-    Utility function for standardizing time formatting by removing
-    seconds and microseconds components for clean output display.
+    Round a datetime to the nearest minute (30 s rounds up).
 
     Parameters
     ----------
@@ -104,9 +101,9 @@ def round_time_to_minute(dt: datetime) -> datetime:
     --------
     >>> from datetime import datetime
     >>> round_time_to_minute(datetime(2023, 1, 1, 12, 30, 45))
-    datetime(2023, 1, 1, 12, 30)
+    datetime(2023, 1, 1, 12, 31)
     """
-    return dt.replace(second=0, microsecond=0)
+    return (dt + timedelta(seconds=30)).replace(second=0, microsecond=0)
 
 
 def format_operation_action(operation_type: str, action: str) -> str:

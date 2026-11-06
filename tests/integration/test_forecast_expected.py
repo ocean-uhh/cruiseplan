@@ -18,7 +18,7 @@ from pathlib import Path
 import pytest
 import xarray as xr
 import yaml
-from hand_calc import gc_nm, hand_anchor, hand_forecast, hand_schedule
+from hand_calc import gc_nm, hand_anchor, hand_forecast, hand_schedule, hand_trim
 
 import cruiseplan
 from cruiseplan.forecast.generator import generate_forecast
@@ -29,7 +29,7 @@ cli_main = importlib.import_module("cruiseplan.cli.main")
 ROOT = Path(__file__).parent.parent.parent
 CONFIGS = {
     "pycnmix": ROOT / "data" / "pycnmix-2026-v1.yaml",
-    "coldsnap": ROOT / "tests" / "fixtures" / "coldsnap-2028-newformat.yaml",
+    "mooring_sequence": ROOT / "tests" / "fixtures" / "mooring_sequence_greenland.yaml",
     "tc2_two_legs": ROOT / "tests" / "fixtures" / "tc2_two_legs.yaml",
 }
 T_TOL_S = 30.0
@@ -440,7 +440,7 @@ def test_buffer_survives_into_forecast(tmp_path):
 def test_netcdf_round_trip_durations(tmp_path):
     """Reader records: start, end and duration_minutes as in the hand schedule."""
     cfg = with_delays({"NIWA_DITN": -60.0})
-    hand = hand_schedule(cfg)
+    hand = hand_trim(hand_schedule(cfg))
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         ds = read_schedule(netcdf_for(tmp_path, cfg, "rt"))

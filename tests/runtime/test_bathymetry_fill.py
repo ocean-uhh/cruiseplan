@@ -44,14 +44,14 @@ def test_enriched_yaml_records_bathymetry_provenance(tmp_path):
 
 
 def test_stated_depths_are_kept(tmp_path):
-    """coldsnap: stations with a stated water_depth are not overwritten by the fill."""
-    source = yaml.safe_load((FIXTURES / "coldsnap-2028-newformat.yaml").read_text())
+    """mooring sequence: stations with a stated water_depth are not overwritten by the fill."""
+    source = yaml.safe_load((FIXTURES / "mooring_sequence_greenland.yaml").read_text())
     stated = {
         p["name"]: p["water_depth_m"] for p in source["points"] if "water_depth_m" in p
     }
     assert stated, "fixture should state at least one depth"
     enriched = _enrich_without_bathymetry(
-        FIXTURES / "coldsnap-2028-newformat.yaml", tmp_path
+        FIXTURES / "mooring_sequence_greenland.yaml", tmp_path
     )
     for point in enriched["points"]:
         if point["name"] in stated:

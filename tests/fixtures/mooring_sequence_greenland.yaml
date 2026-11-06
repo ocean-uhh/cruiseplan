@@ -1,18 +1,17 @@
 # ================================================================
-# SPP2025 Subpolar Expedition 2028 - Maritime Architecture
+# Mooring sequence test configuration: subpolar North Atlantic and West Greenland
 # ================================================================
 #
-# Major North Atlantic subpolar research expedition covering:
-# - OSNAP (Overturning in the Subpolar North Atlantic Program) 
-# - West Greenland Observatory operations
-# - Denmark Strait overflow monitoring
-# - Triangle mooring array deployment
-#
-# Migrated to maritime-correct architecture with port-to-port legs
+# A test fixture for scheduling a long mooring sequence (recovery/deployment
+# pairs, arrays, a fjord, a final CTD station). It is not a cruise plan.
+# Each activity is listed once, in pair clusters in order: the 53N moorings,
+# then K1 first in West Greenland, then the West Greenland arrays.
+# Derived from coldsnap-2028-newformat_old.yaml (which lists every activity
+# twice, in group and pair clusters).
 #
 
-cruise_name: "SPP2025-Subpolar-2028"
-description: "Major subpolar North Atlantic research expedition with OSNAP array maintenance and deep water studies"
+cruise_name: "Mooring-Sequence-Greenland"
+description: "Mooring sequence test configuration (subpolar North Atlantic, West Greenland)"
 
 # Global cruise parameters (inheritable to legs)
 default_vessel_speed_kt: 10.0  # knots
@@ -485,8 +484,8 @@ points:
 # ================================================================
 
 legs:
-  - name: "COLDSNAP"
-    description: "St. Johns to OSNAP West Array - 53N Observatory operations"
+  - name: "Mooring_Sequence"
+    description: "St. John's to Reykjavik: 53N moorings, then West Greenland"
     departure_port: "port_st_johns"
     arrival_port: "port_reykjavik"  # Intermediate port for crew change
     vessel_speed_kt: 10.0
@@ -494,40 +493,19 @@ legs:
     first_activity: "K7_Recovery" 
     last_activity: "STN68"
     
-    # Activities include all 53N Observatory moorings in sequence
     clusters:
-      - name: "53N_Observatory_Cluster"
-        description: "53N Observatory mooring recovery/deployment sequence"
-        strategy: "sequential"
-        ordered: true
-        activities:
-        - "K7_Recovery"
-        - "K7_Deployment"
-        - "K8_Recovery"
-        - "K8_Deployment"
-        - "DSOW1_Recovery"
-        - "DSOW1_Deployment"
-        - "K9_Recovery"
-        - "K9_Deployment"
-        - "DSOW2_Recovery"
-        - "DSOW2_Deployment"
-        - "K10_Recovery"
-        - "K10_Deployment"
-        - "DSOW5_Recovery"
-        - "DSOW5_Deployment"
-
       - name: "K7_Sequence"
         description: "K7 recovery/deployment sequence - strict order required"
         strategy: "sequential"
         ordered: true
         activities: ["K7_Recovery", "K7_Deployment"]
-            
+
       - name: "K8_Sequence"
         description: "K8 recovery/deployment sequence - strict order required"
         strategy: "sequential"
         ordered: true
         activities: ["K8_Recovery", "K8_Deployment"]
-            
+
       - name: "DSOW_Sequence_1"
         description: "DSOW1 recovery/deployment sequence"
         strategy: "sequential"
@@ -539,7 +517,7 @@ legs:
         strategy: "sequential"
         ordered: true
         activities: ["K9_Recovery", "K9_Deployment"]
-            
+
       - name: "DSOW_Sequence_2"
         description: "DSOW2 recovery/deployment sequence"
         strategy: "sequential"
@@ -558,56 +536,48 @@ legs:
         ordered: true
         activities: ["DSOW5_Recovery", "DSOW5_Deployment"]
 
-      - name: "West_Greenland_Operations"
-        description: "Halifax to West Greenland Observatory - OSNAP West operations"
-        strategy: "sequential"
-        ordered: true
-        # Activities for West Greenland operations + final deep station
-        activities: ["DSOW3_Recovery", "DSOW3_Deployment", "DSOW4_Recovery", "DSOW4_Deployment", "LS7_Recovery", "LS6_Recovery", "LS5_Recovery", "LS3_Recovery", "LS1_Recovery", "LSA_Recovery", "M1a_Deployment", "M1b_Deployment", "M1c_Deployment", "M1d_Deployment", "M1e_Deployment", "M1f_Deployment", "CF1_Recovery", "CF2_Recovery", "CF3_Recovery", "CF5_Recovery", "CF6_Recovery", "CF7_Recovery", "M1_Recovery", "M2_Recovery", "M3_Recovery", "DS2_Recovery", "DS2_Deployment", "AE1_Recovery", "AE2_Recovery", "FR1_Recovery", "FR2_Recovery", "K1_Recovery", "K1_Deployment", "STN68"]
-
       - name: "K1_Deep_Operations"
         description: "K1 deep mooring operations - final major deployment"
         strategy: "sequential"
         ordered: true
         activities: ["K1_Recovery", "K1_Deployment"]
-        
-      # Multiple clusters for different operation phases
+
       - name: "West_Greenland_Deep"
         description: "Deep water DSOW operations - flexible weather ordering"
         strategy: "sequential" 
         ordered: false  # Allow reordering for weather
         activities: ["DSOW3_Recovery", "DSOW3_Deployment", "DSOW4_Recovery", "DSOW4_Deployment"]
-            
+
       - name: "Labrador_Sea_Array"
         description: "Labrador Sea mooring recoveries - sequential inshore to offshore"
         strategy: "sequential"
         ordered: true  # Maintain geographic sequence
         activities: ["LS7_Recovery", "LS6_Recovery", "LS5_Recovery", "LS3_Recovery", "LS1_Recovery", "LSA_Recovery"]
-              
+
       - name: "Triangle_Array_Deployment"
         description: "Triangle mooring array deployment - multiple units at same location"
         strategy: "sequential"
         ordered: true  # Deploy in sequence for safety
         activities: ["M1a_Deployment", "M1b_Deployment", "M1c_Deployment", "M1d_Deployment", "M1e_Deployment", "M1f_Deployment"]
-            
+
       - name: "Coastal_Front_Array"
         description: "Coastal front mooring recoveries - weather flexible"
         strategy: "sequential"
         ordered: false  # Allow weather-based reordering
         activities: ["CF1_Recovery", "CF2_Recovery", "CF3_Recovery", "CF5_Recovery", "CF6_Recovery", "CF7_Recovery", "M1_Recovery", "M2_Recovery", "M3_Recovery"]
-            
+
       - name: "Denmark_Strait_Operations"
         description: "Denmark Strait overflow monitoring - critical sequence"
         strategy: "sequential"
         ordered: true
         activities: ["DS2_Recovery", "DS2_Deployment"]
-            
+
       - name: "AEGIR_Kangerlussuaq"
         description: "Kangerlussuaq fjord operations - weather dependent"
         strategy: "sequential"
         ordered: false  # Weather and ice dependent
         activities: ["AE1_Recovery", "AE2_Recovery", "FR1_Recovery", "FR2_Recovery"]
-            
+
       - name: "Final_Deep_Station"
         description: "Final deep water CTD station before return"
         strategy: "sequential"

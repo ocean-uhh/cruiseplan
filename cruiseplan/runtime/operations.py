@@ -42,9 +42,10 @@ logger = logging.getLogger(__name__)
 
 
 class DurationRules(Protocol):
-    """Rules object passed to duration calculations; carries the cruise config."""
+    """Rules object passed to duration calculations: the cruise config and leg values."""
 
     config: "CruiseConfig"
+    turnaround_time_minutes: float | None
 
 
 class BaseOperation(ABC):
@@ -314,7 +315,9 @@ class PointOperation(BaseOperation):
             # No operation time; waiting time is handled separately
             return 0.0
 
-        calc = DurationCalculator(rules.config)
+        calc = DurationCalculator(
+            rules.config, getattr(rules, "turnaround_time_minutes", None)
+        )
 
         # TODO - why is ADCP on the list? what is this hardcoded list for?
         # Check for station-like operations (CTD, ADCP, etc.) that need CTD time calculation
@@ -611,6 +614,17 @@ class LineOperation(BaseOperation):
         if not self.route:
             return (0.0, 0.0)  # Fallback for empty routes
         return (self.route[-1].latitude, self.route[-1].longitude)
+
+    def get_vessel_speed(self) -> float:
+        """
+        Return the speed the line is run at (its own, else the leg or cruise speed).
+
+        Returns
+        -------
+        float
+            Speed in knots.
+        """
+        return self.speed
 
     def get_operation_distance_nm(self) -> float:
         """

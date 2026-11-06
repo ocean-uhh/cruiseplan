@@ -374,8 +374,8 @@ def _build_tex_forecast_record(
     end_time = time + timedelta(hours=duration)
 
     operation_distance = (
-        float(schedule.dist_nm[index].values)
-        if "dist_nm" in schedule.variables
+        float(schedule.distance[index].values)
+        if "distance" in schedule.variables
         else 0.0
     )
     next_transit_distance = (

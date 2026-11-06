@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
+from cruiseplan.forecast.reader import to_current_format
 from cruiseplan.timeline.distance import haversine_distance
 from cruiseplan.utils.units import km_to_nm
 
@@ -40,8 +41,8 @@ def _extract_activity_depths(
         dist_val = float(schedule.distance_to_next[i].values)
         if not np.isnan(dist_val) and dist_val != -9999.0:
             distance = dist_val
-    if distance is None and "dist_nm" in schedule.variables:
-        dist_val = float(schedule.dist_nm[i].values)
+    if distance is None and "distance" in schedule.variables:
+        dist_val = float(schedule.distance[i].values)
         if not np.isnan(dist_val) and dist_val != -9999.0:
             distance = dist_val
 
@@ -72,7 +73,7 @@ def list_activities(
     ...     print(f"{idx:4d} | {time_offset} | {category:15s} | {duration_str:8s} | {name}")
     """
     activities = []
-
+    schedule = to_current_format(schedule)
     time_offsets = _time_offsets(schedule)
 
     for i, (time_offset, category, duration, name) in enumerate(
@@ -83,7 +84,7 @@ def list_activities(
                 if "type" in schedule.variables
                 else schedule.category.values
             ),
-            schedule.duration.values,
+            schedule.duration.values / 60.0,
             schedule.name.values,
             strict=False,
         )
@@ -194,8 +195,7 @@ def _time_offsets(schedule: xr.Dataset) -> list[pd.Timedelta]:
     time_data = schedule.time.values
     if hasattr(time_data[0], "total_seconds"):
         return [pd.Timedelta(seconds=float(t.total_seconds())) for t in time_data]
-    if np.issubdtype(time_data.dtype, np.number):
-        return [pd.Timedelta(hours=float(t)) for t in time_data]
+    # Numbers here would be undecoded CF times; to_current_format decodes them
     times = pd.to_datetime(time_data)
     return [t - times[0] for t in times]
 
@@ -336,6 +336,7 @@ def generate_forecast(
     >>> for idx, abs_time, cat, typ, act, dur, lat, lon, name in forecast:
     ...     print(f"{abs_time:%Y-%m-%d %H:%M} | {name}")
     """
+    schedule = to_current_format(schedule)
     anchor = resolve_anchor_index(schedule, start_index)
     num_activities = len(schedule.time)
 
@@ -376,7 +377,7 @@ def generate_forecast(
         if absolute_time > forecast_end_time:
             break
 
-        duration = float(schedule.duration[i].values)
+        duration = float(schedule.duration[i].values) / 60.0
         if i + 1 < num_activities:
             gap_hours = (time_offsets[i + 1] - time_offsets[i]).total_seconds() / 3600
             if gap_hours < duration:
