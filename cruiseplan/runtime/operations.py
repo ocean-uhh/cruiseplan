@@ -898,3 +898,116 @@ class AreaOperation(BaseOperation):
         # (very approximate, assumes mid-latitude ~45°)
         km_per_degree = 111.0  # Rough conversion
         return area * (km_per_degree**2)
+
+
+class NavigationalTransit(BaseOperation):
+    """
+    Navigational connection between two operations.
+
+    Parameters
+    ----------
+    from_op : BaseOperation
+        Operation the transit leaves from (its exit point).
+    to_op : BaseOperation
+        Operation the transit leads to (its entry point).
+    config : CruiseConfig
+        Cruise configuration (default vessel speed).
+    leg_name : str
+        Name of the leg the transit belongs to.
+    vessel_speed : float, optional
+        Transit speed in knots; the cruise default when not given.
+    """
+
+    def __init__(
+        self,
+        from_op: BaseOperation,
+        to_op: BaseOperation,
+        config: "CruiseConfig",
+        leg_name: str,
+        vessel_speed: float | None = None,
+    ) -> None:
+        super().__init__(f"Transit to {to_op.get_label()}")
+        self.from_op = from_op
+        self.to_op = to_op
+        self.config = config
+        self.leg_name = leg_name
+        self.vessel_speed = vessel_speed or getattr(
+            config, "default_vessel_speed", 10.0
+        )
+
+    def calculate_duration(self, rules: DurationRules | None) -> float:  # noqa: ARG002 - interface; transit uses its own speed
+        """
+        Return the transit time in minutes at the transit speed.
+
+        Parameters
+        ----------
+        rules : DurationRules or None
+            Not used; the transit speed is set on the transit.
+
+        Returns
+        -------
+        float
+            Duration in minutes.
+        """
+        return (self.get_operation_distance_nm() / self.vessel_speed) * 60.0
+
+    def get_entry_point(self) -> tuple[float, float]:
+        """
+        Return where the previous operation ended.
+
+        Returns
+        -------
+        tuple of float
+            (latitude, longitude).
+        """
+        return self.from_op.get_exit_point()
+
+    def get_exit_point(self) -> tuple[float, float]:
+        """
+        Return where the next operation begins.
+
+        Returns
+        -------
+        tuple of float
+            (latitude, longitude).
+        """
+        return self.to_op.get_entry_point()
+
+    def get_operation_type(self) -> str:
+        """
+        Return the display type, ``Transit``.
+
+        Returns
+        -------
+        str
+            ``"Transit"``.
+        """
+        return "Transit"
+
+    def get_operation_distance_nm(self) -> float:
+        """
+        Return the great-circle distance between the two operations.
+
+        Returns
+        -------
+        float
+            Distance in nautical miles.
+        """
+        from cruiseplan.timeline.distance import haversine_distance
+        from cruiseplan.utils.units import km_to_nm
+
+        distance_km = haversine_distance(
+            self.from_op.get_exit_point(), self.to_op.get_entry_point()
+        )
+        return km_to_nm(distance_km)
+
+    def get_vessel_speed(self) -> float:
+        """
+        Return the transit speed (leg speed, or the cruise default).
+
+        Returns
+        -------
+        float
+            Speed in knots.
+        """
+        return self.vessel_speed

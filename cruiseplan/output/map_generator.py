@@ -22,13 +22,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.axes import Axes
 
+from cruiseplan.timeline.record import ActivityRecord, Timeline
+
 if TYPE_CHECKING:
     from cruiseplan.config.activities import PointDefinition
     from cruiseplan.runtime.cruise import CruiseInstance
 
     # A data source for map extraction: a cruise, a timeline, or
     # {"timeline": [...], "cruise": CruiseInstance | None}.
-    MapDataSource = CruiseInstance | list[dict[str, Any]] | dict[str, Any]
+    MapDataSource = CruiseInstance | Timeline | dict[str, Any]
 
 logger = logging.getLogger(__name__)
 
@@ -189,52 +191,25 @@ def extract_lines_from_cruise(cruise: "CruiseInstance") -> list[dict[str, Any]]:
     return lines
 
 
-def extract_areas_from_timeline(
-    timeline_data: list[dict[str, Any]],
-) -> list[dict[str, Any]]:
+def extract_areas_from_timeline(timeline_data: Timeline) -> list[dict[str, Any]]:
     """
-    Extract area features from timeline data.
+    Extract area features from timeline records.
+
+    Records carry no corner geometry, so there are none; areas are drawn from
+    the cruise configuration (``extract_areas_from_cruise``).
 
     Parameters
     ----------
-    timeline_data : List[Dict]
-        Timeline activity records
+    timeline_data : Timeline
+        Timeline records.
 
     Returns
     -------
-    List[Dict[str, Any]]
-        List of area dictionaries with keys: name, corners, entity_type, operation_type, action
+    list of dict
+        Always empty.
     """
-    areas = []
-
-    for activity in timeline_data:
-        # Check if this activity represents an area operation
-        if (
-            activity.get("category") == "area_operation"
-            and activity.get("corners")
-            and len(activity.get("corners", [])) >= 3
-        ):
-            # Convert corners to the expected format
-            corners = [
-                {
-                    "lat": corner.get("latitude", corner.get("lat")),
-                    "lon": corner.get("longitude", corner.get("lon")),
-                }
-                for corner in activity["corners"]
-            ]
-
-            areas.append(
-                {
-                    "name": activity.get("name", "Unknown Area"),
-                    "corners": corners,
-                    "entity_type": "area",
-                    "operation_type": activity.get("operation_type", "survey"),
-                    "action": activity.get("action", None),
-                    "duration": activity.get("duration", None),
-                }
-            )
-
-    return areas
+    del timeline_data
+    return []
 
 
 def extract_areas_from_cruise(cruise: "CruiseInstance") -> list[dict[str, Any]]:
@@ -345,146 +320,88 @@ def calculate_optimal_figsize(
     return (width, height)
 
 
+def _has_position(record: ActivityRecord) -> bool:
+    """Return False for a record at (0, 0), which marks a missing position."""
+    return not (record.entry_lat == 0.0 and record.entry_lon == 0.0)
+
+
 def extract_points_from_timeline(
-    timeline: list[dict[str, Any]], include_ports: bool = True
+    timeline: Timeline, include_ports: bool = True
 ) -> list[dict[str, Any]]:
     """
-    Extract point features (stations, ports) from timeline activities.
+    Extract point features (stations, moorings, ports, other operations).
 
     Parameters
     ----------
-    timeline : List[ActivityRecord]
-        List of timeline activity records
+    timeline : Timeline
+        Timeline records.
     include_ports : bool, optional
-        Whether to include departure/arrival ports (default True)
+        Whether to include port records. Default is True.
 
     Returns
     -------
-    List[Dict[str, Any]]
-        List of point dictionaries with keys: name, lat, lon, entity_type, operation_type, action, depth
+    list of dict
+        Point dictionaries with keys: name, lat, lon, entity_type,
+        operation_type, action, depth.
     """
+    entity_types = {"station": "station", "mooring": "mooring"}
     points = []
-
-    for activity in timeline:
-        # Extract coordinates and metadata from timeline activity
-        if (
-            "lat" in activity
-            and "lon" in activity
-            and activity["lat"] is not None
-            and activity["lon"] is not None
-            and not (activity["lat"] == 0.0 and activity["lon"] == 0.0)
-        ):  # Skip zero coordinates
-            # Determine entity type from activity type
-            activity_type = activity.get("activity", "Unknown")
-            if activity_type == "Port_Departure":
-                entity_type = "departure_port"
-                operation_type = "port"
-                # Skip ports if include_ports is False
-                if not include_ports:
-                    continue
-            elif activity_type == "Port_Arrival":
-                entity_type = "arrival_port"
-                operation_type = "port"
-                # Skip ports if include_ports is False
-                if not include_ports:
-                    continue
-            elif activity_type in ["Station"]:
-                entity_type = "station"
-                operation_type = activity.get(
-                    "operation_type", activity.get("op_type", "station")
-                )
-            elif activity_type in ["Mooring"]:
-                entity_type = "mooring"
-                operation_type = activity.get(
-                    "operation_type", activity.get("op_type", "mooring")
-                )
-            elif activity_type in ["Transit"]:
-                # Skip transit activities - they should be shown as lines, not points
+    for i, record in enumerate(timeline):
+        if record.kind in {"transit", "buffer"} or not _has_position(record):
+            continue
+        if record.kind == "port":
+            if not include_ports:
                 continue
-            elif activity.get("category") == "area_operation":
-                # Skip area operations - they should be shown as polygons, not points
-                continue
-            else:
-                entity_type = "activity"
-                operation_type = activity.get(
-                    "operation_type", activity.get("op_type", "unknown")
-                )
-
-            # Extract clean port name for port activities
-            if activity_type in ["Port_Departure", "Port_Arrival"]:
-                # Extract port name from verbose labels like "Departure: Halifax to Operations"
-                label = activity.get("label", f"{activity_type}_{len(points) + 1}")
-                if ":" in label and " to " in label:
-                    # Extract port name between ":" and " to "
-                    if activity_type == "Port_Departure":
-                        # "Departure: Halifax to Operations" -> "Halifax"
-                        port_name = label.split(": ", 1)[1].split(" to ", 1)[0]
-                    else:  # Port_Arrival
-                        # "Arrival: Operations to Halifax" -> "Halifax"
-                        port_name = label.split(" to ", 1)[1]
-                else:
-                    port_name = label
-            else:
-                port_name = activity.get("label", f"{activity_type}_{len(points) + 1}")
-
-            points.append(
-                {
-                    "name": port_name,
-                    "lat": float(activity["lat"]),
-                    "lon": float(activity["lon"]),
-                    "entity_type": entity_type,
-                    "operation_type": operation_type,
-                    "action": activity.get("action", None),
-                    "depth": activity.get("depth", activity.get("water_depth", None)),
-                }
-            )
-
+            # A port that opens its leg is the departure, otherwise the arrival
+            later = timeline[i + 1 :]
+            opens_leg = bool(later) and later[0].leg_name == record.leg_name
+            entity_type = "departure_port" if opens_leg else "arrival_port"
+        else:
+            entity_type = entity_types.get(record.kind, "activity")
+        points.append(
+            {
+                "name": record.label,
+                "lat": float(record.entry_lat),
+                "lon": float(record.entry_lon),
+                "entity_type": entity_type,
+                "operation_type": record.op_type,
+                "action": record.action,
+                "depth": record.water_depth_m,
+            }
+        )
     return points
 
 
-def extract_lines_from_timeline(timeline: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def extract_lines_from_timeline(timeline: Timeline) -> list[dict[str, Any]]:
     """
-    Extract line features (cruise tracks) from timeline activities by connecting sequential positions.
+    Extract the cruise track: the entry positions of the records in order.
 
     Parameters
     ----------
-    timeline : List[ActivityRecord]
-        List of timeline activity records
+    timeline : Timeline
+        Timeline records.
 
     Returns
     -------
-    List[Dict[str, Any]]
-        List of line dictionaries with waypoints showing cruise track progression
+    list of dict
+        One cruise-track line (when there are at least two positions).
     """
-    lines = []
-
-    # Create cruise track by connecting sequential activities with coordinates
-    waypoints = []
-    for activity in timeline:
-        if (
-            "lat" in activity
-            and "lon" in activity
-            and activity["lat"] is not None
-            and activity["lon"] is not None
-            and not (activity["lat"] == 0.0 and activity["lon"] == 0.0)
-        ):  # Skip zero coordinates
-            waypoints.append(
-                {"lat": float(activity["lat"]), "lon": float(activity["lon"])}
-            )
-
-    # Only create line if we have at least 2 waypoints
-    if len(waypoints) >= 2:
-        lines.append(
-            {
-                "name": "Cruise Track",
-                "waypoints": waypoints,
-                "entity_type": "cruise_track",
-                "operation_type": "cruise_track",
-                "action": None,
-            }
-        )
-
-    return lines
+    waypoints = [
+        {"lat": float(r.entry_lat), "lon": float(r.entry_lon)}
+        for r in timeline
+        if _has_position(r)
+    ]
+    if len(waypoints) < 2:
+        return []
+    return [
+        {
+            "name": "Cruise Track",
+            "waypoints": waypoints,
+            "entity_type": "cruise_track",
+            "operation_type": "cruise_track",
+            "action": None,
+        }
+    ]
 
 
 def extract_map_data(

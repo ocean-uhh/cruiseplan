@@ -16,7 +16,7 @@ from cruiseplan.output.output_utils import (
     get_activity_depth,
     round_time_to_minute,
 )
-from cruiseplan.timeline.scheduler import ActivityRecord
+from cruiseplan.timeline.record import ActivityRecord
 from cruiseplan.utils.coordinates import ddm_parts
 
 logger = logging.getLogger(__name__)
@@ -28,50 +28,9 @@ class CSVGenerator:
     def __init__(self) -> None:
         """Initialize the CSV generator."""
 
-    def _get_display_label(self, activity: dict) -> str:
-        """
-        Get appropriate display label for an activity.
-
-        For ports, use display_name if available, otherwise use label.
-        For other activities, use label directly.
-
-        Parameters
-        ----------
-        activity : dict
-            Activity record
-
-        Returns
-        -------
-        str
-            Display label for the activity
-        """
-        label = activity["label"]
-
-        # For port activities, prefer display_name over label
-        if activity["activity"].lower() == "port":
-            display_name = activity.get("display_name", "")
-            if display_name:
-                # Extract just the city name (before comma) for cleaner display
-                return display_name.split(",")[0].strip()
-
-        return label
-
-    def _get_depth_value(self, activity: dict) -> str:
-        """
-        Get depth value prioritizing operation_depth over water_depth.
-
-        Parameters
-        ----------
-        activity : dict
-            Activity record with depth information
-
-        Returns
-        -------
-        str
-            Depth value as string (rounded to whole number) or "0" if no depth available
-        """
-        depth = get_activity_depth(activity)
-        return str(round(depth))
+    def _get_depth_value(self, activity: ActivityRecord) -> str:
+        """Depth (operation depth, else water depth) rounded to whole meters."""
+        return str(round(get_activity_depth(activity)))
 
     def generate_schedule_csv(
         self,
@@ -126,37 +85,33 @@ class CSVGenerator:
             writer.writeheader()
             for activity in timeline:
                 # Format datetime for CSV - round to nearest minute
-                start_time = round_time_to_minute(activity["start_time"])
-                end_time = round_time_to_minute(activity["end_time"])
+                start_time = round_time_to_minute(activity.start_time)
+                end_time = round_time_to_minute(activity.end_time)
 
                 # Convert duration to hours and round to nearest 0.1 hour
                 hours_text, duration_is_fill = _duration_hours(activity)
                 duration_hours = float(hours_text)
 
                 # Round distance to nearest 0.1 nm using unified dist_nm field
-                dist_nm = activity.get("dist_nm", 0.0)
+                dist_nm = activity.dist_nm
                 transit_dist_nm = round(dist_nm, 1) if dist_nm != 0 else 0.0
 
                 # Vessel speed - 0 for station operations, actual speed for transits
-                activity_type = activity["activity"].lower()
+                activity_type = activity.activity.lower()
                 if activity_type in {"transit", "port_departure", "port_arrival"}:
-                    vessel_speed = activity.get("vessel_speed_kt", 0)
+                    vessel_speed = activity.vessel_speed_kt
                     # For scientific transits with 0 speed, try to calculate from distance/time
                     if vessel_speed == 0 and transit_dist_nm > 0 and duration_hours > 0:
                         vessel_speed = round(transit_dist_nm / duration_hours, 1)
                 else:
                     vessel_speed = 0  # Station operations have 0 vessel speed
 
-                # Format operation and action using correct field names (with backward compatibility)
-                op_type = activity.get("op_type") or activity.get("operation_type", "")
                 operation_action = format_operation_action(
-                    op_type, activity.get("action", "")
+                    activity.op_type, activity.action
                 )
 
-                # Coordinate conversions using existing utilities
-                # Use entry coordinates (with backward compatibility for legacy tests)
-                lat_decimal = activity.get("entry_lat")
-                lon_decimal = activity.get("entry_lon")
+                lat_decimal = activity.entry_lat
+                lon_decimal = activity.entry_lon
                 lat_deg_float, lat_min = ddm_parts(lat_decimal, 2)
                 lon_deg_float, lon_min = ddm_parts(lon_decimal, 2)
                 # Preserve sign for rounded degrees
@@ -170,12 +125,11 @@ class CSVGenerator:
                 lat_min = round(lat_min if lat_decimal >= 0 else -lat_min, 2)
                 lon_min = round(lon_min if lon_decimal >= 0 else -lon_min, 2)
 
-                # Get delay_start value from activity (0 if not specified)
-                delay_start_min = activity.get("delay_start", 0.0) or 0.0
+                delay_start_min = activity.delay_start_minutes or 0.0
 
                 row = {
-                    "activity": activity["activity"],
-                    "label": activity["label"],
+                    "activity": activity.activity,
+                    "label": activity.label,
                     "operation_action": operation_action,
                     "start_time": start_time.isoformat(),
                     "end_time": end_time.isoformat(),
@@ -194,7 +148,7 @@ class CSVGenerator:
                     "Lat [min]": lat_min,
                     "Lon [deg_rounded]": lon_deg_rounded,
                     "Lon [min]": lon_min,
-                    "leg_name": activity.get("leg_name", ""),
+                    "leg_name": activity.leg_name,
                     "Duration note": (
                         f"fill value ({DEFAULT_MOORING_DURATION_MIN / 60:.0f} h)"
                         if duration_is_fill

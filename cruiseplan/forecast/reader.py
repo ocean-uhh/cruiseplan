@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from cruiseplan.timeline.scheduler import ActivityRecord
+from cruiseplan.timeline.record import ActivityRecord, kind_of
 
 logger = logging.getLogger(__name__)
 
@@ -91,6 +91,79 @@ def read_schedule(filepath: str | Path) -> xr.Dataset:
         raise ValueError(f"Error reading NetCDF schedule file {filepath}: {e}") from e
 
 
+def _number(
+    schedule: xr.Dataset, var: str, i: int, default: float | None
+) -> float | None:
+    """Value of *var* at row *i* as float; None for NaN, *default* if absent."""
+    if var not in schedule.variables:
+        return default
+    number = float(schedule[var][i].values)
+    return None if np.isnan(number) else number
+
+
+def _float(
+    schedule: xr.Dataset, var: str, i: int, default: float | xr.DataArray
+) -> float:
+    """Value of *var* at row *i* as float (NaN kept); *default* if absent."""
+    if var in schedule.variables:
+        return float(schedule[var][i].values)
+    if isinstance(default, xr.DataArray):
+        return float(default[i].values)
+    return float(default)
+
+
+def _text(schedule: xr.Dataset, var: str, i: int, default: str) -> str:
+    """Value of *var* at row *i* as text, *default* if absent."""
+    if var not in schedule.variables:
+        return default
+    return str(schedule[var][i].values)
+
+
+_KIND_BY_CATEGORY = {
+    "line_operation": "line",
+    "area_operation": "area",
+    "transit": "transit",
+}
+
+
+def stored_kind(schedule: xr.Dataset, index: int) -> str:
+    """
+    Return the record kind of row *index* of a schedule dataset.
+
+    Uses the stored ``operation_class`` and ``type``; files without
+    ``operation_class`` fall back to ``category``.
+
+    Parameters
+    ----------
+    schedule : xr.Dataset
+        Schedule dataset from :func:`read_schedule`.
+    index : int
+        Row index.
+
+    Returns
+    -------
+    str
+        One of :data:`cruiseplan.timeline.record.KINDS`.
+    """
+
+    def text(var: str) -> str:
+        if var not in schedule.variables:
+            return ""
+        return str(schedule[var][index].values).strip()
+
+    op_type = text("type")
+    try:
+        return kind_of(text("operation_class"), op_type)
+    except ValueError:
+        pass
+    category = text("category")
+    if category in _KIND_BY_CATEGORY:
+        return _KIND_BY_CATEGORY[category]
+    if op_type == "buffer":
+        return "buffer"
+    return kind_of("PointOperation", op_type)
+
+
 def netcdf_to_activity_records(schedule: xr.Dataset) -> list[ActivityRecord]:
     """
     Convert NetCDF schedule dataset to ActivityRecord objects.
@@ -152,89 +225,43 @@ def netcdf_to_activity_records(schedule: xr.Dataset) -> list[ActivityRecord]:
             duration_hours = float(schedule.duration[i].values)
             end_time = start_time + timedelta(hours=duration_hours)
 
-        # Create ActivityRecord data dictionary with all available fields
-        data = {
-            # Core ActivityRecord fields
-            "activity": (
-                str(schedule.activity[i].values)
-                if "activity" in schedule
-                else str(schedule.category[i].values)
-            ),
-            "label": str(schedule.name[i].values),
-            "entry_lat": float(schedule.latitude[i].values),
-            "entry_lon": float(schedule.longitude[i].values),
-            "exit_lat": (
-                float(schedule.exit_latitude[i].values)
-                if "exit_latitude" in schedule
-                else float(schedule.latitude[i].values)
-            ),
-            "exit_lon": (
-                float(schedule.exit_longitude[i].values)
-                if "exit_longitude" in schedule
-                else float(schedule.longitude[i].values)
-            ),
-            "start_time": start_time,
-            "end_time": end_time,
-            "duration_minutes": float(schedule.duration[i].values)
-            * 60.0,  # Convert hours to minutes
-            "dist_nm": (
-                float(schedule.dist_nm[i].values) if "dist_nm" in schedule else 0.0
-            ),
-            "transit_dist_nm": (
-                float(schedule.distance_to_next[i].values)
-                if "distance_to_next" in schedule
-                else 0.0
-            ),
-            "vessel_speed_kt": (
-                float(schedule.vessel_speed[i].values)
-                if "vessel_speed" in schedule
-                else 10.0
-            ),
-            "leg_name": (
-                str(schedule.leg_assignment[i].values)
-                if "leg_assignment" in schedule
-                else "unknown"
-            ),
-            "op_type": (
-                str(schedule.type[i].values)
-                if "type" in schedule
-                else str(schedule.category[i].values)
-            ),
-            "operation_class": (
-                str(schedule.operation_class[i].values)
-                if "operation_class" in schedule
-                else "unknown"
-            ),
-        }
-
-        # Optional fields that may be NaN
-        if "action" in schedule.variables:
-            data["action"] = str(schedule.action[i].values)
-
-        if "operation_depth" in schedule.variables:
-            op_depth = float(schedule.operation_depth[i].values)
-            data["operation_depth"] = op_depth if not np.isnan(op_depth) else None
-
-        if "water_depth" in schedule.variables:
-            water_depth = float(schedule.water_depth[i].values)
-            data["water_depth"] = water_depth if not np.isnan(water_depth) else None
-
-        if "delay_start" in schedule.variables:
-            delay = float(schedule.delay_start[i].values)
-            data["delay_start"] = delay if not np.isnan(delay) else None
-
-        if "duration_fill_flag" in schedule.variables:
-            data["duration_is_fill"] = bool(int(schedule.duration_fill_flag[i].values))
-
-        if "comment" in schedule.variables:
-            comment_str = str(schedule.comment[i].values)
-            data["comment"] = (
-                comment_str if comment_str and comment_str != "nan" else ""
+        duration_minutes = float(schedule.duration[i].values) * 60.0
+        comment = _text(schedule, "comment", i, "")
+        activity_records.append(
+            ActivityRecord(
+                kind=stored_kind(schedule, i),
+                activity=_text(
+                    schedule, "activity", i, _text(schedule, "category", i, "")
+                ),
+                label=str(schedule.name[i].values),
+                entry_lat=float(schedule.latitude[i].values),
+                entry_lon=float(schedule.longitude[i].values),
+                exit_lat=_float(schedule, "exit_latitude", i, schedule.latitude),
+                exit_lon=_float(schedule, "exit_longitude", i, schedule.longitude),
+                start_time=start_time,
+                end_time=end_time,
+                duration_minutes=duration_minutes,
+                planned_duration_minutes=duration_minutes,
+                dist_nm=_number(schedule, "dist_nm", i, 0.0) or 0.0,
+                transit_dist_nm=_number(schedule, "distance_to_next", i, 0.0) or 0.0,
+                vessel_speed_kt=_float(schedule, "vessel_speed", i, 10.0),
+                leg_name=_text(schedule, "leg_assignment", i, "unknown"),
+                op_type=_text(schedule, "type", i, _text(schedule, "category", i, "")),
+                operation_class=_text(schedule, "operation_class", i, "unknown"),
+                action=_text(schedule, "action", i, "")
+                if "action" in schedule.variables
+                else None,
+                operation_depth_m=_number(schedule, "operation_depth", i, None),
+                water_depth_m=_number(schedule, "water_depth", i, None),
+                delay_start_minutes=_number(schedule, "delay_start", i, None),
+                duration_is_fill=(
+                    bool(int(schedule.duration_fill_flag[i].values))
+                    if "duration_fill_flag" in schedule.variables
+                    else False
+                ),
+                comment=comment if comment and comment != "nan" else "",
             )
-
-        # Create ActivityRecord object
-        activity_record = ActivityRecord(data)
-        activity_records.append(activity_record)
+        )
 
     logger.info(
         f"Converted {len(activity_records)} NetCDF observations to ActivityRecord objects"

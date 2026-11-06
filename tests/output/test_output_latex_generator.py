@@ -7,6 +7,8 @@ These tests validate the Phase 3a LaTeX generation works with mock data.
 from datetime import datetime
 from unittest.mock import MagicMock
 
+from legacy_records import as_records
+
 from cruiseplan.config.cruise_config import CruiseConfig
 from cruiseplan.output.latex_generator import generate_latex_tables
 
@@ -26,40 +28,42 @@ def test_latex_generation_basic(tmp_path):
     mock_config.arrival_port.name = "Arrival Port"
 
     # Simple timeline data with just stations
-    mock_timeline = [
-        {
-            "activity": "Station",
-            "label": "STN_001",
-            "lat": 50.0,
-            "lon": -40.0,
-            "operation_depth": 1000.0,
-            "water_depth": 1000.0,
-            "start_time": datetime(2028, 6, 2, 19, 0),
-            "end_time": datetime(2028, 6, 2, 20, 3),
-            "duration_minutes": 63.0,
-            "dist_nm": 0.0,
-            "vessel_speed_kt": 10.0,
-            "leg_name": "Test_Operations",
-            "op_type": "station",
-            "operation_class": "PointOperation",
-        },
-        {
-            "activity": "Station",
-            "label": "STN_002",
-            "lat": 51.0,
-            "lon": -40.0,
-            "operation_depth": 1000.0,
-            "water_depth": 1000.0,
-            "start_time": datetime(2028, 6, 2, 20, 3),
-            "end_time": datetime(2028, 6, 2, 21, 6),
-            "duration_minutes": 63.0,
-            "dist_nm": 10.0,
-            "vessel_speed_kt": 10.0,
-            "leg_name": "Test_Operations",
-            "op_type": "station",
-            "operation_class": "PointOperation",
-        },
-    ]
+    mock_timeline = as_records(
+        [
+            {
+                "activity": "Station",
+                "label": "STN_001",
+                "lat": 50.0,
+                "lon": -40.0,
+                "operation_depth": 1000.0,
+                "water_depth": 1000.0,
+                "start_time": datetime(2028, 6, 2, 19, 0),
+                "end_time": datetime(2028, 6, 2, 20, 3),
+                "duration_minutes": 63.0,
+                "dist_nm": 0.0,
+                "vessel_speed_kt": 10.0,
+                "leg_name": "Test_Operations",
+                "op_type": "station",
+                "operation_class": "PointOperation",
+            },
+            {
+                "activity": "Station",
+                "label": "STN_002",
+                "lat": 51.0,
+                "lon": -40.0,
+                "operation_depth": 1000.0,
+                "water_depth": 1000.0,
+                "start_time": datetime(2028, 6, 2, 20, 3),
+                "end_time": datetime(2028, 6, 2, 21, 6),
+                "duration_minutes": 63.0,
+                "dist_nm": 10.0,
+                "vessel_speed_kt": 10.0,
+                "leg_name": "Test_Operations",
+                "op_type": "station",
+                "operation_class": "PointOperation",
+            },
+        ]
+    )
 
     # Output written to tmp_path; run with --basetemp=./debug_output to inspect
     output_dir = tmp_path / "test_latex"
@@ -101,24 +105,26 @@ def test_latex_generation_no_double_totals(tmp_path):
     mock_config.arrival_port = MagicMock()
     mock_config.arrival_port.name = "End"
 
-    mock_timeline = [
-        {
-            "activity": "Station",
-            "label": "STN_001",
-            "lat": 50.0,
-            "lon": -40.0,
-            "operation_depth": 1000.0,
-            "water_depth": 1000.0,
-            "start_time": datetime(2028, 6, 1, 8, 0),
-            "end_time": datetime(2028, 6, 1, 9, 0),
-            "duration_minutes": 60.0,
-            "dist_nm": 0.0,
-            "vessel_speed_kt": 10.0,
-            "leg_name": "Test_Operations",
-            "op_type": "station",
-            "operation_class": "PointOperation",
-        }
-    ]
+    mock_timeline = as_records(
+        [
+            {
+                "activity": "Station",
+                "label": "STN_001",
+                "lat": 50.0,
+                "lon": -40.0,
+                "operation_depth": 1000.0,
+                "water_depth": 1000.0,
+                "start_time": datetime(2028, 6, 1, 8, 0),
+                "end_time": datetime(2028, 6, 1, 9, 0),
+                "duration_minutes": 60.0,
+                "dist_nm": 0.0,
+                "vessel_speed_kt": 10.0,
+                "leg_name": "Test_Operations",
+                "op_type": "station",
+                "operation_class": "PointOperation",
+            }
+        ]
+    )
 
     # Output written to tmp_path; run with --basetemp=./debug_output to inspect
     output_dir = tmp_path / "test_no_doubles"
@@ -146,24 +152,26 @@ def test_latex_generation_empty_operations(tmp_path):
     mock_config.arrival_port.name = "End"
 
     # Empty timeline (only transit operations)
-    mock_timeline = [
-        {
-            "activity": "Transit",
-            "label": "Transit to working area",
-            "lat": 50.0,
-            "lon": -40.0,
-            "operation_depth": None,
-            "water_depth": None,
-            "start_time": datetime(2028, 6, 1, 8, 0),
-            "end_time": datetime(2028, 6, 2, 19, 0),
-            "duration_minutes": 2100.0,  # 35 hours
-            "dist_nm": 350.0,
-            "vessel_speed_kt": 10.0,
-            "leg_name": "Transit",
-            "op_type": "transit",
-            "operation_class": "NavigationalTransit",
-        }
-    ]
+    mock_timeline = as_records(
+        [
+            {
+                "activity": "Transit",
+                "label": "Transit to working area",
+                "lat": 50.0,
+                "lon": -40.0,
+                "operation_depth": None,
+                "water_depth": None,
+                "start_time": datetime(2028, 6, 1, 8, 0),
+                "end_time": datetime(2028, 6, 2, 19, 0),
+                "duration_minutes": 2100.0,  # 35 hours
+                "dist_nm": 350.0,
+                "vessel_speed_kt": 10.0,
+                "leg_name": "Transit",
+                "op_type": "transit",
+                "operation_class": "NavigationalTransit",
+            }
+        ]
+    )
 
     # Output written to tmp_path; run with --basetemp=./debug_output to inspect
     output_dir = tmp_path / "test_empty"

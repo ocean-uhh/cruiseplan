@@ -147,10 +147,10 @@ def test_html_unknown_leg_is_listed_separately():
     """tc2: an activity whose leg is not configured is not merged into the first leg."""
     cruise = CruiseInstance(FIXTURES / "tc2_two_legs.yaml")
     timeline = generate_timeline(cruise)
-    timeline[-1]["leg_name"] = "Leg_Missing"
+    timeline[-1] = timeline[-1].replace(leg_name="Leg_Missing")
     groups = HTMLGenerator()._group_activities_by_leg(cruise.config, timeline)
-    assert [a["label"] for a in groups[UNASSIGNED_LEG]["activities"]] == [
-        timeline[-1]["label"]
+    assert [a.label for a in groups[UNASSIGNED_LEG]["activities"]] == [
+        timeline[-1].label
     ]
     assert timeline[-1] not in groups["Leg_Atlantic"]["activities"]
     assert timeline[-1] not in groups["Leg_North"]["activities"]

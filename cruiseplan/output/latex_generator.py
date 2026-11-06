@@ -22,38 +22,21 @@ from jinja2 import Environment, FileSystemLoader
 
 from cruiseplan.config.cruise_config import CruiseConfig
 from cruiseplan.config.values import DEFAULT_DEPTH, DEFAULT_MOORING_DURATION_MIN
-from cruiseplan.output.output_utils import (
-    _duration_hours,
-    _positive_depth,
-    is_scientific_operation,
-)
+from cruiseplan.output.output_utils import _duration_hours, _positive_depth
 from cruiseplan.output.provenance import provenance_lines
-from cruiseplan.timeline.scheduler import ActivityRecord, fill_duration_summary
+from cruiseplan.timeline.record import ActivityRecord
+from cruiseplan.timeline.scheduler import fill_duration_summary
 from cruiseplan.utils.coordinates import ddm_parts, distance_nm, format_position_latex
 from cruiseplan.utils.units import hours_to_days, round_to_minutes
 
 logger = logging.getLogger(__name__)
 
 
-def _format_depth_for_latex(activity: dict) -> str:
-    """Format depth value for LaTeX output.
-
-    The scheduler has already applied Operation.get_depth() logic and stored
-    the result in the ActivityRecord depth fields.
-
-    Parameters
-    ----------
-    activity : dict
-        Activity dictionary from timeline.
-
-    Returns
-    -------
-    str
-        Formatted depth string, "fill" for the fill value ``DEFAULT_DEPTH``,
-        or "N/A" if no depth available.
-    """
-    # Use operation_depth (target depth) if available, otherwise water_depth (seafloor depth)
-    depth = activity.get("operation_depth") or activity.get("water_depth")
+def _format_depth_for_latex(activity: ActivityRecord) -> str:
+    """Depth for a table cell: operation depth, else water depth; "fill" or "N/A"."""
+    depth = activity.operation_depth_m
+    if depth is None:
+        depth = activity.water_depth_m
     if depth is None:
         return "N/A"
     depth = _positive_depth(depth)
@@ -63,15 +46,7 @@ def _format_depth_for_latex(activity: dict) -> str:
 def _provenance_comment(config: CruiseConfig, timeline: list[ActivityRecord]) -> str:
     """Return TeX comment lines with the schedule provenance and fill durations."""
     lines = [f"% {line}" for line in provenance_lines(config)]
-    filled = list(
-        dict.fromkeys(
-            str(a.get("label") if isinstance(a, dict) else a.label)
-            for a in timeline
-            if (
-                a.get("duration_is_fill") if isinstance(a, dict) else a.duration_is_fill
-            )
-        )
-    )
+    filled = list(dict.fromkeys(str(a.label) for a in timeline if a.duration_is_fill))
     if filled:
         summary = fill_duration_summary(timeline)
         if summary:
@@ -83,7 +58,7 @@ def _provenance_comment(config: CruiseConfig, timeline: list[ActivityRecord]) ->
     return "\n".join(lines) + "\n"
 
 
-def _format_duration_hours(activity: dict) -> str:
+def _format_duration_hours(activity: ActivityRecord) -> str:
     """Format the duration in hours, marking the fill value."""
     hours, is_fill = _duration_hours(activity)
     return f"{hours} (fill)" if is_fill else hours
@@ -199,67 +174,63 @@ class LaTeXGenerator:
         science_operations = [
             activity
             for activity in timeline
-            if is_scientific_operation(activity)
-            and not activity.get("activity", "").startswith("Port")
-            and activity.get("op_type") != "port"
+            if activity.operation_class
+            in {"PointOperation", "LineOperation", "AreaOperation"}
+            and not activity.activity.startswith("Port")
+            and activity.op_type != "port"
         ]
 
         # Format rows for the LaTeX template
         table_rows = []
         for op in science_operations:
-            operation_class = op.get("operation_class", "")
+            operation_class = op.operation_class
 
             if operation_class == "LineOperation":
-                # Line operations (surveys), show start and end positions.
-                start_lat = op.get("start_lat", op["lat"])
-                start_lon = op.get("start_lon", op["lon"])
-
-                start_pos_str = format_position_latex(start_lat, start_lon)
-                end_pos_str = format_position_latex(op["lat"], op["lon"])
-                action = op.get("action") or op.get("op_type", "Survey")
+                # Line operations (surveys): start and end of the line
+                start_pos_str = format_position_latex(op.entry_lat, op.entry_lon)
+                end_pos_str = format_position_latex(op.exit_lat, op.exit_lon)
+                action = op.action or op.op_type
                 depth_str = "N/A"  # Surveys typically don't have a single station depth
 
                 table_rows.append(
                     {
                         "operation": f"Line ({action})",
-                        "station": str(op["label"]).replace("_", "-"),
+                        "station": str(op.label).replace("_", "-"),
                         "position": f"({start_pos_str}) to ({end_pos_str})",
                         "depth_m": depth_str,
-                        "start_time": op["start_time"].strftime("%Y-%m-%d %H:%M"),
+                        "start_time": op.start_time.strftime("%Y-%m-%d %H:%M"),
                         "duration_hours": _format_duration_hours(op),
                     }
                 )
 
             elif operation_class == "AreaOperation":
                 # Area operations (polygon-based operations like bathymetry surveys)
-                position_str = format_position_latex(op["lat"], op["lon"])
-                action = op.get(
-                    "action", "survey"
-                )  # Default to 'survey' if no action specified
+                position_str = format_position_latex(op.entry_lat, op.entry_lon)
+                action = op.action
 
                 table_rows.append(
                     {
                         "operation": f"Area ({action})",
-                        "station": str(op["label"]).replace("_", "-"),
+                        "station": str(op.label).replace("_", "-"),
                         "position": f"Center: {position_str}",
                         "depth_m": "Variable",  # Areas typically span multiple depths
-                        "start_time": op["start_time"].strftime("%Y-%m-%d %H:%M"),
+                        "start_time": op.start_time.strftime("%Y-%m-%d %H:%M"),
                         "duration_hours": _format_duration_hours(op),
                     }
                 )
 
             elif operation_class == "PointOperation":
                 # Point operations (Station, Mooring)
-                position_str = format_position_latex(op["lat"], op["lon"])
-                activity_type = op.get("activity", op.get("op_type", "Operation"))
+                position_str = format_position_latex(op.entry_lat, op.entry_lon)
+                activity_type = op.activity
 
                 table_rows.append(
                     {
                         "operation": activity_type,
-                        "station": str(op["label"]).replace("_", "-"),
+                        "station": str(op.label).replace("_", "-"),
                         "position": position_str,
                         "depth_m": _format_depth_for_latex(op),
-                        "start_time": op["start_time"].strftime("%Y-%m-%d %H:%M"),
+                        "start_time": op.start_time.strftime("%Y-%m-%d %H:%M"),
                         "duration_hours": _format_duration_hours(op),
                     }
                 )
@@ -362,9 +333,7 @@ class LaTeXGenerator:
         for leg_name in leg_names:
             # Filter timeline activities for this leg
             leg_timeline = [
-                activity
-                for activity in timeline
-                if activity.get("leg_name") == leg_name
+                activity for activity in timeline if activity.leg_name == leg_name
             ]
 
             if not leg_timeline:
@@ -415,9 +384,7 @@ class LaTeXGenerator:
         for leg_name in leg_names:
             # Filter timeline activities for this leg
             leg_timeline = [
-                activity
-                for activity in timeline
-                if activity.get("leg_name") == leg_name
+                activity for activity in timeline if activity.leg_name == leg_name
             ]
 
             if not leg_timeline:
@@ -482,13 +449,11 @@ class LaTeXGenerator:
                 (
                     activity
                     for activity in timeline
-                    if activity["activity"] not in ["Port_Departure", "Port_Arrival"]
+                    if activity.activity not in ["Port_Departure", "Port_Arrival"]
                 ),
                 None,
             )
-            destination = (
-                first_operation["label"] if first_operation else "working area"
-            )
+            destination = first_operation.label if first_operation else "working area"
 
             summary_rows.append(
                 {
@@ -504,8 +469,8 @@ class LaTeXGenerator:
         # Group operations by (operation_class, op_type) combinations
         operation_groups = {}
         for activity in timeline:
-            operation_class = activity.get("operation_class", "Unknown")
-            op_type = activity.get("op_type", "")
+            operation_class = activity.operation_class
+            op_type = activity.op_type
 
             # Skip non-scientific operations (ports, transits)
             if operation_class == "NavigationalTransit" or op_type == "port":
@@ -521,7 +486,7 @@ class LaTeXGenerator:
             if not activities:
                 continue
 
-            total_duration_h = sum(a["duration_minutes"] for a in activities) / 60.0
+            total_duration_h = sum(a.duration_minutes for a in activities) / 60.0
             count = len(activities)
 
             # Determine activity name and notes based on operation class and type
@@ -537,7 +502,7 @@ class LaTeXGenerator:
                     notes = f"{count} operations"
             elif operation_class == "LineOperation":
                 activity_name = "Scientific Surveys"
-                total_distance_nm = sum(a.get("dist_nm", 0) for a in activities)
+                total_distance_nm = sum(a.dist_nm for a in activities)
                 notes = f"{count} surveys, {total_distance_nm:.1f} nm"
             elif operation_class == "AreaOperation":
                 activity_name = "Area Survey Operations"
@@ -573,10 +538,10 @@ class LaTeXGenerator:
             # Find last operational activity (non-port) as working area origin
             last_operation = None
             for activity in reversed(timeline):
-                if activity["activity"] not in ["Port_Departure", "Port_Arrival"]:
+                if activity.activity not in ["Port_Departure", "Port_Arrival"]:
                     last_operation = activity
                     break
-            origin = last_operation["label"] if last_operation else "working area"
+            origin = last_operation.label if last_operation else "working area"
 
             summary_rows.append(
                 {
@@ -699,10 +664,10 @@ class LaTeXGenerator:
 
             if (
                 is_station
-                and record.water_depth is not None
-                and not np.isnan(record.water_depth)
+                and record.water_depth_m is not None
+                and not np.isnan(record.water_depth_m)
             ):
-                water_depth = _positive_depth(record.water_depth)
+                water_depth = _positive_depth(record.water_depth_m)
                 if water_depth == DEFAULT_DEPTH:
                     depth_str = " & fill"
                 else:
@@ -742,7 +707,7 @@ class LaTeXGenerator:
                 line_count += 1
 
                 # Add repositioning distance to next activity if > 0.5 nm
-                transit_dist = getattr(record, "transit_dist_nm", 0.0)
+                transit_dist = record.transit_dist_nm or 0.0
                 if transit_dist > 0.5:
                     current_table_lines.append(
                         f" &                       "
@@ -757,7 +722,7 @@ class LaTeXGenerator:
                 line_count += 1
 
                 # Add transit distance to next station if > 0.5 nm
-                transit_dist = getattr(record, "transit_dist_nm", 0.0)
+                transit_dist = record.transit_dist_nm or 0.0
                 if transit_dist > 0.5:
                     current_table_lines.append(
                         f" &                       "

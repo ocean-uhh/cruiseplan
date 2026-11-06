@@ -16,7 +16,6 @@ tables for each operation type.
 import logging
 from html import escape
 from pathlib import Path
-from typing import Any
 
 from cruiseplan.config.cruise_config import CruiseConfig
 from cruiseplan.config.values import DEFAULT_DEPTH, DEFAULT_MOORING_DURATION_MIN
@@ -27,8 +26,8 @@ from cruiseplan.output.output_utils import (
     get_activity_position,
 )
 from cruiseplan.output.provenance import provenance_lines
+from cruiseplan.timeline.record import ActivityRecord, Timeline
 from cruiseplan.timeline.scheduler import (
-    ActivityRecord,
     calculate_timeline_statistics,
     fill_duration_summary,
 )
@@ -62,7 +61,7 @@ def _convert_decimal_to_deg_min_html(decimal_degrees: float) -> str:
     return f"-{degrees:02d} {minutes:06.3f}"
 
 
-def _duration_cell(activity: dict[str, Any]) -> str:
+def _duration_cell(activity: ActivityRecord) -> str:
     """Return the duration in hours for a table cell, marking the fill value."""
     hours, is_fill = _duration_hours(activity)
     if is_fill:
@@ -70,13 +69,9 @@ def _duration_cell(activity: dict[str, Any]) -> str:
     return hours
 
 
-def _fill_notice(timeline: list[dict[str, Any]]) -> str:
+def _fill_notice(timeline: Timeline) -> str:
     """Return a paragraph naming operations that use the fill duration, or ''."""
-    filled = list(
-        dict.fromkeys(
-            a.get("label", "Unknown") for a in timeline if a.get("duration_is_fill")
-        )
-    )
+    filled = list(dict.fromkeys(a.label for a in timeline if a.duration_is_fill))
     if not filled:
         return ""
     summary = escape(fill_duration_summary(timeline) or "")
@@ -132,7 +127,7 @@ class HTMLGenerator:
 
         # Calculate total statistics - use simple sum like CLI to avoid categorization errors
         total_duration_h = (
-            sum(activity["duration_minutes"] for activity in timeline) / 60.0
+            sum(activity.duration_minutes for activity in timeline) / 60.0
         )
         total_duration_days = hours_to_days(total_duration_h)
 
@@ -285,14 +280,14 @@ class HTMLGenerator:
                 lat, lon = get_activity_position(mooring)
                 lat_ddm = _convert_decimal_to_deg_min_html(lat)
                 lon_ddm = _convert_decimal_to_deg_min_html(lon)
-                comment = mooring.get("comment", "")
+                comment = mooring.comment
                 depth = get_activity_depth(mooring)
                 depth_str = "fill" if depth == DEFAULT_DEPTH else f"{depth:.0f}"
-                action = mooring.get("action", "N/A")
+                action = mooring.action
 
                 html_content += f"""
         <tr>
-            <td>{mooring["label"]}</td>
+            <td>{mooring.label}</td>
             <td>{comment}</td>
             <td>{lat:.6f}, {lon:.6f}</td>
             <td>{lat_ddm}, {lon_ddm}</td>
@@ -398,7 +393,7 @@ class HTMLGenerator:
             # Add leg activities
             activities = leg_data["activities"]
             for i, activity in enumerate(activities):
-                duration_hrs = activity.get("duration_minutes", 0) / 60
+                duration_hrs = activity.duration_minutes / 60
                 total_leg_duration += duration_hrs
 
                 # Determine entry and exit positions based on activity type
@@ -411,13 +406,13 @@ class HTMLGenerator:
 
                 html_content += f"""
         <tr>
-            <td>{activity.get("label", "Unknown")}</td>
+            <td>{activity.label}</td>
             <td>{activity_type}</td>
             <td>{entry_position}</td>
             <td>{exit_position}</td>
             <td class="number">{distance_nm}</td>
             <td class="number">{_duration_cell(activity)}</td>
-            <td>{activity.get("comment", "")}</td>
+            <td>{activity.comment}</td>
         </tr>
 """
 
@@ -472,80 +467,23 @@ class HTMLGenerator:
         )
 
         if not leg_names:
-            # If no legs defined, create a single "Main Cruise" leg
-            main_activities = []
-            for activity in timeline:
-                if isinstance(activity, dict):
-                    main_activities.append(activity)
-                elif hasattr(activity, "__dict__"):
-                    main_activities.append(vars(activity))
-                else:
-                    main_activities.append(
-                        {
-                            "label": getattr(activity, "label", "Unknown"),
-                            "lat": getattr(activity, "lat", 0.0),
-                            "lon": getattr(activity, "lon", 0.0),
-                            "duration_minutes": getattr(
-                                activity, "duration_minutes", 0
-                            ),
-                            "activity": getattr(activity, "activity", "Unknown"),
-                            "operation_type": getattr(
-                                activity, "operation_type", "Unknown"
-                            ),
-                            "action": getattr(activity, "action", ""),
-                            "comment": getattr(activity, "comment", ""),
-                        }
-                    )
+            return {"Main Cruise": {"activities": list(timeline)}}
 
-            legs_data["Main Cruise"] = {
-                "activities": main_activities,
-            }
-            return legs_data
-
-        # Initialize legs
         for leg_name in leg_names:
-            legs_data[leg_name] = {
-                "activities": [],
-            }
+            legs_data[leg_name] = {"activities": []}
 
-        # Group activities by leg using leg_name field
         for activity in timeline:
-            # ActivityRecord is a dict, so use .get() instead of getattr()
-            leg_name = (
-                activity.get("leg_name", None)
-                if isinstance(activity, dict)
-                else getattr(activity, "leg_name", None)
-            )
-
-            # Convert activity to dict safely - ActivityRecord is already a dict
-            if isinstance(activity, dict):
-                activity_dict = activity
-            elif hasattr(activity, "__dict__"):
-                activity_dict = vars(activity)
-            else:
-                # Fallback for objects without __dict__
-                activity_dict = {
-                    "label": getattr(activity, "label", "Unknown"),
-                    "lat": getattr(activity, "lat", 0.0),
-                    "lon": getattr(activity, "lon", 0.0),
-                    "duration_minutes": getattr(activity, "duration_minutes", 0),
-                    "activity": getattr(activity, "activity", "Unknown"),
-                    "operation_type": getattr(activity, "operation_type", "Unknown"),
-                    "action": getattr(activity, "action", ""),
-                    "comment": getattr(activity, "comment", ""),
-                }
-
-            if leg_name and leg_name in legs_data:
-                legs_data[leg_name]["activities"].append(activity_dict)
+            if activity.leg_name in legs_data:
+                legs_data[activity.leg_name]["activities"].append(activity)
             else:
                 # Not in any configured leg: list it separately, never in another leg
                 logger.warning(
-                    f"Activity {activity_dict.get('label', 'Unknown')} has leg "
-                    f"'{leg_name}', which is not a configured leg; listed under "
+                    f"Activity {activity.label} has leg '{activity.leg_name}', "
+                    f"which is not a configured leg; listed under "
                     f"'{UNASSIGNED_LEG}' in the HTML report"
                 )
                 legs_data.setdefault(UNASSIGNED_LEG, {"activities": []})
-                legs_data[UNASSIGNED_LEG]["activities"].append(activity_dict)
+                legs_data[UNASSIGNED_LEG]["activities"].append(activity)
 
         # Add transit connections between legs
         self._add_leg_transits(legs_data, config)
@@ -554,81 +492,15 @@ class HTMLGenerator:
 
     def _get_activity_entry_exit_distance(
         self,
-        activity: dict[str, Any],
-        _activities: list[dict[str, Any]],
+        activity: ActivityRecord,
+        _activities: Timeline,
         _index: int,
     ) -> tuple[str, str, str]:
-        """
-        Determine entry position, exit position, and distance for an activity.
-
-        Parameters
-        ----------
-        activity : dict
-            Current activity record
-        _activities : list
-            List of all activities in this leg
-        _index : int
-            Index of current activity in the activities list
-
-        Returns
-        -------
-        tuple of str
-            (entry_position, exit_position, distance) formatted for display;
-            distance is "-" when zero.
-        """
-        # Get current activity position
-        if "lat" in activity and "lon" in activity:
-            current_pos = f"{activity['lat']:.4f}, {activity['lon']:.4f}"
-        else:
-            current_pos = "N/A"
-
-        # Get operation class for extensible categorization
-        operation_class = activity.get("operation_class", "Unknown")
-
-        # For PointOperations: entry = exit = activity position
-        if operation_class == "PointOperation":
-            # Use entry/exit coordinates if available, otherwise fall back to lat/lon
-            if "entry_lat" in activity and "entry_lon" in activity:
-                entry_position = (
-                    f"{activity['entry_lat']:.4f}, {activity['entry_lon']:.4f}"
-                )
-                exit_position = (
-                    f"{activity['exit_lat']:.4f}, {activity['exit_lon']:.4f}"
-                )
-            else:
-                entry_position = current_pos
-                exit_position = current_pos
-
-            # All operations use the unified distance field
-            distance_nm = activity.get("dist_nm", 0.0)
-
-        # For LineOperations and AreaOperations: use entry/exit coordinates
-        elif (
-            operation_class in ["LineOperation", "AreaOperation"]
-            or operation_class == "NavigationalTransit"
-        ):
-            if "entry_lat" in activity and "entry_lon" in activity:
-                entry_position = (
-                    f"{activity['entry_lat']:.4f}, {activity['entry_lon']:.4f}"
-                )
-                exit_position = (
-                    f"{activity['exit_lat']:.4f}, {activity['exit_lon']:.4f}"
-                )
-            else:
-                entry_position = current_pos
-                exit_position = current_pos
-            # All operations use the unified distance field
-            distance_nm = activity.get("dist_nm", 0.0)
-
-        else:
-            # Unknown operation class: use current position for both
-            entry_position = current_pos
-            exit_position = current_pos
-            distance_nm = activity.get("dist_nm", 0.0)
-
-        # Format distance
+        """Entry position, exit position and distance ("-" when zero) for display."""
+        entry_position = f"{activity.entry_lat:.4f}, {activity.entry_lon:.4f}"
+        exit_position = f"{activity.exit_lat:.4f}, {activity.exit_lon:.4f}"
+        distance_nm = activity.dist_nm
         distance_str = "-" if distance_nm == 0.0 else f"{distance_nm:.1f}"
-
         return entry_position, exit_position, distance_str
 
     def _add_leg_transits(self, _legs_data: dict, _config: CruiseConfig) -> None:

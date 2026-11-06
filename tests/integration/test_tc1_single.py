@@ -427,8 +427,8 @@ class TestTC1SingleIntegration:
             )
 
         # Final validation: timeline covers expected time and distance
-        total_duration = sum(act.get("duration_minutes", 0) for act in timeline)
-        total_distance = sum(act.get("dist_nm", 0) for act in timeline)
+        total_duration = sum(act.duration_minutes for act in timeline)
+        total_distance = sum(act.dist_nm for act in timeline)
 
         assert total_duration > 0, "Total cruise duration should be positive"
         assert total_distance > 0, "Total cruise distance should be positive"

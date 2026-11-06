@@ -187,6 +187,11 @@ markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks integration tests",
 ]
+filterwarnings = [
+    # Package code and tests read records by attribute; only the deprecation
+    # test reads them like a dictionary (it expects the warning).
+    "error:ActivityRecord\\[:DeprecationWarning",
+]
 
 [tool.coverage.run]
 source = ["cruiseplan"]

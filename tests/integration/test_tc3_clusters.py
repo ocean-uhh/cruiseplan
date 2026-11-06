@@ -44,7 +44,7 @@ class TestTC3ClustersIntegration:
 
         # Count mooring operations
         mooring_ops = [
-            activity for activity in timeline if activity.get("activity") == "Mooring"
+            activity for activity in timeline if activity.activity == "Mooring"
         ]
 
         # Expected: 12 mooring operations total (2 per leg × 6 legs)
@@ -54,9 +54,7 @@ class TestTC3ClustersIntegration:
         )
 
         # Verify total mooring duration is 12 hours (1 hour per operation)
-        total_mooring_hours = sum(
-            op.get("duration_minutes", 0) / 60.0 for op in mooring_ops
-        )
+        total_mooring_hours = sum(op.duration_minutes / 60.0 for op in mooring_ops)
         assert total_mooring_hours == 12.0, (
             f"Expected 12 hours of mooring, got {total_mooring_hours}"
         )
@@ -69,8 +67,7 @@ class TestTC3ClustersIntegration:
         ctd_ops = [
             activity
             for activity in timeline
-            if activity.get("activity") == "Station"
-            and activity.get("action") == "profile"
+            if activity.activity == "Station" and activity.action == "profile"
         ]
 
         # Expected CTD counts per leg (STN_001 and STN_002 are CTD operations):
@@ -106,40 +103,37 @@ class TestTC3ClustersIntegration:
         leg_survey_transits = [
             activity
             for activity in timeline
-            if activity.get("activity") == "Transit"
-            and activity.get("leg_name") == "Leg_Survey"
+            if activity.activity == "Transit" and activity.leg_name == "Leg_Survey"
         ]
         leg_faster_transits = [
             activity
             for activity in timeline
-            if activity.get("activity") == "Transit"
-            and activity.get("leg_name") == "Leg_Survey_Faster"
+            if activity.activity == "Transit"
+            and activity.leg_name == "Leg_Survey_Faster"
         ]
 
         # Verify transit speeds are applied correctly
         for transit in leg_survey_transits:
-            assert transit.get("vessel_speed_kt") == 10.0, (
+            assert transit.vessel_speed_kt == 10.0, (
                 "Leg_Survey should use default 10.0 kt speed"
             )
 
         for transit in leg_faster_transits:
-            assert transit.get("vessel_speed_kt") == 12.0, (
+            assert transit.vessel_speed_kt == 12.0, (
                 "Leg_Survey_Faster should use 12.0 kt speed"
             )
 
         # Calculate total leg durations and verify speed difference
-        leg_survey_activities = [
-            a for a in timeline if a.get("leg_name") == "Leg_Survey"
-        ]
+        leg_survey_activities = [a for a in timeline if a.leg_name == "Leg_Survey"]
         leg_faster_activities = [
-            a for a in timeline if a.get("leg_name") == "Leg_Survey_Faster"
+            a for a in timeline if a.leg_name == "Leg_Survey_Faster"
         ]
 
         def calculate_leg_duration(activities):
             if not activities:
                 return 0
-            start_time = min(a["start_time"] for a in activities)
-            end_time = max(a["end_time"] for a in activities)
+            start_time = min(a.start_time for a in activities)
+            end_time = max(a.end_time for a in activities)
             return (end_time - start_time).total_seconds() / 3600
 
         leg_survey_hours = calculate_leg_duration(leg_survey_activities)

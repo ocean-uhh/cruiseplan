@@ -8,7 +8,13 @@ in the test suite.
 # To inspect output: run pytest --basetemp=./test_debug_output
 """
 
+import sys
+from pathlib import Path
+
 import pytest
+
+# Test helpers shared across test directories (legacy_records)
+sys.path.insert(0, str(Path(__file__).parent))
 
 
 @pytest.fixture

@@ -79,8 +79,7 @@ def run(args: argparse.Namespace) -> None:
                 print(f"  • {file_path}")
 
             total_duration_hours = (
-                sum(activity.get("duration_minutes", 0) for activity in result.timeline)
-                / 60.0
+                sum(activity.duration_minutes for activity in result.timeline) / 60.0
             )
             print(f"Total timeline duration: {total_duration_hours:.1f} hours")
             print(f"Timeline activities: {len(result.timeline)}")

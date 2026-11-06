@@ -119,28 +119,26 @@ class TestSchedulerDebug:
             print(f"📊 Timeline result: {len(timeline)} activities")
             if timeline:
                 for i, activity in enumerate(timeline):
-                    transit_dist = activity.get("dist_nm", 0)
-                    lat, lon = activity["entry_lat"], activity["entry_lon"]
+                    transit_dist = activity.dist_nm
+                    lat, lon = activity.entry_lat, activity.entry_lon
                     print(
-                        f"   {i + 1}. {activity['activity']}: {activity['label']} at ({lat:.3f}, {lon:.3f})"
+                        f"   {i + 1}. {activity.activity}: {activity.label} at ({lat:.3f}, {lon:.3f})"
                     )
                     print(
-                        f"      Duration: {activity['duration_minutes']:.1f} min, Transit to here: {transit_dist:.2f} nm"
+                        f"      Duration: {activity.duration_minutes:.1f} min, Transit to here: {transit_dist:.2f} nm"
                     )
                     if transit_dist > 0:
                         # Use vessel speed from activity if available, otherwise default
-                        vessel_speed = activity.get(
-                            "vessel_speed_kt", config.default_vessel_speed
-                        )
+                        vessel_speed = activity.vessel_speed_kt
                         expected_time_h = transit_dist / vessel_speed
-                        actual_time_h = activity["duration_minutes"] / 60
+                        actual_time_h = activity.duration_minutes / 60
                         print(
                             f"      Expected transit time: {expected_time_h:.2f}h, Actual op time: {actual_time_h:.2f}h"
                         )
 
                 # Summary statistics
-                total_duration_h = sum(a["duration_minutes"] for a in timeline) / 60
-                total_transit_nm = sum(a.get("dist_nm", 0) for a in timeline)
+                total_duration_h = sum(a.duration_minutes for a in timeline) / 60
+                total_transit_nm = sum(a.dist_nm for a in timeline)
                 total_days = total_duration_h / 24
 
                 print("\n📈 Summary:")
@@ -152,7 +150,7 @@ class TestSchedulerDebug:
                 # Activity type breakdown
                 activities_by_type = {}
                 for activity in timeline:
-                    activity_type = activity["activity"]
+                    activity_type = activity.activity
                     if activity_type not in activities_by_type:
                         activities_by_type[activity_type] = {
                             "count": 0,
@@ -160,7 +158,7 @@ class TestSchedulerDebug:
                         }
                     activities_by_type[activity_type]["count"] += 1
                     activities_by_type[activity_type]["duration_h"] += (
-                        activity["duration_minutes"] / 60
+                        activity.duration_minutes / 60
                     )
 
                 print("   Activity breakdown:")

@@ -81,13 +81,13 @@ class TestTC4MixedOpsComprehensive:
 
         total_duration_h = 0.0
         for i, activity in enumerate(timeline, 1):
-            duration_h = activity["duration_minutes"] / 60
-            transit_dist = activity.get("dist_nm", 0)
-            start_time = activity["start_time"].strftime("%H:%M")
-            activity_type = activity["activity"]
+            duration_h = activity.duration_minutes / 60
+            transit_dist = activity.dist_nm
+            start_time = activity.start_time.strftime("%H:%M")
+            activity_type = activity.activity
 
             print(
-                f"  {i}. {activity_type}: {activity['label']} - {duration_h:.1f}h @ {start_time} (transit: {transit_dist:.1f}nm)"
+                f"  {i}. {activity_type}: {activity.label} - {duration_h:.1f}h @ {start_time} (transit: {transit_dist:.1f}nm)"
             )
 
             # Verify activity type matches expected
@@ -103,8 +103,7 @@ class TestTC4MixedOpsComprehensive:
                 # Use larger tolerance for CTD operations which may vary based on depth calculation
                 tolerance = (
                     2.0
-                    if activity_type == "Station"
-                    and "CTD" in str(activity.get("operation_type", ""))
+                    if activity_type == "Station" and "CTD" in str(activity.op_type)
                     else 0.2
                 )
                 assert abs(duration_h - expected_duration) < tolerance, (
@@ -165,7 +164,7 @@ class TestTC4MixedOpsComprehensive:
         timeline = generate_timeline(cruise)
 
         # Verify operation sequencing with separate transit activities
-        operation_names = [activity["label"] for activity in timeline]
+        operation_names = [activity.label for activity in timeline]
         expected_sequence = [
             "Halifax",
             "Transit to STN_001",
@@ -184,14 +183,14 @@ class TestTC4MixedOpsComprehensive:
 
         # Verify timing progression (each operation should start after previous ends)
         for i in range(len(timeline) - 1):
-            current_end = timeline[i]["end_time"]
-            next_start = timeline[i + 1]["start_time"]
+            current_end = timeline[i].end_time
+            next_start = timeline[i + 1].start_time
 
             # Next operation should start at or after current operation ends
             # (allowing for transit time and turnaround time)
             assert next_start >= current_end, (
-                f"Timeline gap: {timeline[i]['label']} ends at {current_end}, "
-                f"but {timeline[i + 1]['label']} starts at {next_start}"
+                f"Timeline gap: {timeline[i].label} ends at {current_end}, "
+                f"but {timeline[i + 1].label} starts at {next_start}"
             )
 
         print("✅ TC4 operation sequence timing test passed!")
@@ -222,7 +221,7 @@ class TestTC4MixedOpsComprehensive:
         assert len(timeline) > 0, "Timeline should not be empty"
 
         # Check that we have the expected activities
-        activity_types = [activity["activity"] for activity in timeline]
+        activity_types = [activity.activity for activity in timeline]
         assert "Port" in activity_types, "Should have port activities"
         assert "Station" in activity_types, "Should have station activities"
 
