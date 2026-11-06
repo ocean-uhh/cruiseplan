@@ -2,87 +2,57 @@
 cruise_name: Interactive_Session
 description: Cruise plan created with interactive station picker
 turnaround_time_minutes: 30.0
-start_date: '1970-01-01T00:00:00+00:00'
-start_time: 08:00
-default_vessel_speed_kt: 10.0
-default_distance_between_stations_km: 15.0
-ctd_descent_rate_m_s: 1.0
-ctd_ascent_rate_m_s: 1.0
-day_start_hour: 8
-day_end_hour: 20
 
 # Global catalog - define your operations
 points:
   - name: STN_001
     comment: Interactive selection - Review coordinates and update operation details
-    operation_type: UPDATE-CTD-mooring-etc
-    action: UPDATE-profile-sampling-etc
-    water_depth_m: 1646.2
-    latitude: 64.05289
-    longitude: -35.68807
+    operation_type: CTD
+    action: profile
+    water_depth_m: 3519.5
+    latitude: 57.71611
+    longitude: -52.29694
   - name: STN_002
     comment: Interactive selection - Review coordinates and update operation details
-    operation_type: UPDATE-CTD-mooring-etc
-    action: UPDATE-profile-sampling-etc
-    water_depth_m: 2788.7
-    latitude: 63.12718
-    longitude: -34.05915
+    operation_type: CTD
+    action: profile
+    water_depth_m: 3588.1
+    latitude: 57.19482
+    longitude: -52.26234
   - name: STN_003
     comment: Interactive selection - Review coordinates and update operation details
-    operation_type: UPDATE-CTD-mooring-etc
-    action: UPDATE-profile-sampling-etc
-    water_depth_m: 2928.2
-    latitude: 62.25197
-    longitude: -32.74349
-  - name: STN_004
-    comment: Interactive selection - Review coordinates and update operation details
-    operation_type: UPDATE-CTD-mooring-etc
-    action: UPDATE-profile-sampling-etc
-    water_depth_m: 2219.8
-    latitude: 61.59555
-    longitude: -31.17723
+    operation_type: mooring
+    action: deployment
+    duration_minutes: 120
+    water_depth_m: 3532.1
+    latitude: 57.37773
+    longitude: -51.39712
 lines:
   - name: Transit_01
     comment: Interactive transect - Review route and update operation details
     operation_type: UPDATE-underway-etc
     action: UPDATE-ADCP-bathymetry-etc
+    vessel_speed_kt: 10.0
     route:
-      - latitude: 62.7064
-        longitude: -40.98204
-      - latitude: 59.71048
-        longitude: -35.71939
-  - name: Transit_02
-    comment: Interactive transect - Review route and update operation details
-    operation_type: UPDATE-underway-etc
-    action: UPDATE-ADCP-bathymetry-etc
-    route:
-      - latitude: 59.79463
-        longitude: -42.61095
-      - latitude: 57.15216
-        longitude: -39.50975
-  - name: Transit_03
-    comment: Interactive transect - Review route and update operation details
-    operation_type: UPDATE-underway-etc
-    action: UPDATE-ADCP-bathymetry-etc
-    route:
-      - latitude: 63.80042
-        longitude: -21.49773
-      - latitude: 60.95597
-        longitude: -21.71701
+      - latitude: 56.4449
+        longitude: -50.22043
+      - latitude: 55.25599
+        longitude: -51.55286
 areas:
   - name: Area_01
     comment: Interactive area survey - Review polygon and update operation details
     operation_type: UPDATE-survey-etc
     action: UPDATE-bathymetry-survey-etc
+    duration_minutes: 9999.0
     corners:
-      - latitude: 62.08365
-        longitude: -51.41334
-      - latitude: 60.60252
-        longitude: -54.04467
-      - latitude: 58.76794
-        longitude: -49.69046
-      - latitude: 60.21541
-        longitude: -48.18684
+      - latitude: 61.1548
+        longitude: -52.02008
+      - latitude: 59.06049
+        longitude: -52.03738
+      - latitude: 58.34715
+        longitude: -47.72861
+      - latitude: 59.344
+        longitude: -45.66939
 
 # Schedule organization
 legs:
@@ -103,14 +73,10 @@ legs:
       longitude: 9.97992
     first_activity: STN_001
     last_activity: Area_01
-    strategy: sequential
     activities:
       - STN_001
       - STN_002
       - STN_003
-      - STN_004
       - Transit_01
-      - Transit_02
-      - Transit_03
       - Area_01
     clusters: []
