@@ -190,3 +190,79 @@ def test_html_has_no_none_cells(tc4, tmp_path):
     cruise, timeline = tc4
     html = generate_html_schedule(cruise.config, timeline, tmp_path / "s.html")
     assert "<td>None</td>" not in Path(html).read_text()
+
+
+def test_latex_summary_labels_ctd_stations(tc4):
+    """tc4's CTD station (op_type CTD) is summarised as a CTD/Station row."""
+    cruise, timeline = tc4
+    tex = LaTeXGenerator().generate_work_days_table(cruise.config, timeline)
+    assert "CTD/Station Operations" in tex
+    assert "Ctd Operations" not in tex
+
+
+def test_derived_point_file_has_operations_only(tc4, tmp_path):
+    """The points file written by the NetCDF outputs holds STN_001, not ports."""
+    import xarray as xr
+
+    from cruiseplan.output.netcdf_generator import NetCDFGenerator
+
+    cruise, timeline = tc4
+    files = NetCDFGenerator().generate_all_netcdf_outputs(
+        cruise.config, timeline, tmp_path
+    )
+    points = next(f for f in files if f.name.endswith("_points.nc"))
+    with xr.open_dataset(points) as ds:
+        assert [str(n) for n in ds.name.values] == ["STN_001"]
+
+
+def test_waypoint_is_not_an_operation(tc4, tmp_path):
+    """A waypoint record is not science, has category other, and no points row."""
+    import xarray as xr
+
+    from cruiseplan.output.netcdf_generator import NetCDFGenerator
+
+    cruise, timeline = tc4
+    waypoint = dataclasses.replace(
+        _record(timeline, "STN_001"), op_type="waypoint", label="WP_1"
+    )
+    assert not waypoint.is_science
+    assert waypoint.category == "other"
+    gen = NetCDFGenerator()
+    gen.generate_point_operations(cruise.config, [waypoint], tmp_path / "p.nc")
+    with xr.open_dataset(tmp_path / "p.nc") as ds:
+        assert "WP_1" not in [str(n) for n in ds.variables.get("station_name", [])]
+
+
+def test_point_file_unknown_depth_is_nan(tc4, tmp_path):
+    """An unknown water depth is NaN in the points file, not 0 m."""
+    import numpy as np
+    import xarray as xr
+
+    from cruiseplan.output.netcdf_generator import NetCDFGenerator
+
+    cruise, timeline = tc4
+    record = dataclasses.replace(_record(timeline, "STN_001"), water_depth_m=None)
+    NetCDFGenerator().generate_point_operations(
+        cruise.config, [record], tmp_path / "p.nc"
+    )
+    with xr.open_dataset(tmp_path / "p.nc") as ds:
+        assert np.isnan(float(ds.water_depth.values[0]))
+
+
+def test_waypoint_without_operation_class_reads_as_station(tc4, tmp_path):
+    """A stored waypoint (category other) is not read back as a buffer."""
+    import xarray as xr
+
+    from cruiseplan.forecast.reader import stored_kind
+    from cruiseplan.output.netcdf_generator import NetCDFGenerator
+
+    cruise, timeline = tc4
+    out = tmp_path / "s.nc"
+    NetCDFGenerator().generate_master_schedule(timeline, cruise.config, out)
+    with xr.open_dataset(out) as raw:
+        ds = raw.load()
+    i = list(ds.name.values).index("STN_001")
+    ds = ds.drop_vars("operation_class")
+    ds["type"].values[i] = "waypoint"
+    ds["category"].values[i] = "other"
+    assert stored_kind(ds, i) == "station"

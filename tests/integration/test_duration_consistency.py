@@ -27,8 +27,8 @@ class TestDurationConsistency:
         config_content = f"""
 cruise_name: "Duration_Test_Cruise"
 start_date: "2025-06-01T08:00:00"
-default_vessel_speed: 10.0
-default_distance_between_stations: 20.0
+default_vessel_speed_kt: 10.0
+default_distance_between_stations_km: 20.0
 calculate_transfer_between_sections: true
 calculate_depth_via_bathymetry: false
 

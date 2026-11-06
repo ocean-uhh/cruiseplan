@@ -20,10 +20,10 @@ class TestDurationCoverageBoost:
         """Setup test fixtures."""
         # Mock configuration with default values
         self.mock_config = MagicMock()
-        self.mock_config.ctd_descent_rate = 1.0  # m/s
-        self.mock_config.ctd_ascent_rate = 2.0  # m/s
-        self.mock_config.turnaround_time = 5.0  # minutes
-        self.mock_config.default_vessel_speed = 10.0  # knots
+        self.mock_config.ctd_descent_rate_m_s = 1.0  # m/s
+        self.mock_config.ctd_ascent_rate_m_s = 2.0  # m/s
+        self.mock_config.turnaround_time_minutes = 5.0  # minutes
+        self.mock_config.default_vessel_speed_kt = 10.0  # knots
 
         self.calculator = DurationCalculator(self.mock_config)
 
@@ -38,19 +38,19 @@ class TestDurationCoverageBoost:
     def test_calculate_ctd_time_zero_rates(self):
         """Test CTD time with zero descent/ascent rates (line 67)."""
         # Test zero descent rate
-        self.mock_config.ctd_descent_rate = 0.0
+        self.mock_config.ctd_descent_rate_m_s = 0.0
         result = self.calculator.calculate_ctd_time(1000.0)
         assert result == 0.0
 
         # Test zero ascent rate
-        self.mock_config.ctd_descent_rate = 1.0
-        self.mock_config.ctd_ascent_rate = 0.0
+        self.mock_config.ctd_descent_rate_m_s = 1.0
+        self.mock_config.ctd_ascent_rate_m_s = 0.0
         result = self.calculator.calculate_ctd_time(1000.0)
         assert result == 0.0
 
         # Test negative rates
-        self.mock_config.ctd_descent_rate = -1.0
-        self.mock_config.ctd_ascent_rate = 2.0
+        self.mock_config.ctd_descent_rate_m_s = -1.0
+        self.mock_config.ctd_ascent_rate_m_s = 2.0
         result = self.calculator.calculate_ctd_time(1000.0)
         assert result == 0.0
 
@@ -61,7 +61,7 @@ class TestDurationCoverageBoost:
         assert result == 0.0
 
         # Test zero default speed
-        self.mock_config.default_vessel_speed = 0.0
+        self.mock_config.default_vessel_speed_kt = 0.0
         result = self.calculator.calculate_transit_time(100.0)
         assert result == 0.0
 
@@ -72,7 +72,7 @@ class TestDurationCoverageBoost:
     def test_calculate_transit_time_uses_default_speed(self):
         """Test transit time uses default speed when none provided (lines 90-92)."""
         # Ensure default speed is used when speed_knots is None
-        self.mock_config.default_vessel_speed = 12.0
+        self.mock_config.default_vessel_speed_kt = 12.0
 
         # Mock km_to_nm conversion (assume 1 km = 0.539957 nm roughly)
         with pytest.MonkeyPatch.context() as m:
@@ -183,10 +183,10 @@ class TestDurationCalculatorEdgeCases:
         """Test calculator with extreme configuration values."""
         # Test with very high rates
         config = MagicMock()
-        config.ctd_descent_rate = 1000.0  # Very fast descent
-        config.ctd_ascent_rate = 1000.0  # Very fast ascent
-        config.turnaround_time = 0.0  # No turnaround
-        config.default_vessel_speed = 100.0  # Very fast vessel
+        config.ctd_descent_rate_m_s = 1000.0  # Very fast descent
+        config.ctd_ascent_rate_m_s = 1000.0  # Very fast ascent
+        config.turnaround_time_minutes = 0.0  # No turnaround
+        config.default_vessel_speed_kt = 100.0  # Very fast vessel
 
         calculator = DurationCalculator(config)
 

@@ -111,10 +111,10 @@ def planning_provenance(config: CruiseConfig) -> dict[str, str | float | int]:
         fields["bathymetry_depths_filled"] = depths_filled
     fields.update(
         {
-            "default_vessel_speed_kt": _parameter(config, "default_vessel_speed"),
-            "ctd_descent_rate_m_s": _parameter(config, "ctd_descent_rate"),
-            "ctd_ascent_rate_m_s": _parameter(config, "ctd_ascent_rate"),
-            "turnaround_time_min": _parameter(config, "turnaround_time"),
+            "default_vessel_speed_kt": _parameter(config, "default_vessel_speed_kt"),
+            "ctd_descent_rate_m_s": _parameter(config, "ctd_descent_rate_m_s"),
+            "ctd_ascent_rate_m_s": _parameter(config, "ctd_ascent_rate_m_s"),
+            "turnaround_time_min": _parameter(config, "turnaround_time_minutes"),
             "start_date": str(getattr(config, "start_date", None) or "not set"),
             "date_created": source.get("date_created") or _utc_now(),
         }

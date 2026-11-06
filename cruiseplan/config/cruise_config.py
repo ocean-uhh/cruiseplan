@@ -39,6 +39,8 @@ class ClusterDefinition(BaseModel):
         Unique identifier for the cluster.
     description : Optional[str]
         Human-readable description of the cluster purpose.
+    comment : Optional[str]
+        Free-text comment, kept in the enriched YAML.
     strategy : StrategyEnum
         Scheduling strategy for the cluster (default: SEQUENTIAL).
     ordered : bool
@@ -51,6 +53,7 @@ class ClusterDefinition(BaseModel):
     description: str | None = Field(
         None, description="Human-readable description of the cluster purpose"
     )
+    comment: str | None = None
     strategy: StrategyEnum = Field(
         default=StrategyEnum.SEQUENTIAL,
         description="Scheduling strategy for operations within this cluster",
@@ -122,16 +125,19 @@ class LegDefinition(BaseModel):
         Unique identifier for the leg.
     description : Optional[str]
         Human-readable description of the leg.
+    comment : Optional[str]
+        Free-text comment, kept in the enriched YAML.
     departure_port : Union[str, PointDefinition]
         Required departure port for this leg.
     arrival_port : Union[str, PointDefinition]
         Required arrival port for this leg.
-    vessel_speed : Optional[float]
+    vessel_speed_kt : Optional[float]
         Vessel speed for this leg in knots (inheritable from cruise).
-    distance_between_stations : Optional[float]
-        Default station spacing for this leg in kilometers (inheritable from cruise).
-    turnaround_time : Optional[float]
-        Turnaround time between operations in minutes (inheritable from cruise).
+    distance_between_stations_km : Optional[float]
+        Station spacing for this leg in kilometers. Not yet used when lines are
+        expanded into stations (the line's value, else the cruise default, is).
+    turnaround_time_minutes : Optional[float]
+        CTD turnaround time for this leg in minutes (overrides the cruise value).
     first_activity : Optional[str]
         First activity/navigation marker for this leg (routing only, not executed).
     last_activity : Optional[str]
@@ -140,8 +146,11 @@ class LegDefinition(BaseModel):
         Default scheduling strategy for the leg.
     ordered : Optional[bool]
         Whether the leg operations should be ordered.
-    buffer_time : Optional[float]
-        Contingency time for entire leg operations in minutes (e.g., weather delays).
+    buffer_time_minutes : Optional[float]
+        Contingency block in minutes, scheduled once after the leg's last
+        operation and before the transit to the arrival port.
+    delay_start_minutes : Optional[float]
+        Delay before the leg departs in minutes (e.g. port clearance).
     activities : Optional[List[dict]]
         Unified list of all activities (points, lines, areas) in this leg.
     clusters : Optional[List[ClusterDefinition]]
@@ -150,20 +159,21 @@ class LegDefinition(BaseModel):
 
     name: str
     description: str | None = None
+    comment: str | None = None
 
     # Required maritime port-to-port structure
     departure_port: str | PointDefinition
     arrival_port: str | PointDefinition
 
     # Inheritable cruise parameters
-    vessel_speed: float | None = Field(
+    vessel_speed_kt: float | None = Field(
         None, description="Vessel speed for this leg in knots"
     )
-    distance_between_stations: float | None = Field(
+    distance_between_stations_km: float | None = Field(
         None, description="Default station spacing for this leg in kilometers"
     )
-    turnaround_time: float | None = Field(
-        None, description="Turnaround time between operations in minutes"
+    turnaround_time_minutes: float | None = Field(
+        None, description="CTD turnaround time for this leg in minutes"
     )
 
     # Navigation activities (not executed, routing only)
@@ -181,10 +191,11 @@ class LegDefinition(BaseModel):
     ordered: bool | None = Field(
         None, description="Whether leg operations should maintain order"
     )
-    buffer_time: float | None = Field(
-        None, description="Contingency time for weather delays (minutes)"
+    buffer_time_minutes: float | None = Field(
+        None,
+        description="Contingency block (minutes) after the last operation of the leg",
     )
-    delay_start: float | None = Field(
+    delay_start_minutes: float | None = Field(
         None,
         ge=0,
         description="Delay before the leg departs (minutes), e.g. for port clearance",
@@ -210,7 +221,7 @@ class LegDefinition(BaseModel):
             raise ValueError(msg)
         return v
 
-    @field_validator("vessel_speed")
+    @field_validator("vessel_speed_kt")
     @classmethod
     def validate_vessel_speed(cls, v: float | None) -> float | None:
         """Validate vessel speed is positive."""
@@ -219,7 +230,7 @@ class LegDefinition(BaseModel):
             raise ValueError(msg)
         return v
 
-    @field_validator("distance_between_stations")
+    @field_validator("distance_between_stations_km")
     @classmethod
     def validate_station_spacing(cls, v: float | None) -> float | None:
         """Validate station spacing is positive."""
@@ -228,7 +239,7 @@ class LegDefinition(BaseModel):
             raise ValueError(msg)
         return v
 
-    @field_validator("turnaround_time", "buffer_time")
+    @field_validator("turnaround_time_minutes", "buffer_time_minutes")
     @classmethod
     def validate_time_fields(cls, v: float | None) -> float | None:
         """Validate time fields are non-negative."""
@@ -269,15 +280,15 @@ class CruiseConfig(BaseModel):
         Name of the cruise.
     description : Optional[str]
         Human-readable description of the cruise.
-    default_vessel_speed : float
+    default_vessel_speed_kt : float
         Default vessel speed in knots.
-    default_distance_between_stations : float
+    default_distance_between_stations_km : float
         Default station spacing in kilometers.
-    turnaround_time : float
-        Time required for station turnaround in minutes.
-    ctd_descent_rate : float
+    turnaround_time_minutes : float
+        Time added to each depth-based CTD cast for turnaround, in minutes.
+    ctd_descent_rate_m_s : float
         CTD descent rate in meters per second.
-    ctd_ascent_rate : float
+    ctd_ascent_rate_m_s : float
         CTD ascent rate in meters per second.
     day_start_hour : int
         Start hour for daytime operations (0-23).
@@ -311,13 +322,13 @@ class CruiseConfig(BaseModel):
     description: str | None = None
 
     # --- LOGIC CONSTRAINTS ---
-    default_vessel_speed: float = (
+    default_vessel_speed_kt: float = (
         DEFAULT_VESSEL_SPEED_KT  # TODO: Decide if needed as default
     )
-    default_distance_between_stations: float = DEFAULT_STATION_SPACING_KM
-    turnaround_time: float = DEFAULT_TURNAROUND_TIME_MIN
-    ctd_descent_rate: float = DEFAULT_CTD_RATE_M_S
-    ctd_ascent_rate: float = DEFAULT_CTD_RATE_M_S
+    default_distance_between_stations_km: float = DEFAULT_STATION_SPACING_KM
+    turnaround_time_minutes: float = DEFAULT_TURNAROUND_TIME_MIN
+    ctd_descent_rate_m_s: float = DEFAULT_CTD_RATE_M_S
+    ctd_ascent_rate_m_s: float = DEFAULT_CTD_RATE_M_S
 
     # Configuration "daylight" or "dayshift" window for moorings
     day_start_hour: int = DEFAULT_DAY_START_HR  # Default 08:00
@@ -387,11 +398,11 @@ class CruiseConfig(BaseModel):
             msg = "Cruise name cannot be empty"
             raise ValueError(msg)
 
-        if self.default_vessel_speed <= 0:
+        if self.default_vessel_speed_kt <= 0:
             msg = "Default vessel speed must be positive"
             raise ValueError(msg)
 
-        if self.default_distance_between_stations <= 0:
+        if self.default_distance_between_stations_km <= 0:
             msg = "Default distance between stations must be positive"
             raise ValueError(msg)
 

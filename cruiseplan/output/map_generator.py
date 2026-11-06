@@ -78,7 +78,7 @@ def extract_points_from_cruise(
                     "operation_type": operation_type,
                     "action": getattr(station, "action", None),
                     "depth": getattr(
-                        station, "water_depth", getattr(station, "depth", None)
+                        station, "water_depth_m", getattr(station, "depth", None)
                     ),
                 }
             )
@@ -97,7 +97,7 @@ def extract_points_from_cruise(
                     "operation_type": getattr(mooring, "operation_type", "mooring"),
                     "action": getattr(mooring, "action", None),
                     "depth": getattr(
-                        mooring, "water_depth", getattr(mooring, "depth", None)
+                        mooring, "water_depth_m", getattr(mooring, "depth", None)
                     ),
                 }
             )
@@ -184,7 +184,7 @@ def extract_lines_from_cruise(cruise: "CruiseInstance") -> list[dict[str, Any]]:
                         "entity_type": "line",
                         "operation_type": getattr(line, "operation_type", None),
                         "action": getattr(line, "action", None),
-                        "vessel_speed": getattr(line, "vessel_speed", None),
+                        "vessel_speed": getattr(line, "vessel_speed_kt", None),
                     }
                 )
 
@@ -248,7 +248,7 @@ def extract_areas_from_cruise(cruise: "CruiseInstance") -> list[dict[str, Any]]:
                         "entity_type": "area",
                         "operation_type": getattr(area, "operation_type", "survey"),
                         "action": getattr(area, "action", None),
-                        "duration": getattr(area, "duration", None),
+                        "duration": getattr(area, "duration_minutes", None),
                     }
                 )
 

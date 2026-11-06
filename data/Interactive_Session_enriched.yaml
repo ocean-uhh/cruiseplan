@@ -1,7 +1,7 @@
 # Cruise metadata
 cruise_name: Interactive_Session
 description: Cruise plan created with interactive station picker
-turnaround_time: 30.0
+turnaround_time_minutes: 30.0
 
 # Global catalog - define your operations
 points:
@@ -9,8 +9,8 @@ points:
     comment: Mooring deployment
     operation_type: UPDATE-CTD-mooring-etc
     action: UPDATE-profile-sampling-etc
-    water_depth: 0.0
-    duration: 120.0
+    water_depth_m: 0.0
+    duration_minutes: 120.0
     latitude: 65.244
     longitude: -31.3177
     latitude_decmin: 65 14.640 N
@@ -19,9 +19,9 @@ points:
     comment: Mooring deployment
     operation_type: UPDATE-CTD-mooring-etc
     action: UPDATE-profile-sampling-etc
-    water_depth: 1874.9
+    water_depth_m: 1874.9
     bathymetry_source: gebco2025
-    duration: 120.0
+    duration_minutes: 120.0
     latitude: 65.0268
     longitude: -31.3702
     latitude_decmin: 65 01.608 N
@@ -30,8 +30,8 @@ points:
     comment: Mooring deployment
     operation_type: UPDATE-CTD-mooring-etc
     action: UPDATE-profile-sampling-etc
-    water_depth: 0.0
-    duration: 120.0
+    water_depth_m: 0.0
+    duration_minutes: 120.0
     latitude: 65.56673
     longitude: -29.4313
     latitude_decmin: 65 34.004 N
@@ -40,8 +40,8 @@ points:
     comment: Mooring deployment
     operation_type: UPDATE-CTD-mooring-etc
     action: UPDATE-profile-sampling-etc
-    water_depth: 0.0
-    duration: 120.0
+    water_depth_m: 0.0
+    duration_minutes: 120.0
     latitude: 65.55685
     longitude: -29.34933
     latitude_decmin: 65 33.411 N
@@ -50,8 +50,8 @@ points:
     comment: Mooring deployment
     operation_type: UPDATE-CTD-mooring-etc
     action: UPDATE-profile-sampling-etc
-    water_depth: 0.0
-    duration: 120.0
+    water_depth_m: 0.0
+    duration_minutes: 120.0
     latitude: 65.53148
     longitude: -29.4127
     latitude_decmin: 65 31.889 N
@@ -60,8 +60,8 @@ points:
     comment: Mooring deployment
     operation_type: UPDATE-CTD-mooring-etc
     action: UPDATE-profile-sampling-etc
-    water_depth: 0.0
-    duration: 90.0
+    water_depth_m: 0.0
+    duration_minutes: 90.0
     latitude: 65.59465
     longitude: -29.4668
     latitude_decmin: 65 35.679 N
@@ -70,8 +70,8 @@ points:
     comment: Mooring deployment
     operation_type: UPDATE-CTD-mooring-etc
     action: UPDATE-profile-sampling-etc
-    water_depth: 0.0
-    duration: 240.0
+    water_depth_m: 0.0
+    duration_minutes: 240.0
     latitude: 65.56608
     longitude: -29.2774
     latitude_decmin: 65 33.965 N
@@ -80,8 +80,8 @@ points:
     comment: Mooring deployment
     operation_type: UPDATE-CTD-mooring-etc
     action: UPDATE-profile-sampling-etc
-    water_depth: 0.0
-    duration: 120.0
+    water_depth_m: 0.0
+    duration_minutes: 120.0
     latitude: 65.50163
     longitude: -29.4343
     latitude_decmin: 65 30.098 N
@@ -90,7 +90,7 @@ points:
     comment: Interactive selection - Review coordinates and update operation details
     operation_type: UPDATE-CTD-mooring-etc
     action: UPDATE-profile-sampling-etc
-    water_depth: 708.5
+    water_depth_m: 708.5
     latitude: 65.58855
     longitude: -29.4507
     latitude_decmin: 65 35.313 N
@@ -99,7 +99,7 @@ points:
     comment: Interactive selection - Review coordinates and update operation details
     operation_type: UPDATE-CTD-mooring-etc
     action: UPDATE-profile-sampling-etc
-    water_depth: 801.7
+    water_depth_m: 801.7
     latitude: 65.5663
     longitude: -29.41094
     latitude_decmin: 65 33.978 N
@@ -108,7 +108,7 @@ points:
     comment: Interactive selection - Review coordinates and update operation details
     operation_type: UPDATE-CTD-mooring-etc
     action: UPDATE-profile-sampling-etc
-    water_depth: 1002.8
+    water_depth_m: 1002.8
     latitude: 65.49172
     longitude: -29.4169
     latitude_decmin: 65 29.503 N
@@ -117,7 +117,7 @@ points:
     comment: Interactive selection - Review coordinates and update operation details
     operation_type: UPDATE-CTD-mooring-etc
     action: UPDATE-profile-sampling-etc
-    water_depth: 1000.1
+    water_depth_m: 1000.1
     latitude: 65.55353
     longitude: -29.231
     latitude_decmin: 65 33.212 N

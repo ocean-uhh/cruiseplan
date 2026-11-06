@@ -88,7 +88,7 @@ class OperationFactory:
                         return PointOperation.from_pydantic(item)
                     if operation_type == "line":
                         return LineOperation.from_pydantic(
-                            item, self.config.default_vessel_speed
+                            item, self.config.default_vessel_speed_kt
                         )
                     if operation_type == "area":
                         return AreaOperation.from_pydantic(item)
@@ -442,7 +442,7 @@ class TimelineGenerator:
         for name, reason in self._fill_reasons.items():
             logger.warning(
                 f"Operation {name}: {reason}; scheduled with the fill duration "
-                f"{DEFAULT_MOORING_DURATION_MIN / 60:.0f} h. Add 'duration:' or a "
+                f"{DEFAULT_MOORING_DURATION_MIN / 60:.0f} h. Add 'duration_minutes:' or a "
                 f"depth in the YAML."
             )
         summary = fill_duration_summary(timeline)
@@ -467,12 +467,13 @@ class TimelineGenerator:
                     first_activity=getattr(leg_def, "first_activity", None),
                     last_activity=getattr(leg_def, "last_activity", None),
                 )
-                runtime_leg.vessel_speed = getattr(leg_def, "vessel_speed", None)
-                runtime_leg.turnaround_time = getattr(leg_def, "turnaround_time", None)
-                runtime_leg.distance_between_stations = getattr(
-                    leg_def, "distance_between_stations", None
+                runtime_leg.vessel_speed = leg_def.vessel_speed_kt
+                runtime_leg.turnaround_time = leg_def.turnaround_time_minutes
+                runtime_leg.distance_between_stations = (
+                    leg_def.distance_between_stations_km
                 )
-                runtime_leg.delay_start = getattr(leg_def, "delay_start", None)
+                runtime_leg.delay_start = leg_def.delay_start_minutes
+                runtime_leg.buffer_time = leg_def.buffer_time_minutes
 
                 runtime_legs.append(runtime_leg)
             except Exception as e:  # noqa: BLE001 - skip a leg that cannot be built; others are scheduled
@@ -748,7 +749,7 @@ class TimelineGenerator:
             vessel_speed_kt=getattr(
                 operation,
                 "get_vessel_speed",
-                lambda: getattr(self.config, "default_vessel_speed", 10.0),
+                lambda: self.config.default_vessel_speed_kt,
             )(),
             leg_name=leg_name,
             op_type=op_type,

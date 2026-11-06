@@ -58,7 +58,7 @@ class TestSchedulerDebug:
                 print(
                     f"     {leg.name}: {getattr(leg, 'first_station', 'no first')} -> {getattr(leg, 'last_station', 'no last')}"
                 )
-            print(f"   Default vessel speed: {config.default_vessel_speed} knots")
+            print(f"   Default vessel speed: {config.default_vessel_speed_kt} knots")
 
             print(f"\n   Stations: {len(config.points or [])}")
             if config.points:

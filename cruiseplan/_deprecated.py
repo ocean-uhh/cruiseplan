@@ -16,6 +16,32 @@ RENAMED: dict[str, str] = {
     "cruiseplan.timeline.scheduler.CruiseSchedule": "cruiseplan.timeline.Timeline",
 }
 
+#: Old YAML key -> new YAML key (the unit is in the name). The same old key
+#: has the same new name wherever it appears (cruise, leg, point, line, area).
+RENAMED_KEYS: dict[str, str] = {
+    "duration": "duration_minutes",
+    "delay_start": "delay_start_minutes",
+    "buffer_time": "buffer_time_minutes",
+    "turnaround_time": "turnaround_time_minutes",
+    "water_depth": "water_depth_m",
+    "operation_depth": "operation_depth_m",
+    "vessel_speed": "vessel_speed_kt",
+    "default_vessel_speed": "default_vessel_speed_kt",
+    "distance_between_stations": "distance_between_stations_km",
+    "default_distance_between_stations": "default_distance_between_stations_km",
+    "ctd_descent_rate": "ctd_descent_rate_m_s",
+    "ctd_ascent_rate": "ctd_ascent_rate_m_s",
+}
+
+#: YAML keys that are no longer read -> what to use instead. Dropped with a
+#: warning until :data:`REMOVED_IN`, rejected after.
+REMOVED_KEYS: dict[str, str] = {
+    "delay_end": (
+        "use delay_start_minutes on the next operation, buffer_time_minutes "
+        "on the leg, or a longer duration_minutes"
+    ),
+}
+
 #: Old dictionary key of a timeline record -> ActivityRecord attribute.
 RECORD_KEYS: dict[str, str] = {
     "time": "start_time",
@@ -36,6 +62,22 @@ def message(old: str) -> str:
 def warn(old: str, *, stacklevel: int = 3) -> None:
     """Warn that the API name *old* (a key of :data:`RENAMED`) is deprecated."""
     warnings.warn(message(old), DeprecationWarning, stacklevel=stacklevel)
+
+
+def key_message(old: str) -> str:
+    """Return the warning text for the renamed YAML key *old*."""
+    return (
+        f"YAML key '{old}' is deprecated and is removed in {REMOVED_IN}; "
+        f"use '{RENAMED_KEYS[old]}'"
+    )
+
+
+def removed_key_message(old: str) -> str:
+    """Return the warning text for the removed YAML key *old*."""
+    return (
+        f"YAML key '{old}' is no longer read and is ignored (rejected from "
+        f"{REMOVED_IN}): {REMOVED_KEYS[old]}"
+    )
 
 
 def record_key_message(key: str) -> str:

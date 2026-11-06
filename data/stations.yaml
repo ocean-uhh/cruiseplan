@@ -1,7 +1,7 @@
 # Cruise metadata
 cruise_name: Interactive_Session
 description: Cruise plan created with interactive station picker
-turnaround_time: 30.0
+turnaround_time_minutes: 30.0
 
 # Global catalog - define your operations
 points:
@@ -9,22 +9,22 @@ points:
     comment: Interactive selection - Review coordinates and update operation details
     operation_type: CTD
     action: profile
-    water_depth: 3519.5
+    water_depth_m: 3519.5
     latitude: 57.71611
     longitude: -52.29694
   - name: STN_002
     comment: Interactive selection - Review coordinates and update operation details
     operation_type: CTD
     action: profile
-    water_depth: 3588.1
+    water_depth_m: 3588.1
     latitude: 57.19482
     longitude: -52.26234
   - name: STN_003
     comment: Interactive selection - Review coordinates and update operation details
     operation_type: mooring
     action: deployment
-    duration: 120
-    water_depth: 3532.1
+    duration_minutes: 120
+    water_depth_m: 3532.1
     latitude: 57.37773
     longitude: -51.39712
 lines:
@@ -32,7 +32,7 @@ lines:
     comment: Interactive transect - Review route and update operation details
     operation_type: UPDATE-underway-etc
     action: UPDATE-ADCP-bathymetry-etc
-    vessel_speed: 10.0
+    vessel_speed_kt: 10.0
     route:
       - latitude: 56.4449
         longitude: -50.22043
@@ -43,7 +43,7 @@ areas:
     comment: Interactive area survey - Review polygon and update operation details
     operation_type: UPDATE-survey-etc
     action: UPDATE-bathymetry-survey-etc
-    duration: 9999.0
+    duration_minutes: 9999.0
     corners:
       - latitude: 61.1548
         longitude: -52.02008

@@ -21,7 +21,7 @@ from cruiseplan.forecast.generator import (
 )
 from cruiseplan.forecast.reader import read_schedule
 from cruiseplan.output.kml_generator import KMLGenerator
-from cruiseplan.timeline.record import ActivityRecord, kind_of
+from cruiseplan.timeline.record import KIND_OPERATION_CLASS, ActivityRecord, kind_of
 
 logger = logging.getLogger(__name__)
 
@@ -387,11 +387,6 @@ def _build_tex_forecast_record(
     from cruiseplan.forecast.reader import _float, _text, stored_kind
 
     kind = "transit" if index < 0 else stored_kind(schedule, index)
-    operation_classes = {
-        "line": "LineOperation",
-        "area": "AreaOperation",
-        "transit": "NavigationalTransit",
-    }
     return ActivityRecord(
         kind=kind,
         activity=_text(schedule, "activity", index, category),
@@ -411,7 +406,7 @@ def _build_tex_forecast_record(
         vessel_speed_kt=_float(schedule, "vessel_speed", index, np.nan),
         leg_name="forecast",
         op_type=activity_type,
-        operation_class=operation_classes.get(kind, "PointOperation"),
+        operation_class=KIND_OPERATION_CLASS[kind],
         action=action if action else None,
         comment=comment,
     )
@@ -485,6 +480,10 @@ def stationplan_forecast_tex(
                 output="",
             )
 
+        if "vessel_speed" not in schedule.variables:
+            logger.warning(
+                f"{schedule_path}: no vessel_speed variable; record speeds are NaN"
+            )
         activity_records = [
             record
             for activity_tuple in forecast_activities

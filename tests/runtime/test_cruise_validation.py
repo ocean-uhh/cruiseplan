@@ -69,7 +69,7 @@ def test_load_and_validate_cruise():
 
     # Item 0: Was a reference "STN_Start_01" -> Should resolve to object
     assert resolved_stations[0].name == "STN_Start_01"
-    assert resolved_stations[0].operation_depth == 500.0
+    assert resolved_stations[0].operation_depth_m == 500.0
 
     # Item 2: Was inline "STN_Inline_OneOff" -> Should be object
     assert resolved_stations[2].name == "STN_Inline_OneOff"
@@ -90,8 +90,8 @@ def test_missing_reference_raises_error(tmp_path):
         f"""
 cruise_name: "Bad Cruise"
 start_date: "2025-01-01T00:00:00"
-default_vessel_speed: 10
-default_distance_between_stations: 10
+default_vessel_speed_kt: 10
+default_distance_between_stations_km: 10
 calculate_transfer_between_sections: false
 calculate_depth_via_bathymetry: false
 
@@ -316,7 +316,7 @@ class TestDepthValidation:
         station.name = "STN_001"
         station.latitude = 50.0
         station.longitude = -30.0
-        station.water_depth = 2000.0  # Station reported water depth
+        station.water_depth_m = 2000.0  # Station reported water depth
 
         cruise.point_registry = {"STN_001": station}
 
@@ -342,7 +342,7 @@ class TestDepthValidation:
         station.name = "STN_002"
         station.latitude = 50.0
         station.longitude = -30.0
-        station.water_depth = 1000.0  # Station reported water depth
+        station.water_depth_m = 1000.0  # Station reported water depth
 
         cruise.point_registry = {"STN_002": station}
 
@@ -366,7 +366,7 @@ class TestDepthValidation:
         station.name = "STN_003"
         station.latitude = 50.0
         station.longitude = -30.0
-        station.water_depth = 2000.0
+        station.water_depth_m = 2000.0
 
         cruise.point_registry = {"STN_003": station}
 
@@ -405,7 +405,7 @@ class TestDepthValidation:
         station.name = "STN_NO_DEPTH"
         station.latitude = 50.0
         station.longitude = -30.0
-        station.water_depth = None  # No depth specified
+        station.water_depth_m = None  # No depth specified
 
         cruise.point_registry = {"STN_NO_DEPTH": station}
 

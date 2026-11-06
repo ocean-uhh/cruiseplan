@@ -12,7 +12,7 @@ def _make_generator():
     """Create a minimal TimelineGenerator with mocked config."""
     gen = TimelineGenerator.__new__(TimelineGenerator)
     gen.config = MagicMock()
-    gen.config.default_vessel_speed = 10.0
+    gen.config.default_vessel_speed_kt = 10.0
     gen.current_time = datetime(2028, 6, 1, 12, 0)
     return gen
 

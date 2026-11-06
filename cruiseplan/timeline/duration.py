@@ -62,8 +62,8 @@ class DurationCalculator:
         if depth <= 0:
             return 0.0
 
-        descent_m_sec = self.config.ctd_descent_rate
-        ascent_m_sec = self.config.ctd_ascent_rate
+        descent_m_sec = self.config.ctd_descent_rate_m_s
+        ascent_m_sec = self.config.ctd_ascent_rate_m_s
         # Convert rates (m/s) to m/min
         descent_m_min = rate_per_second_to_rate_per_minute(descent_m_sec)
         ascent_m_min = rate_per_second_to_rate_per_minute(ascent_m_sec)
@@ -73,7 +73,7 @@ class DurationCalculator:
             return 0.0
 
         profile_time = (depth / descent_m_min) + (depth / ascent_m_min)
-        return profile_time + self.config.turnaround_time
+        return profile_time + self.config.turnaround_time_minutes
 
     def calculate_transit_time(
         self, distance_km: float, speed_knots: float | None = None
@@ -94,7 +94,9 @@ class DurationCalculator:
             Transit duration in minutes.
         """
         speed = (
-            speed_knots if speed_knots is not None else self.config.default_vessel_speed
+            speed_knots
+            if speed_knots is not None
+            else self.config.default_vessel_speed_kt
         )
         if speed <= 0:
             return 0.0

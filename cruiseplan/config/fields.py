@@ -16,38 +16,37 @@ FIRST_ACTIVITY_FIELD = "first_activity"
 LAST_ACTIVITY_FIELD = "last_activity"
 OP_TYPE_FIELD = "operation_type"
 ACTION_FIELD = "action"
-DURATION_FIELD = "duration"
-OP_DEPTH_FIELD = "operation_depth"
-WATER_DEPTH_FIELD = "water_depth"
+DURATION_FIELD = "duration_minutes"
+OP_DEPTH_FIELD = "operation_depth_m"
+WATER_DEPTH_FIELD = "water_depth_m"
 START_DATE_FIELD = "start_date"
 START_TIME_FIELD = "start_time"
 CRUISE_NAME_FIELD = "cruise_name"
 PRINCIPAL_INVESTIGATOR_FIELD = "principal_investigator"
 INSTITUTION_FIELD = "institution"
 VESSEL_FIELD = "vessel"
-DEFAULT_VESSEL_SPEED_FIELD = "default_vessel_speed"
-DEFAULT_STATION_SPACING_FIELD = "default_distance_between_stations"
-CTD_DESCENT_RATE_FIELD = "ctd_descent_rate"
-CTD_ASCENT_RATE_FIELD = "ctd_ascent_rate"
+DEFAULT_VESSEL_SPEED_FIELD = "default_vessel_speed_kt"
+DEFAULT_STATION_SPACING_FIELD = "default_distance_between_stations_km"
+CTD_DESCENT_RATE_FIELD = "ctd_descent_rate_m_s"
+CTD_ASCENT_RATE_FIELD = "ctd_ascent_rate_m_s"
 DAY_START_HOUR_FIELD = "day_start_hour"
 DAY_END_HOUR_FIELD = "day_end_hour"
-TURNAROUND_TIME_FIELD = "turnaround_time"
+TURNAROUND_TIME_FIELD = "turnaround_time_minutes"
 DEPARTURE_PORT_FIELD = "departure_port"
 ARRIVAL_PORT_FIELD = "arrival_port"
 REVERSIBLE_FIELD = "reversible"
-DELAY_START_FIELD = "delay_start"
-DELAY_END_FIELD = "delay_end"
-BUFFER_TIME_FIELD = "buffer_time"
+DELAY_START_FIELD = "delay_start_minutes"
+BUFFER_TIME_FIELD = "buffer_time_minutes"
 HISTORY_FIELD = "history"
 LEGS_FIELD = "legs"
 PORTS_FIELD = "ports"
 CLUSTERS_FIELD = "clusters"
 ACTIVITIES_FIELD = "activities"
 STRATEGY_FIELD = "strategy"
-STATION_SPACING_FIELD = "distance_between_stations"
+STATION_SPACING_FIELD = "distance_between_stations_km"
 COMMENT_FIELD = "comment"
 DESCRIPTION_FIELD = "description"
-VESSEL_SPEED_FIELD = "vessel_speed"
+VESSEL_SPEED_FIELD = "vessel_speed_kt"
 LATITUDE_FIELD = "latitude"
 LONGITUDE_FIELD = "longitude"
 MAX_DEPTH_FIELD = "max_depth"
@@ -70,6 +69,8 @@ YAML_FIELD_ORDER = [
     ("display_name", "display_name"),
     (COMMENT_FIELD, "comment"),
     (DESCRIPTION_FIELD, "description"),
+    ("timezone", "timezone"),
+    ("equipment", "equipment"),
     # Port and routing fields
     (DEPARTURE_PORT_FIELD, "departure_port"),
     (ARRIVAL_PORT_FIELD, "arrival_port"),
@@ -79,20 +80,19 @@ YAML_FIELD_ORDER = [
     (OP_TYPE_FIELD, "operation_type"),
     (ACTION_FIELD, "action"),
     # Depth and measurement fields
-    (OP_DEPTH_FIELD, "operation_depth"),
+    (OP_DEPTH_FIELD, "operation_depth_m"),
     (MAX_DEPTH_FIELD, "max_depth"),
-    (WATER_DEPTH_FIELD, "water_depth"),
+    (WATER_DEPTH_FIELD, "water_depth_m"),
     ("bathymetry_source", "bathymetry_source"),
     # Timing and spacing fields
-    (DURATION_FIELD, "duration"),
-    (VESSEL_SPEED_FIELD, "vessel_speed"),
-    (STATION_SPACING_FIELD, "distance_between_stations"),
+    (DURATION_FIELD, "duration_minutes"),
+    (VESSEL_SPEED_FIELD, "vessel_speed_kt"),
+    (STATION_SPACING_FIELD, "distance_between_stations_km"),
     (REVERSIBLE_FIELD, "reversible"),
-    (TURNAROUND_TIME_FIELD, "turnaround_time"),
+    (TURNAROUND_TIME_FIELD, "turnaround_time_minutes"),
     # Timing fields
-    (DELAY_START_FIELD, "delay_start"),
-    (DELAY_END_FIELD, "delay_end"),
-    (BUFFER_TIME_FIELD, "buffer_time"),
+    (DELAY_START_FIELD, "delay_start_minutes"),
+    (BUFFER_TIME_FIELD, "buffer_time_minutes"),
     # Geographic fields
     (LATITUDE_FIELD, "latitude"),
     (LONGITUDE_FIELD, "longitude"),
@@ -116,18 +116,19 @@ POINT_ALLOWED_FIELDS = {
     "display_name",
     "comment",
     "description",
+    "timezone",
+    "equipment",
     "operation_type",
     "action",
     "latitude",
     "longitude",
     "latitude_decmin",
     "longitude_decmin",
-    "water_depth",
+    "water_depth_m",
     "bathymetry_source",
-    "operation_depth",
-    "duration",
-    "delay_start",
-    "delay_end",
+    "operation_depth_m",
+    "duration_minutes",
+    "delay_start_minutes",
     "history",
 }
 
@@ -137,15 +138,14 @@ LINE_ALLOWED_FIELDS = {
     "description",
     "operation_type",
     "action",
-    "distance_between_stations",
+    "distance_between_stations_km",
     "max_depth",
-    "vessel_speed",
-    "duration",
+    "vessel_speed_kt",
+    "duration_minutes",
     "route",
     "reversible",
     "history",
-    "delay_start",
-    "delay_end",
+    "delay_start_minutes",
 }
 
 AREA_ALLOWED_FIELDS = {
@@ -154,11 +154,10 @@ AREA_ALLOWED_FIELDS = {
     "description",
     "operation_type",
     "action",
-    "duration",
+    "duration_minutes",
     "corners",
     "history",
-    "delay_start",
-    "delay_end",
+    "delay_start_minutes",
 }
 
 CLUSTER_ALLOWED_FIELDS = {
@@ -169,7 +168,7 @@ CLUSTER_ALLOWED_FIELDS = {
     "ordered",
     "activities",
     "history",
-    "buffer_time",
+    "buffer_time_minutes",
 }
 
 LEG_ALLOWED_FIELDS = {
@@ -180,13 +179,15 @@ LEG_ALLOWED_FIELDS = {
     "arrival_port",
     "first_activity",
     "last_activity",
-    "vessel_speed",
+    "vessel_speed_kt",
     "activities",
     "clusters",
-    "buffer_time",
-    "delay_start",
-    "distance_between_stations",
-    "turnaround_time",
+    "buffer_time_minutes",
+    "delay_start_minutes",
+    "distance_between_stations_km",
+    "turnaround_time_minutes",
+    "strategy",
+    "ordered",
     "history",
 }
 
@@ -205,7 +206,6 @@ __all__ = [
     "COMMENT_FIELD",
     "CRUISE_NAME_FIELD",
     "DEFAULT_VESSEL_SPEED_FIELD",
-    "DELAY_END_FIELD",
     "DELAY_START_FIELD",
     "DEPARTURE_PORT_FIELD",
     "DESCRIPTION_FIELD",

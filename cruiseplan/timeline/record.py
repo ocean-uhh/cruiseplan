@@ -21,6 +21,32 @@ KINDS: tuple[str, ...] = get_args(ActivityKind)
 SCIENCE_KINDS = frozenset({"station", "mooring", "line", "area"})
 """Kinds that count as scientific operations."""
 
+# One table per attribute of a kind; every writer and reader uses these.
+KIND_OPERATION_CLASS = {
+    "station": "PointOperation",
+    "mooring": "PointOperation",
+    "port": "PointOperation",
+    "line": "LineOperation",
+    "area": "AreaOperation",
+    "transit": "NavigationalTransit",
+    "buffer": "Buffer",
+}
+"""Implementation class of each kind (``operation_class`` on records)."""
+
+KIND_CATEGORY = {
+    "station": "point_operation",
+    "mooring": "point_operation",
+    "port": "point_operation",
+    "line": "line_operation",
+    "area": "area_operation",
+    "transit": "transit",
+    "buffer": "other",
+}
+"""NetCDF ``category`` of each kind (a waypoint is ``other``)."""
+
+if set(KIND_OPERATION_CLASS) != set(KINDS) or set(KIND_CATEGORY) != set(KINDS):
+    raise RuntimeError("every record kind needs an operation class and a category")
+
 
 def kind_of(operation_class: str, op_type: str | None) -> str:
     """
@@ -146,9 +172,19 @@ class ActivityRecord:
             raise ValueError(f"Unknown record kind {self.kind!r}; use one of {KINDS}")
 
     @property
+    def is_waypoint(self) -> bool:
+        """True for a navigational waypoint (a point record that is not work)."""
+        return self.kind == "station" and (self.op_type or "").lower() == "waypoint"
+
+    @property
     def is_science(self) -> bool:
         """True for scientific operations (stations, moorings, lines, areas)."""
-        return self.kind in SCIENCE_KINDS
+        return self.kind in SCIENCE_KINDS and not self.is_waypoint
+
+    @property
+    def category(self) -> str:
+        """NetCDF category: from :data:`KIND_CATEGORY`, ``other`` for a waypoint."""
+        return "other" if self.is_waypoint else KIND_CATEGORY[self.kind]
 
     @property
     def depth_m(self) -> float | None:

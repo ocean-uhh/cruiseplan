@@ -17,11 +17,11 @@ CONFIGS = [
 PARAMETERS = [
     "start_date",
     "start_time",
-    "default_vessel_speed",
-    "default_distance_between_stations",
-    "turnaround_time",
-    "ctd_descent_rate",
-    "ctd_ascent_rate",
+    "default_vessel_speed_kt",
+    "default_distance_between_stations_km",
+    "turnaround_time_minutes",
+    "ctd_descent_rate_m_s",
+    "ctd_ascent_rate_m_s",
 ]
 
 

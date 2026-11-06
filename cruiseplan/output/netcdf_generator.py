@@ -25,16 +25,6 @@ from cruiseplan.timeline.record import ActivityRecord
 
 logger = logging.getLogger(__name__)
 
-# NetCDF category of each record kind (CF trajectory rows)
-CATEGORY_BY_KIND = {
-    "station": "point_operation",
-    "mooring": "point_operation",
-    "port": "point_operation",
-    "line": "line_operation",
-    "area": "area_operation",
-    "transit": "transit",
-}
-
 
 def _provenance_attrs(config: CruiseConfig) -> dict[str, Any]:
     """Return provenance global attributes, with creation_date equal to date_created."""
@@ -127,7 +117,7 @@ class NetCDFGenerator:
         point_operations = []
         cf_names = {"CTD": "CTD_profile"}
         for event in timeline:
-            if event.kind not in {"station", "mooring"}:
+            if event.kind not in {"station", "mooring"} or not event.is_science:
                 continue
             op_type = event.op_type or event.kind
             if event.kind == "mooring":
@@ -139,7 +129,9 @@ class NetCDFGenerator:
                     "name": event.label,
                     "latitude": event.entry_lat,
                     "longitude": event.entry_lon,
-                    "water_depth": event.water_depth_m or 0.0,
+                    "water_depth": (
+                        np.nan if event.water_depth_m is None else event.water_depth_m
+                    ),
                     "operation_depth": event.operation_depth_m,
                     "category": "point_operation",
                     "type": cf_operation,
@@ -318,7 +310,7 @@ class NetCDFGenerator:
                     else float(event.operation_depth_m)
                 )
 
-                categories.append(CATEGORY_BY_KIND.get(event.kind, "other"))
+                categories.append(event.category)
                 types.append(event.op_type or "")
                 actions.append(event.action or "")
                 comments.append(event.comment or "")
@@ -812,7 +804,11 @@ class NetCDFGenerator:
         if "category" not in ds_master.data_vars:
             point_mask = []
         else:
+            # Stations and moorings; ports share the category but are not
+            # operations
             point_mask = ds_master["category"] == "point_operation"
+            if "type" in ds_master.data_vars:
+                point_mask = point_mask & (ds_master["type"] != "port")
 
         if len(point_mask) == 0 or not point_mask.any():
             logger.warning("No point operations found in master schedule")

@@ -358,7 +358,7 @@ def with_delays(delays: dict[str, float]) -> dict:
     cfg = load("pycnmix")
     for p in cfg["points"]:
         if p["name"] in delays:
-            p["delay_start"] = delays[p["name"]]
+            p["delay_start_minutes"] = delays[p["name"]]
     return cfg
 
 

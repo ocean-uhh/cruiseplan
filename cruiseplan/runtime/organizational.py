@@ -591,7 +591,7 @@ class Leg(BaseOrganizationUnit):
 
         # Get effective vessel speed for this leg
         default_speed = (
-            getattr(rules.config, "default_vessel_speed", 10.0)
+            getattr(rules.config, "default_vessel_speed_kt", 10.0)
             if hasattr(rules, "config")
             else 10.0
         )
@@ -865,10 +865,11 @@ class Leg(BaseOrganizationUnit):
         )
 
         # Set parameter overrides from leg definition
-        leg.vessel_speed = leg_def.vessel_speed
-        leg.turnaround_time = leg_def.turnaround_time
-        leg.distance_between_stations = leg_def.distance_between_stations
-        leg.delay_start = leg_def.delay_start
+        leg.vessel_speed = leg_def.vessel_speed_kt
+        leg.turnaround_time = leg_def.turnaround_time_minutes
+        leg.distance_between_stations = leg_def.distance_between_stations_km
+        leg.delay_start = leg_def.delay_start_minutes
+        leg.buffer_time = leg_def.buffer_time_minutes
 
         # Create default cluster for activities if no clusters are defined
         if leg_def.activities and not leg_def.clusters:

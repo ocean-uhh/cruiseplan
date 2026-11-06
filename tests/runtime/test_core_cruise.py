@@ -25,10 +25,10 @@ class TestCruise:
         """Set up common test data."""
         self.test_yaml_data = {
             "cruise_name": "Test Cruise 2024",
-            "default_vessel_speed": 10.0,
+            "default_vessel_speed_kt": 10.0,
             "calculate_transfer_between_sections": True,
             "calculate_depth_via_bathymetry": True,
-            "turnaround_time": 30.0,
+            "turnaround_time_minutes": 30.0,
             "points": [
                 {
                     "name": "STN_001",
@@ -36,8 +36,8 @@ class TestCruise:
                     "longitude": -20.0,
                     "operation_type": "CTD",
                     "action": "profile",
-                    "operation_depth": 1000.0,
-                    "water_depth": 1200.0,
+                    "operation_depth_m": 1000.0,
+                    "water_depth_m": 1200.0,
                 },
                 {
                     "name": "STN_002",
@@ -45,8 +45,8 @@ class TestCruise:
                     "longitude": -21.0,
                     "operation_type": "CTD",
                     "action": "profile",
-                    "operation_depth": 1500.0,
-                    "water_depth": 1800.0,
+                    "operation_depth_m": 1500.0,
+                    "water_depth_m": 1800.0,
                 },
                 {
                     "name": "STN_003",
@@ -63,7 +63,7 @@ class TestCruise:
                         {"latitude": 60.0, "longitude": -20.0},
                         {"latitude": 61.0, "longitude": -21.0},
                     ],
-                    "vessel_speed": 10.0,
+                    "vessel_speed_kt": 10.0,
                 }
             ],
             "areas": [
@@ -74,7 +74,7 @@ class TestCruise:
                         {"latitude": 61.0, "longitude": -20.0},
                         {"latitude": 61.0, "longitude": -21.0},
                     ],
-                    "duration": 480.0,
+                    "duration_minutes": 480.0,
                 }
             ],
             "ports": [
@@ -149,7 +149,7 @@ class TestCruise:
         """Test cruise with minimal configuration."""
         minimal_config = {
             "cruise_name": "Minimal Test",
-            "default_vessel_speed": 10.0,
+            "default_vessel_speed_kt": 10.0,
             "calculate_transfer_between_sections": True,
             "calculate_depth_via_bathymetry": True,
             "points": [
@@ -187,7 +187,7 @@ class TestCruise:
         """Test cruise with None values for optional lists."""
         config_with_nones = {
             "cruise_name": "Empty Test",
-            "default_vessel_speed": 10.0,
+            "default_vessel_speed_kt": 10.0,
             "calculate_transfer_between_sections": True,
             "calculate_depth_via_bathymetry": True,
             "points": None,

@@ -116,7 +116,7 @@ class TestNetCDFIntegration:
 
         minimal_config = CruiseConfig(
             cruise_name="Empty_Test_Cruise",
-            default_vessel_speed=10.0,
+            default_vessel_speed_kt=10.0,
             calculate_transfer_between_sections=False,
             calculate_depth_via_bathymetry=False,
             start_date="2025-01-01",

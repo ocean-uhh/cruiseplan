@@ -117,8 +117,8 @@ class TestTC1SingleIntegration:
         config = enriched_cruise.config
 
         # Verify values match constants exactly
-        assert config.default_vessel_speed == DEFAULT_VESSEL_SPEED_KT
-        assert config.default_distance_between_stations == DEFAULT_STATION_SPACING_KM
+        assert config.default_vessel_speed_kt == DEFAULT_VESSEL_SPEED_KT
+        assert config.default_distance_between_stations_km == DEFAULT_STATION_SPACING_KM
         assert config.start_date == DEFAULT_START_DATE
 
     def test_enrichment_with_depths(self, yaml_path, temp_dir):
@@ -140,9 +140,11 @@ class TestTC1SingleIntegration:
         enriched_station = enriched_cruise.point_registry["STN_001"]
 
         # Check depth value (already present in fixture, so no enrichment needed)
-        assert hasattr(enriched_station, "water_depth"), "Water depth should be present"
-        assert enriched_station.water_depth == 2850.0, (
-            f"Expected mocked depth 2850.0, got {enriched_station.water_depth}"
+        assert hasattr(enriched_station, "water_depth_m"), (
+            "Water depth should be present"
+        )
+        assert enriched_station.water_depth_m == 2850.0, (
+            f"Expected mocked depth 2850.0, got {enriched_station.water_depth_m}"
         )
 
     def test_enrichment_with_coords(self, yaml_path, temp_dir):
@@ -190,9 +192,11 @@ class TestTC1SingleIntegration:
         enriched_station = enriched_cruise.point_registry["STN_001"]
 
         # Check depth value (already present in fixture, so no enrichment needed)
-        assert hasattr(enriched_station, "water_depth"), "Water depth should be present"
-        assert enriched_station.water_depth == 2850.0, (
-            f"Expected mocked depth 2850.0, got {enriched_station.water_depth}"
+        assert hasattr(enriched_station, "water_depth_m"), (
+            "Water depth should be present"
+        )
+        assert enriched_station.water_depth_m == 2850.0, (
+            f"Expected mocked depth 2850.0, got {enriched_station.water_depth_m}"
         )
 
     def test_enrichment_complete_workflow(self, yaml_path, temp_dir):
@@ -222,8 +226,8 @@ class TestTC1SingleIntegration:
         config = enriched_cruise.config
 
         # Validate all default values match constants
-        assert config.default_vessel_speed == DEFAULT_VESSEL_SPEED_KT
-        assert config.default_distance_between_stations == DEFAULT_STATION_SPACING_KM
+        assert config.default_vessel_speed_kt == DEFAULT_VESSEL_SPEED_KT
+        assert config.default_distance_between_stations_km == DEFAULT_STATION_SPACING_KM
         assert config.start_date == DEFAULT_START_DATE
 
         # Check coordinate enrichment
@@ -233,8 +237,10 @@ class TestTC1SingleIntegration:
         assert enriched_station.get_ddm_comment() == "45 00.00'N, 045 00.00'W"
 
         # Check depth value (already present in fixture, so no enrichment needed)
-        assert hasattr(enriched_station, "water_depth"), "Water depth should be present"
-        assert enriched_station.water_depth == 2850.0  # Mocked value
+        assert hasattr(enriched_station, "water_depth_m"), (
+            "Water depth should be present"
+        )
+        assert enriched_station.water_depth_m == 2850.0  # Mocked value
 
         # Verify enrichment summary counts
         # Note: Now includes ports as coordinate enrichment targets
@@ -265,13 +271,13 @@ class TestTC1SingleIntegration:
         mooring_station = enriched_cruise.point_registry["MOORING_001"]
 
         # Check that duration was added with correct value
-        assert hasattr(mooring_station, "duration"), (
+        assert hasattr(mooring_station, "duration_minutes"), (
             "Mooring should have duration field"
         )
-        assert mooring_station.duration == DEFAULT_MOORING_DURATION_MIN, (
-            f"Expected {DEFAULT_MOORING_DURATION_MIN} minutes, got {mooring_station.duration}"
+        assert mooring_station.duration_minutes == DEFAULT_MOORING_DURATION_MIN, (
+            f"Expected {DEFAULT_MOORING_DURATION_MIN} minutes, got {mooring_station.duration_minutes}"
         )
-        assert mooring_station.duration == 59940.0, (
+        assert mooring_station.duration_minutes == 59940.0, (
             "Duration should be 59940 minutes (999 hours)"
         )
 
