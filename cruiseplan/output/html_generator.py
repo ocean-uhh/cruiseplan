@@ -280,10 +280,10 @@ class HTMLGenerator:
                 lat, lon = get_activity_position(mooring)
                 lat_ddm = _convert_decimal_to_deg_min_html(lat)
                 lon_ddm = _convert_decimal_to_deg_min_html(lon)
-                comment = mooring.comment
+                comment = mooring.comment or ""
                 depth = get_activity_depth(mooring)
                 depth_str = "fill" if depth == DEFAULT_DEPTH else f"{depth:.0f}"
-                action = mooring.action
+                action = mooring.action or "N/A"
 
                 html_content += f"""
         <tr>
@@ -412,7 +412,7 @@ class HTMLGenerator:
             <td>{exit_position}</td>
             <td class="number">{distance_nm}</td>
             <td class="number">{_duration_cell(activity)}</td>
-            <td>{activity.comment}</td>
+            <td>{activity.comment or ""}</td>
         </tr>
 """
 

@@ -347,7 +347,9 @@ def extract_points_from_timeline(
     entity_types = {"station": "station", "mooring": "mooring"}
     points = []
     for i, record in enumerate(timeline):
-        if record.kind in {"transit", "buffer"} or not _has_position(record):
+        # Lines and areas are drawn by the track and area layers, not as points
+        skip = {"transit", "buffer", "line", "area"}
+        if record.kind in skip or not _has_position(record):
             continue
         if record.kind == "port":
             if not include_ports:

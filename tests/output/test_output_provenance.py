@@ -116,31 +116,19 @@ def test_letsgo_station_test_uses_record_kind(tmp_path):
     assert kinds["Test Port"] is False
 
 
-def test_is_station_record_fallback_covers_ctd_and_prefixes():
-    """Records without operation_class fall back to the activity value and label prefix."""
+def test_is_station_record_by_kind():
+    """Stations and moorings count, by record kind; waypoints and ports do not."""
     from types import SimpleNamespace
 
-    def record(**kwargs):
-        kwargs.setdefault("label", "")
-        return SimpleNamespace(**kwargs)
+    def record(kind, op_type=""):
+        return SimpleNamespace(kind=kind, op_type=op_type)
 
-    # Older files: no usable operation_class, fall back to activity / label.
-    assert _is_station_record(record(operation_class="unknown", activity="CTD"))
-    assert _is_station_record(record(operation_class=None, activity="Mooring"))
-    assert _is_station_record(
-        record(operation_class="unknown", activity="T", label="FD-01")
-    )
-    assert _is_station_record(
-        record(operation_class="unknown", activity="T", label="svp-2")
-    )
-    assert not _is_station_record(
-        record(operation_class="unknown", activity="Transit", label="port call")
-    )
-    # Primary path keys on operation_class and op_type.
-    assert _is_station_record(record(operation_class="PointOperation", op_type="CTD"))
-    assert not _is_station_record(
-        record(operation_class="PointOperation", op_type="port")
-    )
+    assert _is_station_record(record("station", "CTD"))
+    assert _is_station_record(record("mooring", "mooring"))
+    assert not _is_station_record(record("station", "waypoint"))
+    assert not _is_station_record(record("port", "port"))
+    assert not _is_station_record(record("transit"))
+    assert not _is_station_record(record("line", "ADCP"))
 
 
 def test_html_unknown_leg_is_listed_separately():

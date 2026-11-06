@@ -112,11 +112,12 @@ def _float(
     return float(default)
 
 
-def _text(schedule: xr.Dataset, var: str, i: int, default: str) -> str:
-    """Value of *var* at row *i* as text, *default* if absent."""
+def _text(schedule: xr.Dataset, var: str, i: int, default: str | None) -> str | None:
+    """Value of *var* at row *i* as text; *default* if absent, empty or missing."""
     if var not in schedule.variables:
         return default
-    return str(schedule[var][i].values)
+    text = str(schedule[var][i].values)
+    return default if text in {"", "nan", "None"} else text
 
 
 _KIND_BY_CATEGORY = {
@@ -189,6 +190,8 @@ def netcdf_to_activity_records(schedule: xr.Dataset) -> list[ActivityRecord]:
     ...     print(f"{record.label}: {record.activity}")
     """
     activity_records = []
+    if "vessel_speed" not in schedule.variables:
+        logger.warning("Schedule has no vessel_speed variable; record speeds are NaN")
 
     # Get the number of observations
     n_obs = len(schedule.time)
@@ -244,13 +247,11 @@ def netcdf_to_activity_records(schedule: xr.Dataset) -> list[ActivityRecord]:
                 planned_duration_minutes=duration_minutes,
                 dist_nm=_number(schedule, "dist_nm", i, 0.0) or 0.0,
                 transit_dist_nm=_number(schedule, "distance_to_next", i, 0.0) or 0.0,
-                vessel_speed_kt=_float(schedule, "vessel_speed", i, 10.0),
+                vessel_speed_kt=_float(schedule, "vessel_speed", i, np.nan),
                 leg_name=_text(schedule, "leg_assignment", i, "unknown"),
                 op_type=_text(schedule, "type", i, _text(schedule, "category", i, "")),
                 operation_class=_text(schedule, "operation_class", i, "unknown"),
-                action=_text(schedule, "action", i, "")
-                if "action" in schedule.variables
-                else None,
+                action=_text(schedule, "action", i, None),
                 operation_depth_m=_number(schedule, "operation_depth", i, None),
                 water_depth_m=_number(schedule, "water_depth", i, None),
                 delay_start_minutes=_number(schedule, "delay_start", i, None),
@@ -259,7 +260,7 @@ def netcdf_to_activity_records(schedule: xr.Dataset) -> list[ActivityRecord]:
                     if "duration_fill_flag" in schedule.variables
                     else False
                 ),
-                comment=comment if comment and comment != "nan" else "",
+                comment=comment,
             )
         )
 

@@ -101,3 +101,92 @@ def test_leg_statistics_count_every_station(tc4):
     assert stats["stations"] == 2
     named = stats["stations"] + stats["moorings"] + stats["surveys"] + stats["areas"]
     assert named == stats["total_scientific"]
+
+
+def test_netcdf_category_and_line_ends_by_kind(tc4, tmp_path):
+    """Schedule rows: one category per kind; the line keeps its two ends."""
+    import xarray as xr
+
+    from cruiseplan.output.netcdf_generator import NetCDFGenerator
+
+    cruise, timeline = tc4
+    out = tmp_path / "s.nc"
+    NetCDFGenerator().generate_master_schedule(timeline, cruise.config, out)
+    with xr.open_dataset(out) as ds:
+        category = dict(zip(ds.name.values, ds.category.values, strict=True))
+        names = list(ds.name.values)
+        line = names.index("ADCP_Survey")
+        start = (float(ds.start_latitude[line]), float(ds.start_longitude[line]))
+        end = (float(ds.end_latitude[line]), float(ds.end_longitude[line]))
+        actions = [str(a) for a in ds.action.values]
+    assert category["ADCP_Survey"] == "line_operation"
+    assert category["Area_01"] == "area_operation"
+    assert category["STN_001"] == "point_operation"
+    assert category["Halifax"] == "point_operation"
+    assert category["Transit to STN_001"] == "transit"
+    assert start == pytest.approx((46.0, -50.0))
+    assert end == pytest.approx((47.0, -50.0))
+    assert "None" not in actions
+
+
+def test_netcdf_point_and_line_files_from_records(tc4, tmp_path):
+    """Derived files are built from the records, not the catalog."""
+    import xarray as xr
+
+    from cruiseplan.output.netcdf_generator import NetCDFGenerator
+
+    cruise, timeline = tc4
+    gen = NetCDFGenerator()
+    points, lines = tmp_path / "p.nc", tmp_path / "l.nc"
+    # An empty catalog: the record alone carries the station
+    gen.generate_point_operations(
+        cruise.config.model_copy(update={"points": []}), timeline, points
+    )
+    gen.generate_line_operations(cruise.config, timeline, lines)
+    with xr.open_dataset(points) as ds:
+        assert [str(n) for n in ds.station_name.values] == ["STN_001"]
+    with xr.open_dataset(lines) as ds:
+        assert [str(n) for n in ds.name.values] == ["ADCP_Survey"]
+        assert ds.latitude.values.ravel().tolist() == pytest.approx([46.0, 47.0])
+
+
+def test_map_points_leave_out_lines_and_areas(tc4):
+    """Lines and areas are drawn by their own layers, not as points."""
+    _, timeline = tc4
+    names = {p["name"] for p in extract_points_from_timeline(timeline)}
+    assert "ADCP_Survey" not in names
+    assert "Area_01" not in names
+
+
+def test_buffers_are_not_science_or_transit():
+    """pycnmix legs end with a buffer: not scientific, not transit time."""
+    import cruiseplan
+    from cruiseplan.timeline.scheduler import _categorize_activities
+
+    pycnmix = Path(__file__).parents[2] / "data" / "pycnmix-2026-v1.yaml"
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        logging.disable(logging.WARNING)
+        try:
+            timeline = cruiseplan.schedule(config_file=pycnmix, format=None).timeline
+        finally:
+            logging.disable(logging.NOTSET)
+    buffers = [r for r in timeline if r.kind == "buffer"]
+    assert buffers
+    groups = _categorize_activities(timeline)
+    grouped = {id(r) for group in groups.values() for r in group}
+    assert not any(id(r) in grouped for r in buffers)
+    for stats in _calculate_leg_statistics(timeline).values():
+        named = (
+            stats["stations"] + stats["moorings"] + stats["surveys"] + stats["areas"]
+        )
+        assert named == stats["total_scientific"]
+
+
+def test_html_has_no_none_cells(tc4, tmp_path):
+    """Missing comments and actions print as empty, not 'None'."""
+    from cruiseplan.output.html_generator import generate_html_schedule
+
+    cruise, timeline = tc4
+    html = generate_html_schedule(cruise.config, timeline, tmp_path / "s.html")
+    assert "<td>None</td>" not in Path(html).read_text()

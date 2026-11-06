@@ -25,6 +25,16 @@ from cruiseplan.timeline.record import ActivityRecord
 
 logger = logging.getLogger(__name__)
 
+# NetCDF category of each record kind (CF trajectory rows)
+CATEGORY_BY_KIND = {
+    "station": "point_operation",
+    "mooring": "point_operation",
+    "port": "point_operation",
+    "line": "line_operation",
+    "area": "area_operation",
+    "transit": "transit",
+}
+
 
 def _provenance_attrs(config: CruiseConfig) -> dict[str, Any]:
     """Return provenance global attributes, with creation_date equal to date_created."""
@@ -113,58 +123,31 @@ class NetCDFGenerator:
         """
         logger.info(f"Generating point operations NetCDF: {output_path}")
 
-        # Extract point operations from timeline (calculated durations) and match with station config
+        # Point operations from the timeline records
         point_operations = []
-
-        # Create a lookup for station info
-        station_lookup = {station.name: station for station in (config.points or [])}
-
-        # Get point operations from timeline
+        cf_names = {"CTD": "CTD_profile"}
         for event in timeline:
-            if event.activity in ["Station", "Mooring"]:
-                station_name = event.label
-                station = station_lookup.get(station_name)
-
-                if (
-                    station
-                    and hasattr(station, "latitude")
-                    and hasattr(station, "longitude")
-                ):
-                    # Map operation_type enum to string
-                    operation_type = (
-                        station.operation_type.value
-                        if hasattr(station.operation_type, "value")
-                        else str(station.operation_type)
-                    )
-
-                    # Map to CF-compliant operation names
-                    operation_mapping = {
-                        "CTD": "CTD_profile",
-                        "water_sampling": "water_sampling",
-                        "calibration": "calibration",
-                        "mooring": f"Mooring_{getattr(station, 'action', 'operation').lower()}",
-                    }
-                    cf_operation = operation_mapping.get(operation_type, operation_type)
-
-                    point_operations.append(
-                        {
-                            "name": station.name,
-                            "latitude": station.latitude,
-                            "longitude": station.longitude,
-                            "water_depth": getattr(station, "water_depth", None)
-                            or getattr(station, "depth", 0.0)
-                            or 0.0,
-                            "operation_depth": getattr(
-                                station, "operation_depth", None
-                            ),
-                            "category": "point_operation",
-                            "type": cf_operation,
-                            "action": getattr(station, "action", "unknown"),
-                            "duration": event.duration_minutes
-                            / 60.0,  # Convert calculated minutes to hours
-                            "comment": getattr(station, "comment", ""),
-                        }
-                    )
+            if event.kind not in {"station", "mooring"}:
+                continue
+            op_type = event.op_type or event.kind
+            if event.kind == "mooring":
+                cf_operation = f"Mooring_{(event.action or 'operation').lower()}"
+            else:
+                cf_operation = cf_names.get(op_type, op_type)
+            point_operations.append(
+                {
+                    "name": event.label,
+                    "latitude": event.entry_lat,
+                    "longitude": event.entry_lon,
+                    "water_depth": event.water_depth_m or 0.0,
+                    "operation_depth": event.operation_depth_m,
+                    "category": "point_operation",
+                    "type": cf_operation,
+                    "action": event.action or "unknown",
+                    "duration": event.duration_minutes / 60.0,
+                    "comment": event.comment or "",
+                }
+            )
 
         n_operations = len(point_operations)
         logger.info(f"Found {n_operations} point operations")
@@ -270,13 +253,6 @@ class NetCDFGenerator:
                 }
             )
         else:
-            # Create a lookup for line definitions with routes
-            line_lookup = {}
-            if hasattr(config, "lines") and config.lines:
-                for line in config.lines:
-                    if hasattr(line, "route") and line.route:
-                        line_lookup[line.name] = line
-
             # Extract timeline data
             times = []
             lats = []
@@ -342,33 +318,17 @@ class NetCDFGenerator:
                     else float(event.operation_depth_m)
                 )
 
-                # Category mapping for CF compliance while preserving activity
-                if activity in ["Station", "Mooring", "Port"]:
-                    categories.append("point_operation")
-                elif activity == "Area":
-                    categories.append("area_operation")
-                elif activity == "Transit" and event.action:
-                    categories.append("line_operation")
-                elif activity == "Transit":
-                    categories.append("transit")
-                else:
-                    categories.append("other")
-
-                types.append(event.op_type)
-                actions.append(event.action)
+                categories.append(CATEGORY_BY_KIND.get(event.kind, "other"))
+                types.append(event.op_type or "")
+                actions.append(event.action or "")
                 comments.append(event.comment or "")
 
                 # Start/end coordinates of line operations (NaN for other rows)
-                line_def = line_lookup.get(event.label)
-                if activity == "Transit" and event.action:
+                if event.kind == "line":
                     start_lats.append(event.entry_lat)
                     start_lons.append(event.entry_lon)
-                    if line_def and len(line_def.route) >= 2:
-                        end_lats.append(line_def.route[-1].latitude)
-                        end_lons.append(line_def.route[-1].longitude)
-                    else:
-                        end_lats.append(event.entry_lat)
-                        end_lons.append(event.entry_lon)
+                    end_lats.append(event.exit_lat)
+                    end_lons.append(event.exit_lon)
                 else:
                     start_lats.append(np.nan)
                     start_lons.append(np.nan)
@@ -378,7 +338,7 @@ class NetCDFGenerator:
             # Compute actual distance-to-next values based on transit activities
             # This matches the logic from stationplan_api.py but moves it into the NetCDF generation
             for i, event in enumerate(timeline):
-                if event.activity == "Transit" and i > 0:
+                if event.kind == "transit" and i > 0:
                     distances_to_next[i - 1] = event.dist_nm
 
             # Convert to numpy arrays
@@ -1058,65 +1018,24 @@ class NetCDFGenerator:
         """
         logger.info(f"Generating line operations NetCDF: {output_path}")
 
-        # Create a lookup for line definitions with routes
-        line_lookup = {}
-        if hasattr(config, "lines") and config.lines:
-            for line in config.lines:
-                if hasattr(line, "route") and line.route:
-                    line_lookup[line.name] = line
-
-        # Extract line operations from timeline (scientific transits)
-        line_operations = []
-        for event in timeline:
-            if event.activity == "Transit" and event.action:
-                # This is a scientific transit with action (ADCP, bathymetry, etc.)
-                transit_name = event.label
-                line_def = line_lookup.get(transit_name)
-
-                if line_def and len(line_def.route) >= 2:
-                    # Use actual route start and end points from YAML
-                    start_point = line_def.route[0]
-                    end_point = line_def.route[-1]
-
-                    line_operations.append(
-                        {
-                            "name": event.label,
-                            "category": "line_operation",
-                            "type": event.op_type,
-                            "action": event.action or "unknown",
-                            "start_lat": start_point.latitude,
-                            "start_lon": start_point.longitude,
-                            "end_lat": end_point.latitude,
-                            "end_lon": end_point.longitude,
-                            "vessel_speed": event.vessel_speed_kt,
-                            "duration": event.duration_minutes
-                            / 60.0,  # Convert to hours
-                            "comment": getattr(line_def, "comment", ""),
-                        }
-                    )
-                else:
-                    # Fallback: use event position with small offset (previous behavior)
-                    start_lat = event.entry_lat
-                    start_lon = event.entry_lon
-                    operation_dist = event.dist_nm
-                    lat_offset = operation_dist / 60.0
-
-                    line_operations.append(
-                        {
-                            "name": event.label,
-                            "category": "line_operation",
-                            "type": event.op_type,
-                            "action": event.action or "unknown",
-                            "start_lat": start_lat,
-                            "start_lon": start_lon,
-                            "end_lat": start_lat + lat_offset,
-                            "end_lon": start_lon,
-                            "vessel_speed": event.vessel_speed_kt,
-                            "duration": event.duration_minutes
-                            / 60.0,  # Convert to hours
-                            "comment": "",  # No comment available for fallback case
-                        }
-                    )
+        # Line operations: start and end of each line record
+        line_operations = [
+            {
+                "name": event.label,
+                "category": "line_operation",
+                "type": event.op_type or "",
+                "action": event.action or "unknown",
+                "start_lat": event.entry_lat,
+                "start_lon": event.entry_lon,
+                "end_lat": event.exit_lat,
+                "end_lon": event.exit_lon,
+                "vessel_speed": event.vessel_speed_kt,
+                "duration": event.duration_minutes / 60.0,
+                "comment": event.comment or "",
+            }
+            for event in timeline
+            if event.kind == "line"
+        ]
 
         n_operations = len(line_operations)
         logger.info(f"Found {n_operations} line operations")

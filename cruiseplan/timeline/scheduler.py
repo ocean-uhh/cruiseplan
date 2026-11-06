@@ -141,8 +141,7 @@ def _categorize_activities(timeline: Timeline) -> dict[str, list]:
                 groups["port_transits_from_area"].append(record)
             else:
                 groups["within_area_transits"].append(record)
-        else:
-            groups["within_area_transits"].append(record)
+        # Buffers are contingency time, in no group
     return groups
 
 
@@ -300,10 +299,9 @@ def _calculate_leg_statistics(timeline: Timeline) -> dict[str, dict[str, int]]:
             stats["ports"] += 1
         elif record.kind == "transit":
             stats["transits"] += 1
-        else:
+        elif record.is_science:
             stats["total_scientific"] += 1
-            if record.kind in counter:
-                stats[counter[record.kind]] += 1
+            stats[counter[record.kind]] += 1
     return leg_stats
 
 

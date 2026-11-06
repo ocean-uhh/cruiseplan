@@ -7,7 +7,6 @@ import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock
 
-import pytest
 from legacy_records import as_records
 
 from cruiseplan.config.cruise_config import CruiseConfig
@@ -48,9 +47,6 @@ class TestConversionFunctions:
         assert result == "01 00.000"
 
 
-@pytest.mark.skip(
-    reason="Obsolete after scheduler refactor - _calculate_summary_statistics moved to scheduler.py"
-)
 class TestSummaryStatistics:
     """Test summary statistics calculation."""
 
@@ -198,14 +194,12 @@ class TestSummaryStatistics:
 
         stats = calculate_timeline_statistics(timeline)
 
-        # With new timeline-based categorization, all navigation transits go to within_area
-        # unless they are explicitly Port_Departure/Port_Arrival activities
-        assert (
-            stats["port_area"]["total_duration_h"] == 0.0
-        )  # No explicit port activities
-        assert stats["port_area"]["total_distance_nm"] == 0.0
-        assert stats["within_area"]["total_duration_h"] == 9.0  # (120 + 180 + 240) / 60
-        assert stats["within_area"]["total_distance_nm"] == 75.0  # 15 + 25 + 35
+        # No port records, so every transit is within the area
+        assert stats["port_transits_to_area"]["total_duration_h"] == 0.0
+        assert stats["port_transits_from_area"]["total_distance_nm"] == 0.0
+        within = stats["within_area_transits"]
+        assert within["total_duration_h"] == 9.0  # (120 + 180 + 240) / 60
+        assert within["total_distance_nm"] == 75.0  # 15 + 25 + 35
 
     def test_calculate_summary_statistics_mixed_activities(self):
         """Test statistics calculation with mixed activity types."""

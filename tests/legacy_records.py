@@ -16,6 +16,8 @@ _RENAMED = {
     "operation_depth": "operation_depth_m",
     "water_depth": "water_depth_m",
     "delay_start": "delay_start_minutes",
+    "depth": "water_depth_m",
+    "operation_dist_nm": "dist_nm",
 }
 _CLASS_BY_ACTIVITY = {
     "Transit": "NavigationalTransit",
@@ -37,7 +39,12 @@ def as_record(row: dict) -> ActivityRecord:
     operation_class = data.get(
         "operation_class", _CLASS_BY_ACTIVITY.get(activity, "PointOperation")
     )
+    if activity == "Transit" and data.get("action") and "operation_class" not in data:
+        # Before 0.6.0 a survey line was a transit with an action
+        operation_class = "LineOperation"
     op_type = data.get("op_type") or data.get("operation_type") or ""
+    if not op_type and activity == "Mooring":
+        op_type = "mooring"
     lat = data.get("entry_lat", data.get("lat", 0.0))
     lon = data.get("entry_lon", data.get("lon", 0.0))
     start = data.get("start_time", data.get("time", datetime(2024, 1, 1)))

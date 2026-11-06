@@ -65,20 +65,9 @@ def _format_duration_hours(activity: ActivityRecord) -> str:
 
 
 def _is_station_record(record: ActivityRecord) -> bool:
-    """Return True for a point operation at sea (station or mooring), by record kind."""
-    operation_class = getattr(record, "operation_class", None)
-    if operation_class and operation_class != "unknown":
-        op_type = str(getattr(record, "op_type", "") or "").lower()
-        return operation_class == "PointOperation" and op_type not in {
-            "port",
-            "waypoint",
-        }
-    # Files written before operation_class was stored: fall back to the activity
-    # value and the station label prefixes the old pattern-matching rule used.
-    if getattr(record, "activity", None) in {"Station", "Mooring", "CTD"}:
-        return True
-    label = str(getattr(record, "label", "") or "").lower()
-    return label.startswith(("ctd", "fd-", "ds-", "svp", "yoyo"))
+    """Return True for a station or mooring record (waypoints excluded)."""
+    op_type = (record.op_type or "").lower()
+    return record.kind in {"station", "mooring"} and op_type != "waypoint"
 
 
 class LaTeXGenerator:
@@ -170,22 +159,13 @@ class LaTeXGenerator:
         List[Dict[str, str]]
             List of dictionaries with station data for LaTeX table.
         """
-        # Filter out non-science operations (exclude pure transit activities and ports)
-        science_operations = [
-            activity
-            for activity in timeline
-            if activity.operation_class
-            in {"PointOperation", "LineOperation", "AreaOperation"}
-            and not activity.activity.startswith("Port")
-            and activity.op_type != "port"
-        ]
+        # Science records only (no ports, transits or buffers)
+        science_operations = [activity for activity in timeline if activity.is_science]
 
         # Format rows for the LaTeX template
         table_rows = []
         for op in science_operations:
-            operation_class = op.operation_class
-
-            if operation_class == "LineOperation":
+            if op.kind == "line":
                 # Line operations (surveys): start and end of the line
                 start_pos_str = format_position_latex(op.entry_lat, op.entry_lon)
                 end_pos_str = format_position_latex(op.exit_lat, op.exit_lon)
@@ -203,7 +183,7 @@ class LaTeXGenerator:
                     }
                 )
 
-            elif operation_class == "AreaOperation":
+            elif op.kind == "area":
                 # Area operations (polygon-based operations like bathymetry surveys)
                 position_str = format_position_latex(op.entry_lat, op.entry_lon)
                 action = op.action
@@ -219,7 +199,7 @@ class LaTeXGenerator:
                     }
                 )
 
-            elif operation_class == "PointOperation":
+            else:
                 # Point operations (Station, Mooring)
                 position_str = format_position_latex(op.entry_lat, op.entry_lon)
                 activity_type = op.activity
@@ -466,23 +446,19 @@ class LaTeXGenerator:
             )
 
         # 2. Discover and process all scientific operations dynamically
-        # Group operations by (operation_class, op_type) combinations
+        # Group science records by (kind, op_type); ports, transits and
+        # buffers are reported separately
         operation_groups = {}
         for activity in timeline:
-            operation_class = activity.operation_class
-            op_type = activity.op_type
-
-            # Skip non-scientific operations (ports, transits)
-            if operation_class == "NavigationalTransit" or op_type == "port":
+            if not activity.is_science:
                 continue
-
-            key = (operation_class, op_type)
+            key = (activity.kind, activity.op_type)
             if key not in operation_groups:
                 operation_groups[key] = []
             operation_groups[key].append(activity)
 
         # Create summary rows for each operation type
-        for (operation_class, op_type), activities in operation_groups.items():
+        for (kind, op_type), activities in operation_groups.items():
             if not activities:
                 continue
 
@@ -490,25 +466,21 @@ class LaTeXGenerator:
             count = len(activities)
 
             # Determine activity name and notes based on operation class and type
-            if operation_class == "PointOperation":
-                if op_type == "station":
-                    activity_name = "CTD/Station Operations"
-                    notes = f"{count} stations"
-                elif op_type == "mooring":
-                    activity_name = "Mooring Operations"
-                    notes = f"{count} operations"
-                else:
-                    activity_name = f"{op_type.title()} Operations"
-                    notes = f"{count} operations"
-            elif operation_class == "LineOperation":
+            if kind == "mooring":
+                activity_name = "Mooring Operations"
+                notes = f"{count} operations"
+            elif kind == "line":
                 activity_name = "Scientific Surveys"
                 total_distance_nm = sum(a.dist_nm for a in activities)
                 notes = f"{count} surveys, {total_distance_nm:.1f} nm"
-            elif operation_class == "AreaOperation":
+            elif kind == "area":
                 activity_name = "Area Survey Operations"
                 notes = f"{count} survey areas"
+            elif op_type == "station":
+                activity_name = "CTD/Station Operations"
+                notes = f"{count} stations"
             else:
-                activity_name = f"{operation_class} Operations"
+                activity_name = f"{(op_type or 'station').title()} Operations"
                 notes = f"{count} operations"
 
             summary_rows.append(

@@ -384,11 +384,17 @@ def _build_tex_forecast_record(
         else 0.0
     )
 
-    from cruiseplan.forecast.reader import stored_kind
+    from cruiseplan.forecast.reader import _float, _text, stored_kind
 
+    kind = "transit" if index < 0 else stored_kind(schedule, index)
+    operation_classes = {
+        "line": "LineOperation",
+        "area": "AreaOperation",
+        "transit": "NavigationalTransit",
+    }
     return ActivityRecord(
-        kind="transit" if index < 0 else stored_kind(schedule, index),
-        activity=category,
+        kind=kind,
+        activity=_text(schedule, "activity", index, category),
         label=name,
         entry_lat=float(latitude),
         entry_lon=float(longitude),
@@ -402,12 +408,10 @@ def _build_tex_forecast_record(
         operation_depth_m=operation_depth,
         dist_nm=operation_distance,
         transit_dist_nm=next_transit_distance,
-        vessel_speed_kt=10.0,
+        vessel_speed_kt=_float(schedule, "vessel_speed", index, np.nan),
         leg_name="forecast",
         op_type=activity_type,
-        operation_class=(
-            "LineOperation" if operation_distance > 0.1 else "PointOperation"
-        ),
+        operation_class=operation_classes.get(kind, "PointOperation"),
         action=action if action else None,
         comment=comment,
     )
