@@ -373,15 +373,20 @@ class CruiseInstance:
                             port_ref, port_catalog=self.port_registry
                         )
                         # Create enriched port with action
-                        enriched_port = PointDefinition(
-                            name=port_definition.name,
-                            latitude=port_definition.latitude,
-                            longitude=port_definition.longitude,
-                            operation_type="port",
-                            action="mob",  # Departure ports are mobilization
-                            display_name=getattr(
-                                port_definition, "display_name", port_definition.name
-                            ),
+                        # A copy keeps the catalog entry's other fields
+                        # (timezone, equipment, delay_start_minutes, ...)
+                        enriched_port = PointDefinition.model_validate(
+                            {
+                                **port_definition.model_dump(exclude_none=True),
+                                "operation_type": "port",
+                                "action": "mob",  # Departure ports are mobilization
+                                "display_name": getattr(
+                                    port_definition,
+                                    "display_name",
+                                    port_definition.name,
+                                )
+                                or port_definition.name,
+                            }
                         )
                         leg_def.departure_port = enriched_port
                     except ValueError:
@@ -408,15 +413,20 @@ class CruiseInstance:
                             port_ref, port_catalog=self.port_registry
                         )
                         # Create enriched port with action
-                        enriched_port = PointDefinition(
-                            name=port_definition.name,
-                            latitude=port_definition.latitude,
-                            longitude=port_definition.longitude,
-                            operation_type="port",
-                            action="demob",  # Arrival ports are demobilization
-                            display_name=getattr(
-                                port_definition, "display_name", port_definition.name
-                            ),
+                        # A copy keeps the catalog entry's other fields
+                        # (timezone, equipment, delay_start_minutes, ...)
+                        enriched_port = PointDefinition.model_validate(
+                            {
+                                **port_definition.model_dump(exclude_none=True),
+                                "operation_type": "port",
+                                "action": "demob",  # Arrival ports are demobilization
+                                "display_name": getattr(
+                                    port_definition,
+                                    "display_name",
+                                    port_definition.name,
+                                )
+                                or port_definition.name,
+                            }
                         )
                         leg_def.arrival_port = enriched_port
                     except ValueError:

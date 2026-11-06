@@ -1099,7 +1099,7 @@ class StationPicker:
             comment="Interactive transect - Review route and update operation details",
             operation_type=LineOperationTypeEnum.DEFAULT,  # Uses placeholder value
             action=ActionEnum.DEFAULT_LINE,  # Uses placeholder value
-            vessel_speed=10.0,
+            vessel_speed_kt=10.0,
             route=[
                 GeoPoint(
                     latitude=round(float(line_data["start"]["lat"]), 5),
@@ -1121,7 +1121,7 @@ class StationPicker:
             comment="Interactive area survey - Review polygon and update operation details",
             operation_type=AreaOperationTypeEnum.DEFAULT,  # Uses placeholder value
             action=ActionEnum.DEFAULT_AREA,  # Uses placeholder value
-            duration=9999.0,  # Placeholder duration in minutes
+            duration_minutes=9999.0,  # Placeholder duration in minutes
             corners=[
                 GeoPoint(
                     latitude=round(float(lat), 5),

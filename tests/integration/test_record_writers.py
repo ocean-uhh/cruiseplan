@@ -247,3 +247,22 @@ def test_point_file_unknown_depth_is_nan(tc4, tmp_path):
     )
     with xr.open_dataset(tmp_path / "p.nc") as ds:
         assert np.isnan(float(ds.water_depth.values[0]))
+
+
+def test_waypoint_without_operation_class_reads_as_station(tc4, tmp_path):
+    """A stored waypoint (category other) is not read back as a buffer."""
+    import xarray as xr
+
+    from cruiseplan.forecast.reader import stored_kind
+    from cruiseplan.output.netcdf_generator import NetCDFGenerator
+
+    cruise, timeline = tc4
+    out = tmp_path / "s.nc"
+    NetCDFGenerator().generate_master_schedule(timeline, cruise.config, out)
+    with xr.open_dataset(out) as raw:
+        ds = raw.load()
+    i = list(ds.name.values).index("STN_001")
+    ds = ds.drop_vars("operation_class")
+    ds["type"].values[i] = "waypoint"
+    ds["category"].values[i] = "other"
+    assert stored_kind(ds, i) == "station"

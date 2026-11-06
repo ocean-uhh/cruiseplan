@@ -120,11 +120,12 @@ def _text(schedule: xr.Dataset, var: str, i: int, default: str | None) -> str | 
     return default if text in {"", "nan", "None"} else text
 
 
-# Categories that name one kind (point_operation covers several; see type)
+# Categories that name one kind. point_operation covers several kinds and
+# other covers buffers and waypoints; for those the type decides.
 _KIND_BY_CATEGORY = {
     category: kind
     for kind, category in KIND_CATEGORY.items()
-    if list(KIND_CATEGORY.values()).count(category) == 1
+    if list(KIND_CATEGORY.values()).count(category) == 1 and category != "other"
 }
 
 

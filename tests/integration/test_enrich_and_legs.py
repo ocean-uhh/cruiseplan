@@ -46,6 +46,11 @@ def test_enrich_keeps_port_timezone(tmp_path):
     (port,) = [p for p in ports if p["name"] == "port_lyttelton"]
     assert port["timezone"] == "GMT+13"
     assert port["equipment"] == "crane"
+    # Leg 1 refers to the port by name: its inline copy keeps them too
+    legs = yaml.safe_load(enriched.read_text())["legs"]
+    assert legs[0]["departure_port"]["timezone"] == "GMT+13"
+    assert legs[0]["departure_port"]["equipment"] == "crane"
+    assert legs[2]["arrival_port"]["timezone"] == "GMT+13"
 
 
 def test_timeline_without_runtime_legs_has_buffers():
@@ -62,3 +67,19 @@ def test_timeline_without_runtime_legs_has_buffers():
     buffers = [r for r in timeline if r.kind == "buffer"]
     assert [r.leg_name for r in buffers] == ["Leg1", "Leg2", "Leg3"]
     assert all(r.duration_minutes == 360.0 for r in buffers)
+
+
+def test_station_picker_lines_and_areas_keep_speed_and_duration():
+    """Interactive lines keep their speed, areas their duration."""
+    from cruiseplan.interactive.station_picker import StationPicker
+
+    line = StationPicker._create_line_definition(
+        None,
+        {"start": {"lat": 60.0, "lon": -40.0}, "end": {"lat": 61.0, "lon": -40.0}},
+        1,
+    )
+    area = StationPicker._create_area_definition(
+        None, {"points": [(-40.0, 60.0), (-39.0, 60.0), (-39.0, 61.0)]}, 1
+    )
+    assert line.vessel_speed_kt == 10.0
+    assert area.duration_minutes == 9999.0
