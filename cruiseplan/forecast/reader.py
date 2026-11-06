@@ -38,7 +38,7 @@ _MINUTES_PER_UNIT = {
 # units attribute: (variables, unit written, {unit read: factor})
 _CONVERSIONS = (
     (
-        ("distance",),
+        ("distance", "distance_to_next"),
         "nautical_mile",
         {
             "nautical_mile": 1.0,

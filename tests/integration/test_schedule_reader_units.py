@@ -69,16 +69,17 @@ def test_undecoded_times_are_decoded(which, new_file):
     )
 
 
-def test_distance_in_km_is_converted(new_file, tmp_path):
+@pytest.mark.parametrize("var", ["distance", "distance_to_next"])
+def test_distance_in_km_is_converted(new_file, var):
     """A distance stored in km is read in nautical miles."""
     with xr.open_dataset(new_file) as raw:
         ds = raw.load()
-    nm = ds.distance.values.copy()
-    ds["distance"] = ds.distance * 1.852
-    ds["distance"].attrs["units"] = "km"
+    nm = ds[var].values.copy()
+    attrs = {**ds[var].attrs, "units": "km"}
+    ds[var] = (ds[var] * 1.852).assign_attrs(attrs)
     converted = to_current_format(ds)
-    np.testing.assert_allclose(converted.distance.values, nm, rtol=1e-6)
-    assert converted.distance.attrs["units"] == "nautical_mile"
+    np.testing.assert_allclose(converted[var].values, nm, rtol=1e-6)
+    assert converted[var].attrs["units"] == "nautical_mile"
 
 
 def test_missing_units_say_how_to_fix(new_file):
