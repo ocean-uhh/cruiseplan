@@ -81,7 +81,7 @@ def run(
     -------
     tuple[ProcessResult, ScheduleResult]
         Results from both pipeline steps. process_result.config is the path
-        to the enriched YAML; schedule_result.timeline is the CruiseSchedule.
+        to the enriched YAML; schedule_result.timeline is the Timeline.
 
     Raises
     ------

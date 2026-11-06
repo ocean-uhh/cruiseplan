@@ -340,8 +340,8 @@ def test_current_position_in_kml_and_png(tmp_path, monkeypatch):
             current_position=here,
         )
     assert png.success
-    niss = next(r for r in captured["timeline"] if r["label"] == "NISS")
-    assert seconds(niss["start_time"], t_niss) <= T_TOL_S
+    niss = next(r for r in captured["timeline"] if r.label == "NISS")
+    assert seconds(niss.start_time, t_niss) <= T_TOL_S
     assert kml.success
     kml_text = (tmp_path / "plan.kml").read_text()
     niss_kml = kml_text[kml_text.index("<name>NISS</name>") :]
@@ -464,8 +464,8 @@ def test_netcdf_round_trip_keeps_delay_value(tmp_path):
         records = netcdf_to_activity_records(ds)
         ds.close()
     k = index_of(hand, "NIWA_DITN")
-    assert records[k].delay_start == -60.0
-    assert records[k - 1].delay_start is None  # the transit into it
+    assert records[k].delay_start_minutes == -60.0
+    assert records[k - 1].delay_start_minutes is None  # the transit into it
     with xr.open_dataset(netcdf_for(tmp_path, cfg, "rt2")) as ds:
         assert ds.delay_start.attrs["units"] == "minute"
 
@@ -483,7 +483,7 @@ def test_netcdf_without_delay_variable_still_reads(tmp_path):
         ds = read_schedule(old_path)
         records = netcdf_to_activity_records(ds)
         ds.close()
-    assert records[index_of(hand, "NIWA_DITN")].delay_start is None
+    assert records[index_of(hand, "NIWA_DITN")].delay_start_minutes is None
     t0 = datetime(2026, 3, 10, 6, 0)
     k = index_of(hand, "Transit to NIWA_DITN") - 1
     assert forecast_rows(old_path, k, t0) == forecast_rows(nc_path, k, t0)

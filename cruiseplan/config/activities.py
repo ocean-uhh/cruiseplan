@@ -50,6 +50,9 @@ class GeoPoint(BaseModel):
 
     latitude: float
     longitude: float
+    # Display strings written by enrich (add_coordinate_displays); not serialized
+    latitude_decmin: str | None = None
+    longitude_decmin: str | None = None
 
     @field_validator("latitude")
     def validate_lat(cls, v: float) -> float:
@@ -200,6 +203,8 @@ class PointDefinition(FlexibleLocationModel):
         Original position string for reference.
     history : Optional[str]
         Semicolon-delimited provenance string (e.g. how the point was created).
+    bathymetry_source : Optional[str]
+        Bathymetry dataset the water depth was read from (set by enrich).
     display_name : Optional[str]
         Human-readable display name (for ports).
     timezone : Optional[str]
@@ -222,6 +227,8 @@ class PointDefinition(FlexibleLocationModel):
     equipment: str | None = None
     position_string: str | None = None
     history: str | None = None
+    # Set by enrich when water_depth came from a bathymetry file
+    bathymetry_source: str | None = None
 
     # Port-specific fields
     display_name: str | None = None

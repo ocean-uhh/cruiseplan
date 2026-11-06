@@ -124,7 +124,7 @@ class TestStationplanTransitDistances:
 
         # Check for Transit activities
         transit_activities = [
-            activity for activity in timeline if activity.get("activity") == "Transit"
+            activity for activity in timeline if activity.activity == "Transit"
         ]
         assert len(transit_activities) > 0, (
             f"Expected at least one Transit activity in timeline. Activities found: {[activity.get('activity') for activity in timeline]}"
@@ -132,16 +132,14 @@ class TestStationplanTransitDistances:
 
         # Check that Transit activities have distance
         transit_with_distance = [
-            activity
-            for activity in transit_activities
-            if activity.get("dist_nm", 0) > 0
+            activity for activity in transit_activities if activity.dist_nm > 0
         ]
         assert len(transit_with_distance) > 0, (
             "Expected Transit activities to have distance > 0"
         )
 
         # Verify we have approximately 60 nm distance
-        distances = [activity.get("dist_nm", 0) for activity in transit_with_distance]
+        distances = [activity.dist_nm for activity in transit_with_distance]
         print(f"Transit distances found: {distances}")
 
         # Should be close to 60 nm (1 degree latitude)

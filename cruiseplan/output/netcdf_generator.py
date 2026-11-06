@@ -21,9 +21,19 @@ from cruiseplan.output.netcdf_metadata import (
     create_operation_variables,
 )
 from cruiseplan.output.provenance import planning_provenance
-from cruiseplan.timeline.scheduler import ActivityRecord
+from cruiseplan.timeline.record import ActivityRecord
 
 logger = logging.getLogger(__name__)
+
+# NetCDF category of each record kind (CF trajectory rows)
+CATEGORY_BY_KIND = {
+    "station": "point_operation",
+    "mooring": "point_operation",
+    "port": "point_operation",
+    "line": "line_operation",
+    "area": "area_operation",
+    "transit": "transit",
+}
 
 
 def _provenance_attrs(config: CruiseConfig) -> dict[str, Any]:
@@ -104,7 +114,7 @@ class NetCDFGenerator:
         return generated_files
 
     def generate_point_operations(
-        self, config: CruiseConfig, timeline: list[dict[str, Any]], output_path: Path
+        self, config: CruiseConfig, timeline: list[ActivityRecord], output_path: Path
     ) -> None:
         """
         Generate point operations NetCDF from stations and moorings.
@@ -113,58 +123,31 @@ class NetCDFGenerator:
         """
         logger.info(f"Generating point operations NetCDF: {output_path}")
 
-        # Extract point operations from timeline (calculated durations) and match with station config
+        # Point operations from the timeline records
         point_operations = []
-
-        # Create a lookup for station info
-        station_lookup = {station.name: station for station in (config.points or [])}
-
-        # Get point operations from timeline
+        cf_names = {"CTD": "CTD_profile"}
         for event in timeline:
-            if event["activity"] in ["Station", "Mooring"]:
-                station_name = event["label"]
-                station = station_lookup.get(station_name)
-
-                if (
-                    station
-                    and hasattr(station, "latitude")
-                    and hasattr(station, "longitude")
-                ):
-                    # Map operation_type enum to string
-                    operation_type = (
-                        station.operation_type.value
-                        if hasattr(station.operation_type, "value")
-                        else str(station.operation_type)
-                    )
-
-                    # Map to CF-compliant operation names
-                    operation_mapping = {
-                        "CTD": "CTD_profile",
-                        "water_sampling": "water_sampling",
-                        "calibration": "calibration",
-                        "mooring": f"Mooring_{getattr(station, 'action', 'operation').lower()}",
-                    }
-                    cf_operation = operation_mapping.get(operation_type, operation_type)
-
-                    point_operations.append(
-                        {
-                            "name": station.name,
-                            "latitude": station.latitude,
-                            "longitude": station.longitude,
-                            "water_depth": getattr(station, "water_depth", None)
-                            or getattr(station, "depth", 0.0)
-                            or 0.0,
-                            "operation_depth": getattr(
-                                station, "operation_depth", None
-                            ),
-                            "category": "point_operation",
-                            "type": cf_operation,
-                            "action": getattr(station, "action", "unknown"),
-                            "duration": event["duration_minutes"]
-                            / 60.0,  # Convert calculated minutes to hours
-                            "comment": getattr(station, "comment", ""),
-                        }
-                    )
+            if event.kind not in {"station", "mooring"}:
+                continue
+            op_type = event.op_type or event.kind
+            if event.kind == "mooring":
+                cf_operation = f"Mooring_{(event.action or 'operation').lower()}"
+            else:
+                cf_operation = cf_names.get(op_type, op_type)
+            point_operations.append(
+                {
+                    "name": event.label,
+                    "latitude": event.entry_lat,
+                    "longitude": event.entry_lon,
+                    "water_depth": event.water_depth_m or 0.0,
+                    "operation_depth": event.operation_depth_m,
+                    "category": "point_operation",
+                    "type": cf_operation,
+                    "action": event.action or "unknown",
+                    "duration": event.duration_minutes / 60.0,
+                    "comment": event.comment or "",
+                }
+            )
 
         n_operations = len(point_operations)
         logger.info(f"Found {n_operations} point operations")
@@ -270,21 +253,6 @@ class NetCDFGenerator:
                 }
             )
         else:
-            # Create station lookup for depth information
-            station_lookup = {
-                station.name: station for station in (config.points or [])
-            }
-
-            # Create a lookup for area definitions
-            area_lookup = {area.name: area for area in (config.areas or [])}
-
-            # Create a lookup for line definitions with routes
-            line_lookup = {}
-            if hasattr(config, "lines") and config.lines:
-                for line in config.lines:
-                    if hasattr(line, "route") and line.route:
-                        line_lookup[line.name] = line
-
             # Extract timeline data
             times = []
             lats = []
@@ -315,165 +283,53 @@ class NetCDFGenerator:
             fill_flags = []  # 1 where the duration is the fill value
             delay_starts = []  # minutes; NaN for rows without a delay field
 
+            def epoch_days(moment: datetime) -> float:
+                if moment.tzinfo is not None:
+                    moment = moment.astimezone(UTC).replace(tzinfo=None)
+                return (moment - datetime(1970, 1, 1)).total_seconds() / 86400.0
+
             for event in timeline:
-                # Convert time to days since epoch for CF compliance
-                time_obj = event.get("time", datetime.now())
-                if isinstance(time_obj, str):
-                    time_obj = datetime.fromisoformat(time_obj.replace("Z", "+00:00"))
-
-                # Handle timezone-aware datetime objects properly
-                if time_obj.tzinfo is not None:
-                    # Convert to UTC and then to naive datetime
-                    time_obj = time_obj.astimezone(UTC).replace(tzinfo=None)
-
-                epoch_days = (time_obj - datetime(1970, 1, 1)).total_seconds() / 86400.0
-                times.append(epoch_days)
-
-                lats.append(event["entry_lat"])
-                lons.append(event["entry_lon"])
-                names.append(event["label"])
-                leg_names.append(event["leg_name"])
-                durations.append(event["duration_minutes"] / 60.0)  # Convert to hours
-                fill_flags.append(1 if event.get("duration_is_fill") else 0)
-                delay = event.get("delay_start")
+                activity = event.activity
+                times.append(epoch_days(event.start_time))
+                end_times.append(epoch_days(event.end_time))
+                lats.append(event.entry_lat)
+                lons.append(event.entry_lon)
+                exit_lats.append(event.exit_lat)
+                exit_lons.append(event.exit_lon)
+                names.append(event.label)
+                leg_names.append(event.leg_name)
+                durations.append(event.duration_minutes / 60.0)
+                fill_flags.append(1 if event.duration_is_fill else 0)
+                delay = event.delay_start_minutes
                 delay_starts.append(np.nan if delay is None else float(delay))
-                vessel_speeds.append(event["vessel_speed_kt"])
-                # Will compute distance to next waypoint after processing all events
-                distances_to_next.append(0.0)  # Placeholder, will be computed below
+                vessel_speeds.append(event.vessel_speed_kt)
+                distances_to_next.append(0.0)  # filled in below
+                dist_nms.append(event.dist_nm)
+                activities.append(activity)
+                operation_classes.append(event.operation_class)
+                water_depths.append(
+                    np.nan
+                    if event.water_depth_m is None
+                    else float(event.water_depth_m)
+                )
+                operation_depths.append(
+                    np.nan
+                    if event.operation_depth_m is None
+                    else float(event.operation_depth_m)
+                )
 
-                # Extract additional ActivityRecord fields kept for the round trip
-                exit_lats.append(
-                    event.get("exit_lat", event["entry_lat"])
-                )  # Use entry_lat as fallback
-                exit_lons.append(
-                    event.get("exit_lon", event["entry_lon"])
-                )  # Use entry_lon as fallback
+                categories.append(CATEGORY_BY_KIND.get(event.kind, "other"))
+                types.append(event.op_type or "")
+                actions.append(event.action or "")
+                comments.append(event.comment or "")
 
-                # Extract end time, converting to epoch days if present
-                end_time_obj = event.get("end_time")
-                if end_time_obj:
-                    if isinstance(end_time_obj, str):
-                        end_time_obj = datetime.fromisoformat(
-                            end_time_obj.replace("Z", "+00:00")
-                        )
-                    if end_time_obj.tzinfo is not None:
-                        end_time_obj = end_time_obj.astimezone(UTC).replace(tzinfo=None)
-                    end_epoch_days = (
-                        end_time_obj - datetime(1970, 1, 1)
-                    ).total_seconds() / 86400.0
-                    end_times.append(end_epoch_days)
+                # Start/end coordinates of line operations (NaN for other rows)
+                if event.kind == "line":
+                    start_lats.append(event.entry_lat)
+                    start_lons.append(event.entry_lon)
+                    end_lats.append(event.exit_lat)
+                    end_lons.append(event.exit_lon)
                 else:
-                    end_times.append(np.nan)
-
-                dist_nms.append(event.get("dist_nm", 0.0))
-                activities.append(event.get("activity", "unknown"))
-                operation_classes.append(event.get("operation_class", "unknown"))
-
-                # Get water depth and operation depth from scheduler event (preferred) or station config (fallback)
-                activity = event["activity"]
-
-                # First try to get depths from scheduler event
-                water_depth = event.get("water_depth")
-                operation_depth = event.get("operation_depth")
-
-                # Fallback to station lookup if not in event
-                if (water_depth is None or operation_depth is None) and activity in [
-                    "Station",
-                    "Mooring",
-                ]:
-                    station_name = event["label"]
-                    station = station_lookup.get(station_name)
-                    if station:
-                        if water_depth is None:
-                            water_depth = getattr(
-                                station, "water_depth", None
-                            ) or getattr(station, "depth", None)
-                        if operation_depth is None:
-                            operation_depth = getattr(station, "operation_depth", None)
-
-                # Add depths to arrays
-                if water_depth is not None:
-                    water_depths.append(float(water_depth))
-                else:
-                    water_depths.append(np.nan)
-
-                if operation_depth is not None:
-                    operation_depths.append(float(operation_depth))
-                else:
-                    operation_depths.append(np.nan)
-
-                # Preserve original ActivityRecord fields instead of transforming
-                # Use the raw values from the ActivityRecord event data
-
-                # Category mapping for CF compliance while preserving activity
-                if activity in ["Station", "Mooring"]:
-                    categories.append("point_operation")
-                elif activity == "Area":
-                    categories.append("area_operation")
-                elif activity == "Transit" and event.get("action"):
-                    # Scientific transit with action (ADCP, bathymetry, etc.) = line operation
-                    categories.append("line_operation")
-                elif activity == "Transit":
-                    # Regular navigation transit
-                    categories.append("transit")
-                elif activity == "Port":
-                    categories.append("point_operation")
-                else:
-                    categories.append("other")
-
-                # Preserve original operation type and action from ActivityRecord
-                types.append(event.get("op_type", "unknown"))
-                actions.append(event.get("action", "unknown"))
-
-                # Add comment - prioritize ActivityRecord field, then fallback to config lookup
-                comment = ""
-
-                # First try to get comment directly from the timeline event
-                event_comment = getattr(event, "comment", None)
-                if event_comment:
-                    comment = str(event_comment)
-                # Fallback to config lookup for backward compatibility
-                elif activity in ["Station", "Mooring"]:
-                    station_name = event["label"]
-                    station = station_lookup.get(station_name)
-                    if station and hasattr(station, "comment"):
-                        comment = getattr(station, "comment", "") or ""
-                elif activity == "Area":
-                    area_name = event["label"]
-                    area = area_lookup.get(area_name)
-                    if area and hasattr(area, "comment"):
-                        comment = getattr(area, "comment", "") or ""
-                elif activity == "Transit":
-                    transit_name = event["label"]
-                    line = line_lookup.get(transit_name)
-                    if line and hasattr(line, "comment"):
-                        comment = getattr(line, "comment", "") or ""
-
-                comments.append(comment or "")
-
-                # Extract start/end coordinates for line operations
-                if activity == "Transit" and getattr(event, "action", None):
-                    # This is a line operation - use provided start coordinates
-                    start_lats.append(event.get("start_lat", event["entry_lat"]))
-                    start_lons.append(event.get("start_lon", event["entry_lon"]))
-                    # For end coordinates, use route end point from transit definition if available
-                    transit_name = event.label
-                    line_def = line_lookup.get(transit_name)
-
-                    if (
-                        line_def
-                        and hasattr(line_def, "route")
-                        and len(line_def.route) >= 2
-                    ):
-                        end_point = line_def.route[-1]
-                        end_lats.append(end_point.latitude)
-                        end_lons.append(end_point.longitude)
-                    else:
-                        # Fallback: use event position as end point
-                        end_lats.append(event["entry_lat"])
-                        end_lons.append(event["entry_lon"])
-                else:
-                    # Not a line operation - fill with NaN
                     start_lats.append(np.nan)
                     start_lons.append(np.nan)
                     end_lats.append(np.nan)
@@ -482,13 +338,8 @@ class NetCDFGenerator:
             # Compute actual distance-to-next values based on transit activities
             # This matches the logic from stationplan_api.py but moves it into the NetCDF generation
             for i, event in enumerate(timeline):
-                activity = event["activity"]
-                if activity == "Transit" and i > 0:
-                    # This is a transit - find the previous operation and store its distance to next
-                    prev_idx = i - 1
-                    transit_dist = event.get("dist_nm", 0.0)
-                    if prev_idx < len(distances_to_next):
-                        distances_to_next[prev_idx] = transit_dist
+                if event.kind == "transit" and i > 0:
+                    distances_to_next[i - 1] = event.dist_nm
 
             # Convert to numpy arrays
             times = np.array(times, dtype=np.float64)
@@ -791,7 +642,7 @@ class NetCDFGenerator:
         else:
             total_duration_days = 0.0
         provenance = planning_provenance(config)
-        fill_count = sum(1 for event in timeline if event.get("duration_is_fill"))
+        fill_count = sum(1 for event in timeline if event.duration_is_fill)
         ds.attrs.update(
             {
                 "featureType": "trajectory",
@@ -1167,69 +1018,24 @@ class NetCDFGenerator:
         """
         logger.info(f"Generating line operations NetCDF: {output_path}")
 
-        # Create a lookup for line definitions with routes
-        line_lookup = {}
-        if hasattr(config, "lines") and config.lines:
-            for line in config.lines:
-                if hasattr(line, "route") and line.route:
-                    line_lookup[line.name] = line
-
-        # Extract line operations from timeline (scientific transits)
-        line_operations = []
-        for event in timeline:
-            if event["activity"] == "Transit" and event.get("action"):
-                # This is a scientific transit with action (ADCP, bathymetry, etc.)
-                transit_name = event.label
-                line_def = line_lookup.get(transit_name)
-
-                if line_def and len(line_def.route) >= 2:
-                    # Use actual route start and end points from YAML
-                    start_point = line_def.route[0]
-                    end_point = line_def.route[-1]
-
-                    line_operations.append(
-                        {
-                            "name": event["label"],
-                            "category": "line_operation",
-                            "type": event.get("operation_type", "underway"),
-                            "action": event.get("action") or "unknown",
-                            "start_lat": start_point.latitude,
-                            "start_lon": start_point.longitude,
-                            "end_lat": end_point.latitude,
-                            "end_lon": end_point.longitude,
-                            "vessel_speed": event.get(
-                                "vessel_speed_kt", config.default_vessel_speed
-                            ),
-                            "duration": event["duration_minutes"]
-                            / 60.0,  # Convert to hours
-                            "comment": getattr(line_def, "comment", ""),
-                        }
-                    )
-                else:
-                    # Fallback: use event position with small offset (previous behavior)
-                    start_lat = event["entry_lat"]
-                    start_lon = event["entry_lon"]
-                    operation_dist = event.get("dist_nm", 10.0)
-                    lat_offset = operation_dist / 60.0
-
-                    line_operations.append(
-                        {
-                            "name": event["label"],
-                            "category": "line_operation",
-                            "type": event.get("operation_type", "underway"),
-                            "action": event.get("action") or "unknown",
-                            "start_lat": start_lat,
-                            "start_lon": start_lon,
-                            "end_lat": start_lat + lat_offset,
-                            "end_lon": start_lon,
-                            "vessel_speed": event.get(
-                                "vessel_speed_kt", config.default_vessel_speed
-                            ),
-                            "duration": event["duration_minutes"]
-                            / 60.0,  # Convert to hours
-                            "comment": "",  # No comment available for fallback case
-                        }
-                    )
+        # Line operations: start and end of each line record
+        line_operations = [
+            {
+                "name": event.label,
+                "category": "line_operation",
+                "type": event.op_type or "",
+                "action": event.action or "unknown",
+                "start_lat": event.entry_lat,
+                "start_lon": event.entry_lon,
+                "end_lat": event.exit_lat,
+                "end_lon": event.exit_lon,
+                "vessel_speed": event.vessel_speed_kt,
+                "duration": event.duration_minutes / 60.0,
+                "comment": event.comment or "",
+            }
+            for event in timeline
+            if event.kind == "line"
+        ]
 
         n_operations = len(line_operations)
         logger.info(f"Found {n_operations} line operations")

@@ -14,7 +14,6 @@ import numpy as np
 
 from cruiseplan.api.schedule_cruise import schedule
 from cruiseplan.forecast.reader import netcdf_to_activity_records, read_schedule
-from cruiseplan.timeline.scheduler import ActivityRecord
 
 
 def create_comprehensive_cruise_yaml():
@@ -116,15 +115,13 @@ def test_activity_record_netcdf_roundtrip():
         )
 
         # Create reference ActivityRecord objects from the original timeline
-        original_records = [
-            ActivityRecord(activity_data) for activity_data in original_timeline
-        ]
+        original_records = original_timeline
 
         # Debug: print activity types to understand the data
         print("\nActivity types in timeline:")
         for i, activity in enumerate(original_timeline):
             print(
-                f"  {i}: {activity['label']} -> activity='{activity['activity']}', category='{activity.get('category', 'N/A')}'"
+                f"  {i}: {activity.label} -> activity='{activity.activity}', kind='{activity.kind}'"
             )
 
         # Verify each record's fields with comprehensive comparison
@@ -202,28 +199,30 @@ def test_activity_record_netcdf_roundtrip():
                     f"Action mismatch: {recovered.action} != {orig.action}"
                 )
 
-            if orig.operation_depth is not None:
-                assert recovered.operation_depth is not None, (
+            if orig.operation_depth_m is not None:
+                assert recovered.operation_depth_m is not None, (
                     "Operation depth should not be None"
                 )
-                assert abs(recovered.operation_depth - orig.operation_depth) < 0.1, (
-                    f"Operation depth mismatch: {recovered.operation_depth} != {orig.operation_depth}"
+                assert (
+                    abs(recovered.operation_depth_m - orig.operation_depth_m) < 0.1
+                ), (
+                    f"Operation depth mismatch: {recovered.operation_depth_m} != {orig.operation_depth_m}"
                 )
             else:
-                assert recovered.operation_depth is None or np.isnan(
-                    recovered.operation_depth
+                assert recovered.operation_depth_m is None or np.isnan(
+                    recovered.operation_depth_m
                 ), "Operation depth should be None or NaN"
 
-            if orig.water_depth is not None:
-                assert recovered.water_depth is not None, (
+            if orig.water_depth_m is not None:
+                assert recovered.water_depth_m is not None, (
                     "Water depth should not be None"
                 )
-                assert abs(recovered.water_depth - orig.water_depth) < 0.1, (
-                    f"Water depth mismatch: {recovered.water_depth} != {orig.water_depth}"
+                assert abs(recovered.water_depth_m - orig.water_depth_m) < 0.1, (
+                    f"Water depth mismatch: {recovered.water_depth_m} != {orig.water_depth_m}"
                 )
             else:
-                assert recovered.water_depth is None or np.isnan(
-                    recovered.water_depth
+                assert recovered.water_depth_m is None or np.isnan(
+                    recovered.water_depth_m
                 ), "Water depth should be None or NaN"
 
         print(

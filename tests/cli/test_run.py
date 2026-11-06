@@ -9,6 +9,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+from legacy_records import as_records
 
 import cruiseplan
 from cruiseplan.cli.run import run
@@ -58,7 +59,7 @@ class TestRunThinCLI:
             },
         )
         schedule_result = cruiseplan.ScheduleResult(
-            timeline=[{"name": "CTD001", "duration_minutes": 60}],
+            timeline=as_records([{"name": "CTD001", "duration_minutes": 60}]),
             files_created=[
                 Path("data/test_schedule.csv"),
                 Path("data/test_schedule.html"),

@@ -435,7 +435,7 @@ def to_commented_dict(cruise_instance: "CruiseInstance") -> dict[str, Any]:
         ]
 
     # Where the water depths came from (written by enrich_depths)
-    provenance = (cruise_instance.config.model_extra or {}).get("bathymetry_provenance")
+    provenance = cruise_instance.config.bathymetry_provenance
     if provenance:
         output["bathymetry_provenance"] = dict(provenance)
 

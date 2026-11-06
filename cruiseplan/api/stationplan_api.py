@@ -9,7 +9,6 @@ import logging
 from dataclasses import dataclass
 from datetime import timedelta
 from pathlib import Path
-from typing import Any
 
 import numpy as np
 import xarray as xr
@@ -22,6 +21,7 @@ from cruiseplan.forecast.generator import (
 )
 from cruiseplan.forecast.reader import read_schedule
 from cruiseplan.output.kml_generator import KMLGenerator
+from cruiseplan.timeline.record import ActivityRecord, kind_of
 
 logger = logging.getLogger(__name__)
 
@@ -297,14 +297,6 @@ def stationplan_tex(
         return StationplanResult(success=False, message=error_msg, output="")
 
 
-class _ForecastRecord:
-    """Lightweight record holding processed forecast activity data for TeX output."""
-
-    def __init__(self, data: dict) -> None:
-        for key, value in data.items():
-            setattr(self, key, value)
-
-
 def _lookup_schedule_depth_data(
     schedule: xr.Dataset, index: int
 ) -> tuple[float | None, float | None, str]:
@@ -360,11 +352,8 @@ def _lookup_tex_exit_coords(
 
 def _build_tex_forecast_record(
     schedule: xr.Dataset, index: int, activity_tuple: tuple
-) -> "_ForecastRecord | None":
-    """Convert one forecast activity tuple to a _ForecastRecord for TeX output.
-
-    Returns None for transit activities.
-    """
+) -> "ActivityRecord | None":
+    """Convert one forecast row to a record for TeX output; None for transits."""
     (
         _idx,
         time,
@@ -395,30 +384,37 @@ def _build_tex_forecast_record(
         else 0.0
     )
 
-    record_data = {
-        "activity": category,
-        "label": name,
-        "entry_lat": float(latitude),
-        "entry_lon": float(longitude),
-        "exit_lat": float(exit_lat),
-        "exit_lon": float(exit_lon),
-        "start_time": time,
-        "end_time": end_time,
-        "duration_minutes": float(duration) * 60.0,
-        "water_depth": water_depth,
-        "operation_depth": operation_depth,
-        "dist_nm": operation_distance,
-        "transit_dist_nm": next_transit_distance,
-        "vessel_speed_kt": 10.0,
-        "leg_name": "forecast",
-        "op_type": activity_type,
-        "operation_class": (
-            "LineOperation" if operation_distance > 0.1 else "PointOperation"
-        ),
-        "action": action if action else None,
-        "comment": comment,
+    from cruiseplan.forecast.reader import _float, _text, stored_kind
+
+    kind = "transit" if index < 0 else stored_kind(schedule, index)
+    operation_classes = {
+        "line": "LineOperation",
+        "area": "AreaOperation",
+        "transit": "NavigationalTransit",
     }
-    return _ForecastRecord(record_data)
+    return ActivityRecord(
+        kind=kind,
+        activity=_text(schedule, "activity", index, category),
+        label=name,
+        entry_lat=float(latitude),
+        entry_lon=float(longitude),
+        exit_lat=float(exit_lat),
+        exit_lon=float(exit_lon),
+        start_time=time,
+        end_time=end_time,
+        duration_minutes=float(duration) * 60.0,
+        planned_duration_minutes=float(duration) * 60.0,
+        water_depth_m=water_depth,
+        operation_depth_m=operation_depth,
+        dist_nm=operation_distance,
+        transit_dist_nm=next_transit_distance,
+        vessel_speed_kt=_float(schedule, "vessel_speed", index, np.nan),
+        leg_name="forecast",
+        op_type=activity_type,
+        operation_class=operation_classes.get(kind, "PointOperation"),
+        action=action if action else None,
+        comment=comment,
+    )
 
 
 def stationplan_forecast_tex(
@@ -825,23 +821,6 @@ def _format_decimal_degrees(decimal_degrees: float, coord_type: str) -> str:
     return f"{decimal_degrees:9.5f}"
 
 
-def _add_depth_data_to_timeline_record(
-    record: dict, schedule: object, index: int
-) -> None:
-    """Populate water_depth and operation_depth on *record* from *schedule* if available."""
-    try:
-        if "water_depth" in schedule.variables:
-            depth_val = schedule.water_depth[index].values
-            if not np.isnan(float(depth_val)):
-                record["water_depth"] = float(depth_val)
-        if "operation_depth" in schedule.variables:
-            op_depth_val = schedule.operation_depth[index].values
-            if not np.isnan(float(op_depth_val)):
-                record["operation_depth"] = float(op_depth_val)
-    except (AttributeError, TypeError, ValueError, IndexError):
-        pass
-
-
 _WORK_CODE_BY_TYPE: dict[str, int] = {
     "ctd": 2,
     "station": 2,
@@ -878,7 +857,7 @@ def _map_activity_to_work_code(
 
 def _convert_raw_activity_to_kml_record(
     activity: tuple, schedule: xr.Dataset | None = None
-) -> dict | None:
+) -> "ActivityRecord | None":
     """Convert a forecast row to a KML record; None for transits or invalid positions."""
     import pandas as pd
 
@@ -908,24 +887,37 @@ def _convert_raw_activity_to_kml_record(
             return str(schedule[var][index].values).strip()
         return default
 
-    start = pd.to_datetime(time)
-    return {
-        "name": name,
-        "label": name,
-        "latitude": latitude,
-        "longitude": longitude,
-        "lat": latitude,
-        "lon": longitude,
-        "time": start,
-        "start_time": start,
-        "category": category,
-        "activity": stored("activity", "Station"),
-        "operation_class": stored("operation_class", "PointOperation"),
-        "activity_type": activity_type,
-        "action": action,
-        "duration": duration,
-        "duration_minutes": float(duration) * 60.0,
-    }
+    from cruiseplan.forecast.reader import stored_kind
+
+    operation_class = stored("operation_class", "PointOperation")
+    if operation_class not in {"PointOperation", "LineOperation", "AreaOperation"}:
+        return None  # only scientific operations and ports are shown
+    if schedule is not None and index >= 0:
+        kind = stored_kind(schedule, index)
+    else:
+        kind = kind_of(operation_class, activity_type)
+
+    start = pd.to_datetime(time).to_pydatetime()
+    minutes = float(duration) * 60.0
+    return ActivityRecord(
+        kind=kind,
+        activity=stored("activity", "Station"),
+        label=name,
+        entry_lat=float(latitude),
+        entry_lon=float(longitude),
+        exit_lat=float(latitude),
+        exit_lon=float(longitude),
+        start_time=start,
+        end_time=start + timedelta(minutes=minutes),
+        duration_minutes=minutes,
+        planned_duration_minutes=minutes,
+        dist_nm=0.0,
+        vessel_speed_kt=0.0,
+        leg_name=stored("leg_assignment", "forecast"),
+        op_type=activity_type,
+        operation_class=operation_class,
+        action=action or None,
+    )
 
 
 def stationplan_forecast_kml(
@@ -1006,24 +998,7 @@ def stationplan_forecast_kml(
 
         mock_config = MockCruiseConfig()
 
-        # Convert to ActivityRecord-like objects for KMLGenerator
-        class MockActivityRecord:
-            def __init__(self, data: dict[str, Any]) -> None:
-                for key, value in data.items():
-                    setattr(self, key, value)
-
-                # Convert to dict access for KML generator compatibility
-                self.data = data
-
-            def __getitem__(self, key: str) -> Any:  # noqa: ANN401 - activity dict values are heterogeneous
-                return self.data[key]
-
-            def get(self, key: str, default: Any = None) -> Any:  # noqa: ANN401 - mirrors dict.get
-                return self.data.get(key, default)
-
-        activity_records = [
-            MockActivityRecord(activity) for activity in forecast_activities
-        ]
+        activity_records = forecast_activities
 
         # Determine output path
         if output_path is None:
@@ -1175,23 +1150,30 @@ def stationplan_forecast_png(
             if category == "transit":
                 continue
 
-            # Create timeline record compatible with map generator
-            # The map generator extracts lat/lon and labels from these records
-            timeline_record = {
-                "activity": category,
-                "label": name,
-                "lat": float(latitude),  # Map generator expects "lat", not "entry_lat"
-                "lon": float(longitude),  # Map generator expects "lon", not "entry_lon"
-                "entry_lat": float(latitude),
-                "entry_lon": float(longitude),
-                "start_time": time,
-                "duration_minutes": float(duration) * 60.0,
-                "operation_class": "PointOperation",  # Simplified for forecast map
-                "leg_name": "forecast",
-                "op_type": activity_type,
-            }
-
-            _add_depth_data_to_timeline_record(timeline_record, schedule, index)
+            water_depth, operation_depth, _ = _lookup_schedule_depth_data(
+                schedule, index
+            )
+            minutes = float(duration) * 60.0
+            timeline_record = ActivityRecord(
+                kind="station",
+                activity=category,
+                label=name,
+                entry_lat=float(latitude),
+                entry_lon=float(longitude),
+                exit_lat=float(latitude),
+                exit_lon=float(longitude),
+                start_time=time,
+                end_time=time + timedelta(minutes=minutes),
+                duration_minutes=minutes,
+                planned_duration_minutes=minutes,
+                dist_nm=0.0,
+                vessel_speed_kt=0.0,
+                operation_class="PointOperation",
+                leg_name="forecast",
+                op_type=activity_type,
+                water_depth_m=water_depth,
+                operation_depth_m=operation_depth,
+            )
 
             timeline_for_map.append(timeline_record)
 

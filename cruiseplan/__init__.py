@@ -93,15 +93,15 @@ from cruiseplan.api.types import (
 )
 from cruiseplan.config.exceptions import BathymetryError, FileError, ValidationError
 from cruiseplan.data.bathymetry import download_bathymetry
-from cruiseplan.timeline import CruiseSchedule
+from cruiseplan.timeline import ActivityRecord, Timeline
 
 logger = logging.getLogger(__name__)
 
 # Export the core classes for advanced users
 __all__ = [
+    "ActivityRecord",
     "BathymetryError",
     "BathymetryResult",
-    "CruiseSchedule",
     "EnrichResult",
     "FileError",
     "MapResult",
@@ -110,6 +110,7 @@ __all__ = [
     "ScheduleResult",
     "StationPickerResult",
     "StationplanResult",
+    "Timeline",
     "ValidationError",
     "ValidationResult",
     "bathymetry",
@@ -138,3 +139,10 @@ __all__ = [
     "validate",
     "validate_with_config",
 ]
+
+
+def __getattr__(name: str) -> object:
+    """Resolve deprecated names (CruiseSchedule) with a warning."""
+    from cruiseplan import _deprecated
+
+    return _deprecated.module_getattr(__name__, name, {"CruiseSchedule": Timeline})

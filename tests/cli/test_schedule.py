@@ -10,6 +10,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+from legacy_records import as_records
 
 import cruiseplan
 from cruiseplan.cli.schedule import run
@@ -32,10 +33,12 @@ class TestScheduleThinCLI:
         with patch("cruiseplan.schedule") as mock_schedule:
             # Mock successful schedule response
             mock_schedule.return_value = cruiseplan.ScheduleResult(
-                timeline=[
-                    {"activity": "Transit", "duration_minutes": 120},
-                    {"activity": "Station CTD_001", "duration_minutes": 60},
-                ],
+                timeline=as_records(
+                    [
+                        {"activity": "Transit", "duration_minutes": 120},
+                        {"activity": "Station CTD_001", "duration_minutes": 60},
+                    ]
+                ),
                 files_created=[
                     Path("data/test_schedule.html"),
                     Path("data/test_schedule.csv"),
@@ -90,7 +93,7 @@ class TestScheduleThinCLI:
 
         with patch("cruiseplan.schedule") as mock_schedule:
             mock_schedule.return_value = cruiseplan.ScheduleResult(
-                timeline=[{"activity": "Custom", "duration_minutes": 90}],
+                timeline=as_records([{"activity": "Custom", "duration_minutes": 90}]),
                 files_created=[Path("/custom/output/my_schedule.html")],
                 summary={
                     "activities": 1,
@@ -139,7 +142,7 @@ class TestScheduleThinCLI:
             patch("builtins.print") as mock_print,
         ):
             mock_schedule.return_value = cruiseplan.ScheduleResult(
-                timeline=[{"activity": "Test", "duration_minutes": 60}],
+                timeline=as_records([{"activity": "Test", "duration_minutes": 60}]),
                 files_created=[Path("test_schedule.html")],
                 summary={
                     "activities": 1,
@@ -272,7 +275,7 @@ class TestScheduleThinCLI:
 
         with patch("cruiseplan.schedule") as mock_schedule:
             mock_schedule.return_value = cruiseplan.ScheduleResult(
-                timeline=[{"activity": "Test", "duration_minutes": 30}],
+                timeline=as_records([{"activity": "Test", "duration_minutes": 30}]),
                 files_created=[Path("data/test_schedule.csv")],
                 summary={"activities": 1, "files_generated": 1},
             )
@@ -329,10 +332,12 @@ class TestScheduleResultType:
 
     def test_schedule_result_success(self):
         """Test ScheduleResult with successful schedule generation."""
-        timeline = [
-            {"activity": "Transit", "duration_minutes": 120},
-            {"activity": "Station", "duration_minutes": 90},
-        ]
+        timeline = as_records(
+            [
+                {"activity": "Transit", "duration_minutes": 120},
+                {"activity": "Station", "duration_minutes": 90},
+            ]
+        )
         result = cruiseplan.ScheduleResult(
             timeline=timeline,
             files_created=[Path("schedule.html"), Path("schedule.csv")],

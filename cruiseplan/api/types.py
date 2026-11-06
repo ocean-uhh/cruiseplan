@@ -7,8 +7,7 @@ Provides structured return types for all main API operations.
 from pathlib import Path
 from typing import Any
 
-# Import the CruiseSchedule type from timeline
-from cruiseplan.timeline import CruiseSchedule
+from cruiseplan.timeline import Timeline
 
 
 class BaseResult:
@@ -123,7 +122,7 @@ class ScheduleResult(BaseResult):
 
     def __init__(
         self,
-        timeline: CruiseSchedule | None,
+        timeline: Timeline | None,
         files_created: list[Path],
         summary: dict[str, Any],
     ) -> None:

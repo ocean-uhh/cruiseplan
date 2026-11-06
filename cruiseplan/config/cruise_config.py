@@ -301,6 +301,10 @@ class CruiseConfig(BaseModel):
         Global catalog of port definitions.
     legs : Optional[List[LegDefinition]]
         List of cruise legs for schedule organization.
+    bathymetry_provenance : Optional[dict]
+        Bathymetry source, file and counts recorded by enrich.
+    source_config_provenance : Optional[dict]
+        Source file, SHA-256 and creation time, set when a schedule is computed.
     """
 
     cruise_name: str  # TODO: Decide if needed as default - could use "Untitled Cruise"
@@ -350,6 +354,15 @@ class CruiseConfig(BaseModel):
     legs: list[LegDefinition] | None = Field(
         default_factory=list,
         description="List of cruise legs for schedule organization",
+    )
+
+    # Where the water depths came from (written by enrich)
+    bathymetry_provenance: dict[str, Any] | None = Field(
+        None, description="Bathymetry source, file and counts recorded by enrich"
+    )
+    # Configuration file name, hash and time, set when a schedule is computed
+    source_config_provenance: dict[str, Any] | None = Field(
+        None, description="Source file, SHA-256 and creation time (not written to YAML)"
     )
 
     model_config = ConfigDict(extra="allow")

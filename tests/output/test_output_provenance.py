@@ -116,41 +116,29 @@ def test_letsgo_station_test_uses_record_kind(tmp_path):
     assert kinds["Test Port"] is False
 
 
-def test_is_station_record_fallback_covers_ctd_and_prefixes():
-    """Records without operation_class fall back to the activity value and label prefix."""
+def test_is_station_record_by_kind():
+    """Stations and moorings count, by record kind; waypoints and ports do not."""
     from types import SimpleNamespace
 
-    def record(**kwargs):
-        kwargs.setdefault("label", "")
-        return SimpleNamespace(**kwargs)
+    def record(kind, op_type=""):
+        return SimpleNamespace(kind=kind, op_type=op_type)
 
-    # Older files: no usable operation_class, fall back to activity / label.
-    assert _is_station_record(record(operation_class="unknown", activity="CTD"))
-    assert _is_station_record(record(operation_class=None, activity="Mooring"))
-    assert _is_station_record(
-        record(operation_class="unknown", activity="T", label="FD-01")
-    )
-    assert _is_station_record(
-        record(operation_class="unknown", activity="T", label="svp-2")
-    )
-    assert not _is_station_record(
-        record(operation_class="unknown", activity="Transit", label="port call")
-    )
-    # Primary path keys on operation_class and op_type.
-    assert _is_station_record(record(operation_class="PointOperation", op_type="CTD"))
-    assert not _is_station_record(
-        record(operation_class="PointOperation", op_type="port")
-    )
+    assert _is_station_record(record("station", "CTD"))
+    assert _is_station_record(record("mooring", "mooring"))
+    assert not _is_station_record(record("station", "waypoint"))
+    assert not _is_station_record(record("port", "port"))
+    assert not _is_station_record(record("transit"))
+    assert not _is_station_record(record("line", "ADCP"))
 
 
 def test_html_unknown_leg_is_listed_separately():
     """tc2: an activity whose leg is not configured is not merged into the first leg."""
     cruise = CruiseInstance(FIXTURES / "tc2_two_legs.yaml")
     timeline = generate_timeline(cruise)
-    timeline[-1]["leg_name"] = "Leg_Missing"
+    timeline[-1] = timeline[-1].replace(leg_name="Leg_Missing")
     groups = HTMLGenerator()._group_activities_by_leg(cruise.config, timeline)
-    assert [a["label"] for a in groups[UNASSIGNED_LEG]["activities"]] == [
-        timeline[-1]["label"]
+    assert [a.label for a in groups[UNASSIGNED_LEG]["activities"]] == [
+        timeline[-1].label
     ]
     assert timeline[-1] not in groups["Leg_Atlantic"]["activities"]
     assert timeline[-1] not in groups["Leg_North"]["activities"]

@@ -81,12 +81,12 @@ class TestDelayStart:
         base_file = tmp_path / "base.yaml"
         base_file.write_text(_BASE_YAML)
         base_timeline = generate_timeline(CruiseInstance(base_file))
-        base_end = base_timeline[-1]["end_time"]
+        base_end = base_timeline[-1].end_time
 
         delayed_file = tmp_path / "delayed.yaml"
         delayed_file.write_text(_DELAYED_YAML)
         delayed_timeline = generate_timeline(CruiseInstance(delayed_file))
-        delayed_end = delayed_timeline[-1]["end_time"]
+        delayed_end = delayed_timeline[-1].end_time
 
         diff_minutes = (delayed_end - base_end).total_seconds() / 60
         assert diff_minutes == pytest.approx(120.0), (
@@ -101,7 +101,7 @@ class TestDelayStart:
         file_a.write_text(_BASE_YAML)
         file_b.write_text(_BASE_YAML)
 
-        end_a = generate_timeline(CruiseInstance(file_a))[-1]["end_time"]
-        end_b = generate_timeline(CruiseInstance(file_b))[-1]["end_time"]
+        end_a = generate_timeline(CruiseInstance(file_a))[-1].end_time
+        end_b = generate_timeline(CruiseInstance(file_b))[-1].end_time
 
         assert end_a == end_b

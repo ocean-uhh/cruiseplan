@@ -12,8 +12,9 @@ from datetime import datetime
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+from legacy_records import as_record
+
 from cruiseplan.output.netcdf_generator import NetCDFGenerator
-from cruiseplan.timeline.scheduler import ActivityRecord
 
 
 class TestNetCDFCoverageBoost:
@@ -41,7 +42,7 @@ class TestNetCDFCoverageBoost:
     def create_basic_timeline(self):
         """Create basic timeline."""
         return [
-            ActivityRecord(
+            as_record(
                 {
                     "activity": "Station",
                     "label": "STN_001",
@@ -207,7 +208,7 @@ class TestNetCDFCoverageBoost:
         config.points = [station]
 
         timeline = [
-            ActivityRecord(
+            as_record(
                 {
                     "activity": "Station",
                     "label": "STN_001",
@@ -244,7 +245,7 @@ class TestNetCDFCoverageBoost:
 
         # Different timeline activities
         timeline = [
-            ActivityRecord(
+            as_record(
                 {
                     "activity": "Mooring",
                     "label": "MOOR_001",
@@ -260,7 +261,7 @@ class TestNetCDFCoverageBoost:
                     "leg_name": "Leg1",
                 }
             ),
-            ActivityRecord(
+            as_record(
                 {
                     "activity": "Transit",
                     "label": "TRANSIT_001",
@@ -310,7 +311,7 @@ class TestNetCDFErrorPaths:
         config.points = []  # No stations
 
         timeline = [
-            ActivityRecord(
+            as_record(
                 {
                     "activity": "Station",
                     "label": "MISSING_STN",
@@ -358,7 +359,7 @@ class TestNetCDFErrorPaths:
         config.points = [station]
 
         timeline = [
-            ActivityRecord(
+            as_record(
                 {
                     "activity": "Station",
                     "label": "STN_001",

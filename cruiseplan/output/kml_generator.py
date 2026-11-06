@@ -21,8 +21,7 @@ import logging
 from pathlib import Path
 
 from cruiseplan.config.cruise_config import CruiseConfig
-from cruiseplan.output.output_utils import is_line_operation, is_scientific_operation
-from cruiseplan.timeline.scheduler import ActivityRecord
+from cruiseplan.timeline.record import ActivityRecord
 
 logger = logging.getLogger(__name__)
 
@@ -134,142 +133,61 @@ class KMLGenerator:
                 <width>3</width>
             </LineStyle>
         </Style>
-
-        <Style id="areaStyle">
-            <LineStyle>
-                <color>ff00ffff</color>
-                <width>2</width>
-            </LineStyle>
-            <PolyStyle>
-                <color>4000ffff</color>
-                <fill>1</fill>
-            </PolyStyle>
-        </Style>
 """
 
-        # Filter timeline to only include scientific operations
-        scientific_activities = [
-            activity for activity in timeline if is_scientific_operation(activity)
-        ]
-
-        for activity in scientific_activities:
-            if is_line_operation(activity):
-                # Line operation - create line with label at midpoint
-                start_lat = activity["start_lat"]
-                start_lon = activity["start_lon"]
-                end_lat = activity["lat"]
-                end_lon = activity["lon"]
-
-                # Calculate midpoint for label
-                mid_lat = (start_lat + end_lat) / 2
-                mid_lon = (start_lon + end_lon) / 2
-
-                action_str = activity.get("action", "Survey")
-
+        # Scientific operations and ports; a line runs from its entry to its
+        # exit, an area is shown at its entry point (records carry no corners)
+        for activity in timeline:
+            if activity.kind not in {"station", "mooring", "port", "line", "area"}:
+                continue
+            if activity.kind == "line":
                 kml_content += f"""
         <Placemark>
-            <name>{activity["label"]} - {action_str}</name>
+            <name>{activity.label}</name>
             <description>
-                Activity: {activity["activity"]} ({action_str})
-                Start: {activity["start_time"].strftime("%Y-%m-%d %H:%M")}
-                Duration: {activity["duration_minutes"]:.1f} min
-                Operation Distance: {activity.get("dist_nm", 0):.1f} nm
+                Activity: {activity.activity} (Line)
+                Start: {activity.start_time.strftime("%Y-%m-%d %H:%M")}
+                Duration: {activity.duration_minutes:.1f} min
             </description>
             <styleUrl>#lineOpStyle</styleUrl>
             <LineString>
                 <coordinates>
-                    {start_lon},{start_lat},0
-                    {end_lon},{end_lat},0
+                    {activity.entry_lon},{activity.entry_lat},0
+                    {activity.exit_lon},{activity.exit_lat},0
                 </coordinates>
             </LineString>
         </Placemark>
-
-        <Placemark>
-            <name>{activity["label"]}</name>
-            <description>Midpoint label for {action_str} operation</description>
-            <Point>
-                <coordinates>{mid_lon},{mid_lat},0</coordinates>
-            </Point>
-        </Placemark>
 """
-            elif activity["activity"] == "Area":
-                # Area operation - create polygon with corners
-                corners = activity.get("corners", [])
-                if corners and len(corners) >= 3:
-                    # Create coordinate list for polygon (close the polygon by repeating first point)
-                    coord_list = [
-                        f"{corner['longitude']},{corner['latitude']},0"
-                        for corner in corners
-                    ]
-                    # Close the polygon
-                    if len(corners) > 0:
-                        coord_list.append(
-                            f"{corners[0]['longitude']},{corners[0]['latitude']},0"
-                        )
-
-                    coordinates_str = " ".join(coord_list)
-                    action_str = activity.get("action", "Survey")
-
-                    kml_content += f"""
+            elif activity.kind == "area":
+                kml_content += f"""
         <Placemark>
-            <name>{activity["label"]} - {action_str}</name>
+            <name>{activity.label}</name>
             <description>
-                Activity: {activity["activity"]} ({action_str})
-                Start: {activity["start_time"].strftime("%Y-%m-%d %H:%M")}
-                Duration: {activity["duration_minutes"]:.1f} min
-                Area: {len(corners)} corners
-            </description>
-            <styleUrl>#areaStyle</styleUrl>
-            <Polygon>
-                <outerBoundaryIs>
-                    <LinearRing>
-                        <coordinates>{coordinates_str}</coordinates>
-                    </LinearRing>
-                </outerBoundaryIs>
-            </Polygon>
-        </Placemark>
-"""
-                else:
-                    # Fallback to center point if no corners defined
-                    kml_content += f"""
-        <Placemark>
-            <name>{activity["label"]}</name>
-            <description>
-                Activity: {activity["activity"]} (Area - no corners defined)
-                Start: {activity["start_time"].strftime("%Y-%m-%d %H:%M")}
-                Duration: {activity["duration_minutes"]:.1f} min
+                Activity: {activity.activity} (Area - no corners defined)
+                Start: {activity.start_time.strftime("%Y-%m-%d %H:%M")}
+                Duration: {activity.duration_minutes:.1f} min
             </description>
             <styleUrl>#stationStyle</styleUrl>
             <Point>
-                <coordinates>{activity["lon"]},{activity["lat"]},0</coordinates>
+                <coordinates>{activity.entry_lon},{activity.entry_lat},0</coordinates>
             </Point>
         </Placemark>
 """
             else:
-                # Point operation - Station or Mooring
                 style_id = (
-                    "stationStyle"
-                    if activity["activity"] == "Station"
-                    else "mooringStyle"
+                    "mooringStyle" if activity.kind == "mooring" else "stationStyle"
                 )
-                depth_str = (
-                    f"Depth: {activity.get('depth', 0):.1f} m"
-                    if activity.get("depth")
-                    else ""
-                )
-
                 kml_content += f"""
         <Placemark>
-            <name>{activity["label"]}</name>
+            <name>{activity.label}</name>
             <description>
-                Activity: {activity["activity"]}
-                Start: {activity["start_time"].strftime("%Y-%m-%d %H:%M")}
-                Duration: {activity["duration_minutes"]:.1f} min
-                {depth_str}
+                Activity: {activity.activity}
+                Start: {activity.start_time.strftime("%Y-%m-%d %H:%M")}
+                Duration: {activity.duration_minutes:.1f} min
             </description>
             <styleUrl>#{style_id}</styleUrl>
             <Point>
-                <coordinates>{activity["lon"]},{activity["lat"]},0</coordinates>
+                <coordinates>{activity.entry_lon},{activity.entry_lat},0</coordinates>
             </Point>
         </Placemark>
 """

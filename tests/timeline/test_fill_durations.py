@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 
 import yaml
+from legacy_records import as_records
 
 import cruiseplan
 from cruiseplan.config.values import DEFAULT_DEPTH, DEFAULT_MOORING_DURATION_MIN
@@ -15,7 +16,7 @@ FIXTURES = Path(__file__).parent.parent / "fixtures"
 
 def _record(timeline: list[dict], label: str) -> dict:
     """Return the first timeline record with ``label``."""
-    return next(r for r in timeline if r["label"] == label)
+    return next(r for r in timeline if r.label == label)
 
 
 def _variant(tmp_path: Path, fixture: str, station: str, **changes: object) -> Path:
@@ -36,8 +37,8 @@ def test_schedule_mooring_without_duration_gets_fill():
     """tc2 STN_002 (mooring, no duration) was 60 min via a missing config field."""
     timeline = cruiseplan.schedule(FIXTURES / "tc2_two_legs.yaml", format=None).timeline
     mooring = _record(timeline, "STN_002")
-    assert mooring["duration_minutes"] == DEFAULT_MOORING_DURATION_MIN
-    assert mooring["duration_is_fill"] is True
+    assert mooring.duration_minutes == DEFAULT_MOORING_DURATION_MIN
+    assert mooring.duration_is_fill is True
 
 
 def test_mooring_with_operation_depth_still_gets_fill(tmp_path):
@@ -45,23 +46,28 @@ def test_mooring_with_operation_depth_still_gets_fill(tmp_path):
     config = _variant(tmp_path, "tc2_two_legs.yaml", "STN_002", operation_depth=1000.0)
     timeline = cruiseplan.schedule(config, format=None).timeline
     mooring = _record(timeline, "STN_002")
-    assert mooring["duration_is_fill"] is True
-    assert mooring["duration_minutes"] == DEFAULT_MOORING_DURATION_MIN
+    assert mooring.duration_is_fill is True
+    assert mooring.duration_minutes == DEFAULT_MOORING_DURATION_MIN
 
 
 def test_fill_duration_summary_excludes_fills():
     """The summary counts fill operations and totals the schedule without them."""
     from cruiseplan.timeline.scheduler import fill_duration_summary
 
-    timeline = [
-        {"duration_is_fill": True, "duration_minutes": DEFAULT_MOORING_DURATION_MIN},
-        {"duration_is_fill": False, "duration_minutes": 120.0},
-        {"duration_is_fill": False, "duration_minutes": 360.0},
-    ]
+    timeline = as_records(
+        [
+            {
+                "duration_is_fill": True,
+                "duration_minutes": DEFAULT_MOORING_DURATION_MIN,
+            },
+            {"duration_is_fill": False, "duration_minutes": 120.0},
+            {"duration_is_fill": False, "duration_minutes": 360.0},
+        ]
+    )
     summary = fill_duration_summary(timeline)
     assert "1 operation(s) at the fill duration (1 x 999 h)" in summary
     assert "schedule total excluding fills" in summary
-    no_fills = [{"duration_is_fill": False, "duration_minutes": 60.0}]
+    no_fills = as_records([{"duration_is_fill": False, "duration_minutes": 60.0}])
     assert fill_duration_summary(no_fills) is None
 
 
@@ -76,16 +82,16 @@ def test_enrich_and_schedule_agree_on_mooring_fill(tmp_path):
     assert cruise.point_registry["STN_002"].duration == DEFAULT_MOORING_DURATION_MIN
     timeline = generate_timeline(cruise)
     mooring = _record(timeline, "STN_002")
-    assert mooring["duration_minutes"] == DEFAULT_MOORING_DURATION_MIN
-    assert mooring["duration_is_fill"] is True
+    assert mooring.duration_minutes == DEFAULT_MOORING_DURATION_MIN
+    assert mooring.duration_is_fill is True
 
 
 def test_ctd_without_depth_gets_fill():
     """tc2 STN_001 (CTD, no depth) was scheduled for 0 min."""
     timeline = cruiseplan.schedule(FIXTURES / "tc2_two_legs.yaml", format=None).timeline
     ctd = _record(timeline, "STN_001")
-    assert ctd["duration_minutes"] == DEFAULT_MOORING_DURATION_MIN
-    assert ctd["duration_is_fill"] is True
+    assert ctd.duration_minutes == DEFAULT_MOORING_DURATION_MIN
+    assert ctd.duration_is_fill is True
 
 
 def test_ctd_at_fill_depth_gets_fill(tmp_path):
@@ -93,16 +99,16 @@ def test_ctd_at_fill_depth_gets_fill(tmp_path):
     path = _variant(tmp_path, "tc1_single.yaml", "STN_001", water_depth=DEFAULT_DEPTH)
     timeline = cruiseplan.schedule(path, format=None).timeline
     ctd = _record(timeline, "STN_001")
-    assert ctd["duration_minutes"] == DEFAULT_MOORING_DURATION_MIN
-    assert ctd["duration_is_fill"] is True
+    assert ctd.duration_minutes == DEFAULT_MOORING_DURATION_MIN
+    assert ctd.duration_is_fill is True
 
 
 def test_ctd_with_depth_is_computed():
     """tc1 STN_001 (2850 m, 1 m/s, 30 min turnaround) keeps its computed 125 min."""
     timeline = cruiseplan.schedule(FIXTURES / "tc1_single.yaml", format=None).timeline
     ctd = _record(timeline, "STN_001")
-    assert ctd["duration_minutes"] == 125.0
-    assert ctd["duration_is_fill"] is False
+    assert ctd.duration_minutes == 125.0
+    assert ctd.duration_is_fill is False
 
 
 def test_operation_type_without_rule_gets_fill(tmp_path):
@@ -116,8 +122,8 @@ def test_operation_type_without_rule_gets_fill(tmp_path):
     )
     timeline = cruiseplan.schedule(path, format=None).timeline
     record = _record(timeline, "STN_001")
-    assert record["duration_minutes"] == DEFAULT_MOORING_DURATION_MIN
-    assert record["duration_is_fill"] is True
+    assert record.duration_minutes == DEFAULT_MOORING_DURATION_MIN
+    assert record.duration_is_fill is True
 
 
 def test_fill_warning_names_each_station_once(caplog):
@@ -135,5 +141,5 @@ def test_ports_and_transits_are_not_flagged():
     """Ports take 0 minutes and transits are computed; neither is a fill."""
     timeline = cruiseplan.schedule(FIXTURES / "tc1_single.yaml", format=None).timeline
     for record in timeline:
-        if record["op_type"] in ("port", "transit"):
-            assert not record["duration_is_fill"]
+        if record.op_type in ("port", "transit"):
+            assert not record.duration_is_fill

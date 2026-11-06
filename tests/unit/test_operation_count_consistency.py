@@ -8,6 +8,7 @@ equals the total scientific operations at the cruise level.
 from pathlib import Path
 
 import pytest
+from legacy_records import as_records
 
 from cruiseplan.runtime.cruise import CruiseInstance
 from cruiseplan.timeline import scheduler
@@ -84,48 +85,50 @@ class TestOperationCountConsistency:
     def test_operation_count_logic(self):
         """Test the operation counting logic directly."""
         # Create a mock timeline with various operation types
-        mock_timeline = [
-            {
-                "operation_class": "PointOperation",
-                "op_type": "station",
-                "leg_name": "Leg1",
-            },
-            {
-                "operation_class": "PointOperation",
-                "op_type": "CTD",
-                "leg_name": "Leg1",
-            },
-            {
-                "operation_class": "PointOperation",
-                "op_type": "mooring",
-                "leg_name": "Leg2",
-            },
-            {
-                "operation_class": "PointOperation",
-                "op_type": "port",
-                "leg_name": "Leg1",
-            },
-            {
-                "operation_class": "LineOperation",
-                "op_type": "survey",
-                "leg_name": "Leg2",
-            },
-            {
-                "operation_class": "AreaOperation",
-                "op_type": "area",
-                "leg_name": "Leg1",
-            },
-            {
-                "operation_class": "NavigationalTransit",
-                "op_type": "transit",
-                "leg_name": "Leg1",
-            },
-        ]
+        mock_timeline = as_records(
+            [
+                {
+                    "operation_class": "PointOperation",
+                    "op_type": "station",
+                    "leg_name": "Leg1",
+                },
+                {
+                    "operation_class": "PointOperation",
+                    "op_type": "CTD",
+                    "leg_name": "Leg1",
+                },
+                {
+                    "operation_class": "PointOperation",
+                    "op_type": "mooring",
+                    "leg_name": "Leg2",
+                },
+                {
+                    "operation_class": "PointOperation",
+                    "op_type": "port",
+                    "leg_name": "Leg1",
+                },
+                {
+                    "operation_class": "LineOperation",
+                    "op_type": "survey",
+                    "leg_name": "Leg2",
+                },
+                {
+                    "operation_class": "AreaOperation",
+                    "op_type": "area",
+                    "leg_name": "Leg1",
+                },
+                {
+                    "operation_class": "NavigationalTransit",
+                    "op_type": "transit",
+                    "leg_name": "Leg1",
+                },
+            ]
+        )
 
         # Calculate leg stats using the same logic as scheduler
         leg_stats = {}
         for activity in mock_timeline:
-            leg_name = activity.get("leg_name", "Unknown")
+            leg_name = activity.leg_name
             if leg_name not in leg_stats:
                 leg_stats[leg_name] = {
                     "stations": 0,
@@ -140,8 +143,8 @@ class TestOperationCountConsistency:
 
             leg_stats[leg_name]["total_activities"] += 1
 
-            operation_class = activity.get("operation_class", "")
-            op_type = activity.get("op_type", "")
+            operation_class = activity.operation_class
+            op_type = activity.op_type
 
             # Use the same counting logic as scheduler.py
             if op_type == "port":

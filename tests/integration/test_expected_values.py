@@ -22,6 +22,7 @@ import xarray as xr
 import yaml
 from hand_calc import (
     FILL_MIN,
+    Row,
     ctd_min,
     gc_nm,
     hand_schedule,
@@ -30,6 +31,7 @@ from hand_calc import (
 
 import cruiseplan
 import cruiseplan.data.bathymetry as bathy_module
+from cruiseplan.timeline import ActivityRecord
 
 ROOT = Path(__file__).parent.parent.parent
 FIXTURES = ROOT / "tests" / "fixtures"
@@ -61,7 +63,7 @@ def write(tmp_path: Path, cfg: dict, name: str) -> Path:
     return path
 
 
-def timeline(path: Path) -> list[dict]:
+def timeline(path: Path) -> list[ActivityRecord]:
     """Schedule a config without writing files."""
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -69,8 +71,8 @@ def timeline(path: Path) -> list[dict]:
 
 
 def by_label(rows: list, label: str, nth: int = 0):
-    """Return the nth row with this label (dicts or hand rows)."""
-    hits = [r for r in rows if (r["label"] if isinstance(r, dict) else r.name) == label]
+    """Return the nth row with this label (records or hand rows)."""
+    hits = [r for r in rows if (r.name if isinstance(r, Row) else r.label) == label]
     return hits[nth]
 
 
@@ -80,14 +82,14 @@ def assert_time(actual: datetime, expected: datetime) -> None:
     assert delta <= T_TOL_S, f"{actual} vs hand {expected} ({delta:.0f} s)"
 
 
-def assert_rows_match(code: list[dict], hand: list) -> None:
+def assert_rows_match(code: list[ActivityRecord], hand: list) -> None:
     """Every row: label, start, end, duration and distance agree with hand."""
-    assert [c["label"] for c in code] == [h.name for h in hand]
+    assert [c.label for c in code] == [h.name for h in hand]
     for c, h in zip(code, hand, strict=True):
-        assert_time(c["start_time"], h.start)
-        assert_time(c["end_time"], h.end)
-        assert c["duration_minutes"] == pytest.approx(h.minutes, abs=MIN_TOL), h.name
-        assert c["dist_nm"] == pytest.approx(h.nm, abs=NM_TOL), h.name
+        assert_time(c.start_time, h.start)
+        assert_time(c.end_time, h.end)
+        assert c.duration_minutes == pytest.approx(h.minutes, abs=MIN_TOL), h.name
+        assert c.dist_nm == pytest.approx(h.nm, abs=NM_TOL), h.name
 
 
 # =============================================================================
@@ -118,32 +120,32 @@ def test_tc1_single_worked_example():
     t0 = datetime(1970, 1, 1)
     arrive = t0 + timedelta(minutes=out_nm / 10 * 60)  # 4737.43 min
     stn = by_label(tl, "STN_001")
-    assert_time(stn["start_time"], arrive)
-    assert stn["duration_minutes"] == pytest.approx(2850 / 60 + 2850 / 60 + 30)
-    assert stn["operation_depth"] == 2850.0
+    assert_time(stn.start_time, arrive)
+    assert stn.duration_minutes == pytest.approx(2850 / 60 + 2850 / 60 + 30)
+    assert stn.operation_depth_m == 2850.0
     end = arrive + timedelta(minutes=125 + back_nm / 10 * 60)
-    assert_time(tl[-1]["end_time"], end)
-    assert tl[1]["dist_nm"] == pytest.approx(out_nm, abs=NM_TOL)
-    assert tl[3]["dist_nm"] == pytest.approx(back_nm, abs=NM_TOL)
+    assert_time(tl[-1].end_time, end)
+    assert tl[1].dist_nm == pytest.approx(out_nm, abs=NM_TOL)
+    assert tl[3].dist_nm == pytest.approx(back_nm, abs=NM_TOL)
 
 
 def test_tc4_line_and_area_worked_example():
     """tc4: CTD at 58 m, ADCP line at its own 5 kt, area entered at first corner."""
     tl = timeline(CONFIGS["tc4_mixed_ops"])
     stn = by_label(tl, "STN_001")
-    assert stn["duration_minutes"] == pytest.approx(58 / 60 * 2 + 30)  # 31.93
+    assert stn.duration_minutes == pytest.approx(58 / 60 * 2 + 30)  # 31.93
     line = by_label(tl, "ADCP_Survey")
     line_nm = gc_nm((46.0, -50.0), (47.0, -50.0))  # 60.04 nm
-    assert line["dist_nm"] == pytest.approx(line_nm, abs=NM_TOL)
-    assert line["duration_minutes"] == pytest.approx(line_nm / 5 * 60, abs=MIN_TOL)
+    assert line.dist_nm == pytest.approx(line_nm, abs=NM_TOL)
+    assert line.duration_minutes == pytest.approx(line_nm / 5 * 60, abs=MIN_TOL)
     # transit from line end (47 N, 50 W) to area first corner (47.5 N, 50.5 W)
     to_area = by_label(tl, "Transit to Area_01")
-    assert to_area["dist_nm"] == pytest.approx(
+    assert to_area.dist_nm == pytest.approx(
         gc_nm((47.0, -50.0), (47.5, -50.5)), abs=NM_TOL
     )
     # transit to Cadiz leaves from the area's last corner (47.5 N, 49.5 W)
     home = by_label(tl, "Transit to Cadiz")
-    assert home["dist_nm"] == pytest.approx(
+    assert home.dist_nm == pytest.approx(
         gc_nm((47.5, -49.5), (36.5298, -6.2923)), abs=NM_TOL
     )
 
@@ -165,14 +167,14 @@ def test_leg_totals(name):
     code = timeline(CONFIGS[name])
     hand = hand_schedule(load(name))
     for leg in load(name)["legs"]:
-        c = [r for r in code if r["leg_name"] == leg["name"]]
+        c = [r for r in code if r.leg_name == leg["name"]]
         h = [r for r in hand if r.leg == leg["name"]]
-        assert_time(c[0]["start_time"], h[0].start)
-        assert_time(c[-1]["end_time"], h[-1].end)
-        c_hours = (c[-1]["end_time"] - c[0]["start_time"]).total_seconds() / 3600
+        assert_time(c[0].start_time, h[0].start)
+        assert_time(c[-1].end_time, h[-1].end)
+        c_hours = (c[-1].end_time - c[0].start_time).total_seconds() / 3600
         h_hours = (h[-1].end - h[0].start).total_seconds() / 3600
         assert c_hours == pytest.approx(h_hours, abs=T_TOL_S / 3600)
-        assert sum(r["dist_nm"] for r in c) == pytest.approx(
+        assert sum(r.dist_nm for r in c) == pytest.approx(
             sum(r.nm for r in h), abs=NM_TOL
         )
 
@@ -195,10 +197,8 @@ def test_schedule_totals(name, hours, nm):
     span_h = (hand[-1].end - hand[0].start).total_seconds() / 3600
     assert span_h == pytest.approx(hours, abs=0.01)
     assert sum(r.nm for r in hand) == pytest.approx(nm, abs=0.01)
-    assert sum(r["duration_minutes"] for r in code) / 60 == pytest.approx(
-        span_h, abs=0.01
-    )
-    assert sum(r["dist_nm"] for r in code) == pytest.approx(nm, abs=0.02)
+    assert sum(r.duration_minutes for r in code) / 60 == pytest.approx(span_h, abs=0.01)
+    assert sum(r.dist_nm for r in code) == pytest.approx(nm, abs=0.02)
 
 
 def test_tc3_leg_vessel_speed():
@@ -210,18 +210,16 @@ def test_tc3_leg_vessel_speed():
     expected_gain_h = transit_nm / 10 - transit_nm / 12  # 20.81 h
 
     def span(leg):
-        rows = [r for r in code if r["leg_name"] == leg]
-        return (rows[-1]["end_time"] - rows[0]["start_time"]).total_seconds() / 3600
+        rows = [r for r in code if r.leg_name == leg]
+        return (rows[-1].end_time - rows[0].start_time).total_seconds() / 3600
 
     assert span("Leg_Survey") - span("Leg_Survey_Faster") == pytest.approx(
         expected_gain_h, abs=0.01
     )
     faster = [
-        r
-        for r in code
-        if r["leg_name"] == "Leg_Survey_Faster" and r["activity"] == "Transit"
+        r for r in code if r.leg_name == "Leg_Survey_Faster" and r.activity == "Transit"
     ]
-    assert {r["vessel_speed_kt"] for r in faster} == {12.0}
+    assert {r.vessel_speed_kt for r in faster} == {12.0}
 
 
 # =============================================================================
@@ -249,11 +247,11 @@ def test_named_operations(name, label, nth, minutes, depth):
     code = by_label(timeline(CONFIGS[name]), label, nth)
     hand = by_label(hand_schedule(load(name)), label, nth)
     assert hand.minutes == pytest.approx(minutes)
-    assert code["duration_minutes"] == pytest.approx(minutes)
-    assert_time(code["start_time"], hand.start)
-    assert_time(code["end_time"], hand.end)
-    assert code["operation_depth"] == depth
-    assert code["duration_is_fill"] == (minutes == FILL_MIN)
+    assert code.duration_minutes == pytest.approx(minutes)
+    assert_time(code.start_time, hand.start)
+    assert_time(code.end_time, hand.end)
+    assert code.operation_depth_m == depth
+    assert code.duration_is_fill == (minutes == FILL_MIN)
 
 
 @pytest.mark.parametrize(
@@ -284,16 +282,16 @@ def test_transit_between_named_points(name, src, dst, lat_lon_src, lat_lon_dst):
     idx = next(
         i
         for i, r in enumerate(tl)
-        if r["label"] == f"Transit to {dst}"
-        and tl[i - 1]["label"] in (src,)
+        if r.label == f"Transit to {dst}"
+        and tl[i - 1].label in (src,)
         or (
-            r["label"] == f"Transit to {dst}"
-            and tl[i - 1]["activity"] == "Buffer"
-            and tl[i - 2]["label"] == src
+            r.label == f"Transit to {dst}"
+            and tl[i - 1].activity == "Buffer"
+            and tl[i - 2].label == src
         )
     )
-    assert tl[idx]["dist_nm"] == pytest.approx(nm, abs=NM_TOL)
-    assert tl[idx]["duration_minutes"] == pytest.approx(nm / 10 * 60, abs=MIN_TOL)
+    assert tl[idx].dist_nm == pytest.approx(nm, abs=NM_TOL)
+    assert tl[idx].duration_minutes == pytest.approx(nm / 10 * 60, abs=MIN_TOL)
 
 
 # =============================================================================
@@ -312,21 +310,21 @@ def test_transit_between_named_points(name, src, dst, lat_lon_src, lat_lon_dst):
 )
 def test_buffer_block(name, leg, last_op, arrival):
     """360 min buffer: after the last operation, before the transit to the port."""
-    tl = [r for r in timeline(CONFIGS[name]) if r["leg_name"] == leg]
-    i = next(k for k, r in enumerate(tl) if r["activity"] == "Buffer")
-    assert [r["activity"] for r in tl].count("Buffer") == 1
+    tl = [r for r in timeline(CONFIGS[name]) if r.leg_name == leg]
+    i = next(k for k, r in enumerate(tl) if r.activity == "Buffer")
+    assert [r.activity for r in tl].count("Buffer") == 1
     buf, before, after = tl[i], tl[i - 1], tl[i + 1]
-    assert before["label"] == last_op
-    assert after["label"] == f"Transit to {arrival}"
-    assert buf["duration_minutes"] == 360.0
-    assert buf["start_time"] == before["end_time"]
-    assert_time(buf["end_time"], before["end_time"] + timedelta(minutes=360))
-    assert after["start_time"] == buf["end_time"]
-    assert (buf["entry_lat"], buf["entry_lon"]) == (
-        before["exit_lat"],
-        before["exit_lon"],
+    assert before.label == last_op
+    assert after.label == f"Transit to {arrival}"
+    assert buf.duration_minutes == 360.0
+    assert buf.start_time == before.end_time
+    assert_time(buf.end_time, before.end_time + timedelta(minutes=360))
+    assert after.start_time == buf.end_time
+    assert (buf.entry_lat, buf.entry_lon) == (
+        before.exit_lat,
+        before.exit_lon,
     )
-    assert buf["dist_nm"] == 0.0
+    assert buf.dist_nm == 0.0
 
 
 # =============================================================================
@@ -363,8 +361,8 @@ def test_delay_start_effects(tmp_path):
 
     def shift(label, nth=0):
         a, b = by_label(base, label, nth), by_label(tl, label, nth)
-        assert a["duration_minutes"] == b["duration_minutes"]
-        return (b["start_time"] - a["start_time"]).total_seconds() / 60
+        assert a.duration_minutes == b.duration_minutes
+        return (b.start_time - a.start_time).total_seconds() / 60
 
     # Leg1: SouthCapeAdair is the first op
     assert shift("SouthCapeAdair") == pytest.approx(45)
@@ -375,7 +373,7 @@ def test_delay_start_effects(tmp_path):
     assert shift("LDEO_heavy_shallow_deployment") == pytest.approx(195 + 90)
     # Leg3: SouthCapeAdair again (shared definition)
     assert shift("SouthCapeAdair", 1) == pytest.approx(285 + 45)
-    assert by_label(tl, "LDEO_heavy_shallow_deployment")["delay_start"] == 90.0
+    assert by_label(tl, "LDEO_heavy_shallow_deployment").delay_start_minutes == 90.0
 
 
 def pycnmix_with_negative_delays() -> dict:
@@ -402,30 +400,28 @@ def test_negative_delay_start_effects(tmp_path):
 
     def shift(label):
         a, b = by_label(base, label), by_label(tl, label)
-        return (b["start_time"] - a["start_time"]).total_seconds() / 60
+        return (b.start_time - a.start_time).total_seconds() / 60
 
     assert shift("LDEO_heavy_shallow_recovery") == pytest.approx(0)
     assert shift("LDEO_heavy_shallow_deployment") == pytest.approx(-30)
     assert shift("NIWA_DITN") == pytest.approx(-30 - 60)
     assert shift("NIWA_WBAT") == pytest.approx(-90)
     # The model accepts the negative value and the record carries it
-    assert by_label(tl, "NIWA_DITN")["delay_start"] == -60.0
+    assert by_label(tl, "NIWA_DITN").delay_start_minutes == -60.0
     # Not clamped: the deployment starts 30 min before the recovery record ends
     rec = by_label(tl, "LDEO_heavy_shallow_recovery")
     dep = by_label(tl, "LDEO_heavy_shallow_deployment")
-    assert (rec["end_time"] - dep["start_time"]).total_seconds() / 60 == pytest.approx(
-        30
-    )
+    assert (rec.end_time - dep.start_time).total_seconds() / 60 == pytest.approx(30)
     # The transit into NIWA_DITN keeps its full length; the op starts 60 min
     # before the transit record ends
     transit = by_label(tl, "Transit to NIWA_DITN")
-    assert transit["duration_minutes"] == pytest.approx(
-        by_label(base, "Transit to NIWA_DITN")["duration_minutes"]
+    assert transit.duration_minutes == pytest.approx(
+        by_label(base, "Transit to NIWA_DITN").duration_minutes
     )
     ditn = by_label(tl, "NIWA_DITN")
-    assert (
-        transit["end_time"] - ditn["start_time"]
-    ).total_seconds() / 60 == pytest.approx(60)
+    assert (transit.end_time - ditn.start_time).total_seconds() / 60 == pytest.approx(
+        60
+    )
 
 
 @pytest.mark.xfail(
@@ -437,8 +433,8 @@ def test_negative_delay_start_effects(tmp_path):
 def test_total_duration_includes_delays(tmp_path):
     """The schedule total equals the elapsed span from first start to last end."""
     tl = timeline(write(tmp_path, pycnmix_with_delays(), "delays"))
-    span_min = (tl[-1]["end_time"] - tl[0]["start_time"]).total_seconds() / 60
-    assert sum(r["duration_minutes"] for r in tl) == pytest.approx(span_min, abs=1)
+    span_min = (tl[-1].end_time - tl[0].start_time).total_seconds() / 60
+    assert sum(r.duration_minutes for r in tl) == pytest.approx(span_min, abs=1)
 
 
 @pytest.mark.xfail(
@@ -453,7 +449,7 @@ def test_delay_end_holds_after_operation(tmp_path):
     base = timeline(CONFIGS["pycnmix"])
     tl = timeline(write(tmp_path, cfg, "delay_end"))
     label = "Transit to LDEO_heavy_shallow_recovery"
-    shift = by_label(tl, label)["start_time"] - by_label(base, label)["start_time"]
+    shift = by_label(tl, label).start_time - by_label(base, label).start_time
     assert shift.total_seconds() / 60 == pytest.approx(30)
 
 
@@ -472,7 +468,7 @@ def test_leg_turnaround_time(tmp_path):
     cfg = load("tc1_single")
     cfg["legs"][0]["turnaround_time"] = 20.0
     stn = by_label(timeline(write(tmp_path, cfg, "turn")), "STN_001")
-    assert stn["duration_minutes"] == pytest.approx(115.0)
+    assert stn.duration_minutes == pytest.approx(115.0)
 
 
 def tc5_leg_speed(tmp_path: Path) -> tuple[list[dict], float]:
@@ -488,14 +484,14 @@ def test_leg_speed_applies_to_transits(tmp_path):
     tl, _ = tc5_leg_speed(tmp_path)
     out = by_label(tl, "Transit to SEC_001")
     nm = gc_nm((44.6488, -63.5752), (45.0, -50.0))
-    assert out["duration_minutes"] == pytest.approx(nm / 12 * 60, abs=MIN_TOL)
+    assert out.duration_minutes == pytest.approx(nm / 12 * 60, abs=MIN_TOL)
 
 
 def test_leg_speed_applies_to_line_without_speed(tmp_path):
     """SEC_001 (146.20 nm, no own speed) at the leg's 12 kt: 731.0 min."""
     tl, nm = tc5_leg_speed(tmp_path)
     line = by_label(tl, "SEC_001")
-    assert line["duration_minutes"] == pytest.approx(nm / 12 * 60, abs=MIN_TOL)
+    assert line.duration_minutes == pytest.approx(nm / 12 * 60, abs=MIN_TOL)
 
 
 @pytest.mark.xfail(
@@ -506,7 +502,7 @@ def test_leg_speed_applies_to_line_without_speed(tmp_path):
 def test_line_record_reports_its_speed():
     """ADCP_Survey runs at 5 kt and its record says so."""
     line = by_label(timeline(CONFIGS["tc4_mixed_ops"]), "ADCP_Survey")
-    assert line["vessel_speed_kt"] == 5.0
+    assert line.vessel_speed_kt == 5.0
 
 
 # =============================================================================
@@ -541,9 +537,9 @@ def test_fill_counts_without_bathymetry(tmp_path, name, fills):
             bathy_dir=str(empty),
         )
     tl = timeline(Path(result.output_file))
-    filled = [r for r in tl if r["duration_is_fill"]]
+    filled = [r for r in tl if r.duration_is_fill]
     assert len(filled) == fills
-    assert all(r["duration_minutes"] == FILL_MIN for r in filled)
+    assert all(r.duration_minutes == FILL_MIN for r in filled)
 
 
 @pytest.fixture
@@ -573,12 +569,12 @@ def test_depth_from_gebco_subset(tmp_path, halifax_source, keep_op_depth, depth_
     )
     tl = timeline(Path(result.output_file))
     row = by_label(tl, "STN_001")
-    assert row["water_depth"] == pytest.approx(93.5)
-    assert row["operation_depth"] == pytest.approx(depth_used)
-    assert row["duration_minutes"] == pytest.approx(depth_used / 60 * 2 + 30)
+    assert row.water_depth_m == pytest.approx(93.5)
+    assert row.operation_depth_m == pytest.approx(depth_used)
+    assert row.duration_minutes == pytest.approx(depth_used / 60 * 2 + 30)
     nm = gc_nm((44.6488, -63.5752), (44.40, -63.50))
-    assert tl[1]["dist_nm"] == pytest.approx(nm, abs=NM_TOL)  # 15.28 nm
-    assert_time(row["start_time"], datetime(1970, 1, 1) + timedelta(minutes=nm * 6))
+    assert tl[1].dist_nm == pytest.approx(nm, abs=NM_TOL)  # 15.28 nm
+    assert_time(row.start_time, datetime(1970, 1, 1) + timedelta(minutes=nm * 6))
 
 
 # =============================================================================
