@@ -25,7 +25,7 @@ from cruiseplan.config.values import DEFAULT_DEPTH, DEFAULT_MOORING_DURATION_MIN
 from cruiseplan.output.output_utils import _duration_hours, _positive_depth
 from cruiseplan.output.provenance import provenance_lines
 from cruiseplan.timeline.record import ActivityRecord
-from cruiseplan.timeline.scheduler import fill_duration_summary
+from cruiseplan.timeline.scheduler import fill_duration_summary, timeline_minutes
 from cruiseplan.utils.coordinates import ddm_parts, distance_nm, format_position_latex
 from cruiseplan.utils.units import hours_to_days, round_to_minutes
 
@@ -56,6 +56,11 @@ def _provenance_comment(config: CruiseConfig, timeline: list[ActivityRecord]) ->
             + ", ".join(filled)
         )
     return "\n".join(lines) + "\n"
+
+
+def _row_hours(row: dict[str, str]) -> float:
+    """Hours in a work-days row (operation plus transit column)."""
+    return sum(float(row[key]) for key in ("duration_h", "transit_h") if row[key])
 
 
 def _format_duration_hours(activity: ActivityRecord) -> str:
@@ -258,36 +263,15 @@ class LaTeXGenerator:
         """Generate a single work days table for the entire cruise."""
         template = self.env.get_template("work_days_table.tex.j2")
 
-        # Use scheduler statistics instead of manual calculations
-        from cruiseplan.timeline.scheduler import calculate_timeline_statistics
-
-        stats = calculate_timeline_statistics(timeline)
-
-        # Extract statistics from the scheduler calculation
-        station_duration_h = stats["stations"]["total_duration_h"]
-        mooring_duration_h = stats["moorings"]["total_duration_h"]
-        area_duration_h = stats["areas"]["total_duration_h"]
-        total_scientific_op_h = stats["surveys"]["total_duration_h"]
-
-        # Transit durations from scheduler statistics
-        transit_within_area_h = stats["within_area_transits"]["total_duration_h"]
-        transit_to_area_h = stats["port_transits_to_area"]["total_duration_h"]
-        transit_from_area_h = stats["port_transits_from_area"]["total_duration_h"]
-        total_port_transit_h = transit_to_area_h + transit_from_area_h
-
         # Generate work days rows for the timeline
         summary_rows = self._generate_work_days_rows_for_timeline(timeline)
 
-        # Calculate totals
-        total_operation_duration_h = (
-            station_duration_h
-            + mooring_duration_h
-            + area_duration_h
-            + total_scientific_op_h  # Scientific transit duration is operation time
-            + transit_within_area_h  # Within-area transit counted as operation time
+        # Totals: the rows, which add up to the elapsed time
+        total_operation_duration_h = sum(
+            float(row["duration_h"]) for row in summary_rows if row["duration_h"]
         )
-        total_transit_h = (
-            total_port_transit_h  # Only port-to-area and area-to-port transit duration
+        total_transit_h = sum(
+            float(row["transit_h"]) for row in summary_rows if row["transit_h"]
         )
         total_duration_h = total_operation_duration_h + total_transit_h
         total_days = hours_to_days(total_duration_h)
@@ -390,6 +374,24 @@ class LaTeXGenerator:
                     total_operation_duration_h += float(row["duration_h"])
                 if row["transit_h"] and row["transit_h"] != "":
                     total_transit_h += float(row["transit_h"])
+
+        # Leg delays lie between the legs: add them so the total is elapsed time
+        between_h = (
+            timeline_minutes(timeline) / 60.0
+            - total_operation_duration_h
+            - total_transit_h
+        )
+        if between_h >= 0.05:
+            all_summary_rows.append(
+                {
+                    "area": "",
+                    "activity": "Waiting between legs",
+                    "duration_h": f"{between_h:.1f}",
+                    "transit_h": "",
+                    "notes": "Leg delays",
+                }
+            )
+            total_operation_duration_h += float(f"{between_h:.1f}")
 
         total_duration_h = total_operation_duration_h + total_transit_h
         total_days = hours_to_days(total_duration_h)
@@ -510,6 +512,21 @@ class LaTeXGenerator:
                     "duration_h": f"{transit_within_area_h:.1f}",
                     "transit_h": "",  # No transit time, this is operation time
                     "notes": "Navigation within working areas",
+                }
+            )
+
+        # Waiting (leg delays) and contingency (buffers): the rest of the
+        # elapsed time, so the rows add up to the schedule total
+        listed_h = sum(_row_hours(row) for row in summary_rows) + transit_from_area_h
+        remainder_h = timeline_minutes(timeline) / 60.0 - listed_h
+        if remainder_h >= 0.05:
+            summary_rows.append(
+                {
+                    "area": "",
+                    "activity": "Waiting and contingency",
+                    "duration_h": f"{remainder_h:.1f}",
+                    "transit_h": "",
+                    "notes": "Leg delays and buffer time",
                 }
             )
 

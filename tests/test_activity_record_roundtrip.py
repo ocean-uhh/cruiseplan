@@ -272,8 +272,9 @@ def test_activity_record_required_fields_present():
                 "exit_latitude",  # exit_lat
                 "exit_longitude",  # exit_lon
                 "end_time",  # end_time
-                "duration",  # duration_minutes (converted to hours)
-                "dist_nm",  # dist_nm
+                "duration",  # duration_minutes (minutes)
+                "planned_duration",  # planned_duration_minutes
+                "distance",  # dist_nm (nautical miles)
                 "vessel_speed",  # vessel_speed_kt
                 "leg_assignment",  # leg_name
                 "type",  # op_type

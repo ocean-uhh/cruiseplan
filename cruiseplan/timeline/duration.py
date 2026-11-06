@@ -29,14 +29,25 @@ class DurationCalculator:
     ----------
     config : CruiseConfig
         Cruise configuration object containing operational parameters.
+    turnaround_time_minutes : float
+        Turnaround added to each CTD cast: the leg value when given, else the
+        cruise value.
     day_start_hour : int
         Hour when daytime operations begin (0-23).
     day_end_hour : int
         Hour when daytime operations end (0-23).
     """
 
-    def __init__(self, config: CruiseConfig) -> None:
+    def __init__(
+        self, config: CruiseConfig, turnaround_time_minutes: float | None = None
+    ) -> None:
         self.config = config
+        # A leg's turnaround time overrides the cruise value
+        self.turnaround_time_minutes = (
+            config.turnaround_time_minutes
+            if turnaround_time_minutes is None
+            else turnaround_time_minutes
+        )
         # Pull from config (defaulting to 8/20 via Pydantic if not set)
         self.day_start_hour = config.day_start_hour
         self.day_end_hour = config.day_end_hour
@@ -73,7 +84,7 @@ class DurationCalculator:
             return 0.0
 
         profile_time = (depth / descent_m_min) + (depth / ascent_m_min)
-        return profile_time + self.config.turnaround_time_minutes
+        return profile_time + self.turnaround_time_minutes
 
     def calculate_transit_time(
         self, distance_km: float, speed_knots: float | None = None

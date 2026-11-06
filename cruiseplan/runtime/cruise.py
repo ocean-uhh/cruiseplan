@@ -506,7 +506,9 @@ class CruiseInstance:
                 or self.config.default_distance_between_stations_km
             )
             runtime_leg.turnaround_time = (
-                leg_def.turnaround_time_minutes or self.config.turnaround_time_minutes
+                leg_def.turnaround_time_minutes
+                if leg_def.turnaround_time_minutes is not None
+                else self.config.turnaround_time_minutes
             )
             runtime_leg.delay_start = leg_def.delay_start_minutes
             runtime_leg.buffer_time = leg_def.buffer_time_minutes

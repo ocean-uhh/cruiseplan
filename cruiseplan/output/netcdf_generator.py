@@ -22,8 +22,28 @@ from cruiseplan.output.netcdf_metadata import (
 )
 from cruiseplan.output.provenance import planning_provenance
 from cruiseplan.timeline.record import ActivityRecord
+from cruiseplan.timeline.scheduler import timeline_minutes
 
 logger = logging.getLogger(__name__)
+
+
+# Times are written as UTC seconds since the epoch (CF encoding)
+TIME_ENCODING = {
+    "units": "seconds since 1970-01-01 00:00:00",
+    "calendar": "standard",
+    "dtype": "float64",
+}
+
+# Version of the schedule file layout; 0.5.0 files store duration in hours and
+# distance as dist_nm (read by cruiseplan.forecast.reader until 0.7.0)
+SCHEDULE_FORMAT = "0.6.0"
+
+
+def _utc_naive(moment: datetime) -> datetime:
+    """Return *moment* as a naive UTC datetime (aware times are converted)."""
+    if moment.tzinfo is not None:
+        return moment.astimezone(UTC).replace(tzinfo=None)
+    return moment
 
 
 def _provenance_attrs(config: CruiseConfig) -> dict[str, Any]:
@@ -136,7 +156,7 @@ class NetCDFGenerator:
                     "category": "point_operation",
                     "type": cf_operation,
                     "action": event.action or "unknown",
-                    "duration": event.duration_minutes / 60.0,
+                    "duration": event.duration_minutes,
                     "comment": event.comment or "",
                 }
             )
@@ -275,22 +295,19 @@ class NetCDFGenerator:
             fill_flags = []  # 1 where the duration is the fill value
             delay_starts = []  # minutes; NaN for rows without a delay field
 
-            def epoch_days(moment: datetime) -> float:
-                if moment.tzinfo is not None:
-                    moment = moment.astimezone(UTC).replace(tzinfo=None)
-                return (moment - datetime(1970, 1, 1)).total_seconds() / 86400.0
-
+            planned_durations = []
             for event in timeline:
                 activity = event.activity
-                times.append(epoch_days(event.start_time))
-                end_times.append(epoch_days(event.end_time))
+                times.append(_utc_naive(event.start_time))
+                end_times.append(_utc_naive(event.end_time))
                 lats.append(event.entry_lat)
                 lons.append(event.entry_lon)
                 exit_lats.append(event.exit_lat)
                 exit_lons.append(event.exit_lon)
                 names.append(event.label)
                 leg_names.append(event.leg_name)
-                durations.append(event.duration_minutes / 60.0)
+                durations.append(event.duration_minutes)
+                planned_durations.append(event.planned_duration_minutes)
                 fill_flags.append(1 if event.duration_is_fill else 0)
                 delay = event.delay_start_minutes
                 delay_starts.append(np.nan if delay is None else float(delay))
@@ -334,14 +351,15 @@ class NetCDFGenerator:
                     distances_to_next[i - 1] = event.dist_nm
 
             # Convert to numpy arrays
-            times = np.array(times, dtype=np.float64)
+            times = np.array(times, dtype="datetime64[us]")
             lats = np.array(lats, dtype=np.float32)
             lons = np.array(lons, dtype=np.float32)
             water_depths = np.array(water_depths, dtype=np.float32)
             operation_depths = np.array(operation_depths, dtype=np.float32)
-            durations = np.array(durations, dtype=np.float32)
+            durations = np.array(durations, dtype=np.float64)
+            planned_durations = np.array(planned_durations, dtype=np.float64)
             vessel_speeds = np.array(vessel_speeds, dtype=np.float32)
-            distances_to_next = np.array(distances_to_next, dtype=np.float32)
+            distances_to_next = np.array(distances_to_next, dtype=np.float64)
             # Convert start/end coordinates to numpy arrays
             start_lats = np.array(start_lats, dtype=np.float32)
             start_lons = np.array(start_lons, dtype=np.float32)
@@ -350,8 +368,8 @@ class NetCDFGenerator:
             # Convert additional ActivityRecord fields to numpy arrays
             exit_lats = np.array(exit_lats, dtype=np.float32)
             exit_lons = np.array(exit_lons, dtype=np.float32)
-            end_times = np.array(end_times, dtype=np.float64)
-            dist_nms = np.array(dist_nms, dtype=np.float32)
+            end_times = np.array(end_times, dtype="datetime64[us]")
+            dist_nms = np.array(dist_nms, dtype=np.float64)
             fill_flags = np.array(fill_flags, dtype=np.int8)
             delay_starts = np.array(delay_starts, dtype=np.float32)
 
@@ -364,8 +382,7 @@ class NetCDFGenerator:
                         times,
                         {
                             "standard_name": "time",
-                            "long_name": "time of ship position",
-                            "units": "days since 1970-01-01 00:00:00",
+                            "long_name": "activity start time (UTC)",
                         },
                     ),
                     "longitude": (
@@ -467,8 +484,22 @@ class NetCDFGenerator:
                         ["obs"],
                         durations,
                         {
-                            "long_name": "activity duration",
-                            "units": "hour",
+                            "long_name": "activity duration (actual: end_time - time)",
+                            "units": "minute",
+                            "coordinates": "time latitude longitude water_depth",
+                        },
+                    ),
+                    "planned_duration": (
+                        ["obs"],
+                        planned_durations,
+                        {
+                            "long_name": "planned activity duration",
+                            "units": "minute",
+                            "comment": (
+                                "From the planning rules; larger than duration "
+                                "when the next activity started early (negative "
+                                "delay_start)"
+                            ),
                             "coordinates": "time latitude longitude water_depth",
                         },
                     ),
@@ -483,7 +514,7 @@ class NetCDFGenerator:
                                 "1: no duration was stated or computable (missing "
                                 "duration or depth, or no rule for the operation "
                                 "type); duration is the fill value "
-                                f"{DEFAULT_MOORING_DURATION_MIN / 60:.0f} hours"
+                                f"{DEFAULT_MOORING_DURATION_MIN:.0f} minutes"
                             ),
                             "coordinates": "time latitude longitude water_depth",
                         },
@@ -507,7 +538,7 @@ class NetCDFGenerator:
                         vessel_speeds,
                         {
                             "long_name": "vessel speed",
-                            "units": "knots",
+                            "units": "knot",
                             "coordinates": "time latitude longitude water_depth",
                         },
                     ),
@@ -516,7 +547,7 @@ class NetCDFGenerator:
                         distances_to_next,
                         {
                             "long_name": "distance to next waypoint",
-                            "units": "nautical_miles",
+                            "units": "nautical_mile",
                             "coordinates": "time latitude longitude water_depth",
                         },
                     ),
@@ -591,18 +622,15 @@ class NetCDFGenerator:
                         end_times,
                         {
                             "standard_name": "time",
-                            "long_name": "activity end time",
-                            "units": "days since 1970-01-01 00:00:00",
-                            "calendar": "gregorian",
-                            "description": "Time when activity completes",
+                            "long_name": "activity end time (UTC)",
                         },
                     ),
-                    "dist_nm": (
+                    "distance": (
                         ["obs"],
                         dist_nms,
                         {
                             "long_name": "activity distance",
-                            "units": "nautical_miles",
+                            "units": "nautical_mile",
                             "description": "Distance associated with this activity (transit or operation distance)",
                         },
                     ),
@@ -626,13 +654,10 @@ class NetCDFGenerator:
             )
 
         # Set global attributes
-        if not timeline:
-            total_duration_days = 0.0
-        # Calculate total cruise duration in days, handling edge cases
-        elif len(times) > 1:
-            total_duration_days = max(0.0, times[-1] - times[0])
-        else:
-            total_duration_days = 0.0
+        for name in ("time", "end_time"):
+            if name in ds.variables:
+                ds[name].encoding.update(TIME_ENCODING)
+        total_duration_days = timeline_minutes(timeline) / 1440.0
         provenance = planning_provenance(config)
         fill_count = sum(1 for event in timeline if event.duration_is_fill)
         ds.attrs.update(
@@ -649,6 +674,7 @@ class NetCDFGenerator:
                 **provenance,
                 "fill_duration_count": fill_count,
                 "fill_duration_hours": DEFAULT_MOORING_DURATION_MIN / 60.0,
+                "schedule_format": SCHEDULE_FORMAT,
             }
         )
 
@@ -888,8 +914,22 @@ class NetCDFGenerator:
 
                 ds_lines = ds_lines.assign(
                     {
-                        "longitude": (("operations", "endpoints"), lon_2d),
-                        "latitude": (("operations", "endpoints"), lat_2d),
+                        "longitude": (
+                            ("operations", "endpoints"),
+                            lon_2d,
+                            {
+                                **ds_lines["start_longitude"].attrs,
+                                "long_name": "line operation start and end longitude",
+                            },
+                        ),
+                        "latitude": (
+                            ("operations", "endpoints"),
+                            lat_2d,
+                            {
+                                **ds_lines["start_latitude"].attrs,
+                                "long_name": "line operation start and end latitude",
+                            },
+                        ),
                     }
                 )
 
@@ -1026,7 +1066,7 @@ class NetCDFGenerator:
                 "end_lat": event.exit_lat,
                 "end_lon": event.exit_lon,
                 "vessel_speed": event.vessel_speed_kt,
-                "duration": event.duration_minutes / 60.0,
+                "duration": event.duration_minutes,
                 "comment": event.comment or "",
             }
             for event in timeline
@@ -1132,7 +1172,7 @@ class NetCDFGenerator:
                         vessel_speeds,
                         {
                             "long_name": "planned vessel speed for operation",
-                            "units": "knots",
+                            "units": "knot",
                             "_FillValue": np.nan,
                         },
                     ),
@@ -1141,7 +1181,7 @@ class NetCDFGenerator:
                         durations,
                         {
                             "long_name": "planned operation duration",
-                            "units": "hour",
+                            "units": "minute",
                             "_FillValue": np.nan,
                         },
                     ),

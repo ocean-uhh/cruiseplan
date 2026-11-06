@@ -49,6 +49,9 @@ test = [
   "pytest>=8.4.2",
   "pytest-cov>=7.1.0",
   "pyyaml>=6.0.3",
+  "packaging>=24.0",
+  # UDUNITS-2 check of NetCDF units; the test falls back to a list without it
+  "cf-units>=3.3.1",
 ]
 dev = [
   "cruiseplan[test]",

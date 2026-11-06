@@ -18,6 +18,98 @@ from cruiseplan.timeline.record import KIND_CATEGORY, ActivityRecord, kind_of
 logger = logging.getLogger(__name__)
 
 
+# Minutes per unit of a duration variable, by its units attribute
+_MINUTES_PER_UNIT = {
+    "minute": 1.0,
+    "minutes": 1.0,
+    "min": 1.0,
+    "hour": 60.0,
+    "hours": 60.0,
+    "h": 60.0,
+    "second": 1.0 / 60.0,
+    "seconds": 1.0 / 60.0,
+    "s": 1.0 / 60.0,
+    "day": 1440.0,
+    "days": 1440.0,
+    "d": 1440.0,
+}
+
+
+def _to_minutes(schedule: xr.Dataset, var: str, filepath: Path) -> xr.Dataset:
+    """Convert a duration variable to minutes using its units attribute."""
+    units = schedule[var].attrs.get("units")
+    if units is None:
+        raise ValueError(f"{filepath}: variable '{var}' has no units attribute")
+    factor = _MINUTES_PER_UNIT.get(str(units).strip())
+    if factor is None:
+        raise ValueError(f"{filepath}: variable '{var}' has unknown units '{units}'")
+    if factor != 1.0:
+        attrs = {**schedule[var].attrs, "units": "minute"}
+        schedule = schedule.assign({var: (schedule[var] * factor).assign_attrs(attrs)})
+    return schedule
+
+
+def to_current_format(
+    schedule: xr.Dataset, filepath: Path | str = "schedule"
+) -> xr.Dataset:
+    """
+    Return a schedule in the current layout: durations in minutes, ``distance``.
+
+    Files written by cruiseplan 0.5.0 store durations in hours and the
+    activity distance as ``dist_nm``; they are converted here (read support
+    until 0.7.0). Durations are converted by their ``units`` attribute, never
+    assumed. A dataset already in the current layout is returned unchanged.
+
+    Parameters
+    ----------
+    schedule : xr.Dataset
+        Schedule dataset as opened from a file.
+    filepath : Path or str, optional
+        File name used in messages.
+
+    Returns
+    -------
+    xr.Dataset
+        The dataset in the current layout.
+
+    Raises
+    ------
+    ValueError
+        If a duration variable has no units attribute or unknown units.
+    """
+    if "dist_nm" in schedule.variables and "distance" not in schedule.variables:
+        schedule = schedule.rename({"dist_nm": "distance"})
+        logger.info(
+            f"{filepath}: schedule written by cruiseplan 0.5.0 (dist_nm, durations "
+            "in hours); read support ends in 0.7.0"
+        )
+    for var in ("duration", "planned_duration"):
+        if var in schedule.variables:
+            schedule = _to_minutes(schedule, var, filepath)
+    if "planned_duration" not in schedule.variables:
+        schedule = schedule.assign(planned_duration=schedule["duration"])
+    return schedule
+
+
+def duration_hours(schedule: xr.Dataset, index: int) -> float:
+    """
+    Return the duration of row *index* in hours.
+
+    Parameters
+    ----------
+    schedule : xr.Dataset
+        Schedule dataset from :func:`read_schedule` (durations in minutes).
+    index : int
+        Row index.
+
+    Returns
+    -------
+    float
+        Duration in hours.
+    """
+    return float(schedule.duration[index].values) / 60.0
+
+
 def read_schedule(filepath: str | Path) -> xr.Dataset:
     """
     Read NetCDF schedule file and return dataset.
@@ -36,7 +128,8 @@ def read_schedule(filepath: str | Path) -> xr.Dataset:
         - category: Activity types ('point_operation', 'transit', 'other')
         - type: Specific operation type (CTD, mooring, etc.)
         - action: Specific action (deployment, recovery, profile, etc.)
-        - duration: Activity duration in hours
+        - duration, planned_duration: Activity duration in minutes (files
+          written by 0.5.0, in hours, are converted on reading)
         - latitude, longitude: Position coordinates
         - comment: Descriptive text
 
@@ -80,6 +173,7 @@ def read_schedule(filepath: str | Path) -> xr.Dataset:
                 f"Schedule file missing required variables: {missing_vars}"
             )
 
+        schedule = to_current_format(schedule, filepath)
         logger.info(
             f"Successfully loaded schedule with {len(schedule.time)} activities"
         )
@@ -204,10 +298,10 @@ def netcdf_to_activity_records(schedule: xr.Dataset) -> list[ActivityRecord]:
         time_value = schedule.time[i].values
         if np.issubdtype(type(time_value), np.datetime64):
             # Already a datetime64, convert to datetime
-            start_time = pd.to_datetime(time_value).to_pydatetime()
+            start_time = pd.to_datetime(time_value).floor("us").to_pydatetime()
         elif isinstance(time_value, np.integer):
             # Handle nanosecond timestamps
-            start_time = pd.to_datetime(time_value).to_pydatetime()
+            start_time = pd.to_datetime(time_value).floor("us").to_pydatetime()
         else:
             # Convert days since epoch to datetime
             start_time_days = float(time_value)
@@ -219,18 +313,21 @@ def netcdf_to_activity_records(schedule: xr.Dataset) -> list[ActivityRecord]:
             if np.issubdtype(type(end_time_value), np.datetime64) or isinstance(
                 end_time_value, np.integer
             ):
-                end_time = pd.to_datetime(end_time_value).to_pydatetime()
+                end_time = pd.to_datetime(end_time_value).floor("us").to_pydatetime()
             elif not np.isnan(float(end_time_value)):
                 end_time_days = float(end_time_value)
                 end_time = datetime(1970, 1, 1) + timedelta(days=end_time_days)
             else:
-                duration_hours = float(schedule.duration[i].values)
-                end_time = start_time + timedelta(hours=duration_hours)
+                end_time = start_time + timedelta(
+                    minutes=float(schedule.duration[i].values)
+                )
         else:
-            duration_hours = float(schedule.duration[i].values)
-            end_time = start_time + timedelta(hours=duration_hours)
+            end_time = start_time + timedelta(
+                minutes=float(schedule.duration[i].values)
+            )
 
-        duration_minutes = float(schedule.duration[i].values) * 60.0
+        duration_minutes = float(schedule.duration[i].values)
+        planned_minutes = float(schedule.planned_duration[i].values)
         comment = _text(schedule, "comment", i, "")
         activity_records.append(
             ActivityRecord(
@@ -246,8 +343,8 @@ def netcdf_to_activity_records(schedule: xr.Dataset) -> list[ActivityRecord]:
                 start_time=start_time,
                 end_time=end_time,
                 duration_minutes=duration_minutes,
-                planned_duration_minutes=duration_minutes,
-                dist_nm=_number(schedule, "dist_nm", i, 0.0) or 0.0,
+                planned_duration_minutes=planned_minutes,
+                dist_nm=_number(schedule, "distance", i, 0.0) or 0.0,
                 transit_dist_nm=_number(schedule, "distance_to_next", i, 0.0) or 0.0,
                 vessel_speed_kt=_float(schedule, "vessel_speed", i, np.nan),
                 leg_name=_text(schedule, "leg_assignment", i, "unknown"),

@@ -12,7 +12,7 @@ ROOT = Path(__file__).parent.parent.parent
 CONFIGS = [
     ROOT / "data" / "pycnmix-2026-v1.yaml",
     ROOT / "tests" / "fixtures" / "tc1_single.yaml",
-    ROOT / "tests" / "fixtures" / "coldsnap-2028-newformat.yaml",
+    ROOT / "tests" / "fixtures" / "mooring_sequence_greenland.yaml",
 ]
 PARAMETERS = [
     "start_date",

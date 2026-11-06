@@ -426,27 +426,11 @@ class TestTC2TwoLegsIntegration:
             "Should have at least one mooring operation in NetCDF"
         )
 
-        # Check that mooring duration matches DEFAULT_MOORING_DURATION_MIN (converted to hours)
-        expected_duration_hours = (
-            DEFAULT_MOORING_DURATION_MIN / 60.0
-        )  # Convert minutes to hours
+        # Mooring duration in minutes (the units attribute says so)
+        assert ds["duration"].attrs["units"] == "minute"
+        expected_duration_hours = DEFAULT_MOORING_DURATION_MIN / 60.0
         for idx in mooring_indices:
-            mooring_duration = durations[idx]
-            # Handle different duration representations
-            if hasattr(mooring_duration, "total_seconds"):
-                # pandas Timedelta object
-                mooring_duration_hours = mooring_duration.total_seconds() / 3600.0
-            elif (
-                isinstance(mooring_duration, (int, float)) and mooring_duration > 10000
-            ):
-                # Likely nanoseconds, convert to hours
-                mooring_duration_hours = float(mooring_duration) / (
-                    1e9 * 3600.0
-                )  # ns to hours
-            else:
-                # Regular float/int value
-                mooring_duration_hours = float(mooring_duration)
-
+            mooring_duration_hours = float(durations[idx]) / 60.0
             assert abs(mooring_duration_hours - expected_duration_hours) < 0.1, (
                 f"Mooring duration in NetCDF should be {expected_duration_hours} hours, got {mooring_duration_hours}"
             )

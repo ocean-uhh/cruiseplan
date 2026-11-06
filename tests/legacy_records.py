@@ -5,7 +5,7 @@ Those tests describe one or two activities as dictionaries with the
 pre-0.6.0 keys. ``as_records`` turns them into ``ActivityRecord`` objects so
 the writers, which take records, can be tested on the same values. Keys a
 dictionary leaves out get neutral values (zero distance and speed, an end time
-equal to start plus duration).
+equal to start plus duration, a start at the end of the previous row).
 """
 
 from datetime import datetime, timedelta
@@ -76,5 +76,10 @@ def as_record(row: dict) -> ActivityRecord:
 
 
 def as_records(rows: list[dict]) -> list[ActivityRecord]:
-    """Return records for a list of pre-0.6.0 activity dictionaries."""
-    return [as_record(r) for r in rows]
+    """Return records for activity dictionaries; a row without a start follows the previous one."""
+    records: list[ActivityRecord] = []
+    for row in rows:
+        if records and "start_time" not in row and "time" not in row:
+            row = {**row, "start_time": records[-1].end_time}
+        records.append(as_record(row))
+    return records

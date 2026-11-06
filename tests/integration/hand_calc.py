@@ -14,6 +14,9 @@ files with ``yaml.safe_load`` and every number follows the written rules:
 - an area is entered at its first corner and left at its last corner; a line
   is entered at its first route point and left at its last
 - a transit of zero length is not scheduled
+- a row that runs past the next row's start (the next operation has a
+  negative ``delay_start_minutes``) is shortened to end there, never below
+  zero length; its planned minutes are kept (``hand_trim``)
 
 Forecast (at-sea re-anchoring), ``hand_forecast``:
 
@@ -26,7 +29,7 @@ Forecast (at-sea re-anchoring), ``hand_forecast``:
 """
 
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timedelta
 
 R_EARTH_KM = 6371.0
@@ -116,6 +119,7 @@ class Row:
     depth: float | None = None
     is_fill: bool = False
     entry: tuple[float, float] | None = None
+    planned: float | None = None  # planned minutes, when trimmed
 
 
 @dataclass
@@ -322,6 +326,18 @@ def cruise_start(cfg: dict) -> datetime:
 def hand_schedule(cfg: dict, **kwargs: bool) -> list[Row]:
     """Full hand schedule for a YAML config dict."""
     return run_legs(cruise_start(cfg), hand_legs(cfg, **kwargs))
+
+
+def hand_trim(rows: list[Row]) -> list[Row]:
+    """Rows with each one ended where the next starts, if it ran past it."""
+    out = list(rows)
+    for i in range(1, len(out)):
+        prev, row = out[i - 1], out[i]
+        if row.start < prev.end:
+            end = max(row.start, prev.start)
+            minutes = (end - prev.start).total_seconds() / 60.0
+            out[i - 1] = replace(prev, end=end, minutes=minutes, planned=prev.minutes)
+    return out
 
 
 # -----------------------------------------------------------------------------

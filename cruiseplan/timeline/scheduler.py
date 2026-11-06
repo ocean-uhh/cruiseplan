@@ -8,6 +8,7 @@ coordinates:
 """
 
 import logging
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
@@ -42,6 +43,8 @@ __all__ = [
     "calculate_timeline_statistics",
     "fill_duration_summary",
     "generate_timeline",
+    "timeline_minutes",
+    "trim_overlaps",
 ]
 
 
@@ -405,6 +408,47 @@ def calculate_timeline_statistics(timeline: Timeline) -> dict[str, Any]:
 # =============================================================================
 
 
+@dataclass(frozen=True)
+class _Rules:
+    """Duration rules for one operation: the cruise config and the leg's values."""
+
+    config: CruiseConfig
+    turnaround_time_minutes: float | None = None
+
+
+def trim_overlaps(timeline: Timeline) -> Timeline:
+    """
+    Shorten each record that runs past the start of the next one.
+
+    A negative ``delay_start_minutes`` means the previous activity ended
+    early: the next record starts before the previous one ends. The previous
+    record is ended where the next one starts (its duration is never below
+    zero); ``planned_duration_minutes`` keeps the planned value. The sum of
+    the durations then equals the elapsed time, and the schedule matches what
+    the forecast shows.
+
+    Parameters
+    ----------
+    timeline : Timeline
+        Records in schedule order.
+
+    Returns
+    -------
+    Timeline
+        A new list; trimmed records are replaced by copies.
+    """
+    out = list(timeline)
+    for i in range(1, len(out)):
+        previous, record = out[i - 1], out[i]
+        if record.start_time < previous.end_time:
+            end = max(record.start_time, previous.start_time)
+            out[i - 1] = previous.replace(
+                end_time=end,
+                duration_minutes=(end - previous.start_time).total_seconds() / 60.0,
+            )
+    return out
+
+
 class TimelineGenerator:
     """Generates cruise timeline from operations and legs."""
 
@@ -438,6 +482,7 @@ class TimelineGenerator:
         for leg in legs:
             leg_activities = self._process_leg(leg)
             timeline.extend(leg_activities)
+        timeline = trim_overlaps(timeline)
 
         for name, reason in self._fill_reasons.items():
             logger.warning(
@@ -654,7 +699,7 @@ class TimelineGenerator:
                 activities.append(transit)
 
         # Add the operation activity
-        operation_activity = self._create_operation_activity(operation, leg.name)
+        operation_activity = self._create_operation_activity(operation, leg)
         activities.append(operation_activity)
 
     def _create_navigational_transit(
@@ -675,8 +720,7 @@ class TimelineGenerator:
         )
 
         # Create rules object for calculate_duration
-        rules = type("Rules", (), {"config": self.config})()
-        duration_minutes = transit.calculate_duration(rules)
+        duration_minutes = transit.calculate_duration(_Rules(self.config))
 
         # Skip zero-distance transits
         if duration_minutes <= 0:
@@ -706,13 +750,12 @@ class TimelineGenerator:
         return activity
 
     def _create_operation_activity(
-        self, operation: BaseOperation, leg_name: str = "unknown"
+        self, operation: BaseOperation, leg: "Leg"
     ) -> ActivityRecord:
         """Create activity record for a scientific operation."""
         entry_pt, exit_pt = operation.get_coordinates()
-
-        # Create rules object for calculate_duration
-        rules = type("Rules", (), {"config": self.config})()
+        leg_name = leg.name
+        rules = _Rules(self.config, getattr(leg, "turnaround_time", None))
         duration_minutes = operation.calculate_duration(rules)
         if getattr(operation, "duration_is_fill", False):
             self._fill_reasons.setdefault(
@@ -964,7 +1007,7 @@ def generate_cruise_schedule(
     timeline = generate_timeline(cruise.config, legs_to_process)
 
     # Calculate summary statistics
-    total_duration_h = sum(record.duration_minutes for record in timeline) / 60.0
+    total_duration_h = timeline_minutes(timeline) / 60.0
     total_transit_nm = sum(
         record.dist_nm for record in timeline if record.kind == "transit"
     )
