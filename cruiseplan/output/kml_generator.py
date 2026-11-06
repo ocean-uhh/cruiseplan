@@ -21,6 +21,7 @@ import logging
 from pathlib import Path
 
 from cruiseplan.config.cruise_config import CruiseConfig
+from cruiseplan.output.output_utils import round_time_to_minute
 from cruiseplan.timeline.record import ActivityRecord
 
 logger = logging.getLogger(__name__)
@@ -146,7 +147,7 @@ class KMLGenerator:
             <name>{activity.label}</name>
             <description>
                 Activity: {activity.activity} (Line)
-                Start: {activity.start_time.strftime("%Y-%m-%d %H:%M")}
+                Start: {round_time_to_minute(activity.start_time):%Y-%m-%d %H:%M}
                 Duration: {activity.duration_minutes:.1f} min
             </description>
             <styleUrl>#lineOpStyle</styleUrl>
@@ -164,7 +165,7 @@ class KMLGenerator:
             <name>{activity.label}</name>
             <description>
                 Activity: {activity.activity} (Area - no corners defined)
-                Start: {activity.start_time.strftime("%Y-%m-%d %H:%M")}
+                Start: {round_time_to_minute(activity.start_time):%Y-%m-%d %H:%M}
                 Duration: {activity.duration_minutes:.1f} min
             </description>
             <styleUrl>#stationStyle</styleUrl>
@@ -182,7 +183,7 @@ class KMLGenerator:
             <name>{activity.label}</name>
             <description>
                 Activity: {activity.activity}
-                Start: {activity.start_time.strftime("%Y-%m-%d %H:%M")}
+                Start: {round_time_to_minute(activity.start_time):%Y-%m-%d %H:%M}
                 Duration: {activity.duration_minutes:.1f} min
             </description>
             <styleUrl>#{style_id}</styleUrl>

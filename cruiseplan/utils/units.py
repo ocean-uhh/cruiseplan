@@ -6,6 +6,7 @@ for time, distance, and other measurements. These are mathematical constants
 that do not change based on cruise configuration.
 """
 
+import math
 from datetime import datetime, timedelta
 
 # --- Time Conversion Factors ---
@@ -166,8 +167,10 @@ def round_to_minutes(dt: datetime, step: int = 10) -> datetime:
     """
     Round a time to the nearest ``step`` minutes, carrying into the date.
 
-    Seconds are dropped before rounding, as in letsgo.m. 23:56 with
-    ``step=10`` gives 00:00 on the next day.
+    The whole time is rounded, seconds included, and a time exactly halfway
+    rounds up, as MATLAB ``round`` does in letsgo.m: with ``step=10``, 12:05
+    gives 12:10, 12:04:59 gives 12:00, 12:05:40 gives 12:10, and 23:55 gives
+    00:00 on the next day.
 
     Parameters
     ----------
@@ -182,5 +185,6 @@ def round_to_minutes(dt: datetime, step: int = 10) -> datetime:
         Rounded time, with seconds and microseconds set to zero.
     """
     midnight = dt.replace(hour=0, minute=0, second=0, microsecond=0)
-    total_minutes = dt.hour * 60 + dt.minute
-    return midnight + timedelta(minutes=round(total_minutes / step) * step)
+    seconds = (dt - midnight).total_seconds()
+    steps = math.floor(seconds / (step * 60) + 0.5)
+    return midnight + timedelta(minutes=steps * step)

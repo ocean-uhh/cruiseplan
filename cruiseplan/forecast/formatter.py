@@ -115,6 +115,7 @@ def format_letsgo_output(
     ],
     start_time: str,
     transit_speed: float = 10.0,
+    anchor_note: str | None = None,
 ) -> str:
     """
     Format forecast activities as letsgo.m compatible text.
@@ -127,6 +128,9 @@ def format_letsgo_output(
         Start time for header metadata
     transit_speed : float, optional
         Ship transit speed in knots (default: 10.0)
+    anchor_note : str, optional
+        How the forecast is anchored (``generator.anchor_rule``); written as
+        an ``% Anchor =`` header line.
 
     Returns
     -------
@@ -146,10 +150,11 @@ def format_letsgo_output(
     if not forecast_activities:
         return "% No activities in forecast window"
 
-    # Parse start time for header
+    # Start time for the header, in UTC like the rows
+    from cruiseplan.forecast.generator import parse_start_time
+
     try:
-        start_dt = datetime.fromisoformat(start_time.replace("T", " "))
-        start_date_str = start_dt.strftime("%Y/%m/%d %H:%M")
+        start_date_str = parse_start_time(start_time).strftime("%Y/%m/%d %H:%M UTC")
     except ValueError:
         start_date_str = start_time
 
@@ -159,6 +164,7 @@ def format_letsgo_output(
         f"% Start_Date = {start_date_str}",
         f"% Ship_Speed = {transit_speed:.0f}",
         f"% Transit_Speed = {transit_speed:.0f}",
+        *([f"% Anchor = {anchor_note}"] if anchor_note else []),
         "%",
         "% (1: Transit, 2: CTD, 3: Mooring, 4: PIES, 5: Float/Drifter, 6: Survey)",
         "%",

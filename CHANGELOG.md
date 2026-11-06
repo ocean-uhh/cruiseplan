@@ -8,12 +8,15 @@ versions follow [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
-- `forecast --current-position` changed only the waypoints header line. It now adds a transit from that position to the anchored operation at the leg speed, in every format (text, tex, waypoints, kml, png).
-- `forecast --current-position -74.62,164.30` (negative first coordinate after a space) was rejected as an unknown option; that form, `lat lon` as two values and the `=` form all parse.
+- `forecast --current-position` changed only the waypoints header line. It now adds a transit from that position to the anchored operation at the leg speed, so the times change in every format (text, tex, waypoints, kml, png); the ship position itself is marked in the text and waypoints outputs only.
+- `forecast --current-position -74.62,164.30` (negative first coordinate after a space) was rejected as an unknown option; that form, `lat lon` as two values of any sign (`65.0 -30.0`, `65.0 30.0`) and the `=` form all parse.
 - TeX plan: a time rounded past midnight (23:56 → 00:00) is printed under the next day.
 - Waypoints without `--start-time` at 23:55 or later started at 00:00 of the same day; the rounding carries into the date.
 - Forecast rows overlapped where an operation has a negative `delay_start`; the row before it is shortened to end where the operation starts.
 - KML forecast had no placemarks (records lacked the fields the KML writer reads).
+- A forecast window with no operation in it (only a transit) wrote an empty plan; every format now stops with an error naming the window.
+- `--current-position` within 0.05 nm of the anchored operation inserted a zero-length transit; it is skipped.
+- `forecast --start-time` is UTC: a time with a zone is converted, a time without one is taken as UTC; waypoints without `--start-time` start from the current UTC time. Forecast times are whole seconds (no "Discarding nonzero nanoseconds" warning).
 - NetCDF schedule stores `delay_start` (minutes) so it round-trips; files without it still read.
 
 - Missing, partial or unreadable bathymetry file: depth lookups return the fill value `-9999.0` (`DEFAULT_DEPTH`) with a WARNING naming the file and the `cruiseplan bathymetry` command, instead of formula ("mock") depths. Maps are drawn without bathymetry. Mock mode removed.
@@ -45,7 +48,7 @@ versions follow [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
-- `forecast --start-index`: the operation at the index starts at `--start-time`, without the transit into it. A transit row anchors on the operation it leads to, with a warning, so `Transit to X` and `X` give the same forecast. With `--current-position`, `--start-time` is the time at that position.
+- `forecast --start-index`: the row at the index starts at `--start-time` (UTC). On an operation row the transit into it is not included; on a transit row the ship is starting that transit now (it is kept, starting at `--start-time`). With `--current-position` the position wins: a transit row moves to the operation it leads to, and `--start-time` is the time at that position. The text and TeX headers state the rule applied.
 
 - NetCDF `creation_date` is UTC with `Z` (was naive local time).
 - The library no longer configures logging: API functions do not call `logging.basicConfig` (it reset the caller's root handlers). The `cruiseplan` command line configures logging; `verbose=True` sets the `cruiseplan` logger to DEBUG for that call only. Scripts and notebooks that want the INFO messages configure logging themselves (`logging.basicConfig(level=logging.INFO)`).

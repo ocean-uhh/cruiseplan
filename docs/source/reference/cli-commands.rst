@@ -601,20 +601,29 @@ Two modes of operation:
   (default: 10 kt); transit times use the planned leg speed
 - ``--current-position LAT,LON``: Ship position at ``--start-time`` in decimal
   degrees (e.g. ``-74.62,164.30``, ``"-74.62 164.30"`` or
-  ``--current-position=-74.62,164.30``); changes the times in every format
+  ``--current-position=-74.62,164.30``, or two values of any sign such as
+  ``65.0 -30.0``); changes the times in every format
 
 **Anchoring rule:**
 
-- The operation at ``--start-index`` starts at ``--start-time``: the ship is
-  there, so the transit into it is not part of the forecast. Its own
-  ``delay_start`` is replaced by the start time.
+- ``--start-time`` is UTC; a time without a zone is taken as UTC.
 - Indices are the rows of ``cruiseplan list`` (ports, transits, operations,
-  buffers). If the index is a transit row, the forecast anchors on the
-  operation that transit leads to and prints a warning. Anchoring on
-  ``Transit to X`` and on ``X`` gives the same forecast.
-- With ``--current-position``, ``--start-time`` is the time at that position.
-  A transit from it to the anchored operation is added at the leg's planned
-  speed, and the operation starts when it ends.
+  buffers). The row at ``--start-index`` starts at ``--start-time``.
+- An operation row: the ship is there, so the transit into it is not part of
+  the forecast. Its own ``delay_start_minutes`` is replaced by the start time.
+- A transit row: the ship is starting that transit now, from where it begins;
+  the operation it leads to starts when the planned transit ends. Anchoring
+  on ``Transit to X`` puts ``X`` later than anchoring on ``X``, by the
+  transit time.
+- With ``--current-position`` the given position wins, ``--start-time`` is
+  the time at that position, and a transit row is replaced by the operation
+  it leads to. A transit from the position to that operation is added at the
+  leg's planned speed (not when the ship is within 0.05 nm of it), and the
+  operation starts when it ends.
+- If no operation starts within ``--duration`` hours, the command stops with
+  an error instead of writing an empty plan.
+- The text forecast (``% Anchor =`` line) and the TeX plan (under the title)
+  state the rule applied.
 - Every later row keeps its planned offset from the anchored operation.
 - A row followed by an operation with a negative ``delay_start`` (the
   previous activity ended early) is shortened to end where that operation
