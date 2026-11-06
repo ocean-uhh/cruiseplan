@@ -74,7 +74,7 @@ COORDINATE_VARIABLES = {
     "time": {
         "standard_name": "time",
         "long_name": "time of ship position",
-        "units": "seconds since 1970-01-01 00:00:00",
+        "units": "seconds since 1970-01-01",
         "calendar": "standard",
     },
 }
@@ -147,7 +147,7 @@ STATION_VARIABLES = {
     "end_time": {
         "standard_name": "time",
         "long_name": "activity end time",
-        "units": "seconds since 1970-01-01 00:00:00",
+        "units": "seconds since 1970-01-01",
         "calendar": "standard",
         "description": "Time when activity completes",
     },
@@ -185,24 +185,19 @@ SCHEDULE_VARIABLES = {
     "start_time": {
         "standard_name": "time",
         "long_name": "activity start time",
-        "units": "seconds since 1970-01-01 00:00:00",
+        "units": "seconds since 1970-01-01",
         "calendar": "standard",
     },
     "end_time": {
         "standard_name": "time",
         "long_name": "activity end time",
-        "units": "seconds since 1970-01-01 00:00:00",
+        "units": "seconds since 1970-01-01",
         "calendar": "standard",
     },
-    "duration_minutes": {
-        "long_name": "activity duration",
+    "planned_duration": {
+        "long_name": "planned activity duration",
         "units": "minute",
-        "description": "Duration of the activity in minutes",
-    },
-    "dist_nm": {
-        "long_name": "distance",
-        "units": "nautical_mile",
-        "description": "Distance associated with this activity (transit distance or operation distance)",
+        "description": "Duration of the activity from the planning rules",
     },
 }
 

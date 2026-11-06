@@ -34,19 +34,62 @@ _MINUTES_PER_UNIT = {
     "d": 1440.0,
 }
 
+# Target unit and factor per unit of the other physical variables, by their
+# units attribute: (variables, unit written, {unit read: factor})
+_CONVERSIONS = (
+    (
+        ("distance",),
+        "nautical_mile",
+        {
+            "nautical_mile": 1.0,
+            "nautical_miles": 1.0,
+            "nmi": 1.0,
+            "km": 1.0 / 1.852,
+            "kilometer": 1.0 / 1.852,
+            "m": 1.0 / 1852.0,
+        },
+    ),
+    (
+        ("vessel_speed",),
+        "knot",
+        {"knot": 1.0, "knots": 1.0, "kt": 1.0, "m s-1": 1.0 / 0.514444},
+    ),
+    (
+        ("water_depth", "operation_depth"),
+        "m",
+        {"m": 1.0, "meter": 1.0, "metre": 1.0, "meters": 1.0, "km": 1000.0},
+    ),
+)
 
-def _to_minutes(schedule: xr.Dataset, var: str, filepath: Path) -> xr.Dataset:
-    """Convert a duration variable to minutes using its units attribute."""
+
+def _convert(
+    schedule: xr.Dataset,
+    var: str,
+    target: str,
+    factors: dict[str, float],
+    filepath: Path | str,
+) -> xr.Dataset:
+    """Convert *var* to *target* units using its units attribute."""
     units = schedule[var].attrs.get("units")
+    rewrite = "write the schedule again with `cruiseplan schedule`"
     if units is None:
-        raise ValueError(f"{filepath}: variable '{var}' has no units attribute")
-    factor = _MINUTES_PER_UNIT.get(str(units).strip())
+        raise ValueError(
+            f"{filepath}: variable '{var}' has no units attribute; {rewrite}"
+        )
+    factor = factors.get(str(units).strip())
     if factor is None:
-        raise ValueError(f"{filepath}: variable '{var}' has unknown units '{units}'")
-    if factor != 1.0:
-        attrs = {**schedule[var].attrs, "units": "minute"}
+        raise ValueError(
+            f"{filepath}: variable '{var}' has unknown units '{units}'; {rewrite}"
+        )
+    if factor != 1.0 or units != target:
+        attrs = {**schedule[var].attrs, "units": target}
         schedule = schedule.assign({var: (schedule[var] * factor).assign_attrs(attrs)})
     return schedule
+
+
+def _to_minutes(schedule: xr.Dataset, var: str, filepath: Path | str) -> xr.Dataset:
+    """Convert a duration variable to minutes using its units attribute."""
+    return _convert(schedule, var, "minute", _MINUTES_PER_UNIT, filepath)
 
 
 def to_current_format(
@@ -57,8 +100,10 @@ def to_current_format(
 
     Files written by cruiseplan 0.5.0 store durations in hours and the
     activity distance as ``dist_nm``; they are converted here (read support
-    until 0.7.0). Durations are converted by their ``units`` attribute, never
-    assumed. A dataset already in the current layout is returned unchanged.
+    until 0.7.0). Durations, distance, speed and depths are converted by
+    their ``units`` attribute, never assumed; times opened without decoding
+    are decoded. A dataset already in the current layout is returned
+    unchanged.
 
     Parameters
     ----------
@@ -83,9 +128,21 @@ def to_current_format(
             f"{filepath}: schedule written by cruiseplan 0.5.0 (dist_nm, durations "
             "in hours); read support ends in 0.7.0"
         )
+    if not np.issubdtype(schedule["time"].dtype, np.datetime64):
+        # Opened without decoding times (decode_times=False): decode by units
+        units = str(schedule["time"].attrs.get("units", ""))
+        if " since " not in units:
+            raise ValueError(
+                f"{filepath}: time has units '{units}', not '<unit> since <date>'"
+            )
+        schedule = xr.decode_cf(schedule)
     for var in ("duration", "planned_duration"):
         if var in schedule.variables:
             schedule = _to_minutes(schedule, var, filepath)
+    for names, target, factors in _CONVERSIONS:
+        for var in names:
+            if var in schedule.variables:
+                schedule = _convert(schedule, var, target, factors, filepath)
     if "planned_duration" not in schedule.variables:
         schedule = schedule.assign(planned_duration=schedule["duration"])
     return schedule
@@ -285,6 +342,7 @@ def netcdf_to_activity_records(schedule: xr.Dataset) -> list[ActivityRecord]:
     >>> for record in activity_records:
     ...     print(f"{record.label}: {record.activity}")
     """
+    schedule = to_current_format(schedule)
     activity_records = []
     if "vessel_speed" not in schedule.variables:
         logger.warning("Schedule has no vessel_speed variable; record speeds are NaN")

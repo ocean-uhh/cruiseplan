@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 # Times are written as UTC seconds since the epoch (CF encoding)
 TIME_ENCODING = {
-    "units": "seconds since 1970-01-01 00:00:00",
+    "units": "seconds since 1970-01-01",
     "calendar": "standard",
     "dtype": "float64",
 }
@@ -196,7 +196,7 @@ class NetCDFGenerator:
             types = [op["type"] for op in point_operations]
             actions = [op["action"] for op in point_operations]
             durations = np.array(
-                [op["duration"] for op in point_operations], dtype=np.float32
+                [op["duration"] for op in point_operations], dtype=np.float64
             )
             comments = [op["comment"] for op in point_operations]
 
@@ -1107,7 +1107,7 @@ class NetCDFGenerator:
                 comments.append(op["comment"])
 
             vessel_speeds = np.array(vessel_speeds, dtype=np.float32)
-            durations = np.array(durations, dtype=np.float32)
+            durations = np.array(durations, dtype=np.float64)
 
             # Create xarray Dataset
             ds = xr.Dataset(

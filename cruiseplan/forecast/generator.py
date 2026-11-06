@@ -195,8 +195,7 @@ def _time_offsets(schedule: xr.Dataset) -> list[pd.Timedelta]:
     time_data = schedule.time.values
     if hasattr(time_data[0], "total_seconds"):
         return [pd.Timedelta(seconds=float(t.total_seconds())) for t in time_data]
-    if np.issubdtype(time_data.dtype, np.number):
-        return [pd.Timedelta(hours=float(t)) for t in time_data]
+    # Numbers here would be undecoded CF times; to_current_format decodes them
     times = pd.to_datetime(time_data)
     return [t - times[0] for t in times]
 
