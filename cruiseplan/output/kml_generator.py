@@ -358,7 +358,7 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
                 action = "profile"
 
             # Use water_depth field (added by enrichment) with fallback
-            depth = getattr(station, "water_depth", None) or getattr(
+            depth = getattr(station, "water_depth_m", None) or getattr(
                 station, "depth", None
             )
             depth_str = f"{depth:.0f}" if depth is not None else "N/A"
@@ -399,7 +399,7 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
                 action = "deployment"
 
             # Use water_depth field (added by enrichment) with fallback
-            depth = getattr(mooring, "water_depth", None) or getattr(
+            depth = getattr(mooring, "water_depth_m", None) or getattr(
                 mooring, "depth", None
             )
             depth_str = f"{depth:.0f}" if depth is not None else "N/A"

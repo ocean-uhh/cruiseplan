@@ -1,9 +1,9 @@
 cruise_name: "TC1_Single_Test"
-default_vessel_speed: 10.0
-turnaround_time: 30.0
-ctd_descent_rate: 1.0
-ctd_ascent_rate: 1.0
-default_distance_between_stations: 15.0
+default_vessel_speed_kt: 10.0
+turnaround_time_minutes: 30.0
+ctd_descent_rate_m_s: 1.0
+ctd_ascent_rate_m_s: 1.0
+default_distance_between_stations_km: 15.0
 start_date: '1970-01-01T00:00:00+00:00'
 
 
@@ -13,7 +13,7 @@ points:
     longitude: -45.0
     operation_type: CTD
     action: profile
-    water_depth: 2850.0
+    water_depth_m: 2850.0
 
 legs:
   - name: "Leg_Single"

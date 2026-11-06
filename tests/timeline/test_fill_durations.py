@@ -43,7 +43,9 @@ def test_schedule_mooring_without_duration_gets_fill():
 
 def test_mooring_with_operation_depth_still_gets_fill(tmp_path):
     """A mooring with an operation_depth is not timed as a CTD cast."""
-    config = _variant(tmp_path, "tc2_two_legs.yaml", "STN_002", operation_depth=1000.0)
+    config = _variant(
+        tmp_path, "tc2_two_legs.yaml", "STN_002", operation_depth_m=1000.0
+    )
     timeline = cruiseplan.schedule(config, format=None).timeline
     mooring = _record(timeline, "STN_002")
     assert mooring.duration_is_fill is True
@@ -79,7 +81,10 @@ def test_enrich_and_schedule_agree_on_mooring_fill(tmp_path):
         bathy_dir=str(tmp_path / "no_bathymetry"),
     )
     cruise = CruiseInstance(result.output_file)
-    assert cruise.point_registry["STN_002"].duration == DEFAULT_MOORING_DURATION_MIN
+    assert (
+        cruise.point_registry["STN_002"].duration_minutes
+        == DEFAULT_MOORING_DURATION_MIN
+    )
     timeline = generate_timeline(cruise)
     mooring = _record(timeline, "STN_002")
     assert mooring.duration_minutes == DEFAULT_MOORING_DURATION_MIN
@@ -96,7 +101,7 @@ def test_ctd_without_depth_gets_fill():
 
 def test_ctd_at_fill_depth_gets_fill(tmp_path):
     """tc1 STN_001 with water_depth at the fill value is not a 0-minute cast."""
-    path = _variant(tmp_path, "tc1_single.yaml", "STN_001", water_depth=DEFAULT_DEPTH)
+    path = _variant(tmp_path, "tc1_single.yaml", "STN_001", water_depth_m=DEFAULT_DEPTH)
     timeline = cruiseplan.schedule(path, format=None).timeline
     ctd = _record(timeline, "STN_001")
     assert ctd.duration_minutes == DEFAULT_MOORING_DURATION_MIN
@@ -118,7 +123,7 @@ def test_operation_type_without_rule_gets_fill(tmp_path):
         "tc1_single.yaml",
         "STN_001",
         operation_type="water_sampling",
-        water_depth=None,
+        water_depth_m=None,
     )
     timeline = cruiseplan.schedule(path, format=None).timeline
     record = _record(timeline, "STN_001")

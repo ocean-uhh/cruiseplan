@@ -89,10 +89,10 @@ class TestTC3ClustersIntegration:
         )
 
         # Leg_Survey should use default speed (None), Leg_Survey_Faster should have 12.0
-        assert leg_survey.vessel_speed is None, (
+        assert leg_survey.vessel_speed_kt is None, (
             "Leg_Survey should use default vessel speed"
         )
-        assert leg_faster.vessel_speed == 12.0, (
+        assert leg_faster.vessel_speed_kt == 12.0, (
             "Leg_Survey_Faster should have vessel_speed 12.0"
         )
 

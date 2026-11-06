@@ -15,8 +15,8 @@ def mock_config():
     return CruiseConfig(
         cruise_name="Test",
         start_date="2025-01-01T08:00:00",
-        default_vessel_speed=10,
-        default_distance_between_stations=20,
+        default_vessel_speed_kt=10,
+        default_distance_between_stations_km=20,
         calculate_transfer_between_sections=True,
         calculate_depth_via_bathymetry=False,
         legs=[
@@ -38,9 +38,9 @@ def mock_config():
                 "action": "profile",
             }
         ],
-        ctd_descent_rate=1.0,  # 60 m/min
-        ctd_ascent_rate=1.0,  # 60 m/min
-        turnaround_time=10,  # min
+        ctd_descent_rate_m_s=1.0,  # 60 m/min
+        ctd_ascent_rate_m_s=1.0,  # 60 m/min
+        turnaround_time_minutes=10,  # min
         # Day Window
         day_start_hour=8,
         day_end_hour=20,
@@ -52,9 +52,9 @@ def slow_winch_config(mock_config):
     """Custom Config: Slower rates (0.5 m/s) and longer turnaround"""
     # Create a copy with modified values
     config = mock_config.model_copy()
-    config.ctd_descent_rate = 2  # 120 m/min
-    config.ctd_ascent_rate = 0.5  # 30 m/min
-    config.turnaround_time = 12.5
+    config.ctd_descent_rate_m_s = 2  # 120 m/min
+    config.ctd_ascent_rate_m_s = 0.5  # 30 m/min
+    config.turnaround_time_minutes = 12.5
     return config
 
 
@@ -96,8 +96,8 @@ def test_custom_day_window_wait():
     cfg = CruiseConfig(
         cruise_name="Summer Sun",
         start_date="2025-06-01T00:00:00",
-        default_vessel_speed=10,
-        default_distance_between_stations=10,
+        default_vessel_speed_kt=10,
+        default_distance_between_stations_km=10,
         calculate_transfer_between_sections=True,
         calculate_depth_via_bathymetry=False,
         legs=[

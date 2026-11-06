@@ -185,9 +185,9 @@ class TestPointOperation:
         mock_station.longitude = -25.0
         mock_station.operation_type = mock_operation_type
         mock_station.action = None
-        mock_station.operation_depth = 800.0
-        mock_station.water_depth = 1200.0
-        mock_station.duration = 0.0
+        mock_station.operation_depth_m = 800.0
+        mock_station.water_depth_m = 1200.0
+        mock_station.duration_minutes = 0.0
         mock_station.comment = "Deep CTD cast"
 
         op = PointOperation.from_pydantic(mock_station)
@@ -214,9 +214,9 @@ class TestPointOperation:
         mock_mooring.longitude = -30.0
         mock_mooring.operation_type = mock_operation_type
         mock_mooring.action = mock_action
-        mock_mooring.operation_depth = None
-        mock_mooring.water_depth = 2000.0
-        mock_mooring.duration = 180.0
+        mock_mooring.operation_depth_m = None
+        mock_mooring.water_depth_m = 2000.0
+        mock_mooring.duration_minutes = 180.0
         mock_mooring.comment = "Mooring deployment"
 
         op = PointOperation.from_pydantic(mock_mooring)
@@ -301,7 +301,7 @@ class TestLineOperation:
         op = LineOperation(name="TRANS_001", route=route, speed=0.0)  # No speed set
 
         mock_config = MagicMock()
-        mock_config.default_vessel_speed = 8.0
+        mock_config.default_vessel_speed_kt = 8.0
         mock_rules = MagicMock()
         mock_rules.config = mock_config
 
@@ -377,7 +377,7 @@ class TestLineOperation:
         mock_transit = MagicMock()
         mock_transit.name = "TRANS_002"
         mock_transit.route = [mock_point1, mock_point2]
-        mock_transit.vessel_speed = 14.0
+        mock_transit.vessel_speed_kt = 14.0
         mock_transit.comment = "Transit between areas"
 
         op = LineOperation.from_pydantic(mock_transit, default_speed=10.0)
@@ -398,7 +398,7 @@ class TestLineOperation:
         mock_transit = MagicMock()
         mock_transit.name = "TRANS_003"
         mock_transit.route = [mock_point]
-        mock_transit.vessel_speed = None
+        mock_transit.vessel_speed_kt = None
         mock_transit.comment = None
 
         op = LineOperation.from_pydantic(mock_transit, default_speed=12.0)
@@ -564,7 +564,7 @@ class TestAreaOperation:
         mock_area = MagicMock()
         mock_area.name = "GRID_SURVEY"
         mock_area.corners = [mock_point1, mock_point2, mock_point3]
-        mock_area.duration = 240.0
+        mock_area.duration_minutes = 240.0
         mock_area.comment = "Systematic grid survey"
 
         op = AreaOperation.from_pydantic(mock_area)
@@ -590,7 +590,7 @@ class TestAreaOperation:
         mock_area = MagicMock()
         mock_area.name = "GRID_SURVEY"
         mock_area.corners = [mock_point]
-        mock_area.duration = None
+        mock_area.duration_minutes = None
         mock_area.comment = None
 
         with pytest.raises(ValueError) as exc_info:
@@ -604,7 +604,7 @@ class TestAreaOperation:
         mock_area = MagicMock()
         mock_area.name = "EMPTY_AREA"
         mock_area.corners = []
-        mock_area.duration = 120.0
+        mock_area.duration_minutes = 120.0
         mock_area.comment = None
 
         op = AreaOperation.from_pydantic(mock_area)

@@ -297,11 +297,11 @@ def generate_forecast(
     the time at that position: a transit from it to the anchored operation,
     at the leg's speed, is inserted first and the operation starts when it
     ends. Every later row keeps its planned offset from the anchored
-    operation. The anchored operation's own ``delay_start`` is replaced by
+    operation. The anchored operation's own ``delay_start_minutes`` is replaced by
     the anchor time.
 
     A row that runs past the start of the next row (the next operation has a
-    negative ``delay_start``: the previous activity ended early) is shortened
+    negative ``delay_start_minutes``: the previous activity ended early) is shortened
     to end where the next row starts.
 
     Parameters

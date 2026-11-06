@@ -6,14 +6,14 @@ points:
     operation_type: CTD
     action: profile
     latitude: 45.0
-    operation_depth: 58.0
+    operation_depth_m: 58.0
     longitude: -50.0
 
 lines:
   - name: ADCP_Survey  
     operation_type: underway
     action: ADCP
-    vessel_speed: 5.0
+    vessel_speed_kt: 5.0
     route:
       - latitude: 46.0
         longitude: -50
@@ -24,7 +24,7 @@ areas:
   - name: Area_01
     operation_type: survey  
     action: bathymetry
-    duration: 120
+    duration_minutes: 120
     corners:
       - latitude: 47.5
         longitude: -50.5  

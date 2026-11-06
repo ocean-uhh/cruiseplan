@@ -530,9 +530,9 @@ class TestLegFactoryMethod:
             name="Test_Leg",
             departure_port="port_halifax",
             arrival_port="port_st_johns",
-            vessel_speed=15.0,
-            turnaround_time=45.0,
-            distance_between_stations=20.0,
+            vessel_speed_kt=15.0,
+            turnaround_time_minutes=45.0,
+            distance_between_stations_km=20.0,
             activities=[
                 {"name": "test_station", "operation_type": "CTD"}
             ],  # Minimal activity to pass validation

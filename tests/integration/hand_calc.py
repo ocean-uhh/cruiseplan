@@ -44,6 +44,28 @@ REGISTRY_PORTS = {
 }
 
 
+# Pre-0.6.0 key names, read from configs that still use them
+OLD_KEYS = {
+    "duration_minutes": "duration",
+    "delay_start_minutes": "delay_start",
+    "buffer_time_minutes": "buffer_time",
+    "turnaround_time_minutes": "turnaround_time",
+    "water_depth_m": "water_depth",
+    "operation_depth_m": "operation_depth",
+    "vessel_speed_kt": "vessel_speed",
+    "default_vessel_speed_kt": "default_vessel_speed",
+    "ctd_descent_rate_m_s": "ctd_descent_rate",
+    "ctd_ascent_rate_m_s": "ctd_ascent_rate",
+}
+
+
+def key(d: dict, name: str, default: object = None) -> object:
+    """Value of the key *name* in a YAML mapping, or of its pre-0.6.0 name."""
+    if name in d:
+        return d[name]
+    return d.get(OLD_KEYS.get(name, name), default)
+
+
 def gc_nm(a: tuple[float, float], b: tuple[float, float]) -> float:
     """Great-circle distance in nm between (lat, lon) points."""
     p1, p2 = math.radians(a[0]), math.radians(b[0])
@@ -184,8 +206,8 @@ def port_stop(cfg: dict, ref: str | dict) -> Stop:
             ref.get("display_name", ref["name"]).split(",")[0].strip(),
             (ref["latitude"], ref["longitude"]),
             (ref["latitude"], ref["longitude"]),
-            float(ref.get("duration") or 0.0),
-            float(ref.get("delay_start") or 0.0),
+            float(key(ref, "duration_minutes") or 0.0),
+            float(key(ref, "delay_start_minutes") or 0.0),
             kind="port",
         )
     for p in cfg.get("ports") or []:
@@ -202,21 +224,21 @@ def activity_stop(
     turnaround: float | None = None,
 ) -> Stop:
     """Resolve an activity name to a Stop using the documented duration rules."""
-    descent = float(cfg.get("ctd_descent_rate", 1.0))
-    ascent = float(cfg.get("ctd_ascent_rate", 1.0))
+    descent = float(key(cfg, "ctd_descent_rate_m_s", 1.0))
+    ascent = float(key(cfg, "ctd_ascent_rate_m_s", 1.0))
     if turnaround is None:
-        turnaround = float(cfg.get("turnaround_time", 30.0))
+        turnaround = float(key(cfg, "turnaround_time_minutes", 30.0))
     for p in cfg.get("points") or []:
         if p["name"] != name:
             continue
         pos = (p["latitude"], p["longitude"])
-        depth = p.get("operation_depth", p.get("water_depth"))
+        depth = key(p, "operation_depth_m", key(p, "water_depth_m"))
         if depth == FILL_DEPTH:
-            depth = p.get("water_depth")
+            depth = key(p, "water_depth_m")
         op_type = str(p.get("operation_type", "")).lower()
-        delay = float(p.get("delay_start") or 0.0)
-        if p.get("duration"):
-            minutes = float(p["duration"])
+        delay = float(key(p, "delay_start_minutes") or 0.0)
+        if key(p, "duration_minutes"):
+            minutes = float(key(p, "duration_minutes"))
             return Stop(
                 name, pos, pos, minutes, delay, depth=depth, is_fill=minutes == FILL_MIN
             )
@@ -237,13 +259,13 @@ def activity_stop(
                 name,
                 (first["latitude"], first["longitude"]),
                 (last["latitude"], last["longitude"]),
-                float(area["duration"]),
+                float(key(area, "duration_minutes")),
             )
     for line in cfg.get("lines") or []:
         if line["name"] == name:
             route = [(r["latitude"], r["longitude"]) for r in line["route"]]
             nm = sum(gc_nm(route[i], route[i + 1]) for i in range(len(route) - 1))
-            speed = float(line.get("vessel_speed") or leg_speed)
+            speed = float(key(line, "vessel_speed_kt") or leg_speed)
             return Stop(
                 name,
                 route[0],
@@ -264,12 +286,12 @@ def leg_activities(leg: dict) -> list[str]:
 
 def hand_legs(cfg: dict, leg_speed_for_lines: bool = True) -> list[HandLeg]:
     """Build HandLeg objects for every leg in a YAML config."""
-    default_speed = float(cfg.get("default_vessel_speed", 10.0))
+    default_speed = float(key(cfg, "default_vessel_speed_kt", 10.0))
     legs = []
     for leg in cfg["legs"]:
-        speed = float(leg.get("vessel_speed") or default_speed)
+        speed = float(key(leg, "vessel_speed_kt") or default_speed)
         line_speed = speed if leg_speed_for_lines else default_speed
-        turnaround = leg.get("turnaround_time")
+        turnaround = key(leg, "turnaround_time_minutes")
         stops = [port_stop(cfg, leg["departure_port"])]
         stops += [
             activity_stop(cfg, a, line_speed, turnaround) for a in leg_activities(leg)
@@ -280,8 +302,8 @@ def hand_legs(cfg: dict, leg_speed_for_lines: bool = True) -> list[HandLeg]:
                 leg["name"],
                 stops,
                 speed,
-                leg.get("buffer_time"),
-                float(leg.get("delay_start") or 0.0),
+                key(leg, "buffer_time_minutes"),
+                float(key(leg, "delay_start_minutes") or 0.0),
             )
         )
     return legs

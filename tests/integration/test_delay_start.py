@@ -10,8 +10,8 @@ from cruiseplan.timeline.scheduler import generate_timeline
 _BASE_YAML = """
 cruise_name: "Delay_Start_Test"
 start_date: "2025-01-01T08:00:00"
-default_vessel_speed: 10.0
-default_distance_between_stations: 15.0
+default_vessel_speed_kt: 10.0
+default_distance_between_stations_km: 15.0
 
 points:
   - name: STN_001
@@ -42,8 +42,8 @@ legs:
 _DELAYED_YAML = """
 cruise_name: "Delay_Start_Test"
 start_date: "2025-01-01T08:00:00"
-default_vessel_speed: 10.0
-default_distance_between_stations: 15.0
+default_vessel_speed_kt: 10.0
+default_distance_between_stations_km: 15.0
 
 points:
   - name: STN_001

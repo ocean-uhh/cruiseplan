@@ -1084,9 +1084,9 @@ class StationPicker:
             "action": action,
         }
         if water_depth is not None:
-            point_attrs["water_depth"] = water_depth
+            point_attrs["water_depth_m"] = water_depth
         if duration is not None:
-            point_attrs["duration"] = duration
+            point_attrs["duration_minutes"] = duration
 
         return PointDefinition(**point_attrs)
 
@@ -1187,8 +1187,10 @@ class StationPicker:
             cruise_config = CruiseConfig(
                 cruise_name=current_name,
                 description="Cruise plan created with interactive station picker",
-                default_vessel_speed=default_config.default_vessel_speed,
-                default_distance_between_stations=default_config.default_distance_between_stations,
+                default_vessel_speed_kt=default_config.default_vessel_speed_kt,
+                default_distance_between_stations_km=(
+                    default_config.default_distance_between_stations_km
+                ),
                 start_date=default_config.start_date,
                 points=point_definitions,
                 lines=line_definitions,

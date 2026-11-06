@@ -27,7 +27,7 @@ def test_missing_file_writes_fill_depth(tmp_path):
     """tc4: the station without a depth gets the fill value, not a formula depth."""
     enriched = _enrich_without_bathymetry(FIXTURES / "tc4_mixed_ops.yaml", tmp_path)
     station = next(p for p in enriched["points"] if p["name"] == "STN_001")
-    assert station["water_depth"] == DEFAULT_DEPTH
+    assert station["water_depth_m"] == DEFAULT_DEPTH
     assert "bathymetry_source" not in station
 
 
@@ -47,7 +47,7 @@ def test_stated_depths_are_kept(tmp_path):
     """coldsnap: stations with a stated water_depth are not overwritten by the fill."""
     source = yaml.safe_load((FIXTURES / "coldsnap-2028-newformat.yaml").read_text())
     stated = {
-        p["name"]: p["water_depth"] for p in source["points"] if "water_depth" in p
+        p["name"]: p["water_depth_m"] for p in source["points"] if "water_depth_m" in p
     }
     assert stated, "fixture should state at least one depth"
     enriched = _enrich_without_bathymetry(
@@ -55,7 +55,7 @@ def test_stated_depths_are_kept(tmp_path):
     )
     for point in enriched["points"]:
         if point["name"] in stated:
-            assert point["water_depth"] == stated[point["name"]]
+            assert point["water_depth_m"] == stated[point["name"]]
 
 
 def test_enriched_yaml_with_fill_depth_reloads(tmp_path):
@@ -63,4 +63,4 @@ def test_enriched_yaml_with_fill_depth_reloads(tmp_path):
     _enrich_without_bathymetry(FIXTURES / "tc4_mixed_ops.yaml", tmp_path)
     enriched_path = next((tmp_path / "out").glob("*_enriched.yaml"))
     cruise = CruiseInstance(enriched_path)
-    assert cruise.point_registry["STN_001"].water_depth == DEFAULT_DEPTH
+    assert cruise.point_registry["STN_001"].water_depth_m == DEFAULT_DEPTH

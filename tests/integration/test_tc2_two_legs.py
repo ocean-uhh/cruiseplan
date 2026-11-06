@@ -107,7 +107,7 @@ class TestTC2TwoLegsIntegration:
         assert stn_002.longitude == -30.0
         assert stn_002.operation_type.value == "mooring"
         assert stn_002.action.value == "deployment"
-        assert stn_002.duration == DEFAULT_MOORING_DURATION_MIN
+        assert stn_002.duration_minutes == DEFAULT_MOORING_DURATION_MIN
 
         # Validate legs
         assert len(config.legs) == 2
@@ -209,9 +209,9 @@ class TestTC2TwoLegsIntegration:
         # Load enriched config and verify duration
         enriched_cruise = CruiseInstance(enriched_path)
         mooring_station = enriched_cruise.point_registry["STN_MOORING"]
-        assert hasattr(mooring_station, "duration")
-        assert mooring_station.duration == DEFAULT_MOORING_DURATION_MIN
-        assert mooring_station.duration == 59940.0  # 999 hours
+        assert hasattr(mooring_station, "duration_minutes")
+        assert mooring_station.duration_minutes == DEFAULT_MOORING_DURATION_MIN
+        assert mooring_station.duration_minutes == 59940.0  # 999 hours
 
     def test_timeline_generation_with_expected_structure(self, base_config_path):
         """Test timeline generation produces expected two-leg structure."""

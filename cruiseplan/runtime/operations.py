@@ -271,7 +271,7 @@ class PointOperation(BaseOperation):
         """
         Calculate duration based on operation type and rules.
 
-        If ``manual_duration > 0`` (set via ``duration:`` in YAML, in minutes),
+        If ``manual_duration > 0`` (set via ``duration_minutes:`` in YAML),
         that value is returned immediately and all type-based calculations
         (CTD cast time, etc.) are skipped.  This is the intended per-station
         override mechanism.
@@ -280,7 +280,7 @@ class PointOperation(BaseOperation):
         ``DEFAULT_MOORING_DURATION_MIN`` (999 h) is returned and
         ``duration_is_fill`` / ``duration_fill_reason`` are set (the scheduler
         logs one warning per operation): a mooring or yo-yo cast
-        without ``duration``, a depth-driven cast without a usable depth
+        without ``duration_minutes``, a depth-driven cast without a usable depth
         (missing, zero or the fill depth), and an operation type with no
         duration rule. Ports and waypoints take 0 minutes.
 
@@ -296,7 +296,7 @@ class PointOperation(BaseOperation):
         """
         self.duration_is_fill = False
         self.duration_fill_reason = None
-        # Manual duration (from YAML `duration:` field, minutes) always wins.
+        # Manual duration (YAML `duration_minutes:`) always wins.
         if self.manual_duration > 0:
             # The enrich step writes the fill value for moorings without one
             if self.manual_duration == DEFAULT_MOORING_DURATION_MIN:
@@ -439,19 +439,21 @@ class PointOperation(BaseOperation):
 
         # Use water_depth as fallback for operation_depth
         operation_depth = (
-            obj.operation_depth if obj.operation_depth is not None else obj.water_depth
+            obj.operation_depth_m
+            if obj.operation_depth_m is not None
+            else obj.water_depth_m
         )
 
         return cls(
             name=obj.name,
             position=pos,
             operation_depth=operation_depth,
-            water_depth=obj.water_depth,
-            duration=obj.duration if obj.duration else 0.0,
+            water_depth=obj.water_depth_m,
+            duration=obj.duration_minutes if obj.duration_minutes else 0.0,
             comment=obj.comment,
             op_type=display_op_type,
             action=action,
-            delay_start=obj.delay_start,
+            delay_start=obj.delay_start_minutes,
         )
 
     @classmethod
@@ -476,14 +478,14 @@ class PointOperation(BaseOperation):
             position=pos,
             operation_depth=None,  # Ports don't have operation depth
             water_depth=None,  # Ports don't need water depth
-            duration=obj.duration if obj.duration else 0.0,
+            duration=obj.duration_minutes if obj.duration_minutes else 0.0,
             comment=getattr(obj, "description", None),
             op_type="port",
             action=getattr(
                 obj, ACTION_FIELD, "mob"
             ),  # Use port's action or default to mob
             display_name=getattr(obj, "display_name", None),
-            delay_start=obj.delay_start,
+            delay_start=obj.delay_start_minutes,
         )
 
 
@@ -569,7 +571,7 @@ class LineOperation(BaseOperation):
             effective_speed = (
                 self.speed
                 if self.speed and self.speed > 0
-                else rules.config.default_vessel_speed
+                else rules.config.default_vessel_speed_kt
             )
             return calc.calculate_transit_time(route_distance_km, effective_speed)
         # Fallback for cases without config
@@ -660,7 +662,7 @@ class LineOperation(BaseOperation):
         return cls(
             name=obj.name,
             route=route_geopoints,
-            speed=obj.vessel_speed if obj.vessel_speed else default_speed,
+            speed=obj.vessel_speed_kt if obj.vessel_speed_kt else default_speed,
             comment=obj.comment,
             display_name=getattr(obj, "display_name", None),
             op_type=display_op_type,
@@ -779,7 +781,7 @@ class AreaOperation(BaseOperation):
             return self.duration
         raise ValueError(
             f"Area operation '{self.name}' requires user-specified duration. "
-            "Add 'duration: <minutes>' to the area definition in YAML."
+            "Add 'duration_minutes: <minutes>' to the area definition in YAML."
         )
 
     def get_entry_point(self) -> tuple[float, float]:
@@ -828,10 +830,10 @@ class AreaOperation(BaseOperation):
         ValueError
             If duration is not specified in the area definition.
         """
-        if obj.duration is None:
+        if obj.duration_minutes is None:
             raise ValueError(
                 f"Area operation '{obj.name}' requires user-specified duration. "
-                "Add 'duration: <minutes>' to the area definition in YAML."
+                "Add 'duration_minutes: <minutes>' to the area definition in YAML."
             )
 
         # Convert List[GeoPoint] -> List[tuple]
@@ -854,7 +856,7 @@ class AreaOperation(BaseOperation):
             name=obj.name,
             boundary_polygon=boundary_geopoints,
             area_km2=area_km2,
-            duration=obj.duration,
+            duration=obj.duration_minutes,
             start_point=start_point,
             end_point=end_point,
             comment=obj.comment,
@@ -931,9 +933,7 @@ class NavigationalTransit(BaseOperation):
         self.to_op = to_op
         self.config = config
         self.leg_name = leg_name
-        self.vessel_speed = vessel_speed or getattr(
-            config, "default_vessel_speed", 10.0
-        )
+        self.vessel_speed = vessel_speed or config.default_vessel_speed_kt
 
     def calculate_duration(self, rules: DurationRules | None) -> float:  # noqa: ARG002 - interface; transit uses its own speed
         """

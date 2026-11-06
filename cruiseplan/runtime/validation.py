@@ -365,7 +365,7 @@ def validate_depth_accuracy(
 
     for station_name, station in cruise_instance.point_registry.items():
         # Check water_depth field (preferred for bathymetry comparison)
-        water_depth = getattr(station, "water_depth", None)
+        water_depth = station.water_depth_m
         if water_depth == DEFAULT_DEPTH:
             # Fill value: report it once and skip the depth and mooring checks
             warning_messages.append(
@@ -405,8 +405,7 @@ def validate_depth_accuracy(
         # Additional validation for moorings: operation_depth should match water_depth (both sit on seafloor)
         operation_type = getattr(station, "operation_type", None)
         if operation_type == "mooring":
-            operation_depth = getattr(station, "operation_depth", None)
-            water_depth = water_depth or getattr(station, "depth", None)
+            operation_depth = station.operation_depth_m
 
             if operation_depth is not None and water_depth is not None:
                 # For moorings, operation_depth and water_depth should be very close
@@ -716,8 +715,8 @@ def warning_relates_to_entity(
     if hasattr(entity, "action") and str(entity.action) in warning_msg:
         return True
 
-    if hasattr(entity, "duration") and "duration" in warning_msg.lower():
-        duration_val = str(entity.duration)
+    if hasattr(entity, "duration_minutes") and "duration" in warning_msg.lower():
+        duration_val = str(entity.duration_minutes)
         if duration_val in warning_msg or (
             "placeholder" in warning_msg and "placeholder" in duration_val.lower()
         ):

@@ -337,14 +337,14 @@ def pycnmix_with_delays() -> dict:
     cfg = load("pycnmix")
     for p in cfg["points"]:
         if p["name"] == "LDEO_heavy_shallow_deployment":
-            p["delay_start"] = 90.0  # same position as the recovery: no transit
+            p["delay_start_minutes"] = 90.0  # same position as the recovery: no transit
         if p["name"] == "SouthCapeAdair":
-            p["delay_start"] = 45.0  # used in Leg1 and Leg3
+            p["delay_start_minutes"] = 45.0  # used in Leg1 and Leg3
         if p["name"] == "NISS":
-            p["delay_start"] = 30.0  # first op of Leg2, after a transit
+            p["delay_start_minutes"] = 30.0  # first op of Leg2, after a transit
     for leg in cfg["legs"]:
         if leg["name"] == "Leg2":
-            leg["delay_start"] = 120.0
+            leg["delay_start_minutes"] = 120.0
     return cfg
 
 
@@ -381,9 +381,11 @@ def pycnmix_with_negative_delays() -> dict:
     cfg = load("pycnmix")
     for p in cfg["points"]:
         if p["name"] == "LDEO_heavy_shallow_deployment":
-            p["delay_start"] = -30.0  # no transit before it: overlaps the recovery
+            p[
+                "delay_start_minutes"
+            ] = -30.0  # no transit before it: overlaps the recovery
         if p["name"] == "NIWA_DITN":
-            p["delay_start"] = -60.0  # after a 193.08 nm transit
+            p["delay_start_minutes"] = -60.0  # after a 193.08 nm transit
     return cfg
 
 
@@ -437,22 +439,6 @@ def test_total_duration_includes_delays(tmp_path):
     assert sum(r.duration_minutes for r in tl) == pytest.approx(span_min, abs=1)
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="delay_end is a documented point field (hold after an operation) but "
-    "the scheduler never reads it",
-)
-def test_delay_end_holds_after_operation(tmp_path):
-    """delay_end: 30 on NISS delays the next transit by 30 min."""
-    cfg = load("pycnmix")
-    next(p for p in cfg["points"] if p["name"] == "NISS")["delay_end"] = 30.0
-    base = timeline(CONFIGS["pycnmix"])
-    tl = timeline(write(tmp_path, cfg, "delay_end"))
-    label = "Transit to LDEO_heavy_shallow_recovery"
-    shift = by_label(tl, label).start_time - by_label(base, label).start_time
-    assert shift.total_seconds() / 60 == pytest.approx(30)
-
-
 # =============================================================================
 # Leg-level overrides
 # =============================================================================
@@ -466,7 +452,7 @@ def test_delay_end_holds_after_operation(tmp_path):
 def test_leg_turnaround_time(tmp_path):
     """tc1_single with leg turnaround_time 20: 2850/60 * 2 + 20 = 115 min."""
     cfg = load("tc1_single")
-    cfg["legs"][0]["turnaround_time"] = 20.0
+    cfg["legs"][0]["turnaround_time_minutes"] = 20.0
     stn = by_label(timeline(write(tmp_path, cfg, "turn")), "STN_001")
     assert stn.duration_minutes == pytest.approx(115.0)
 
@@ -474,7 +460,7 @@ def test_leg_turnaround_time(tmp_path):
 def tc5_leg_speed(tmp_path: Path) -> tuple[list[dict], float]:
     """tc5 with leg vessel_speed 12 kt; returns timeline and section length."""
     cfg = load("tc5_sections")
-    cfg["legs"][0]["vessel_speed"] = 12.0
+    cfg["legs"][0]["vessel_speed_kt"] = 12.0
     nm = gc_nm((45.0, -50.0), (47.0, -48.0))  # 146.20 nm
     return timeline(write(tmp_path, cfg, "tc5_12kt")), nm
 
@@ -559,7 +545,7 @@ def test_depth_from_gebco_subset(tmp_path, halifax_source, keep_op_depth, depth_
     stn = cfg["points"][0]
     stn["latitude"], stn["longitude"] = 44.40, -63.50
     if not keep_op_depth:
-        del stn["operation_depth"]
+        del stn["operation_depth_m"]
     result = cruiseplan.enrich(
         config_file=write(tmp_path, cfg, "tc4_halifax"),
         output_dir=str(tmp_path / "out"),

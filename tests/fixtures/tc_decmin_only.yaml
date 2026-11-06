@@ -8,14 +8,14 @@ points:
     comment: Test station with only decmin coordinates
     operation_type: CTD
     action: profile
-    duration: 60.0
+    duration_minutes: 60.0
     latitude_decmin: 65 31.316 N
     longitude_decmin: 029 32.796 W
   - name: test_station_2
     comment: Another test station
     operation_type: mooring
     action: deployment
-    duration: 120.0
+    duration_minutes: 120.0
     latitude_decmin: 64 45.123 N
     longitude_decmin: 030 15.456 W
 
