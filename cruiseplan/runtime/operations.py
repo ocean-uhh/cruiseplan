@@ -86,6 +86,8 @@ class BaseOperation(ABC):
         self.name = name
         self.comment = comment
         self.display_name = display_name or name
+        # Actual minutes of the transit into this operation, when given
+        self.transit_minutes: float | None = None
 
     @abstractmethod
     def calculate_duration(self, rules: DurationRules | None) -> float:
@@ -447,7 +449,7 @@ class PointOperation(BaseOperation):
             else obj.water_depth_m
         )
 
-        return cls(
+        op = cls(
             name=obj.name,
             position=pos,
             operation_depth=operation_depth,
@@ -458,6 +460,8 @@ class PointOperation(BaseOperation):
             action=action,
             delay_start=obj.delay_start_minutes,
         )
+        op.transit_minutes = getattr(obj, "transit_minutes", None)
+        return op
 
     @classmethod
     def from_port(cls, obj: PointDefinition) -> "PointOperation":
@@ -476,7 +480,7 @@ class PointOperation(BaseOperation):
         """
         pos = GeoPoint(latitude=obj.latitude, longitude=obj.longitude)
 
-        return cls(
+        op = cls(
             name=obj.name,
             position=pos,
             operation_depth=None,  # Ports don't have operation depth
@@ -490,6 +494,8 @@ class PointOperation(BaseOperation):
             display_name=getattr(obj, "display_name", None),
             delay_start=obj.delay_start_minutes,
         )
+        op.transit_minutes = getattr(obj, "transit_minutes", None)
+        return op
 
 
 class LineOperation(BaseOperation):
@@ -673,7 +679,7 @@ class LineOperation(BaseOperation):
         display_op_type = obj.operation_type.value if obj.operation_type else "line"
         action = obj.action.value if obj.action else None
 
-        return cls(
+        op = cls(
             name=obj.name,
             route=route_geopoints,
             speed=obj.vessel_speed_kt if obj.vessel_speed_kt else default_speed,
@@ -682,6 +688,8 @@ class LineOperation(BaseOperation):
             op_type=display_op_type,
             action=action,
         )
+        op.transit_minutes = getattr(obj, "transit_minutes", None)
+        return op
 
 
 class AreaOperation(BaseOperation):
@@ -866,7 +874,7 @@ class AreaOperation(BaseOperation):
         display_op_type = obj.operation_type.value if obj.operation_type else "area"
         action = obj.action.value if obj.action else None
 
-        return cls(
+        op = cls(
             name=obj.name,
             boundary_polygon=boundary_geopoints,
             area_km2=area_km2,
@@ -878,6 +886,8 @@ class AreaOperation(BaseOperation):
             op_type=display_op_type,
             action=action,
         )
+        op.transit_minutes = getattr(obj, "transit_minutes", None)
+        return op
 
     @staticmethod
     def _calculate_polygon_area(coords: list[tuple[float, float]]) -> float:

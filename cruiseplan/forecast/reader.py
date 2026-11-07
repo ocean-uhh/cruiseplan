@@ -145,7 +145,59 @@ def to_current_format(
                 schedule = _convert(schedule, var, target, factors, filepath)
     if "planned_duration" not in schedule.variables:
         schedule = schedule.assign(planned_duration=schedule["duration"])
+        schedule = _absorb_stored_delays(schedule)
     return schedule
+
+
+def _gap_delays(schedule: xr.Dataset) -> np.ndarray:
+    """
+    Delays of a schedule without ``delay_start``, from its stored times.
+
+    0.5.0 started an operation ``delay_start`` minutes after the record
+    before it ended (earlier for a negative delay) and stored no delay. The
+    gap, or overlap, between a record and the one before it in the same leg
+    is that delay.
+    """
+    starts = schedule.time.values.astype("datetime64[us]")
+    minutes = schedule.duration.values.astype(float)
+    legs = (
+        [str(v) for v in schedule.leg_assignment.values]
+        if "leg_assignment" in schedule.variables
+        else [""] * len(starts)
+    )
+    delays = np.full(len(starts), np.nan)
+    for i in range(1, len(starts)):
+        if legs[i] != legs[i - 1] or stored_kind(schedule, i) in {"transit", "buffer"}:
+            continue
+        end = starts[i - 1] + np.timedelta64(round(minutes[i - 1] * 60e6), "us")
+        gap = (starts[i] - end) / np.timedelta64(1, "m")
+        if abs(gap) >= 0.5:
+            delays[i] = gap
+    return delays
+
+
+def _absorb_stored_delays(schedule: xr.Dataset) -> xr.Dataset:
+    """Retime a pre-0.6.0 schedule so each delay is in the operation before it."""
+    if "delay_start" not in schedule.variables:
+        schedule = schedule.assign(
+            delay_start=("obs", _gap_delays(schedule), {"units": "minute"})
+        )
+    delays = np.nan_to_num(schedule.delay_start.values.astype(float))
+    if not delays.any():
+        return schedule
+    from cruiseplan.timeline.scheduler import absorb_delays
+
+    records = absorb_delays(netcdf_to_activity_records(schedule))
+    times = np.array([r.start_time for r in records], dtype="datetime64[us]")
+    ends = np.array([r.end_time for r in records], dtype="datetime64[us]")
+    minutes = np.array([r.duration_minutes for r in records], dtype=float)
+    out = schedule.assign(
+        time=("obs", times, schedule.time.attrs),
+        duration=("obs", minutes, schedule.duration.attrs),
+    )
+    if "end_time" in schedule.variables:
+        out = out.assign(end_time=("obs", ends, schedule.end_time.attrs))
+    return out
 
 
 def duration_hours(schedule: xr.Dataset, index: int) -> float:

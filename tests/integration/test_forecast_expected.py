@@ -18,7 +18,7 @@ from pathlib import Path
 import pytest
 import xarray as xr
 import yaml
-from hand_calc import gc_nm, hand_anchor, hand_forecast, hand_schedule, hand_trim
+from hand_calc import gc_nm, hand_anchor, hand_forecast, hand_schedule
 
 import cruiseplan
 from cruiseplan.forecast.generator import generate_forecast
@@ -31,6 +31,8 @@ CONFIGS = {
     "pycnmix": ROOT / "data" / "pycnmix-2026-v1.yaml",
     "mooring_sequence": ROOT / "tests" / "fixtures" / "mooring_sequence_greenland.yaml",
     "tc2_two_legs": ROOT / "tests" / "fixtures" / "tc2_two_legs.yaml",
+    # Leg1 10 kt, Leg2 5 kt, Leg3 15 kt
+    "pycnmix_leg_speeds": ROOT / "tests" / "fixtures" / "pycnmix_leg_speeds.yaml",
 }
 T_TOL_S = 30.0
 SHIFT = timedelta(hours=3)
@@ -401,38 +403,41 @@ def with_delays(delays: dict[str, float]) -> dict:
 
 
 @pytest.mark.parametrize(
-    ("delays", "label", "transit_label", "delay"),
+    ("delays", "label", "prev_label", "prev_minutes"),
     [
-        ({"NIWA_DITN": 90.0}, "NIWA_DITN", "Transit to NIWA_DITN", 90.0),
-        ({"NIWA_DITN": -60.0}, "NIWA_DITN", "Transit to NIWA_DITN", -60.0),
-        ({"NISS": -45.0}, "NISS", "Transit to NISS", -45.0),
+        # Option_E (1080 min) ran 90 min long / ended 60 min early
+        ({"NIWA_DITN": 90.0}, "NIWA_DITN", "Option_E", 1080.0 + 90.0),
+        ({"NIWA_DITN": -60.0}, "NIWA_DITN", "Option_E", 1080.0 - 60.0),
+        # the Leg2 departure port (0 min) cannot end 45 min early: clamped at 0
+        ({"NISS": -45.0}, "NISS", "Jangbogo Station", 0.0),
     ],
 )
-def test_delay_survives_into_forecast(tmp_path, delays, label, transit_label, delay):
+def test_delay_survives_into_forecast(
+    tmp_path, delays, label, prev_label, prev_minutes
+):
     """
-    Anchor on the row before the transit at T: op starts T + prev + transit + delay.
+    Anchor on the operation before the transit at T: op starts T + prev + transit.
 
-    A negative delay (the transit ended early) shortens the transit row to
-    transit + delay, so the transit ends where the op starts.
+    The delay is in the previous operation's actual duration; the transit
+    keeps its planned length and the forecast reads both from the NetCDF.
     """
     cfg = with_delays(delays)
     hand = hand_schedule(cfg)
     nc_path = netcdf_for(tmp_path, cfg, "delay")
-    k_tr = index_of(hand, transit_label)
+    k = index_of(hand, label)
+    k_tr = k - 1
     k_prev = k_tr - 1
-    assert hand[k_prev].kind != "transit"
+    assert hand[k_tr].kind == "transit"
+    assert hand[k_prev].name == prev_label
+    assert hand[k_prev].minutes == pytest.approx(prev_minutes)
     t0 = datetime(2026, 3, 10, 6, 0)
     rows = {row[0]: row for row in forecast_rows(nc_path, k_prev, t0)}
-    expected = t0 + timedelta(minutes=hand[k_prev].minutes + hand[k_tr].minutes + delay)
-    k = index_of(hand, label)
+    planned_transit = hand_schedule(load("pycnmix"))[k_tr].minutes
+    assert hand[k_tr].minutes == pytest.approx(planned_transit)
+    assert rows[k_prev][5] * 60 == pytest.approx(prev_minutes, abs=0.5)
+    assert rows[k_tr][5] * 60 == pytest.approx(planned_transit, abs=0.5)
+    expected = t0 + timedelta(minutes=prev_minutes + planned_transit)
     assert seconds(rows[k][1], expected) <= T_TOL_S
-    # the transit row ends where the op starts
-    transit_end = rows[k_tr][1] + timedelta(hours=rows[k_tr][5])
-    assert rows[k_tr][5] * 60 == pytest.approx(
-        hand[k_tr].minutes + min(delay, 0.0), abs=0.5
-    )
-    assert seconds(transit_end, expected) <= T_TOL_S or delay > 0
-    # the next row after the op: + op duration
     assert (
         seconds(rows[k + 1][1], expected + timedelta(minutes=hand[k].minutes))
         <= T_TOL_S
@@ -453,10 +458,10 @@ def test_negative_delay_rows_do_not_overlap(tmp_path):
     rows = forecast_rows(nc_path, k0, t0)
     for a, b in zip(rows, rows[1:], strict=False):
         end = a[1] + timedelta(hours=a[5])
-        assert end <= b[1] + timedelta(seconds=T_TOL_S), (a[8], b[8])
+        assert seconds(end, b[1]) <= 1, (a[8], b[8])
     k_rec = index_of(hand, "LDEO_heavy_shallow_recovery")
     rec = next(r for r in rows if r[0] == k_rec)
-    assert rec[5] * 60 == pytest.approx(hand[k_rec].minutes - 30.0, abs=0.5)
+    assert rec[5] * 60 == pytest.approx(120.0 - 30.0, abs=0.5)
 
 
 def test_buffer_survives_into_forecast(tmp_path):
@@ -478,7 +483,7 @@ def test_buffer_survives_into_forecast(tmp_path):
 def test_netcdf_round_trip_durations(tmp_path):
     """Reader records: start, end and duration_minutes as in the hand schedule."""
     cfg = with_delays({"NIWA_DITN": -60.0})
-    hand = hand_trim(hand_schedule(cfg))
+    hand = hand_schedule(cfg)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         ds = read_schedule(netcdf_for(tmp_path, cfg, "rt"))
@@ -810,3 +815,73 @@ def test_start_time_with_a_zone_is_converted_to_utc(tmp_path):
     assert [r[1] for r in zoned] == [r[1] for r in naive]
     assert zoned[0][1] == datetime(2026, 3, 9, 8, 0)
     assert all(r[1].microsecond == 0 for r in naive)
+
+
+@pytest.mark.parametrize(
+    ("label", "knots"),
+    [("NISS", 5.0), ("SouthCapeAdair", 15.0)],
+)
+def test_current_position_transit_uses_the_leg_speed(tmp_path, label, knots):
+    """Leg2 runs at 5 kt, Leg3 at 15 kt: the inserted transit uses that leg's speed."""
+    cfg = load("pycnmix_leg_speeds")
+    hand = hand_schedule(cfg)
+    nc_path = netcdf_for(tmp_path, cfg, "speeds")
+    nth = 1 if label == "SouthCapeAdair" else 0  # SouthCapeAdair in Leg3
+    k = index_of(hand, label, nth)
+    leg = hand[k].leg
+    assert leg == ("Leg2" if knots == 5.0 else "Leg3")
+    here = (hand[k].entry[0] + 0.1, hand[k].entry[1])  # 0.1 deg north
+    nm = gc_nm(here, hand[k].entry)
+    assert nm == pytest.approx(6.0 * 1.0, abs=0.01)  # 0.1 deg = 6.00 nm
+    t0 = datetime(2026, 3, 9, 8, 0)
+    rows = forecast_rows(nc_path, k, t0, 48, position=here)
+    assert rows[0][0] == -1
+    assert rows[0][5] * 60 == pytest.approx(nm / knots * 60, abs=0.1)
+    expected = hand_forecast(hand, k, t0, position=here, knots=knots)
+    assert [row[0] for row in rows] == [r.index for r in expected[: len(rows)]]
+    for row, r in zip(rows, expected[: len(rows)], strict=True):
+        assert seconds(row[1], r.start) <= T_TOL_S
+
+
+def test_leg_speeds_in_the_schedule(tmp_path):
+    """Transit records carry 10, 5 and 15 kt by leg; times match the hand schedule."""
+    cfg = load("pycnmix_leg_speeds")
+    hand = hand_schedule(cfg)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        path = tmp_path / "speeds.yaml"
+        path.write_text(yaml.safe_dump(cfg, sort_keys=False))
+        tl = cruiseplan.schedule(config_file=path, format=None).timeline
+    speeds = {
+        leg: {
+            r.vessel_speed_kt for r in tl if r.kind == "transit" and r.leg_name == leg
+        }
+        for leg in ("Leg1", "Leg2", "Leg3")
+    }
+    assert speeds == {"Leg1": {10.0}, "Leg2": {5.0}, "Leg3": {15.0}}
+    for rec, h in zip(tl, hand, strict=True):
+        assert rec.label == h.name
+        assert seconds(rec.start_time, h.start) <= T_TOL_S
+        assert rec.duration_minutes == pytest.approx(h.minutes, abs=0.5)
+
+
+def test_forecast_uses_transit_minutes(tmp_path):
+    """Anchored on the Leg2 Jang Bogo row at T: NISS at T + 150 min, not T + 201.65."""
+    cfg = load("pycnmix")
+    for p in cfg["points"]:
+        if p["name"] == "NISS":
+            p["transit_minutes"] = 150.0
+    hand = hand_schedule(cfg)
+    nc_path = netcdf_for(tmp_path, cfg, "tm")
+    k0 = index_of(hand, "Jangbogo Station", 1)
+    k_op = index_of(hand, "NISS")
+    t0 = datetime(2026, 3, 9, 8, 0)
+    fc = forecast(nc_path, k0, t0, 12)
+    assert seconds(fc[k_op], t0 + timedelta(minutes=150)) <= T_TOL_S
+    for r in hand_forecast(hand, k0, t0):
+        if r.index in fc:
+            assert seconds(fc[r.index], r.start) <= T_TOL_S
+    # the current-position transit still uses the leg's 10 kt
+    here = (-75.04, 163.42)  # 6.00 nm north of NISS
+    rows = forecast_rows(nc_path, k_op, t0, 6, position=here)
+    assert rows[0][5] * 60 == pytest.approx(gc_nm(here, (-75.14, 163.42)) * 6, abs=0.1)

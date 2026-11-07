@@ -496,9 +496,10 @@ class NetCDFGenerator:
                             "long_name": "planned activity duration",
                             "units": "minute",
                             "comment": (
-                                "From the planning rules; larger than duration "
-                                "when the next activity started early (negative "
-                                "delay_start)"
+                                "From the planning rules. Differs from duration "
+                                "when the next operation's delay_start changed "
+                                "this one (longer or shorter) or, for a transit, "
+                                "when transit_minutes set its time"
                             ),
                             "coordinates": "time latitude longitude water_depth",
                         },
@@ -523,12 +524,13 @@ class NetCDFGenerator:
                         ["obs"],
                         delay_starts,
                         {
-                            "long_name": "delay before the operation starts",
+                            "long_name": "delay_start_minutes of the operation (as configured)",
                             "units": "minute",
                             "comment": (
-                                "Included in time. Negative: the previous "
-                                "activity ended early. NaN for rows without "
-                                "a delay (transits, buffers)"
+                                "Included in the duration of the previous "
+                                "operation of the leg (positive: it ran long; "
+                                "negative: it ended early). NaN for rows "
+                                "without a delay (transits, buffers)"
                             ),
                             "coordinates": "time latitude longitude water_depth",
                         },

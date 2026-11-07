@@ -42,51 +42,86 @@ Coordinate Conventions
 Units Reference
 ===============
 
-All numeric fields use the units shown below. Units are fixed and not configurable.
+Every numeric key carries its unit in its name. Units are fixed and not
+configurable. Keys written before 0.6.0 without the unit (``duration``,
+``water_depth``, ...) are still read, with a warning, until 0.7.0; see
+:doc:`../migrating_0_6_0`.
 
 .. list-table::
    :header-rows: 1
-   :widths: 30 20 50
+   :widths: 34 14 52
 
-   * - Field
+   * - Key
      - Unit
      - Notes
    * - ``latitude``, ``longitude``
      - decimal degrees
      - WGS-84; negative = South / West
-   * - ``water_depth``, ``operation_depth``
-     - metres
-     - Positive below sea level (e.g., ``3500`` = 3500 m)
-   * - ``distance_between_stations``
+   * - ``water_depth_m``, ``operation_depth_m``
+     - m
+     - Positive below sea level (e.g., ``3500`` = 3500 m); ``-9999`` is the
+       fill value written by ``enrich`` where no depth was found
+   * - ``max_depth`` (line)
+     - m
+     - Cast depth for stations expanded from a CTD section
+   * - ``distance_between_stations_km`` (leg, line)
      - km
      - Along-track spacing when expanding CTD sections
-   * - ``default_vessel_speed``
+   * - ``default_distance_between_stations_km`` (cruise)
+     - km
+     - Default station spacing for section expansion
+   * - ``default_vessel_speed_kt`` (cruise), ``vessel_speed_kt`` (leg, line)
      - knots
-     - Transit speed used for scheduling
-   * - ``ctd_descent_rate``, ``ctd_ascent_rate``
+     - Transit speed; a line's own speed applies along the line
+   * - ``ctd_descent_rate_m_s``, ``ctd_ascent_rate_m_s``
      - m/s
      - Used to compute CTD cast duration from depth
-   * - ``duration``
+   * - ``duration_minutes`` (point, area, port)
      - minutes
-     - Station occupation time
-   * - ``turnaround_time``
+     - Operation time; replaces the depth-based CTD time
+   * - ``turnaround_time_minutes`` (cruise, leg)
      - minutes
-     - Gap between consecutive operations
-   * - ``delay_start``
+     - Added to each depth-based CTD cast; a leg value replaces the cruise
+       value for that leg's casts. Not a gap between other operations
+   * - ``delay_start_minutes`` (point, port)
      - minutes
-     - Hold before an operation or leg begins
-   * - ``delay_end``
+     - Changes the actual duration of the previous operation in the same
+       leg (the nearest earlier one that is not a transit or buffer; the
+       departure port when there is none): positive, it ran long; negative,
+       it ended early. The transit between them keeps its length and moves
+       in time. The duration never goes below zero; what a negative value
+       cannot take off is dropped with a warning (at the start of a leg, the
+       warning says how to start the leg earlier). ``planned_duration_minutes``
+       in the outputs keeps the plan
+   * - ``transit_minutes`` (point, port, line, area)
      - minutes
-     - Hold after an operation completes
-   * - ``buffer_time``
+     - Actual duration of the transit into this operation, replacing
+       distance / speed. Distance and positions are unchanged; the transit's
+       ``planned_duration_minutes`` keeps the computed time, and the vessel
+       speed shown for it in the outputs is distance / ``transit_minutes``.
+       Ignored, with a warning, when there is no transit into the operation
+   * - ``delay_start_minutes`` (leg)
      - minutes
-     - Contingency reserve on a leg (stored but not applied to schedule)
-   * - ``default_distance_between_stations``
-     - km
-     - Default station spacing for section expansion (cruise level)
+     - Wait before the leg departs (e.g. port clearance); not negative
+   * - ``buffer_time_minutes`` (leg)
+     - minutes
+     - Contingency block, applied once per leg: a stationary record at the
+       position where the last operation ends, after it and before the
+       transit to the arrival port
+   * - ``day_start_hour``, ``day_end_hour``
+     - hour (0-23)
+     - Working-day window
    * - ``tolerance`` (validate)
      - percent
      - Allowable depth difference between planned and bathymetric depth
+
+Use ``transit_minutes`` when a transit was faster or slower than planned; use
+``delay_start_minutes`` when the previous operation ran long or ended early.
+
+``delay_end`` is no longer read (it never changed the schedule): use
+``delay_start_minutes`` on the next operation, ``buffer_time_minutes`` on the
+leg, or a longer ``duration_minutes``. A key no model knows is reported with
+a warning (one per key per file) and is rejected in the release after 0.6.0.
 
 Cruise Metadata
 ===============
@@ -101,11 +136,11 @@ Root-level cruise configuration fields:
    start_time: "08:00"                              # Cruise start time (default: "08:00")
    day_start_hour: 8                                # Start of working day (0-23); default: 8
    day_end_hour: 20                                 # End of working day (0-23); default: 20
-   default_vessel_speed: 10.0                       # Transit speed in knots; default: 10.0
-   default_distance_between_stations: 15.0          # Station spacing in km; default: 15.0
-   turnaround_time: 30                              # Time between operations in minutes; default: 30
-   ctd_descent_rate: 1.0                            # CTD descent speed in m/s; default: 1.0
-   ctd_ascent_rate: 1.0                             # CTD ascent speed in m/s; default: 1.0
+   default_vessel_speed_kt: 10.0                       # Transit speed in knots; default: 10.0
+   default_distance_between_stations_km: 15.0          # Station spacing in km; default: 15.0
+   turnaround_time_minutes: 30                      # Added to each CTD cast in minutes; default: 30
+   ctd_descent_rate_m_s: 1.0                            # CTD descent speed in m/s; default: 1.0
+   ctd_ascent_rate_m_s: 1.0                             # CTD ascent speed in m/s; default: 1.0
 
 Ports
 -----
@@ -159,11 +194,11 @@ Optional Fields
        longitude: -30.0
        operation_type: CTD          # Operation category
        action: profile              # Specific action
-       water_depth: 3500            # Water depth at seafloor in metres (auto-filled by 'process')
-       operation_depth: 2000        # Target cast depth in metres (default: full water column)
-       duration: 45                 # Override cast time in minutes (suppresses depth-based calculation)
-       delay_start: 60              # Wait before starting in minutes (e.g., daylight constraint)
-       delay_end: 30                # Wait after completing in minutes (e.g., equipment recovery)
+       water_depth_m: 3500            # Water depth at seafloor in metres (auto-filled by 'process')
+       operation_depth_m: 2000        # Target cast depth in metres (default: full water column)
+       duration_minutes: 45                 # Override cast time in minutes (suppresses depth-based calculation)
+       delay_start_minutes: 60      # The previous operation took 60 min longer
+       transit_minutes: 150         # The transit into this station took 150 min
        equipment: "SBE911plus"      # Equipment note (informational only, not used in scheduling)
        comment: "Deep water station"
 
@@ -222,8 +257,8 @@ Optional Fields
          - latitude: 60.0
            longitude: -20.0
        comment: "Cross-slope section"
-       vessel_speed: 8.0               # Speed during transect in knots
-       distance_between_stations: 10.0 # Station spacing for CTD section expansion (km)
+       vessel_speed_kt: 8.0               # Speed during transect in knots
+       distance_between_stations_km: 10.0 # Station spacing for CTD section expansion (km)
        max_depth: 2000                 # Maximum cast depth for expanded stations (metres)
 
 Area Operations
@@ -266,7 +301,7 @@ Optional Fields
            longitude: -27.0
          - latitude: 60.5
            longitude: -27.0
-       duration: 120               # Total survey time in minutes
+       duration_minutes: 120               # Total survey time in minutes
        comment: "High-priority mapping area"
 
 .. _schedule-organization:
@@ -302,16 +337,16 @@ Advanced Leg Options
        activities: ["STN_001", "STN_002", "transect_A"]
 
        # Timing
-       delay_start: 120             # Hold at departure port in minutes (e.g., port clearance)
-       buffer_time: 60              # Contingency reserve for weather delays (minutes; stored, not applied)
+       delay_start_minutes: 120     # Hold at departure port in minutes (e.g., port clearance)
+       buffer_time_minutes: 60      # Contingency block after the last operation (minutes)
 
        # Ordering
        ordered: true                # Whether activities must run in listed order
 
        # Leg-level parameter overrides (cascade from cruise defaults)
-       vessel_speed: 12.0
-       turnaround_time: 20
-       distance_between_stations: 25.0
+       vessel_speed_kt: 12.0
+       turnaround_time_minutes: 20
+       distance_between_stations_km: 25.0
 
 Clusters
 --------
@@ -333,7 +368,7 @@ Group activities within legs for advanced scheduling:
 Operation Types
 ===============
 
-How duration is determined when ``duration`` is not set. The 999-hour fill
+How duration is determined when ``duration_minutes`` is not set. The 999-hour fill
 is large on purpose so it cannot be overlooked: the schedule log warns for each
 operation that uses it, the NetCDF schedule sets ``duration_fill_flag = 1``,
 and the CSV, HTML and TeX outputs mark it.
@@ -347,20 +382,20 @@ and the CSV, HTML and TeX outputs mark it.
      - **Description**
    * - ``CTD`` (point)
      - Depth-based
-     - Descent + ascent at ``ctd_descent_rate`` / ``ctd_ascent_rate``, plus ``turnaround_time``.
+     - Descent + ascent at ``ctd_descent_rate_m_s`` / ``ctd_ascent_rate_m_s``, plus ``turnaround_time_minutes``.
        Without a usable depth (missing, zero or the fill value ``-9999``): 999 hours fill
    * - ``underway``, ``towing``, ``CTD`` (line)
      - Transit time
-     - Route length at the line's ``vessel_speed`` (or the leg/cruise default)
+     - Route length at the line's ``vessel_speed_kt`` (or the leg/cruise default)
    * - ``survey`` (area)
      - None
-     - ``duration`` is required
+     - ``duration_minutes`` is required
    * - ``mooring``
      - 999 hours
-     - Fill value, the same in ``enrich`` and ``schedule``; set ``duration`` explicitly
+     - Fill value, the same in ``enrich`` and ``schedule``; set ``duration_minutes`` explicitly
    * - ``water_sampling``, ``calibration``
      - Depth-based
-     - As ``CTD`` when ``operation_depth`` or ``water_depth`` is set; otherwise 999 hours fill
+     - As ``CTD`` when ``operation_depth_m`` or ``water_depth_m`` is set; otherwise 999 hours fill
    * - ``port``, ``waypoint``
      - 0
      - No operation time
@@ -380,7 +415,7 @@ and the CSV, HTML and TeX outputs mark it.
 Overriding Calculated Duration
 ------------------------------
 
-Setting ``duration: <value>`` (in **minutes**) on any point operation overrides
+Setting ``duration_minutes: <value>`` (in **minutes**) on any point operation overrides
 the depth-based cast time calculation entirely.  This is useful when a station
 requires a non-standard instrument configuration, a fixed time budget, or
 must match a pre-agreed slot in a joint cruise plan:
@@ -393,21 +428,22 @@ must match a pre-agreed slot in a joint cruise plan:
        longitude: -30.0
        operation_type: CTD
        action: profile
-       duration: 120     # 2-hour cast regardless of water depth
+       duration_minutes: 120     # 2-hour cast regardless of water depth
 
-When ``duration`` is set, the enrichment step will not overwrite it.  Omitting
-``duration`` (or setting it to 0) restores depth-based calculation.
+When ``duration_minutes`` is set, the enrichment step will not overwrite it.  Omitting
+``duration_minutes`` (or setting it to 0) restores depth-based calculation.
 
-All time fields in YAML are in **minutes**: ``duration``, ``turnaround_time``,
-``delay_start``, and ``buffer_time``.
+All time fields in YAML are in **minutes**: ``duration_minutes``, ``turnaround_time_minutes``,
+``delay_start_minutes``, and ``buffer_time_minutes``.
 
 Repeat Stations
 ---------------
 
-The same activity name may appear more than once in an ``activities`` list.
-Each occurrence is scheduled as a separate, independent operation — the
-scheduler looks up the definition by name on every pass with no
-deduplication.  Back-to-back repeats require no extra configuration:
+The same activity name may appear more than once in a leg (in its
+``activities`` list or across its clusters). Each occurrence is scheduled as
+a separate operation, and the configuration loader logs a warning naming the
+activity and where it is listed, so an unintended duplicate is visible.
+Back-to-back repeats require no extra configuration:
 
 .. code-block:: yaml
 
@@ -415,9 +451,10 @@ deduplication.  Back-to-back repeats require no extra configuration:
      - name: "leg1"
        activities: ["STN_001", "STN_001"]   # two consecutive casts at the same location
 
-For time-series stations where a gap between occupations is needed, define
-separate entries with the same coordinates and set ``delay_start`` on the
-later ones.  ``delay_start`` is part of the point definition and is shared
+For time-series stations where a wait between occupations is needed, define
+separate entries with the same coordinates and set ``delay_start_minutes`` on the
+later ones: the earlier occupation then lasts that much longer (the ship waits
+on station).  ``delay_start_minutes`` is part of the point definition and is shared
 by every reference to that name, so a gap can only be expressed by giving
 each occupation a distinct name:
 
@@ -428,13 +465,13 @@ each occupation a distinct name:
        latitude: 60.0
        longitude: -20.0
        operation_type: CTD
-       # no delay_start — departs immediately
+       # no delay_start_minutes: starts on arrival
 
      - name: "STN_001_t6"
        latitude: 60.0
        longitude: -20.0
        operation_type: CTD
-       delay_start: 360    # 6-hour hold before this occupation (minutes)
+       delay_start_minutes: 360    # STN_001_t0 lasts 6 hours longer (wait on station)
 
    legs:
      - name: "leg1"
@@ -457,24 +494,24 @@ Parameter Inheritance
 =====================
 
 Parameters cascade from cruise → leg → operation. Clusters do not carry
-speed or spacing parameters, and point definitions have no ``vessel_speed``;
+speed or spacing parameters, and point definitions have no ``vessel_speed_kt``;
 a per-operation speed is set on a line:
 
 .. code-block:: yaml
 
    # Cruise level (applied to all legs)
-   default_vessel_speed: 10.0
+   default_vessel_speed_kt: 10.0
 
    legs:
      - name: "leg1"
-       vessel_speed: 12.0      # Overrides cruise default
+       vessel_speed_kt: 12.0      # Overrides cruise default
        activities:
          - "CTD_001"           # Transit to this station uses leg speed: 12.0 kt
          - "transect_A"
 
    lines:
      - name: "transect_A"
-       vessel_speed: 8.0       # Overrides leg speed along this line
+       vessel_speed_kt: 8.0       # Overrides leg speed along this line
 
 Comments and Documentation
 ==========================

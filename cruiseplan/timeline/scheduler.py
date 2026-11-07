@@ -8,6 +8,7 @@ coordinates:
 """
 
 import logging
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Any
@@ -35,16 +36,13 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 __all__ = [
-    "ActivityRecord",
-    "NavigationalTransit",
     "OperationFactory",
-    "Timeline",
+    "absorb_delays",
     "TimelineGenerator",
     "calculate_timeline_statistics",
     "fill_duration_summary",
     "generate_timeline",
     "timeline_minutes",
-    "trim_overlaps",
 ]
 
 
@@ -416,37 +414,150 @@ class _Rules:
     turnaround_time_minutes: float | None = None
 
 
-def trim_overlaps(timeline: Timeline) -> Timeline:
+def absorb_delays(
+    timeline: Timeline,
+    leg_delays: Mapping[str, float] | None = None,
+    first_leg: str | None = None,
+) -> Timeline:
     """
-    Shorten each record that runs past the start of the next one.
+    Apply each operation's ``delay_start_minutes`` to the operation before it.
 
-    A negative ``delay_start_minutes`` means the previous activity ended
-    early: the next record starts before the previous one ends. The previous
-    record is ended where the next one starts (its duration is never below
-    zero); ``planned_duration_minutes`` keeps the planned value. The sum of
-    the durations then equals the elapsed time, and the schedule matches what
-    the forecast shows.
+    A delay of either sign changes the actual duration of the previous
+    operation in the same leg (the nearest earlier record that is not a
+    transit or a buffer; the leg's departure port when there is none):
+    positive, the previous operation ran long; negative, it ended early. The
+    transit between them keeps its length and positions and only moves in
+    time. ``planned_duration_minutes`` keeps the plan; ``duration_minutes``
+    is the actual duration. Within a leg every record starts where the one
+    before it ends; between legs the leg delay is kept. An actual duration
+    never goes below zero: the part of a negative delay that the previous
+    operation cannot absorb is dropped, with a warning. When nothing before
+    it in the leg can absorb it (the departure port is too short, or the
+    delay is on the departure port itself), the warning says how to start
+    the leg earlier instead.
 
     Parameters
     ----------
     timeline : Timeline
-        Records in schedule order.
+        Records in schedule order, before delays are applied.
+    leg_delays : Mapping of str to float, optional
+        Leg-level ``delay_start_minutes`` by leg name, used in the warning.
+        When not given, it is taken from the gap before the leg.
+    first_leg : str, optional
+        Name of the cruise's first leg, used in the warning. When not given,
+        the leg of the first record is taken as the first leg.
 
     Returns
     -------
     Timeline
-        A new list; trimmed records are replaced by copies.
+        A new list with actual durations and times.
     """
-    out = list(timeline)
-    for i in range(1, len(out)):
-        previous, record = out[i - 1], out[i]
-        if record.start_time < previous.end_time:
-            end = max(record.start_time, previous.start_time)
-            out[i - 1] = previous.replace(
-                end_time=end,
-                duration_minutes=(end - previous.start_time).total_seconds() / 60.0,
+    if not timeline:
+        return []
+    actual = [r.duration_minutes for r in timeline]
+    first_of_leg = [
+        i == 0 or timeline[i].leg_name != timeline[i - 1].leg_name
+        for i in range(len(timeline))
+    ]
+    # Minutes a negative delay on a leg's first record would move it earlier
+    undo = [0.0] * len(timeline)
+    leg_start = 0
+    previous_op: int | None = None
+    for i, record in enumerate(timeline):
+        if first_of_leg[i]:
+            previous_op = None
+            leg_start = i
+        if record.kind in {"transit", "buffer"}:
+            continue
+        delay = record.delay_start_minutes or 0.0
+        if delay < 0 and previous_op is None:
+            undo[i] = -delay
+            _warn_leg_start(
+                timeline, leg_start, record.label, -delay, leg_delays, first_leg
             )
+        elif delay and previous_op is not None:
+            new = actual[previous_op] + delay
+            if new < 0 and previous_op == leg_start:
+                _warn_leg_start(
+                    timeline, leg_start, record.label, -new, leg_delays, first_leg
+                )
+                new = 0.0
+            elif new < 0:
+                logger.warning(
+                    f"Operation {record.label}: delay_start_minutes {delay:g} is "
+                    f"more than {timeline[previous_op].label} lasts "
+                    f"({actual[previous_op]:.1f} min); {timeline[previous_op].label} "
+                    f"is set to 0 min and {-new:.1f} min could not be absorbed"
+                )
+                new = 0.0
+            actual[previous_op] = new
+        previous_op = i
+    out: Timeline = []
+    for i, record in enumerate(timeline):
+        planned_start = record.start_time + timedelta(minutes=undo[i])
+        if i == 0:
+            start = planned_start
+        elif first_of_leg[i]:
+            # leg delay (and a departure-port delay) between legs is kept
+            gap = planned_start - timeline[i - 1].end_time
+            start = out[-1].end_time + max(gap, timedelta(0))
+        else:
+            start = out[-1].end_time
+        out.append(
+            record.replace(
+                start_time=start,
+                end_time=start + timedelta(minutes=actual[i]),
+                duration_minutes=actual[i],
+            )
+        )
     return out
+
+
+def _warn_leg_start(
+    timeline: Timeline,
+    leg_start: int,
+    label: str,
+    minutes: float,
+    leg_delays: Mapping[str, float] | None,
+    first_leg: str | None = None,
+) -> None:
+    """Warn that a negative delay at the start of a leg is not absorbed."""
+    leg = timeline[leg_start].leg_name
+    is_first = leg == first_leg if first_leg is not None else leg_start == 0
+    if is_first:
+        lever = (
+            f"start the cruise {minutes:.1f} min earlier (cruise start_date / "
+            f"start_time)"
+        )
+    else:
+        if leg_delays is not None:
+            leg_delay = leg_delays.get(leg, 0.0) or 0.0
+        elif leg_start > 0:
+            gap = timeline[leg_start].start_time - timeline[leg_start - 1].end_time
+            leg_delay = max(gap.total_seconds() / 60.0, 0.0)
+        else:
+            leg_delay = 0.0
+        previous = (
+            f"the previous leg ({timeline[leg_start - 1].leg_name})"
+            if leg_start > 0
+            else "the previous leg"
+        )
+        from_delay = min(leg_delay, minutes)
+        rest = minutes - from_delay
+        parts = []
+        if from_delay > 0:
+            parts.append(
+                f"reduce the delay_start_minutes of leg {leg} "
+                f"({leg_delay:g} min) by {from_delay:.1f} min"
+            )
+        if rest > 0:
+            parts.append(f"end {previous} {rest:.1f} min earlier")
+        lever = " and ".join(parts)
+    logger.warning(
+        f"Operation {label}: {minutes:.1f} min of its negative delay_start_minutes "
+        f"in leg {leg} could not be absorbed; nothing earlier in the leg is long "
+        f"enough. To start leg {leg} earlier, {lever}"
+    )
 
 
 class TimelineGenerator:
@@ -482,7 +593,12 @@ class TimelineGenerator:
         for leg in legs:
             leg_activities = self._process_leg(leg)
             timeline.extend(leg_activities)
-        timeline = trim_overlaps(timeline)
+        config_legs = self.config.legs or []
+        timeline = absorb_delays(
+            timeline,
+            {leg.name: getattr(leg, "delay_start", None) or 0.0 for leg in legs},
+            first_leg=config_legs[0].name if config_legs else None,
+        )
 
         for name, reason in self._fill_reasons.items():
             logger.warning(
@@ -719,12 +835,27 @@ class TimelineGenerator:
             from_op, to_op, self.config, leg_name, vessel_speed=leg_vessel_speed
         )
 
-        # Create rules object for calculate_duration
-        duration_minutes = transit.calculate_duration(_Rules(self.config))
+        planned_minutes = transit.calculate_duration(_Rules(self.config))
+        override = getattr(to_op, "transit_minutes", None)
 
         # Skip zero-distance transits
-        if duration_minutes <= 0:
+        if planned_minutes <= 0:
+            if override is not None:
+                logger.warning(
+                    f"Operation {to_op.get_label()}: transit_minutes {override:g} is "
+                    "ignored; there is no transit into it"
+                )
             return None
+
+        duration_minutes = planned_minutes if override is None else float(override)
+        speed = transit.get_vessel_speed()
+        if override is not None:
+            # the speed the transit was actually run at (none for 0 min)
+            speed = (
+                transit.get_operation_distance_nm() / (override / 60.0)
+                if override > 0
+                else float("nan")
+            )
 
         entry_pt, exit_pt = transit.get_coordinates()
         activity = ActivityRecord(
@@ -738,9 +869,9 @@ class TimelineGenerator:
             start_time=self.current_time,
             end_time=self.current_time + timedelta(minutes=duration_minutes),
             duration_minutes=duration_minutes,
-            planned_duration_minutes=duration_minutes,
+            planned_duration_minutes=planned_minutes,
             dist_nm=transit.get_operation_distance_nm(),
-            vessel_speed_kt=transit.get_vessel_speed(),
+            vessel_speed_kt=speed,
             leg_name=leg_name,
             op_type="transit",
             operation_class=transit.__class__.__name__,

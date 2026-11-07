@@ -93,8 +93,8 @@ class ActivityRecord:
     """
     One scheduled activity of a cruise timeline.
 
-    Records are immutable: a change (for example trimming an activity that
-    ended early) makes a new record with :meth:`replace`.
+    Records are immutable: a change (for example an operation that ended
+    early) makes a new record with :meth:`replace`.
 
     Parameters
     ----------
@@ -120,7 +120,8 @@ class ActivityRecord:
     duration_minutes : float
         Actual duration: ``end_time - start_time``.
     planned_duration_minutes : float
-        Duration from the planning rules, before any trimming.
+        Duration from the planning rules, before delays of the next
+        operation.
     dist_nm : float
         Distance covered by the activity in nautical miles.
     vessel_speed_kt : float
@@ -132,8 +133,9 @@ class ActivityRecord:
     water_depth_m : float or None
         Water depth at the location in meters.
     delay_start_minutes : float or None
-        Delay before the activity starts in minutes (negative: the previous
-        activity ended early); None for transits and buffers.
+        The operation's own delay in minutes, applied to the actual duration
+        of the operation before it (negative: that one ended early); None for
+        transits and buffers.
     comment : str or None
         Comment from the configuration.
     duration_is_fill : bool

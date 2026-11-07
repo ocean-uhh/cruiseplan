@@ -6,13 +6,31 @@ versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Breaking changes
+
+Old names keep working until 0.7.0, with a warning. See the migration page, `docs/source/migrating_0_6_0.rst` ("Upgrading from 0.5 to 0.6" in the documentation), for every renamed name.
+
+- YAML keys name their unit: `duration_minutes`, `delay_start_minutes`, `buffer_time_minutes`, `turnaround_time_minutes`, `water_depth_m`, `operation_depth_m`, `vessel_speed_kt`, `default_vessel_speed_kt`, `distance_between_stations_km`, `default_distance_between_stations_km`, `ctd_descent_rate_m_s`, `ctd_ascent_rate_m_s`. The old keys are read with one warning per key per file until 0.7.0; `enrich` writes the new keys.
+- `delay_end` is removed: it was never read. It is ignored with a warning naming `delay_start_minutes`, `buffer_time_minutes` and `duration_minutes`.
+- Timelines are lists of frozen `ActivityRecord` objects (`cruiseplan.Timeline`), not dictionaries; reading a record like a dictionary warns until 0.7.0. `CruiseSchedule` is a deprecated alias of `Timeline`. Records have `kind`, `planned_duration_minutes`, and `water_depth_m`, `operation_depth_m`, `delay_start_minutes` (renamed).
+- NetCDF schedule: `duration` in minutes (was hours, now the actual duration) plus `planned_duration`; `dist_nm` renamed `distance`; times CF-encoded UTC seconds; every numeric variable has a UDUNITS-2 `units`. Files written by 0.5.0 still read in `list` and `forecast` until 0.7.0.
+- Unknown YAML keys warn (one warning per key per file); they are rejected in the release after 0.6.0. An activity listed twice in a leg warns (it is still scheduled twice).
+- `forecast` anchored on a transit row starts that transit at `--start-time` (it started the operation after it).
+
 ### Fixed
+
+- A leg's `turnaround_time_minutes` was read but CTD casts always used the cruise value; the leg value now applies to its casts.
+- The schedule total (CLI, HTML, result summary) left out waiting from positive `delay_start_minutes`; it is the elapsed time.
+- CSV times were truncated to the minute; they are rounded to the nearest minute (TeX plans keep 10 minutes).
+- Line records reported the cruise speed instead of the line's own speed.
+- An operation's `delay_start_minutes` of either sign now changes the actual duration of the previous operation in the same leg (the departure port when there is none): positive, it ran long; negative, it ended early. The transit between them keeps its length and moves in time. A negative delay longer than that operation clamps it at 0 min with a warning. When nothing earlier in the leg can absorb it, the leg is not moved and the warning says how to start the leg earlier (the cruise `start_date`/`start_time` for the first leg; otherwise the leg's `delay_start_minutes` or the end of the previous leg). Records neither overlap nor leave gaps (`duration_minutes` actual, `planned_duration_minutes` planned), the durations add up to the elapsed time apart from leg delays, and the forecast uses the same rule (schedules written before 0.6.0 are retimed on reading).
+- Enriched values (`bathymetry_source`, decimal-minute strings, `bathymetry_provenance`) are declared model fields; enrich no longer writes through `__dict__`.
 
 - `forecast --current-position` changed only the waypoints header line. It now adds a transit from that position to the anchored operation at the leg speed, so the times change in every format (text, tex, waypoints, kml, png); the ship position itself is marked in the text and waypoints outputs only.
 - `forecast --current-position -74.62,164.30` (negative first coordinate after a space) was rejected as an unknown option; that form, `lat lon` as two values of any sign (`65.0 -30.0`, `65.0 30.0`) and the `=` form all parse.
 - TeX plan: a time rounded past midnight (23:56 → 00:00) is printed under the next day.
 - Waypoints without `--start-time` at 23:55 or later started at 00:00 of the same day; the rounding carries into the date.
-- Forecast rows overlapped where an operation has a negative `delay_start`; the row before it is shortened to end where the operation starts.
+- Forecast rows overlapped where an operation has a negative `delay_start`; the delay is now in the duration of the operation before it, as in the schedule.
 - KML forecast had no placemarks (records lacked the fields the KML writer reads).
 - A forecast window with no operation in it (only a transit) wrote an empty plan; every format now stops with an error naming the window.
 - `--current-position` within 0.05 nm of the anchored operation inserted a zero-length transit; it is skipped.
@@ -40,6 +58,11 @@ versions follow [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- `cruiseplan.Timeline`, `cruiseplan.ActivityRecord` (`cruiseplan.timeline.record`): one frozen record type with `kind`, used by every writer and the forecast.
+- `cruiseplan._deprecated`: one table each of renamed YAML keys, removed keys, record keys and API names, with the removal release; `cruiseplan.config.loader.prepare_config` applies it before validation.
+- `transit_minutes` on a point, port, line or area: the actual minutes of the transit into it, replacing distance / speed (distance and positions unchanged; the transit's planned minutes are kept, and its vessel speed is shown as distance / `transit_minutes`). Ignored with a warning when there is no transit into the operation.
+- Text and TeX forecasts state the anchoring rule applied (`% Anchor =` line, a line under the TeX title).
+
 - `water_depth` accepts the fill value `-9999.0`; `enrich --add-depths` writes it where no depth can be looked up and retries it on the next run. The enriched YAML records `bathymetry_provenance` (source, file, found, depths from source, depths filled).
 - Provenance in outputs: NetCDF global attributes (all files) `cruiseplan_version`, `source_config`, `source_config_sha256`, `bathymetry_source`, planning parameters and `date_created` (UTC, `Z`); the same fields as `%` comments at the top of the TeX tables and in a Provenance section of the HTML report.
 - Fill-duration markers: `ActivityRecord.duration_is_fill`; NetCDF `duration_fill_flag` with `fill_duration_count`; CSV `Duration note` column; `(fill)` in HTML and TeX durations.
@@ -50,6 +73,8 @@ versions follow [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- Documentation: units table in the YAML reference; `buffer_time_minutes` is applied (one block per leg after the last operation, before the transit to the arrival port), not "stored only"; `turnaround_time_minutes` is added to depth-based CTD casts only; migration page for 0.6.0.
+- Test fixture `coldsnap-2028-newformat.yaml` (every activity listed twice) is kept as `coldsnap-2028-newformat_old.yaml`; `mooring_sequence_greenland.yaml` lists each activity once (84 rows, 377 h).
 - `forecast --start-index`: the row at the index starts at `--start-time` (UTC). On an operation row the transit into it is not included; on a transit row the ship is starting that transit now (it is kept, starting at `--start-time`). With `--current-position` the position wins: a transit row moves to the operation it leads to, and `--start-time` is the time at that position. The text and TeX headers state the rule applied.
 
 - NetCDF `creation_date` is UTC with `Z` (was naive local time).

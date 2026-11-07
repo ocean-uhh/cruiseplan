@@ -201,12 +201,12 @@ Timeline Generation
 
     from cruiseplan.timeline import generate_timeline
 
-    # Returns list[dict] — one dict per scheduled activity
+    # Returns a Timeline: a list of ActivityRecord objects, in schedule order
     timeline = generate_timeline(cruise)
 
     # Inspect individual activities
-    for entry in timeline:
-        print(entry["label"], entry["start_time"], entry["duration_minutes"])
+    for record in timeline:
+        print(record.kind, record.label, record.start_time, record.duration_minutes)
 
 Distance Calculations
 =====================
