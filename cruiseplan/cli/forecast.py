@@ -401,11 +401,13 @@ def parse_position(text: str) -> tuple[float, float]:
 
 def join_position_argv(argv: list[str]) -> list[str]:
     """
-    Join a ``--current-position`` value that starts with '-' to its option.
+    Join a two-value or signed ``--current-position`` to its option.
 
-    argparse reads ``-74.62,164.30`` as an unknown option. This rewrites
-    ``--current-position -74.62,164.30`` and ``--current-position -74.62
-    164.30`` to ``--current-position=-74.62,164.30``.
+    argparse reads ``-74.62,164.30`` as an unknown option and takes only the
+    first of two values. This rewrites ``--current-position LAT LON`` (any
+    signs, optionally ``LAT, LON``) and ``--current-position -LAT,LON`` to
+    ``--current-position=LAT,LON``. The ``=``, comma and quoted forms pass
+    through; a following option is never taken as the longitude.
 
     Parameters
     ----------
@@ -423,14 +425,17 @@ def join_position_argv(argv: list[str]) -> list[str]:
         arg = argv[i]
         if arg == "--current-position" and i + 1 < len(argv):
             value = argv[i + 1]
+            first = value.rstrip(",")
+            if (
+                _is_number(first)
+                and "," not in first
+                and i + 2 < len(argv)
+                and _is_number(argv[i + 2].lstrip(","))
+            ):
+                out.append(f"--current-position={first},{argv[i + 2].lstrip(',')}")
+                i += 3
+                continue
             if _is_number_start(value):
-                if (
-                    ("," not in value or value.endswith(","))
-                    and i + 2 < len(argv)
-                    and _is_number(argv[i + 2].lstrip(","))
-                ):
-                    value = f"{value.rstrip(',')},{argv[i + 2].lstrip(',')}"
-                    i += 1
                 out.append(f"--current-position={value}")
                 i += 2
                 continue
@@ -478,12 +483,13 @@ def build_parser(subparsers: argparse._SubParsersAction) -> argparse.ArgumentPar
         epilog="""
 Run 'cruiseplan list SCHEDULE_FILE' first to see activity indices.
 
-Anchoring: the operation at --start-index starts at --start-time (the ship is
-there; the transit into it is not included). If the index is a transit row,
-the forecast anchors on the operation that transit leads to and says so.
-With --current-position, --start-time is the time at that position: a transit
-from it to the operation is added at the leg's speed, and the operation starts
-when it ends. Later rows keep their planned offsets.
+Anchoring: the row at --start-index starts at --start-time (UTC). On an
+operation row the ship is there (the transit into it is not included); on a
+transit row the ship is starting that transit now. With --current-position
+the given position wins: --start-time is the time at that position, a transit
+from it to the operation (the one a transit row leads to) is added at the
+leg's speed, and the operation starts when it ends. Later rows keep their
+planned offsets. The text and TeX headers state the rule applied.
 
 Forecast mode (--start-index and --start-time required together):
   cruiseplan forecast MSM142_schedule.nc --start-index 18 --start-time "2026-08-30T14:00:00"
@@ -507,14 +513,16 @@ Static format mode (no start params):
     p.add_argument(
         "--start-index",
         type=int,
-        help="Row index from 'cruiseplan list' (0-based) of the operation to "
-        "anchor on; a transit row anchors on the operation it leads to; "
-        "required with --start-time",
+        help="Row index from 'cruiseplan list' (0-based) to anchor on: an "
+        "operation starts at --start-time; a transit row starts at "
+        "--start-time from where it begins; required with --start-time",
     )
     p.add_argument(
         "--start-time",
-        help="Start time of the anchored operation, or of the ship at "
-        "--current-position if given (ISO format: '2026-08-30T14:00:00'); "
+        help="Start time of the anchored row, or of the ship at "
+        "--current-position if given (ISO format). Without a zone it is UTC "
+        "('2026-08-30T14:00:00'); with the ship's zone it is ship time "
+        "('2026-08-30T14:00+03:00') and the TeX table is printed in ship time; "
         "required with --start-index",
     )
     p.add_argument(
@@ -533,8 +541,8 @@ Static format mode (no start params):
         "--current-position",
         metavar="LAT,LON",
         help="Ship position at --start-time in decimal degrees (e.g. "
-        "-74.62,164.30 or '-74.62 164.30'); adds a transit from it to the "
-        "anchored operation in every format",
+        "-74.62,164.30, '-74.62 164.30' or 65.0 -30.0); the forecast starts "
+        "with a transit from it to the anchored operation",
     )
     p.add_argument(
         "--format",

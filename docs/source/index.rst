@@ -13,6 +13,7 @@ CruisePlan
    user-guide/quick-start
    user-guide/workflows
    user-guide/yaml-basics
+   user-guide/at-sea
 
 .. toctree::
    :maxdepth: 2

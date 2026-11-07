@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from cruiseplan.forecast.reader import to_current_format
+from cruiseplan.forecast.reader import stored_kind, to_current_format
 from cruiseplan.timeline.distance import haversine_distance
 from cruiseplan.utils.units import km_to_nm
 
@@ -189,15 +189,86 @@ def format_activities_table(
 FORECAST_TRANSIT_INDEX = -1
 """Index given to the transit from ``current_position`` in forecast rows."""
 
+MIN_POSITION_TRANSIT_NM = 0.05
+"""Below this distance (nm) from the anchored operation no transit is inserted."""
+
+
+def parse_start_time(start_time: str) -> pd.Timestamp:
+    """
+    Parse a forecast start time as UTC.
+
+    A time with a zone is converted to UTC; a time without one is taken as
+    UTC. The result has no zone attached, like the schedule times.
+
+    Parameters
+    ----------
+    start_time : str
+        ISO time, e.g. ``"2026-08-30T14:00:00"`` or ``"2026-08-30T16:00+02:00"``.
+
+    Returns
+    -------
+    pandas.Timestamp
+        Naive UTC time, to the second.
+
+    Raises
+    ------
+    ValueError
+        If the time cannot be parsed.
+    """
+    try:
+        moment = pd.to_datetime(start_time)
+    except (ValueError, TypeError, OverflowError) as e:
+        raise ValueError(f"Invalid start_time format '{start_time}': {e}") from e
+    if moment.tzinfo is not None:
+        moment = moment.tz_convert("UTC").tz_localize(None)
+    return moment.floor("s")
+
+
+def ship_time_offset(start_time: str) -> pd.Timedelta | None:
+    """
+    UTC offset of the ship's clock, from the zone of a forecast start time.
+
+    ``2026-08-30T14:00+03:00`` means 14:00 ship time with the clock at
+    UTC+3. A time without a zone, or in UTC (``Z``, ``+00:00``), gives None
+    (times are shown in UTC).
+
+    Parameters
+    ----------
+    start_time : str
+        ISO time as given to ``--start-time``.
+
+    Returns
+    -------
+    pandas.Timedelta or None
+        Offset of ship time from UTC, or None without a zone.
+    """
+    moment = pd.to_datetime(start_time)
+    if moment.tzinfo is None or moment.utcoffset() == pd.Timedelta(0):
+        return None
+    return pd.Timedelta(moment.utcoffset())
+
+
+def time_zone_label(offset: pd.Timedelta | None) -> str:
+    """Column label for times in UTC (no offset) or in ship time."""
+    if offset is None:
+        return "UTC"
+    sign = "-" if offset < pd.Timedelta(0) else "+"
+    minutes = int(abs(offset).total_seconds() // 60)
+    return f"LT (UTC{sign}{minutes // 60:02d}:{minutes % 60:02d})"
+
 
 def _time_offsets(schedule: xr.Dataset) -> list[pd.Timedelta]:
     """Row start times as offsets from the first row."""
     time_data = schedule.time.values
     if hasattr(time_data[0], "total_seconds"):
-        return [pd.Timedelta(seconds=float(t.total_seconds())) for t in time_data]
-    # Numbers here would be undecoded CF times; to_current_format decodes them
-    times = pd.to_datetime(time_data)
-    return [t - times[0] for t in times]
+        offsets = [pd.Timedelta(seconds=float(t.total_seconds())) for t in time_data]
+    else:
+        # Numbers here would be undecoded CF times; to_current_format decodes them
+        times = pd.to_datetime(time_data)
+        offsets = [t - times[0] for t in times]
+    # Stored as float seconds: drop the sub-millisecond noise so a time on a
+    # rounding boundary is not floored to the minute before
+    return [t.round("ms") for t in offsets]
 
 
 def _category(schedule: xr.Dataset, i: int) -> str:
@@ -205,14 +276,22 @@ def _category(schedule: xr.Dataset, i: int) -> str:
     return str(schedule.category[i].values).strip()
 
 
-def resolve_anchor_index(schedule: xr.Dataset, start_index: int) -> int:
+def resolve_anchor_index(
+    schedule: xr.Dataset,
+    start_index: int,
+    current_position: tuple[float, float] | None = None,
+    warn: bool = True,
+) -> int:
     """
     Return the row a forecast is anchored on.
 
     Indices are the rows of ``cruiseplan list`` (ports, transits, operations
-    and buffers). A forecast is anchored on an operation: if ``start_index``
-    is a transit row, the anchor moves to the operation that transit leads
-    to and a warning is logged.
+    and buffers). Without ``current_position`` the anchor is the row itself:
+    an operation starts at the start time, and a transit starts at the start
+    time from where it begins (the ship is starting that transit now). With
+    ``current_position`` the given position wins: a transit row moves the
+    anchor to the operation it leads to, and the forecast starts with a
+    transit from the position to it.
 
     Parameters
     ----------
@@ -220,22 +299,29 @@ def resolve_anchor_index(schedule: xr.Dataset, start_index: int) -> int:
         Schedule dataset from read_schedule().
     start_index : int
         Row index given by the user (0-based).
+    current_position : tuple of float, optional
+        Ship position (lat, lon) at the start time.
+    warn : bool, optional
+        Log a warning when a transit row moves the anchor (default True).
 
     Returns
     -------
     int
-        Index of the anchored (non-transit) row.
+        Index of the anchored row.
 
     Raises
     ------
     ValueError
-        If ``start_index`` is out of range, or a transit with no row after it.
+        If ``start_index`` is out of range, or (with ``current_position``) a
+        transit with no row after it.
     """
     num_activities = len(schedule.time)
     if start_index < 0 or start_index >= num_activities:
         raise ValueError(
             f"start_index {start_index} out of range (0-{num_activities - 1})"
         )
+    if current_position is None:
+        return start_index
     anchor = start_index
     while anchor < num_activities and _category(schedule, anchor) == "transit":
         anchor += 1
@@ -243,14 +329,64 @@ def resolve_anchor_index(schedule: xr.Dataset, start_index: int) -> int:
         raise ValueError(
             f"start_index {start_index} is a transit with no operation after it"
         )
-    if anchor != start_index:
+    if anchor != start_index and warn:
         logger.warning(
             f"Index {start_index} is a transit "
-            f"('{str(schedule.name[start_index].values).strip()}'); anchoring on "
-            f"index {anchor} ('{str(schedule.name[anchor].values).strip()}'), "
-            "which starts at the start time"
+            f"('{str(schedule.name[start_index].values).strip()}'); with "
+            f"--current-position the forecast goes from there to index {anchor} "
+            f"('{str(schedule.name[anchor].values).strip()}')"
         )
     return anchor
+
+
+def anchor_rule(
+    schedule: xr.Dataset,
+    start_index: int,
+    start_time: str,
+    current_position: tuple[float, float] | None = None,
+) -> str:
+    """
+    Describe in one line how a forecast is anchored, for output headers.
+
+    Parameters
+    ----------
+    schedule : xr.Dataset
+        Schedule dataset from read_schedule().
+    start_index : int
+        Row index given by the user (0-based).
+    start_time : str
+        Start time as given (UTC).
+    current_position : tuple of float, optional
+        Ship position (lat, lon) at the start time.
+
+    Returns
+    -------
+    str
+        The rule applied, naming the row and the start time.
+    """
+    schedule = to_current_format(schedule)
+    anchor = resolve_anchor_index(schedule, start_index, current_position, warn=False)
+    name = str(schedule.name[anchor].values).strip()
+    when = parse_start_time(start_time).strftime("%Y-%m-%d %H:%M")
+    if current_position is not None:
+        lat, lon = current_position
+        nm = _position_transit_nm(schedule, anchor, current_position)
+        if nm < MIN_POSITION_TRANSIT_NM:
+            # No transit is inserted (see generate_forecast)
+            return (
+                f"Ship at {lat:.4f}, {lon:.4f} at {when} UTC, at row {anchor} "
+                f"({name}); the ship is there"
+            )
+        return (
+            f"Ship at {lat:.4f}, {lon:.4f} at {when} UTC; transit from there to "
+            f"row {anchor} ({name}), then the plan"
+        )
+    if _category(schedule, anchor) == "transit":
+        return (
+            f"Row {anchor} ({name}) starts at {when} UTC from where the transit "
+            "begins; the ship is starting this transit now"
+        )
+    return f"Row {anchor} ({name}) starts at {when} UTC; the ship is there"
 
 
 def _leg_speed(schedule: xr.Dataset, anchor: int) -> float:
@@ -275,6 +411,21 @@ def _leg_speed(schedule: xr.Dataset, anchor: int) -> float:
     return 10.0
 
 
+def _position_transit_nm(
+    schedule: xr.Dataset,
+    anchor: int,
+    current_position: tuple[float, float] | None,
+) -> float:
+    """Distance (nm) from the current position to the anchored row; 0 without one."""
+    if current_position is None:
+        return 0.0
+    target = (
+        float(schedule.latitude[anchor].values),
+        float(schedule.longitude[anchor].values),
+    )
+    return _gc_nm(tuple(current_position), target)
+
+
 def _gc_nm(a: tuple[float, float], b: tuple[float, float]) -> float:
     """Great-circle distance in nm between (lat, lon) points."""
     return km_to_nm(haversine_distance(a, b))
@@ -288,17 +439,17 @@ def generate_forecast(
     current_position: tuple[float, float] | None = None,
 ) -> list[tuple[int, datetime, str, str, str, float, float, float, str]]:
     """
-    Generate a re-anchored forecast starting from an operation.
+    Generate a re-anchored forecast starting from a row of the schedule.
 
-    The anchored operation starts at ``start_time``: the ship is there, so the
-    transit into it is not included. If ``start_index`` is a transit row, the
-    anchor is the operation that transit leads to (see
-    ``resolve_anchor_index``). With ``current_position``, ``start_time`` is
+    The anchored row starts at ``start_time`` (UTC; see
+    ``resolve_anchor_index``): an operation row means the ship is there, so
+    the transit into it is not included; a transit row means the ship is
+    starting that transit now. With ``current_position``, ``start_time`` is
     the time at that position: a transit from it to the anchored operation,
     at the leg's speed, is inserted first and the operation starts when it
-    ends. Every later row keeps its planned offset from the anchored
-    operation. The anchored operation's own ``delay_start_minutes`` is replaced by
-    the anchor time.
+    ends. Every later row keeps its planned offset from the anchored row. The
+    anchored operation's own ``delay_start_minutes`` is replaced by the
+    anchor time.
 
     A row that runs past the start of the next row (the next operation has a
     negative ``delay_start_minutes``: the previous activity ended early) is shortened
@@ -311,7 +462,7 @@ def generate_forecast(
     start_index : int
         Row index (0-based, as in ``cruiseplan list``).
     start_time : str
-        Absolute start time (ISO format, e.g. "2026-08-30T14:00:00"): of the
+        Absolute start time, UTC (ISO format, e.g. "2026-08-30T14:00:00"): of the
         anchored operation, or of the ship at ``current_position``.
     duration_hours : float, optional
         Forecast window in hours from ``start_time`` (default: 24.0).
@@ -337,25 +488,18 @@ def generate_forecast(
     ...     print(f"{abs_time:%Y-%m-%d %H:%M} | {name}")
     """
     schedule = to_current_format(schedule)
-    anchor = resolve_anchor_index(schedule, start_index)
+    anchor = resolve_anchor_index(schedule, start_index, current_position)
     num_activities = len(schedule.time)
 
-    try:
-        new_start_time = pd.to_datetime(start_time)
-    except (ValueError, TypeError, OverflowError) as e:
-        raise ValueError(f"Invalid start_time format '{start_time}': {e}") from e
+    new_start_time = parse_start_time(start_time)
 
     time_offsets = _time_offsets(schedule)
     forecast_end_time = new_start_time + pd.Timedelta(hours=duration_hours)
     forecast_activities = []
 
     anchor_time = new_start_time
-    if current_position is not None:
-        target = (
-            float(schedule.latitude[anchor].values),
-            float(schedule.longitude[anchor].values),
-        )
-        nm = _gc_nm(tuple(current_position), target)
+    nm = _position_transit_nm(schedule, anchor, current_position)
+    if nm >= MIN_POSITION_TRANSIT_NM:
         hours = nm / _leg_speed(schedule, anchor)
         forecast_activities.append(
             (
@@ -373,9 +517,11 @@ def generate_forecast(
         anchor_time = new_start_time + pd.Timedelta(hours=hours)
 
     for i in range(anchor, num_activities):
-        absolute_time = anchor_time + (time_offsets[i] - time_offsets[anchor])
-        if absolute_time > forecast_end_time:
+        # Compare the exact time with the window end, then print whole seconds
+        exact_time = anchor_time + (time_offsets[i] - time_offsets[anchor])
+        if exact_time > forecast_end_time:
             break
+        absolute_time = exact_time.floor("s")
 
         duration = float(schedule.duration[i].values) / 60.0
         if i + 1 < num_activities:
@@ -405,6 +551,19 @@ def generate_forecast(
             )
         )
 
+    in_window = [row[0] for row in forecast_activities if row[0] >= 0]
+    # Ports count (a window may end the cruise); transits and buffers do not
+    if all(stored_kind(schedule, i) in {"transit", "buffer"} for i in in_window):
+        where = f"row {anchor}"
+        if anchor != start_index:
+            where += f" (--start-index {start_index} is the transit into it)"
+        reason = ""
+        if nm >= MIN_POSITION_TRANSIT_NM:
+            reason = f"; the transit from --current-position is {nm:.1f} nm"
+        raise ValueError(
+            f"No operation starts within {duration_hours:g} h of {start_time} "
+            f"from {where}{reason}; give a longer --duration"
+        )
     logger.info(
         f"Generated forecast with {len(forecast_activities)} activities "
         f"from index {anchor} for {duration_hours}h"

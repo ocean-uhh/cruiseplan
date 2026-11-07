@@ -137,40 +137,39 @@ def test_anchors_i_and_i_plus_k_agree(tmp_path, name):
     nc_path = netcdf_for(tmp_path, cfg, name)
     for i in anchors(len(hand) - 2):
         runs = [
-            forecast(nc_path, i + k, hand[hand_anchor(hand, i + k)].start + SHIFT, 72)
+            forecast(nc_path, i + k, hand[hand_anchor(hand, i + k)].start + SHIFT, 400)
             for k in range(3)
         ]
         common = set(runs[0]) & set(runs[1]) & set(runs[2])
-        for j in common:
-            assert seconds(runs[0][j], runs[1][j]) < 1
-            assert seconds(runs[0][j], runs[2][j]) < 1
+        for j in common:  # times are floored to whole seconds
+            assert seconds(runs[0][j], runs[1][j]) <= 1
+            assert seconds(runs[0][j], runs[2][j]) <= 1
 
 
 @pytest.mark.parametrize("name", list(CONFIGS))
-def test_transit_row_anchors_on_its_operation(tmp_path, name):
-    """A transit row i and the operation i+1 give the same forecast at the same T."""
+def test_transit_row_starts_the_transit(tmp_path, name):
+    """Anchored on transit row i at T: the transit starts at T, op i+1 at T + its minutes."""
     cfg = load(name)
     hand = hand_schedule(cfg)
     nc_path = netcdf_for(tmp_path, cfg, name)
     t0 = datetime(2026, 3, 9, 8, 0)
     transits = [i for i, r in enumerate(hand) if r.kind == "transit"]
     for i in transits[:: max(1, len(transits) // 20)]:
-        assert forecast_rows(nc_path, i, t0, 72) == forecast_rows(
-            nc_path, i + 1, t0, 72
-        )
         expected = hand_forecast(hand, i, t0)
         fc = forecast(nc_path, i, t0)
         assert sorted(fc) == [r.index for r in expected]
+        assert fc[i] == t0
+        assert seconds(fc[i + 1], t0 + timedelta(minutes=hand[i].minutes)) <= T_TOL_S
         for r in expected:
             assert seconds(fc[r.index], r.start) <= T_TOL_S
 
 
-def test_anchor_on_transit_versus_on_station(tmp_path, caplog):
+def test_anchor_on_transit_versus_on_station(tmp_path):
     """
-    Same start time, anchored on 'Transit to NISS' versus on NISS itself.
+    Same start time T, anchored on 'Transit to NISS' versus on NISS itself.
 
-    Both put NISS at T: the ship is at NISS. The transit row anchors on NISS
-    and says so in a warning.
+    On the transit the ship is starting it at T: NISS at T + 33.61 nm / 10 kt
+    = T + 201.65 min (11:21:39). On NISS the ship is there: NISS at T.
     """
     cfg = load("pycnmix")
     hand = hand_schedule(cfg)
@@ -179,19 +178,57 @@ def test_anchor_on_transit_versus_on_station(tmp_path, caplog):
     k_op = index_of(hand, "NISS")
     assert k_op == k_tr + 1
     t0 = datetime(2026, 3, 9, 8, 0)
-    with caplog.at_level(logging.WARNING, logger="cruiseplan.forecast.generator"):
-        from_transit = forecast(nc_path, k_tr, t0)
-    assert f"anchoring on index {k_op} ('NISS')" in caplog.text
+    from_transit = forecast(nc_path, k_tr, t0)
     from_op = forecast(nc_path, k_op, t0)
-    assert k_tr not in from_transit
-    assert from_transit == from_op
+    assert hand[k_tr].nm == pytest.approx(33.61, abs=0.01)
+    assert from_transit[k_tr] == t0
+    assert seconds(from_transit[k_op], datetime(2026, 3, 9, 11, 21, 39)) <= T_TOL_S
     assert from_op[k_op] == t0
+    assert k_tr not in from_op
+    shift = from_transit[k_op] - from_op[k_op]
+    for j in from_op:  # times are floored to whole seconds
+        assert seconds(from_transit[j] - shift, from_op[j]) <= 1
+
+
+def test_anchor_rule_is_stated_in_text_and_tex(tmp_path):
+    """The text and TeX forecasts say which rule placed the start time."""
+    cfg = load("pycnmix")
+    hand = hand_schedule(cfg)
+    nc_path = netcdf_for(tmp_path, cfg, "pycnmix")
+    k_tr = index_of(hand, "Transit to NISS")
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        text = cruiseplan.stationplan_forecast(
+            nc_path, k_tr, "2026-03-09T08:00:00", 6
+        ).output
+        tex = cruiseplan.stationplan_forecast_tex(
+            nc_path,
+            k_tr + 1,
+            "2026-03-09T08:00:00",
+            6,
+            output_path=tmp_path / "plan.tex",
+        )
+        here = cruiseplan.stationplan_forecast(
+            nc_path, k_tr, "2026-03-09T08:00:00", 6, current_position=(-74.98, 163.48)
+        ).output
+    assert (
+        f"% Anchor = Row {k_tr} (Transit to NISS) starts at 2026-03-09 08:00 UTC"
+        in text
+    )
+    assert "starting this transit now" in text
+    assert tex.success
+    assert (
+        f"Row {k_tr + 1} (NISS) starts at 2026-03-09 08:00 UTC; the ship is there"
+        in (tmp_path / "plan.tex").read_text()
+    )
+    assert "% Anchor = Ship at -74.9800, 163.4800 at 2026-03-09 08:00 UTC" in here
+    assert f"row {k_tr + 1} (NISS)" in here
 
 
 def test_her_i_versus_i_plus_2(tmp_path):
     """
-    Anchor 12 (NISS) and 14 (LDEO_heavy_shallow_recovery), each at its own
-    planned start + 3 h, agree on row 16; anchor 11 (the transit) now does too.
+    Anchor 11 (Transit to NISS), 12 (NISS) and 14 (LDEO_heavy_shallow_recovery),
+    each at its own planned start + 3 h, agree on row 16.
     """
     cfg = load("pycnmix")
     hand = hand_schedule(cfg)
@@ -202,8 +239,7 @@ def test_her_i_versus_i_plus_2(tmp_path):
         "LDEO_heavy_shallow_recovery",
         "Transit to LDEO_heavy_deep_recovery",
     ]
-    row16 = {i: forecast(nc_path, i, hand[12].start + SHIFT)[16] for i in (11, 12)}
-    row16[14] = forecast(nc_path, 14, hand[14].start + SHIFT)[16]
+    row16 = {i: forecast(nc_path, i, hand[i].start + SHIFT)[16] for i in (11, 12, 14)}
     for t in row16.values():
         assert seconds(t, hand[16].start + SHIFT) <= T_TOL_S
 
@@ -345,7 +381,9 @@ def test_current_position_in_kml_and_png(tmp_path, monkeypatch):
     assert kml.success
     kml_text = (tmp_path / "plan.kml").read_text()
     niss_kml = kml_text[kml_text.index("<name>NISS</name>") :]
-    assert f"Start: {t_niss:%Y-%m-%d %H:%M}" in niss_kml.split("</Placemark>")[0]
+    # 08:00 + 9.65 nm / 10 kt = 08:57:54; KML times are rounded to the minute
+    assert f"{t_niss:%H:%M:%S}" == "08:57:54"
+    assert "Start: 2026-03-09 08:58" in niss_kml.split("</Placemark>")[0]
 
 
 # =============================================================================
@@ -594,6 +632,52 @@ def test_cli_current_position_other_forms(tmp_path, monkeypatch, capsys, value):
     assert "1\t74 37.20 S\t164 18.00 E\tMerian" in capsys.readouterr().out
 
 
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        (["65.0", "-30.0"], "65 00.00 N\t030 00.00 W"),
+        (["65.0", "30.0"], "65 00.00 N\t030 00.00 E"),
+        (["65.0,", "-30.0"], "65 00.00 N\t030 00.00 W"),
+        (["65.0", ",30.0"], "65 00.00 N\t030 00.00 E"),
+        (["65.0, -30.0"], "65 00.00 N\t030 00.00 W"),
+        (["65.0,-30.0"], "65 00.00 N\t030 00.00 W"),
+        (["-65.0", "-30.0"], "65 00.00 S\t030 00.00 W"),
+    ],
+)
+def test_cli_current_position_any_sign(tmp_path, monkeypatch, capsys, value, expected):
+    """Two values work for any sign, and the option after them is still read."""
+    nc_path = netcdf_for(tmp_path, load("pycnmix"), "pycnmix")
+    code = run_cli(
+        monkeypatch,
+        [
+            "forecast",
+            str(nc_path),
+            "--start-index",
+            "12",
+            "--current-position",
+            *value,
+            "--start-time",
+            "2026-03-09 08:00",
+            "--duration",
+            "2000",
+            "--format",
+            "waypoints",
+        ],
+    )
+    assert code == 0
+    assert f"1\t{expected}\tMerian" in capsys.readouterr().out
+
+
+def test_cli_current_position_does_not_take_the_next_option():
+    """A single value followed by an option is not joined with it."""
+    from cruiseplan.cli.forecast import join_position_argv
+
+    argv = ["--current-position", "65.0,-30.0", "--duration", "6"]
+    assert join_position_argv(argv) == argv
+    argv = ["--current-position", "65.0", "--duration", "6"]
+    assert join_position_argv(argv) == argv
+
+
 def test_cli_current_position_moves_tex_times(tmp_path, monkeypatch):
     """Her generate_stationplan.sh call: --current-position now moves the TeX times."""
     nc_path = netcdf_for(tmp_path, load("pycnmix"), "pycnmix")
@@ -635,8 +719,94 @@ def test_cli_current_position_moves_tex_times(tmp_path, monkeypatch):
         (datetime(2026, 3, 9, 23, 54, 59), datetime(2026, 3, 9, 23, 50)),
         (datetime(2026, 12, 31, 23, 58), datetime(2027, 1, 1, 0, 0)),
         (datetime(2026, 3, 9, 8, 3), datetime(2026, 3, 9, 8, 0)),
+        # halves round up, on the full time (MATLAB round in letsgo.m)
+        (datetime(2026, 3, 9, 12, 5), datetime(2026, 3, 9, 12, 10)),
+        (datetime(2026, 3, 9, 12, 15), datetime(2026, 3, 9, 12, 20)),
+        (datetime(2026, 3, 9, 12, 25), datetime(2026, 3, 9, 12, 30)),
+        (datetime(2026, 3, 9, 12, 5, 30), datetime(2026, 3, 9, 12, 10)),
+        (datetime(2026, 3, 9, 12, 15, 30), datetime(2026, 3, 9, 12, 20)),
+        (datetime(2026, 3, 9, 12, 5, 40), datetime(2026, 3, 9, 12, 10)),
+        (datetime(2026, 3, 9, 12, 4, 59), datetime(2026, 3, 9, 12, 0)),
+        (datetime(2026, 3, 9, 23, 55), datetime(2026, 3, 10, 0, 0)),
     ],
 )
 def test_round_to_ten_minutes_carries_the_day(given, rounded):
     """Waypoints without --start-time and TeX times round with the date carried."""
     assert round_to_minutes(given, 10) == rounded
+
+
+# =============================================================================
+# Forecast window, short current-position transit, UTC start times
+# =============================================================================
+
+
+def test_window_without_an_operation_is_an_error(tmp_path, monkeypatch, capsys):
+    """pycnmix: 1 h from 'Transit to SouthCapeAdair' (1709 nm) holds no operation."""
+    cfg = load("pycnmix")
+    hand = hand_schedule(cfg)
+    nc_path = netcdf_for(tmp_path, cfg, "pycnmix")
+    k = index_of(hand, "Transit to SouthCapeAdair")
+    assert hand[k].nm == pytest.approx(1709.19, abs=0.01)
+    with pytest.raises(ValueError, match="No operation starts within 1 h"):
+        forecast_rows(nc_path, k, datetime(2026, 2, 24, 12, 0), 1)
+    for fmt in ("tex", "text", "waypoints"):
+        code = run_cli(
+            monkeypatch,
+            [
+                "forecast",
+                str(nc_path),
+                "--start-index",
+                str(k),
+                "--start-time",
+                "2026-02-24T12:00:00",
+                "--duration",
+                "1",
+                "--format",
+                fmt,
+                "-o",
+                str(tmp_path / fmt),
+                "--output",
+                f"plan.{fmt}",
+            ],
+        )
+        assert code != 0, fmt
+        assert "No operation starts within 1 h" in capsys.readouterr().err, fmt
+        assert not (tmp_path / fmt / f"plan.{fmt}").exists(), fmt
+
+
+@pytest.mark.parametrize(
+    ("offset_nm", "inserted"), [(0.0, False), (0.04, False), (0.06, True)]
+)
+def test_short_current_position_transit_is_skipped(tmp_path, offset_nm, inserted):
+    """A ship within 0.05 nm of NISS gets no extra transit; at 0.06 nm it does."""
+    cfg = load("pycnmix")
+    hand = hand_schedule(cfg)
+    nc_path = netcdf_for(tmp_path, cfg, "pycnmix")
+    k_op = index_of(hand, "NISS")
+    niss = (-75.14, 163.42)
+    # due north: 1 nm of latitude = 1.852 / 6371 rad
+    here = (niss[0] + offset_nm * 1.852 / 6371.0 * 180 / 3.141592653589793, niss[1])
+    assert gc_nm(here, niss) == pytest.approx(offset_nm, abs=1e-6)
+    t0 = datetime(2026, 3, 9, 8, 0)
+    rows = forecast_rows(nc_path, k_op, t0, 6, position=here)
+    assert (rows[0][0] == -1) is inserted
+    niss_start = next(r[1] for r in rows if r[0] == k_op)
+    expected = t0 + timedelta(minutes=offset_nm * 6 if inserted else 0)
+    assert seconds(niss_start, expected) <= 1
+
+
+def test_start_time_with_a_zone_is_converted_to_utc(tmp_path):
+    """10:00+02:00 is 08:00 UTC; times are whole seconds, without a pandas warning."""
+    cfg = load("pycnmix")
+    hand = hand_schedule(cfg)
+    nc_path = netcdf_for(tmp_path, cfg, "pycnmix")
+    k_op = index_of(hand, "NISS")
+    schedule = read_schedule(nc_path)
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", UserWarning)
+        zoned = generate_forecast(schedule, k_op, "2026-03-09T10:00:00+02:00", 24)
+        naive = generate_forecast(schedule, k_op, "2026-03-09T08:00:00", 24)
+    schedule.close()
+    assert [r[1] for r in zoned] == [r[1] for r in naive]
+    assert zoned[0][1] == datetime(2026, 3, 9, 8, 0)
+    assert all(r[1].microsecond == 0 for r in naive)

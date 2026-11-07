@@ -20,10 +20,12 @@ files with ``yaml.safe_load`` and every number follows the written rules:
 
 Forecast (at-sea re-anchoring), ``hand_forecast``:
 
-- the anchor is the row at the given index; a transit row anchors on the
-  row after it
-- the anchored row starts at the start time; with a current position, a
-  transit from it to the anchored row's entry (at the leg speed) comes first
+- without a current position the anchor is the row at the given index and
+  it starts at the start time; on a transit row the ship starts that
+  transit at the start time
+- with a current position the position wins: a transit row anchors on the
+  row after it, and a transit from the position to the anchored row's entry
+  (at the leg speed) comes first
 - every later row keeps its planned offset from the anchored row
 - a row that runs past the next row's start is shortened to end there
 """
@@ -354,8 +356,12 @@ class ForecastRow:
     minutes: float
 
 
-def hand_anchor(rows: list[Row], index: int) -> int:
-    """Anchored row: the index itself, or the row after a transit."""
+def hand_anchor(
+    rows: list[Row], index: int, position: tuple[float, float] | None = None
+) -> int:
+    """Anchored row: the index itself; with a position, the row after a transit."""
+    if position is None:
+        return index
     while rows[index].kind == "transit":
         index += 1
     return index
@@ -369,7 +375,7 @@ def hand_forecast(
     knots: float = 10.0,
 ) -> list[ForecastRow]:
     """Re-anchored forecast of a hand schedule (no forecast window)."""
-    k = hand_anchor(rows, index)
+    k = hand_anchor(rows, index, position)
     out = []
     t_k = start
     if position is not None:
