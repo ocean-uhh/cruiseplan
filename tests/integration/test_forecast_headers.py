@@ -119,3 +119,27 @@ def test_tex_forecast_in_ship_time(schedule_nc, tmp_path):
     assert "23:00" in utc_tex
     assert "01.12.2026" in local_tex
     assert "30.11.2026" in utc_tex
+
+
+@pytest.mark.parametrize(
+    ("start", "label"),
+    [
+        ("2026-08-30T14:00-03:00", "LT (UTC-03:00)"),
+        ("2026-08-30T14:00-0230", "LT (UTC-02:30)"),
+        ("2026-08-30T14:00+13", "LT (UTC+13:00)"),
+        ("2026-08-30T17:00Z", "UTC"),
+        ("2026-08-30T17:00+00:00", "UTC"),
+        ("2026-08-30T17:00", "UTC"),
+    ],
+)
+def test_offset_forms_in_the_docs(start, label):
+    """Each way of writing the offset shown in the at-sea guide."""
+    from cruiseplan.forecast.generator import (
+        parse_start_time,
+        ship_time_offset,
+        time_zone_label,
+    )
+
+    assert time_zone_label(ship_time_offset(start)) == label
+    if label != "LT (UTC-02:30)" and label != "LT (UTC+13:00)":
+        assert str(parse_start_time(start)) == "2026-08-30 17:00:00"

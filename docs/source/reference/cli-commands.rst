@@ -606,7 +606,10 @@ Two modes of operation:
 
 **Anchoring rule:**
 
-- ``--start-time`` is UTC; a time without a zone is taken as UTC.
+- ``--start-time`` without a zone is UTC. With the ship's offset
+  (``2026-08-30T14:00-03:00``) it is ship time, and the TeX table is printed
+  in ship time, labelled ``LT (UTC-03:00)``. See :doc:`../user-guide/at-sea`
+  for how to write the offset.
 - Indices are the rows of ``cruiseplan list`` (ports, transits, operations,
   buffers). The row at ``--start-index`` starts at ``--start-time``.
 - An operation row: the ship is there, so the transit into it is not part of

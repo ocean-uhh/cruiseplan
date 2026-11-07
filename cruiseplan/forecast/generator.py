@@ -229,7 +229,8 @@ def ship_time_offset(start_time: str) -> pd.Timedelta | None:
     UTC offset of the ship's clock, from the zone of a forecast start time.
 
     ``2026-08-30T14:00+03:00`` means 14:00 ship time with the clock at
-    UTC+3. A time without a zone gives None (times are shown in UTC).
+    UTC+3. A time without a zone, or in UTC (``Z``, ``+00:00``), gives None
+    (times are shown in UTC).
 
     Parameters
     ----------
@@ -242,7 +243,7 @@ def ship_time_offset(start_time: str) -> pd.Timedelta | None:
         Offset of ship time from UTC, or None without a zone.
     """
     moment = pd.to_datetime(start_time)
-    if moment.tzinfo is None:
+    if moment.tzinfo is None or moment.utcoffset() == pd.Timedelta(0):
         return None
     return pd.Timedelta(moment.utcoffset())
 
