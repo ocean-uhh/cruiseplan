@@ -468,11 +468,11 @@ def generate_forecast(
         anchor_time = new_start_time + pd.Timedelta(hours=hours)
 
     for i in range(anchor, num_activities):
-        absolute_time = (anchor_time + (time_offsets[i] - time_offsets[anchor])).floor(
-            "s"
-        )
-        if absolute_time > forecast_end_time:
+        # Compare the exact time with the window end, then print whole seconds
+        exact_time = anchor_time + (time_offsets[i] - time_offsets[anchor])
+        if exact_time > forecast_end_time:
             break
+        absolute_time = exact_time.floor("s")
 
         duration = float(schedule.duration[i].values) / 60.0
         if i + 1 < num_activities:
@@ -505,14 +505,15 @@ def generate_forecast(
     in_window = [row[0] for row in forecast_activities if row[0] >= 0]
     # Ports count (a window may end the cruise); transits and buffers do not
     if all(stored_kind(schedule, i) in {"transit", "buffer"} for i in in_window):
+        where = f"row {anchor}"
+        if anchor != start_index:
+            where += f" (--start-index {start_index} is the transit into it)"
         reason = ""
         if nm >= MIN_POSITION_TRANSIT_NM:
-            reason = (
-                f" (the transit from --current-position to row {anchor} is {nm:.1f} nm)"
-            )
+            reason = f"; the transit from --current-position is {nm:.1f} nm"
         raise ValueError(
             f"No operation starts within {duration_hours:g} h of {start_time} "
-            f"from row {start_index}{reason}; give a longer --duration"
+            f"from {where}{reason}; give a longer --duration"
         )
     logger.info(
         f"Generated forecast with {len(forecast_activities)} activities "

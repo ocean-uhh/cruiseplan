@@ -86,3 +86,15 @@ def test_transit_row_warning_once(schedule_nc, caplog):
         )
     assert result.success
     assert sum("is a transit" in r.getMessage() for r in caplog.records) == 1
+
+
+def test_empty_window_names_one_row(schedule_nc):
+    """From a transit row, the error names the anchored row and the index given."""
+    transit = _row(schedule_nc, "station", -1)
+    with pytest.raises(ValueError) as error:
+        generate_forecast(
+            read_schedule(schedule_nc), transit, "2026-12-01T12:00", 6, (74.6, -164.3)
+        )
+    message = str(error.value)
+    assert f"from row {transit + 1} (--start-index {transit} is the transit" in message
+    assert "the transit from --current-position is" in message
