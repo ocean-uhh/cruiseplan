@@ -530,9 +530,11 @@ def _shorten_before(
     shortened = []
     left = minutes
     j = index - 1
+    walked_transit = False
     # The transit into the operation, then the operation before that
     while left > 0 and j >= leg_start:
         kind = timeline[j].kind
+        walked_transit = walked_transit or kind == "transit"
         if kind == "transit" or kind not in _NOT_OPERATIONS:
             taken = min(actual[j], left)
             if taken > 0:
@@ -553,10 +555,12 @@ def _shorten_before(
     if j < leg_start or j == leg_start:
         _warn_leg_start(timeline, leg_start, record.label, left, leg_delays, first_leg)
     else:
+        at_zero = f"{timeline[j].label} is"
+        if walked_transit:
+            at_zero = f"the transit and {timeline[j].label} are"
         logger.warning(
             f"Operation {record.label}: {left:.1f} min of its negative "
-            f"delay_start_minutes could not be absorbed (the transit and "
-            f"{timeline[j].label} are at 0 min)"
+            f"delay_start_minutes could not be absorbed ({at_zero} at 0 min)"
         )
 
 

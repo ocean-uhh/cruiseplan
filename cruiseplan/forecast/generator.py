@@ -467,8 +467,9 @@ def generate_forecast(
     schedule.
 
     Durations are the actual ones stored in the schedule: an operation's
-    ``delay_start_minutes`` is already in the duration of the operation
-    before it (``cruiseplan.timeline.scheduler.apply_delays``).
+    ``delay_start_minutes`` is already in it, as a wait row before the
+    operation or a shorter transit into it
+    (``cruiseplan.timeline.scheduler.apply_delays``).
 
     Parameters
     ----------

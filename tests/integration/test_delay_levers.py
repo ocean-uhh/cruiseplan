@@ -138,3 +138,43 @@ def test_wait_row_in_csv_and_netcdf(tmp_path):
     assert float(ds.duration.values[i]) == pytest.approx(30.0)
     with xr.open_dataset(nc) as raw:
         assert str(raw.category.values[i]) == "other"
+
+
+def _forecast_outputs(tmp_path, delays):
+    """Schedule pycnmix with *delays*; forecast text, waypoints and PNG from Leg2."""
+    from cruiseplan.api.stationplan_api import (
+        stationplan_forecast,
+        stationplan_forecast_png,
+        stationplan_waypoints,
+    )
+    from cruiseplan.forecast.reader import read_schedule, stored_kind
+
+    def edit(cfg):
+        for name, minutes in delays.items():
+            _point(cfg, name)["delay_start_minutes"] = minutes
+
+    out = tmp_path / "out"
+    result = _schedule(_write(tmp_path, edit), format="netcdf", output_dir=str(out))
+    nc = next(Path(f) for f in result.files_created if str(f).endswith(".nc"))
+    ds = read_schedule(nc)
+    start = next(
+        i for i in range(ds.sizes["obs"]) if stored_kind(ds, i) == "port" and i > 0
+    )
+    when = "2026-03-09T08:00"
+    text = stationplan_forecast(nc, start, when, 48).output
+    waypoints = stationplan_waypoints(nc, start, when, 48).output
+    png = stationplan_forecast_png(nc, start, when, 48, tmp_path / "f.png")
+    return text, waypoints, png.message
+
+
+def test_forecast_outputs_with_wait_rows(tmp_path):
+    """Waits are no waypoints or map points; the text codes them 1 (no work)."""
+    text, waypoints, png = _forecast_outputs(tmp_path, {"NISS": 30.0})
+    (tmp_path / "plain").mkdir()
+    _, plain_waypoints, plain_png = _forecast_outputs(tmp_path / "plain", {})
+    assert "Waiting before" not in waypoints
+    assert waypoints.count("NISS") == plain_waypoints.count("NISS") == 1
+    # the same number of map records with and without the wait
+    assert png.split(" with ")[1] == plain_png.split(" with ")[1]
+    (line,) = [row for row in text.splitlines() if "Waiting before NISS" in row]
+    assert line.startswith("1,")

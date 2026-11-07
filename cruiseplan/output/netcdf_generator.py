@@ -527,10 +527,11 @@ class NetCDFGenerator:
                             "long_name": "delay_start_minutes of the operation (as configured)",
                             "units": "minute",
                             "comment": (
-                                "Included in the duration of the previous "
-                                "operation of the leg (positive: it ran long; "
-                                "negative: it ended early). NaN for rows "
-                                "without a delay (transits, buffers)"
+                                "Positive: the 'Waiting before' row just "
+                                "before this operation. Negative: taken off "
+                                "the transit into it, then the operation "
+                                "before. NaN for rows without a delay "
+                                "(transits, buffers, waits)"
                             ),
                             "coordinates": "time latitude longitude water_depth",
                         },

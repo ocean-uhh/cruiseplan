@@ -94,7 +94,11 @@ configurable. Keys written before 0.6.0 without the unit (``duration``,
        ``duration_minutes`` on the record that was actually shorter. No
        duration goes below zero; what cannot be taken off is dropped with a
        warning (at the start of a leg, the warning says how to start the leg
-       earlier). ``planned_duration_minutes`` in the outputs keeps the plan
+       earlier). ``planned_duration_minutes`` in the outputs keeps the plan.
+       On a leg's departure port a delay acts like the leg's own
+       ``delay_start_minutes`` (time before the leg departs, no wait row). A
+       port from the ``ports:`` catalog carries its delay to every leg that
+       uses it
    * - ``transit_minutes`` (point, port, line, area)
      - minutes
      - Actual duration of the transit into this operation, replacing
@@ -456,8 +460,8 @@ Back-to-back repeats require no extra configuration:
 
 For time-series stations where a wait between occupations is needed, define
 separate entries with the same coordinates and set ``delay_start_minutes`` on the
-later ones: the earlier occupation then lasts that much longer (the ship waits
-on station).  ``delay_start_minutes`` is part of the point definition and is shared
+later ones: the schedule then has a "Waiting before" row of that length
+between the two casts (the ship waits on station).  ``delay_start_minutes`` is part of the point definition and is shared
 by every reference to that name, so a gap can only be expressed by giving
 each occupation a distinct name:
 
@@ -474,7 +478,7 @@ each occupation a distinct name:
        latitude: 60.0
        longitude: -20.0
        operation_type: CTD
-       delay_start_minutes: 360    # STN_001_t0 lasts 6 hours longer (wait on station)
+       delay_start_minutes: 360    # 6 h "Waiting before STN_001_t6" row (wait on station)
 
    legs:
      - name: "leg1"

@@ -31,7 +31,8 @@ def map_work_codes(category: str, activity_type: str, action: str) -> int:
     -------
     int
         Work code:
-        - 1: Transit (category: 'transit')
+        - 1: Transit, waiting or contingency (category 'transit'; type
+          'wait' or 'buffer')
         - 2: CTD (type: 'CTD')
         - 3: Mooring (type: 'mooring')
         - 4: PIES (type: 'PIES')
@@ -52,7 +53,7 @@ def map_work_codes(category: str, activity_type: str, action: str) -> int:
     activity_type = activity_type.lower().strip()
     action = action.lower().strip()
 
-    if category == "transit":
+    if category == "transit" or activity_type in {"wait", "buffer"}:
         return 1
 
     if category == "point_operation":
@@ -166,7 +167,7 @@ def format_letsgo_output(
         f"% Transit_Speed = {transit_speed:.0f}",
         *([f"% Anchor = {anchor_note}"] if anchor_note else []),
         "%",
-        "% (1: Transit, 2: CTD, 3: Mooring, 4: PIES, 5: Float/Drifter, 6: Survey)",
+        "% (1: Transit/waiting, 2: CTD, 3: Mooring, 4: PIES, 5: Float/Drifter, 6: Survey)",
         "%",
         "",
     ]

@@ -513,6 +513,7 @@ def test_negative_delay_longer_than_the_operation_before(tmp_path, caplog):
         "LDEO_heavy_shallow_deployment" in m
         and "LDEO_heavy_shallow_recovery" in m
         and "30.0 min of its negative delay_start_minutes could not be absorbed" in m
+        and "(LDEO_heavy_shallow_recovery is at 0 min)" in m
         for m in caplog.messages
     )
     assert_rows_match(tl, hand_schedule(cfg))

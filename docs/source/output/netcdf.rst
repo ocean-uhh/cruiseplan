@@ -79,13 +79,15 @@ text variables have none. Readers should take the unit from the attribute.
      - Actual duration, ``end_time - time``
    * - ``planned_duration``
      - ``minute``
-     - From the planning rules; differs from ``duration`` where the next
-       operation of the leg has a ``delay_start``, and for a transit with
-       ``transit_minutes`` (whose ``vessel_speed`` is then distance / time)
+     - From the planning rules; differs from ``duration`` for a transit set
+       by ``transit_minutes`` or shortened by a negative ``delay_start``
+       (whose ``vessel_speed`` is then distance / time), and for an operation
+       a negative ``delay_start`` shortened. 0 for wait rows
    * - ``delay_start``
      - ``minute``
-     - As set on the operation; already in the ``duration`` of the operation
-       before it. NaN for transits and buffers
+     - As set on the operation. Positive: the "Waiting before" row (type
+       ``wait``, category ``other``) just before it; negative: already taken
+       off the transit into it. NaN for transits, buffers and waits
    * - ``distance``, ``distance_to_next``
      - ``nautical_mile``
      - Distance covered by the row; distance to the next waypoint

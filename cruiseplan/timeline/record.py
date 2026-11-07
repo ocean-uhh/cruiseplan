@@ -137,9 +137,9 @@ class ActivityRecord:
     water_depth_m : float or None
         Water depth at the location in meters.
     delay_start_minutes : float or None
-        The operation's own delay in minutes, applied to the actual duration
-        of the operation before it (negative: that one ended early); None for
-        transits and buffers.
+        The operation's own delay in minutes as configured: positive, a wait
+        record just before it; negative, taken off the transit into it, then
+        the operation before. None for transits, buffers and waits.
     comment : str or None
         Comment from the configuration.
     duration_is_fill : bool
