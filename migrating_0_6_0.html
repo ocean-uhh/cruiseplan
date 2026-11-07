@@ -1,0 +1,334 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upgrading from 0.5 to 0.6 &mdash; CruisePlan v0.5.0 v0.5.0.post1.dev9</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=893d1c60"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Changelog" href="changelog.html" />
+    <link rel="prev" title="General Utilities" href="api/cruiseplan.utils.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CruisePlan v0.5.0
+              <img src="_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user-guide/quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user-guide/workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user-guide/yaml-basics.html">YAML Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user-guide/at-sea.html">Forecasts at sea</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="reference/cli-commands.html">CLI Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/yaml-full.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/output-formats.html">Output Formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="advanced/api-examples.html">API Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demo-output.html">CruisePlan Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced/developer_guide.html">CruisePlan Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced/manual_testing.html">Manual Testing and Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">API Reference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Upgrading from 0.5 to 0.6</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#yaml-keys-removed-in-0-7-0">YAML keys (removed in 0.7.0)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#removed-keys">Removed keys</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#timeline-records-removed-in-0-7-0">Timeline records (removed in 0.7.0)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#renamed-api-names-removed-in-0-7-0">Renamed API names (removed in 0.7.0)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#netcdf-schedule">NetCDF schedule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#schedule-results-that-change">Schedule results that change</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CruisePlan v0.5.0</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Upgrading from 0.5 to 0.6</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="upgrading-from-0-5-to-0-6">
+<span id="migrating-0-6-0"></span><h1>Upgrading from 0.5 to 0.6<a class="headerlink" href="#upgrading-from-0-5-to-0-6" title="Link to this heading"></a></h1>
+<p>0.6.0 renames the numeric YAML keys so each one names its unit, writes the
+NetCDF schedule in CF units, and returns timeline records instead of
+dictionaries. The old names still work for one release: they warn and are
+removed in 0.7.0. <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">enrich</span></code> writes the new keys, so enriching a
+configuration once updates it.</p>
+<section id="yaml-keys-removed-in-0-7-0">
+<h2>YAML keys (removed in 0.7.0)<a class="headerlink" href="#yaml-keys-removed-in-0-7-0" title="Link to this heading"></a></h2>
+<p>The same old key has the same new name wherever it appears (cruise, leg,
+point, port, line, area). An old key logs a warning naming the new one, once
+per key per file. A mapping with both the old and the new key and different
+values is an error.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 45.0%" />
+<col style="width: 55.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Old key</p></th>
+<th class="head"><p>New key</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">duration</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">duration_minutes</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">delay_start</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">delay_start_minutes</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">buffer_time</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">buffer_time_minutes</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">turnaround_time</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">turnaround_time_minutes</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">water_depth</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">water_depth_m</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">operation_depth</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">operation_depth_m</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">vessel_speed</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">vessel_speed_kt</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">default_vessel_speed</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">default_vessel_speed_kt</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">distance_between_stations</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">distance_between_stations_km</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">default_distance_between_stations</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">default_distance_between_stations_km</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ctd_descent_rate</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ctd_descent_rate_m_s</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ctd_ascent_rate</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ctd_ascent_rate_m_s</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="removed-keys">
+<h2>Removed keys<a class="headerlink" href="#removed-keys" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>What to do</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">delay_end</span></code></p></td>
+<td><p>It was never read, so it never changed a schedule. It is ignored with a
+warning (rejected from 0.7.0): use <code class="docutils literal notranslate"><span class="pre">delay_start_minutes</span></code> on the next
+operation, <code class="docutils literal notranslate"><span class="pre">buffer_time_minutes</span></code> on the leg, or a longer
+<code class="docutils literal notranslate"><span class="pre">duration_minutes</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Keys no model knows (for example <code class="docutils literal notranslate"><span class="pre">description</span></code> on an area, or
+<code class="docutils literal notranslate"><span class="pre">start_date</span></code> on a leg) are reported, one warning per key per file, and are
+rejected in the release after 0.6.0. An activity listed more than once in a
+leg is scheduled each time, with a warning naming it and its clusters.</p>
+</section>
+<section id="timeline-records-removed-in-0-7-0">
+<h2>Timeline records (removed in 0.7.0)<a class="headerlink" href="#timeline-records-removed-in-0-7-0" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">cruiseplan.schedule(...).timeline</span></code> and <code class="docutils literal notranslate"><span class="pre">generate_timeline</span></code> return a
+<code class="docutils literal notranslate"><span class="pre">Timeline</span></code>: a list of <code class="docutils literal notranslate"><span class="pre">ActivityRecord</span></code> objects, frozen, with a <code class="docutils literal notranslate"><span class="pre">kind</span></code>
+(<code class="docutils literal notranslate"><span class="pre">station</span></code>, <code class="docutils literal notranslate"><span class="pre">mooring</span></code>, <code class="docutils literal notranslate"><span class="pre">line</span></code>, <code class="docutils literal notranslate"><span class="pre">area</span></code>, <code class="docutils literal notranslate"><span class="pre">transit</span></code>, <code class="docutils literal notranslate"><span class="pre">port</span></code>,
+<code class="docutils literal notranslate"><span class="pre">buffer</span></code>). Read fields as attributes: <code class="docutils literal notranslate"><span class="pre">record.label</span></code>,
+<code class="docutils literal notranslate"><span class="pre">record.duration_minutes</span></code>. Reading a record like a dictionary still works and
+warns; the keys that changed name:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 45.0%" />
+<col style="width: 55.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Old dictionary key</p></th>
+<th class="head"><p>Attribute</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">time</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">start_time</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lat</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">entry_lat</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lon</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">entry_lon</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">operation_type</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">op_type</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">delay_start</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">delay_start_minutes</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">water_depth</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">water_depth_m</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">operation_depth</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">operation_depth_m</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>Each record has <code class="docutils literal notranslate"><span class="pre">duration_minutes</span></code> (actual: end minus start) and
+<code class="docutils literal notranslate"><span class="pre">planned_duration_minutes</span></code> (from the planning rules). An operation’s
+positive <code class="docutils literal notranslate"><span class="pre">delay_start_minutes</span></code> is now waiting: a row “Waiting before &lt;name&gt;”
+at the operation’s position, just before it. A negative one comes out of the
+transit into the operation first, then out of the operation before that
+transit, and logs a warning (it is a quick fix; <code class="docutils literal notranslate"><span class="pre">transit_minutes</span></code> or
+<code class="docutils literal notranslate"><span class="pre">duration_minutes</span></code> on the record that was shorter says what happened).
+Records no longer overlap or leave gaps, and the forecast uses the same
+durations. Schedules written before 0.6.0 keep their rows and times when
+read: a positive delay stays a gap before the operation, a negative one
+shortens the transit into it.</p>
+</section>
+<section id="renamed-api-names-removed-in-0-7-0">
+<h2>Renamed API names (removed in 0.7.0)<a class="headerlink" href="#renamed-api-names-removed-in-0-7-0" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 45.0%" />
+<col style="width: 55.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Old</p></th>
+<th class="head"><p>Use instead</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cruiseplan.CruiseSchedule</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cruiseplan.Timeline</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cruiseplan.timeline.CruiseSchedule</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cruiseplan.timeline.Timeline</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cruiseplan.timeline.scheduler.CruiseSchedule</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cruiseplan.timeline.Timeline</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="netcdf-schedule">
+<h2>NetCDF schedule<a class="headerlink" href="#netcdf-schedule" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">duration</span></code> is in minutes (was hours) and is the actual duration;
+<code class="docutils literal notranslate"><span class="pre">planned_duration</span></code> (minutes) is new.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dist_nm</span></code> is renamed <code class="docutils literal notranslate"><span class="pre">distance</span></code> (<code class="docutils literal notranslate"><span class="pre">units</span> <span class="pre">=</span> <span class="pre">&quot;nautical_mile&quot;</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">time</span></code> and <code class="docutils literal notranslate"><span class="pre">end_time</span></code> are CF-encoded UTC seconds since 1970-01-01.</p></li>
+<li><p>Every numeric variable has a UDUNITS-2 <code class="docutils literal notranslate"><span class="pre">units</span></code> attribute (<code class="docutils literal notranslate"><span class="pre">minute</span></code>,
+<code class="docutils literal notranslate"><span class="pre">nautical_mile</span></code>, <code class="docutils literal notranslate"><span class="pre">knot</span></code>, <code class="docutils literal notranslate"><span class="pre">m</span></code>, degrees). Read the unit from the
+attribute.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">list</span></code> and <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">forecast</span></code> still read schedules written
+by 0.5.0 (hours, <code class="docutils literal notranslate"><span class="pre">dist_nm</span></code>) until 0.7.0.</p></li>
+</ul>
+</section>
+<section id="schedule-results-that-change">
+<h2>Schedule results that change<a class="headerlink" href="#schedule-results-that-change" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>A leg’s <code class="docutils literal notranslate"><span class="pre">turnaround_time_minutes</span></code> now applies to its CTD casts (it was
+read and ignored).</p></li>
+<li><p>The schedule total (CLI, HTML, <code class="docutils literal notranslate"><span class="pre">ScheduleResult.summary[&quot;total_duration_hours&quot;]</span></code>)
+is the elapsed time, including waiting from positive delays.</p></li>
+<li><p>CSV and KML times are rounded to the nearest minute (they were truncated).
+TeX plans and waypoints round to 10 minutes on the full time, halves up.</p></li>
+<li><p>Line records report the speed the line is run at (they reported the cruise
+default).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">forecast</span></code> on a transit row starts that transit at
+<code class="docutils literal notranslate"><span class="pre">--start-time</span></code> (it used to start the operation after it); see the
+anchoring rule in <a class="reference internal" href="reference/cli-commands.html"><span class="doc">CLI Commands</span></a>.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="api/cruiseplan.utils.html" class="btn btn-neutral float-left" title="General Utilities" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="changelog.html" class="btn btn-neutral float-right" title="Changelog" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

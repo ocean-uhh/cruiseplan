@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+    <Document>
+        <name>TC1_Single_Test - Catalog</name>
+        <description>Cruise configuration catalog including all stations, moorings, transits, ports, and areas</description>
+        
+        <!-- Styles for different entity types -->
+        <Style id="stationStyle">
+            <IconStyle>
+                <color>ff0000ff</color>
+                <scale>1.2</scale>
+                <Icon>
+                    <href>http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png</href>
+                </Icon>
+            </IconStyle>
+        </Style>
+        
+        <Style id="mooringStyle">
+            <IconStyle>
+                <color>ff00ff00</color>
+                <scale>1.2</scale>
+                <Icon>
+                    <href>http://maps.google.com/mapfiles/kml/shapes/placemark_square.png</href>
+                </Icon>
+            </IconStyle>
+        </Style>
+        
+        <Style id="portStyle">
+            <IconStyle>
+                <color>ff0080ff</color>
+                <scale>1.5</scale>
+                <Icon>
+                    <href>http://maps.google.com/mapfiles/kml/shapes/marina.png</href>
+                </Icon>
+            </IconStyle>
+        </Style>
+        
+        <Style id="transitStyle">
+            <LineStyle>
+                <color>800066FF</color>
+                <width>3</width>
+            </LineStyle>
+        </Style>
+        
+        <Style id="areaStyle">
+            <LineStyle>
+                <color>ff00ffff</color>
+                <width>2</width>
+            </LineStyle>
+            <PolyStyle>
+                <color>4000ffff</color>
+                <fill>1</fill>
+            </PolyStyle>
+        </Style>
+
+        <!-- Ports -->
+        <Placemark>
+            <name>Departure: port_halifax</name>
+            <description>
+                Port: port_halifax
+                Type: Departure Port
+                Location: 44.648800°N, -63.575200°W
+                Timezone: None
+            </description>
+            <styleUrl>#portStyle</styleUrl>
+            <Point>
+                <coordinates>-63.5752,44.6488,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>Arrival: port_cadiz</name>
+            <description>
+                Port: port_cadiz
+                Type: Arrival Port
+                Location: 36.529800°N, -6.292300°W
+                Timezone: None
+            </description>
+            <styleUrl>#portStyle</styleUrl>
+            <Point>
+                <coordinates>-6.2923,36.5298,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>port_halifax</name>
+            <description>
+                Port: port_halifax
+                Type: Catalog Port
+                Location: 44.648800°N, -63.575200°W
+                Timezone: None
+            </description>
+            <styleUrl>#portStyle</styleUrl>
+            <Point>
+                <coordinates>-63.5752,44.6488,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>port_cadiz</name>
+            <description>
+                Port: port_cadiz
+                Type: Catalog Port
+                Location: 36.529800°N, -6.292300°W
+                Timezone: None
+            </description>
+            <styleUrl>#portStyle</styleUrl>
+            <Point>
+                <coordinates>-6.2923,36.5298,0</coordinates>
+            </Point>
+        </Placemark>
+
+        <!-- Stations -->
+        <Placemark>
+            <name>STN_001</name>
+            <description>
+                Type: CTD
+                Action: PROFILE
+                Location: 45.000000°N, -45.000000°W
+                Depth: 2850 m
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>-45.0,45.0,0</coordinates>
+            </Point>
+        </Placemark>
+
+        <!-- Moorings -->
+
+        <!-- Transits -->
+
+        <!-- Areas -->
+    </Document>
+</kml>

@@ -1,0 +1,379 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cruiseplan.timeline.record &mdash; CruisePlan v0.5.0 v0.5.0.post1.dev9</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=893d1c60"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            CruisePlan v0.5.0
+              <img src="../../../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/yaml-basics.html">YAML Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/at-sea.html">Forecasts at sea</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/cli-commands.html">CLI Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/yaml-full.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/output-formats.html">Output Formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/api-examples.html">API Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../demo-output.html">CruisePlan Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/developer_guide.html">CruisePlan Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/manual_testing.html">Manual Testing and Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_6_0.html">Upgrading from 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">CruisePlan v0.5.0</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cruiseplan.timeline.record</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cruiseplan.timeline.record</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""</span>
+<span class="sd">The timeline record: one scheduled activity, and the timeline type.</span>
+
+<span class="sd">Every stage after the scheduler works from :class:`ActivityRecord`: the</span>
+<span class="sd">writers (CSV, HTML, LaTeX, KML, NetCDF, maps) and the forecast, which reads</span>
+<span class="sd">records back from the NetCDF schedule.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">replace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">get_args</span>
+
+<span class="n">ActivityKind</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span>
+    <span class="s2">"station"</span><span class="p">,</span> <span class="s2">"mooring"</span><span class="p">,</span> <span class="s2">"line"</span><span class="p">,</span> <span class="s2">"area"</span><span class="p">,</span> <span class="s2">"transit"</span><span class="p">,</span> <span class="s2">"port"</span><span class="p">,</span> <span class="s2">"buffer"</span><span class="p">,</span> <span class="s2">"wait"</span>
+<span class="p">]</span>
+<span class="sd">"""What a record is: a point operation (station or mooring), a line, an area,</span>
+<span class="sd">a navigational transit, a port call, a contingency buffer or waiting before</span>
+<span class="sd">an operation (its positive ``delay_start_minutes``)."""</span>
+
+<span class="n">KINDS</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_args</span><span class="p">(</span><span class="n">ActivityKind</span><span class="p">)</span>
+
+<span class="n">SCIENCE_KINDS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">"station"</span><span class="p">,</span> <span class="s2">"mooring"</span><span class="p">,</span> <span class="s2">"line"</span><span class="p">,</span> <span class="s2">"area"</span><span class="p">})</span>
+<span class="sd">"""Kinds that count as scientific operations."""</span>
+
+<span class="c1"># One table per attribute of a kind; every writer and reader uses these.</span>
+<span class="n">KIND_OPERATION_CLASS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"station"</span><span class="p">:</span> <span class="s2">"PointOperation"</span><span class="p">,</span>
+    <span class="s2">"mooring"</span><span class="p">:</span> <span class="s2">"PointOperation"</span><span class="p">,</span>
+    <span class="s2">"port"</span><span class="p">:</span> <span class="s2">"PointOperation"</span><span class="p">,</span>
+    <span class="s2">"line"</span><span class="p">:</span> <span class="s2">"LineOperation"</span><span class="p">,</span>
+    <span class="s2">"area"</span><span class="p">:</span> <span class="s2">"AreaOperation"</span><span class="p">,</span>
+    <span class="s2">"transit"</span><span class="p">:</span> <span class="s2">"NavigationalTransit"</span><span class="p">,</span>
+    <span class="s2">"buffer"</span><span class="p">:</span> <span class="s2">"Buffer"</span><span class="p">,</span>
+    <span class="s2">"wait"</span><span class="p">:</span> <span class="s2">"Waiting"</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="sd">"""Implementation class of each kind (``operation_class`` on records)."""</span>
+
+<span class="n">KIND_CATEGORY</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"station"</span><span class="p">:</span> <span class="s2">"point_operation"</span><span class="p">,</span>
+    <span class="s2">"mooring"</span><span class="p">:</span> <span class="s2">"point_operation"</span><span class="p">,</span>
+    <span class="s2">"port"</span><span class="p">:</span> <span class="s2">"point_operation"</span><span class="p">,</span>
+    <span class="s2">"line"</span><span class="p">:</span> <span class="s2">"line_operation"</span><span class="p">,</span>
+    <span class="s2">"area"</span><span class="p">:</span> <span class="s2">"area_operation"</span><span class="p">,</span>
+    <span class="s2">"transit"</span><span class="p">:</span> <span class="s2">"transit"</span><span class="p">,</span>
+    <span class="s2">"buffer"</span><span class="p">:</span> <span class="s2">"other"</span><span class="p">,</span>
+    <span class="s2">"wait"</span><span class="p">:</span> <span class="s2">"other"</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="sd">"""NetCDF ``category`` of each kind (a waypoint is ``other``)."""</span>
+
+<span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">KIND_OPERATION_CLASS</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">set</span><span class="p">(</span><span class="n">KINDS</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">set</span><span class="p">(</span><span class="n">KIND_CATEGORY</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">set</span><span class="p">(</span><span class="n">KINDS</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"every record kind needs an operation class and a category"</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="kind_of">
+<a class="viewcode-back" href="../../../api/cruiseplan.timeline.html#cruiseplan.timeline.record.kind_of">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">kind_of</span><span class="p">(</span><span class="n">operation_class</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">op_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the record kind for an operation class and operation type.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    operation_class : str</span>
+<span class="sd">        Implementation class name: ``PointOperation``, ``LineOperation``,</span>
+<span class="sd">        ``AreaOperation``, ``NavigationalTransit``, ``Buffer`` or ``Waiting``.</span>
+<span class="sd">    op_type : str or None</span>
+<span class="sd">        Operation type from the configuration (``CTD``, ``mooring``,</span>
+<span class="sd">        ``port``, ...).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        One of :data:`KINDS`.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the operation class is not known.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">operation_class</span> <span class="o">==</span> <span class="s2">"PointOperation"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">op_type</span> <span class="o">==</span> <span class="s2">"port"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">"port"</span>
+        <span class="k">if</span> <span class="n">op_type</span> <span class="o">==</span> <span class="s2">"mooring"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">"mooring"</span>
+        <span class="k">return</span> <span class="s2">"station"</span>
+    <span class="n">by_class</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"LineOperation"</span><span class="p">:</span> <span class="s2">"line"</span><span class="p">,</span>
+        <span class="s2">"AreaOperation"</span><span class="p">:</span> <span class="s2">"area"</span><span class="p">,</span>
+        <span class="s2">"NavigationalTransit"</span><span class="p">:</span> <span class="s2">"transit"</span><span class="p">,</span>
+        <span class="s2">"Buffer"</span><span class="p">:</span> <span class="s2">"buffer"</span><span class="p">,</span>
+        <span class="s2">"Waiting"</span><span class="p">:</span> <span class="s2">"wait"</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">operation_class</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">by_class</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unknown operation class: </span><span class="si">{</span><span class="n">operation_class</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">by_class</span><span class="p">[</span><span class="n">operation_class</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="ActivityRecord">
+<a class="viewcode-back" href="../../../api/cruiseplan.timeline.html#cruiseplan.timeline.record.ActivityRecord">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ActivityRecord</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    One scheduled activity of a cruise timeline.</span>
+
+<span class="sd">    Records are immutable: a change (for example an operation that ended</span>
+<span class="sd">    early) makes a new record with :meth:`replace`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    kind : str</span>
+<span class="sd">        One of :data:`KINDS`.</span>
+<span class="sd">    activity : str</span>
+<span class="sd">        Display type: ``Station``, ``Mooring``, ``Port``, ``Waypoint``,</span>
+<span class="sd">        ``Line``, ``Area``, ``Transit`` or ``Buffer``.</span>
+<span class="sd">    label : str</span>
+<span class="sd">        Name shown in outputs.</span>
+<span class="sd">    leg_name : str</span>
+<span class="sd">        Name of the leg the activity belongs to.</span>
+<span class="sd">    op_type : str</span>
+<span class="sd">        Operation type (``CTD``, ``mooring``, ``port``, ``transit``, ...).</span>
+<span class="sd">    operation_class : str</span>
+<span class="sd">        Implementation class the record was made from.</span>
+<span class="sd">    entry_lat, entry_lon : float</span>
+<span class="sd">        Where the activity starts, in decimal degrees.</span>
+<span class="sd">    exit_lat, exit_lon : float</span>
+<span class="sd">        Where the activity ends, in decimal degrees.</span>
+<span class="sd">    start_time, end_time : datetime</span>
+<span class="sd">        Start and end (UTC, no time zone attached).</span>
+<span class="sd">    duration_minutes : float</span>
+<span class="sd">        Actual duration: ``end_time - start_time``.</span>
+<span class="sd">    planned_duration_minutes : float</span>
+<span class="sd">        Duration from the planning rules, before delays of the next</span>
+<span class="sd">        operation.</span>
+<span class="sd">    dist_nm : float</span>
+<span class="sd">        Distance covered by the activity in nautical miles.</span>
+<span class="sd">    vessel_speed_kt : float</span>
+<span class="sd">        Vessel speed in knots.</span>
+<span class="sd">    action : str or None</span>
+<span class="sd">        Action (``profile``, ``deployment``, ``mob``, ...).</span>
+<span class="sd">    operation_depth_m : float or None</span>
+<span class="sd">        Target depth of the operation in meters.</span>
+<span class="sd">    water_depth_m : float or None</span>
+<span class="sd">        Water depth at the location in meters.</span>
+<span class="sd">    delay_start_minutes : float or None</span>
+<span class="sd">        The operation's own delay in minutes as configured: positive, a wait</span>
+<span class="sd">        record just before it; negative, taken off the transit into it, then</span>
+<span class="sd">        the operation before. None for transits, buffers and waits.</span>
+<span class="sd">    comment : str or None</span>
+<span class="sd">        Comment from the configuration.</span>
+<span class="sd">    duration_is_fill : bool</span>
+<span class="sd">        True when the duration is the fill value.</span>
+<span class="sd">    transit_dist_nm : float or None</span>
+<span class="sd">        Distance to the next waypoint in nautical miles, where known.</span>
+<span class="sd">    """</span>
+
+    <span class="n">kind</span><span class="p">:</span> <span class="n">ActivityKind</span>
+    <span class="n">activity</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">label</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">leg_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">op_type</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">operation_class</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">entry_lat</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">entry_lon</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">exit_lat</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">exit_lon</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">start_time</span><span class="p">:</span> <span class="n">datetime</span>
+    <span class="n">end_time</span><span class="p">:</span> <span class="n">datetime</span>
+    <span class="n">duration_minutes</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">planned_duration_minutes</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">dist_nm</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">vessel_speed_kt</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">action</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">operation_depth_m</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">water_depth_m</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">delay_start_minutes</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">duration_is_fill</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">transit_dist_nm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="ActivityRecord.__post_init__">
+<a class="viewcode-back" href="../../../api/cruiseplan.timeline.html#cruiseplan.timeline.record.ActivityRecord.__post_init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Check the kind."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">KINDS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unknown record kind </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="si">!r}</span><span class="s2">; use one of </span><span class="si">{</span><span class="n">KINDS</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_waypoint</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""True for a navigational waypoint (a point record that is not work)."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"station"</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">op_type</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"waypoint"</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_science</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""True for scientific operations (stations, moorings, lines, areas)."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="n">SCIENCE_KINDS</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_waypoint</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">category</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""NetCDF category: from :data:`KIND_CATEGORY`, ``other`` for a waypoint."""</span>
+        <span class="k">return</span> <span class="s2">"other"</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_waypoint</span> <span class="k">else</span> <span class="n">KIND_CATEGORY</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">depth_m</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Operation depth if given, otherwise water depth, otherwise None."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation_depth_m</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation_depth_m</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">water_depth_m</span>
+
+<div class="viewcode-block" id="ActivityRecord.replace">
+<a class="viewcode-back" href="../../../api/cruiseplan.timeline.html#cruiseplan.timeline.record.ActivityRecord.replace">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">changes</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"ActivityRecord"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Return a copy with the given fields changed.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        **changes : object</span>
+<span class="sd">            Field names and their new values.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ActivityRecord</span>
+<span class="sd">            The new record.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">changes</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ActivityRecord.to_dict">
+<a class="viewcode-back" href="../../../api/cruiseplan.timeline.html#cruiseplan.timeline.record.ActivityRecord.to_dict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Return the record as a plain dictionary of its fields.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Field name to value.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">(</span><span class="bp">self</span><span class="p">)}</span></div>
+
+
+<div class="viewcode-block" id="ActivityRecord.__getitem__">
+<a class="viewcode-back" href="../../../api/cruiseplan.timeline.html#cruiseplan.timeline.record.ActivityRecord.__getitem__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return the attribute for a dictionary key, with a deprecation warning."""</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan</span><span class="w"> </span><span class="kn">import</span> <span class="n">_deprecated</span>
+
+        <span class="n">_deprecated</span><span class="o">.</span><span class="n">warn_record_key</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_deprecated</span><span class="o">.</span><span class="n">RECORD_KEYS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span></div>
+</div>
+
+
+
+<span class="n">Timeline</span> <span class="o">=</span> <span class="nb">list</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]</span>
+<span class="sd">"""A cruise timeline: records in schedule order."""</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

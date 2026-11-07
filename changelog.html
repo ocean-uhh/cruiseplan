@@ -1,0 +1,469 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Changelog &mdash; CruisePlan v0.5.0 v0.5.0.post1.dev9</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=893d1c60"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Upgrading from 0.5 to 0.6" href="migrating_0_6_0.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CruisePlan v0.5.0
+              <img src="_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user-guide/quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user-guide/workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user-guide/yaml-basics.html">YAML Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user-guide/at-sea.html">Forecasts at sea</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="reference/cli-commands.html">CLI Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/yaml-full.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/output-formats.html">Output Formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="advanced/api-examples.html">API Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demo-output.html">CruisePlan Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced/developer_guide.html">CruisePlan Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced/manual_testing.html">Manual Testing and Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migrating_0_6_0.html">Upgrading from 0.5 to 0.6</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#unreleased">Unreleased</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#breaking-changes">Breaking changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fixed">Fixed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#added">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#changed">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#removed">Removed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">0.5.0 - 2026-11-02</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Breaking changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">Removed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">0.4.0 - 2026-08-04</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id7">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">Fixed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id10">0.3.5 - 2026-01-17</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id11">Changed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id12">0.3.4 - 2026-01-12</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id13">Changed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id14">0.3.3 - 2026-01-11</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id15">Changed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id16">0.3.2 - 2026-01-10</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id17">Changed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id18">0.3.1 - 2026-01-04</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id19">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id20">Fixed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id21">0.3.0 - 2026-01-04</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id22">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id23">Removed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id24">0.2.2 - 2025-12-22</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id25">Added</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id26">0.2.1 - 2025-12-21</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id27">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id28">Fixed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id29">0.2.0 - 2025-12-20</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id30">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id31">Changed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id32">0.1.0 - 2025-12-12</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CruisePlan v0.5.0</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Changelog</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="changelog">
+<h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading"></a></h1>
+<p>All notable changes to this project are recorded here.
+The format follows <a class="reference external" href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>;
+versions follow <a class="reference external" href="https://semver.org/">Semantic Versioning</a>.</p>
+<section id="unreleased">
+<h2><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/compare/v0.5.0...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Link to this heading"></a></h2>
+<section id="breaking-changes">
+<h3>Breaking changes<a class="headerlink" href="#breaking-changes" title="Link to this heading"></a></h3>
+<p>Old names keep working until 0.7.0, with a warning. See the migration page, <code class="docutils literal notranslate"><span class="pre">docs/source/migrating_0_6_0.rst</span></code> (“Upgrading from 0.5 to 0.6” in the documentation), for every renamed name.</p>
+<ul class="simple">
+<li><p>YAML keys name their unit: <code class="docutils literal notranslate"><span class="pre">duration_minutes</span></code>, <code class="docutils literal notranslate"><span class="pre">delay_start_minutes</span></code>, <code class="docutils literal notranslate"><span class="pre">buffer_time_minutes</span></code>, <code class="docutils literal notranslate"><span class="pre">turnaround_time_minutes</span></code>, <code class="docutils literal notranslate"><span class="pre">water_depth_m</span></code>, <code class="docutils literal notranslate"><span class="pre">operation_depth_m</span></code>, <code class="docutils literal notranslate"><span class="pre">vessel_speed_kt</span></code>, <code class="docutils literal notranslate"><span class="pre">default_vessel_speed_kt</span></code>, <code class="docutils literal notranslate"><span class="pre">distance_between_stations_km</span></code>, <code class="docutils literal notranslate"><span class="pre">default_distance_between_stations_km</span></code>, <code class="docutils literal notranslate"><span class="pre">ctd_descent_rate_m_s</span></code>, <code class="docutils literal notranslate"><span class="pre">ctd_ascent_rate_m_s</span></code>. The old keys are read with one warning per key per file until 0.7.0; <code class="docutils literal notranslate"><span class="pre">enrich</span></code> writes the new keys.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">delay_end</span></code> is removed: it was never read. It is ignored with a warning naming <code class="docutils literal notranslate"><span class="pre">delay_start_minutes</span></code>, <code class="docutils literal notranslate"><span class="pre">buffer_time_minutes</span></code> and <code class="docutils literal notranslate"><span class="pre">duration_minutes</span></code>.</p></li>
+<li><p>Timelines are lists of frozen <code class="docutils literal notranslate"><span class="pre">ActivityRecord</span></code> objects (<code class="docutils literal notranslate"><span class="pre">cruiseplan.Timeline</span></code>), not dictionaries; reading a record like a dictionary warns until 0.7.0. <code class="docutils literal notranslate"><span class="pre">CruiseSchedule</span></code> is a deprecated alias of <code class="docutils literal notranslate"><span class="pre">Timeline</span></code>. Records have <code class="docutils literal notranslate"><span class="pre">kind</span></code>, <code class="docutils literal notranslate"><span class="pre">planned_duration_minutes</span></code>, and <code class="docutils literal notranslate"><span class="pre">water_depth_m</span></code>, <code class="docutils literal notranslate"><span class="pre">operation_depth_m</span></code>, <code class="docutils literal notranslate"><span class="pre">delay_start_minutes</span></code> (renamed).</p></li>
+<li><p>NetCDF schedule: <code class="docutils literal notranslate"><span class="pre">duration</span></code> in minutes (was hours, now the actual duration) plus <code class="docutils literal notranslate"><span class="pre">planned_duration</span></code>; <code class="docutils literal notranslate"><span class="pre">dist_nm</span></code> renamed <code class="docutils literal notranslate"><span class="pre">distance</span></code>; times CF-encoded UTC seconds; every numeric variable has a UDUNITS-2 <code class="docutils literal notranslate"><span class="pre">units</span></code>. Files written by 0.5.0 still read in <code class="docutils literal notranslate"><span class="pre">list</span></code> and <code class="docutils literal notranslate"><span class="pre">forecast</span></code> until 0.7.0.</p></li>
+<li><p>Unknown YAML keys warn (one warning per key per file); they are rejected in the release after 0.6.0. An activity listed twice in a leg warns (it is still scheduled twice).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">forecast</span></code> anchored on a transit row starts that transit at <code class="docutils literal notranslate"><span class="pre">--start-time</span></code> (it started the operation after it).</p></li>
+</ul>
+</section>
+<section id="fixed">
+<h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>A leg’s <code class="docutils literal notranslate"><span class="pre">turnaround_time_minutes</span></code> was read but CTD casts always used the cruise value; the leg value now applies to its casts.</p></li>
+<li><p>The schedule total (CLI, HTML, result summary) left out waiting from positive <code class="docutils literal notranslate"><span class="pre">delay_start_minutes</span></code>; it is the elapsed time.</p></li>
+<li><p>CSV times were truncated to the minute; they are rounded to the nearest minute (TeX plans keep 10 minutes).</p></li>
+<li><p>Line records reported the cruise speed instead of the line’s own speed.</p></li>
+<li><p>An operation’s positive <code class="docutils literal notranslate"><span class="pre">delay_start_minutes</span></code> is waiting before it: a row “Waiting before <name>” (kind <code class="docutils literal notranslate"><span class="pre">wait</span></code>) at the operation’s position, so no other record gets longer. A negative one means the operation started earlier: it comes out of the transit into it, then out of the operation before that transit, never below 0 min, and always warns that it is a quick fix (<code class="docutils literal notranslate"><span class="pre">transit_minutes</span></code> or <code class="docutils literal notranslate"><span class="pre">duration_minutes</span></code> on the record that was shorter says what happened). When the leg start is reached, the leg is not moved and the warning says how to start the leg earlier (the cruise <code class="docutils literal notranslate"><span class="pre">start_date</span></code>/<code class="docutils literal notranslate"><span class="pre">start_time</span></code> for the first leg; otherwise the leg’s <code class="docutils literal notranslate"><span class="pre">delay_start_minutes</span></code> or the end of the previous leg). Records neither overlap nor leave gaps (<code class="docutils literal notranslate"><span class="pre">duration_minutes</span></code> actual, <code class="docutils literal notranslate"><span class="pre">planned_duration_minutes</span></code> planned), the durations add up to the elapsed time apart from leg delays, and the forecast uses the same records. Schedules written before 0.6.0 keep their rows: a positive delay stays a gap, a negative one shortens the transit before the operation.</p></li>
+<li><p>Enriched values (<code class="docutils literal notranslate"><span class="pre">bathymetry_source</span></code>, decimal-minute strings, <code class="docutils literal notranslate"><span class="pre">bathymetry_provenance</span></code>) are declared model fields; enrich no longer writes through <code class="docutils literal notranslate"><span class="pre">__dict__</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">forecast</span> <span class="pre">--current-position</span></code> changed only the waypoints header line. It now adds a transit from that position to the anchored operation at the leg speed, so the times change in every format (text, tex, waypoints, kml, png); the ship position itself is marked in the text and waypoints outputs only.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">forecast</span> <span class="pre">--current-position</span> <span class="pre">-74.62,164.30</span></code> (negative first coordinate after a space) was rejected as an unknown option; that form, <code class="docutils literal notranslate"><span class="pre">lat</span> <span class="pre">lon</span></code> as two values of any sign (<code class="docutils literal notranslate"><span class="pre">65.0</span> <span class="pre">-30.0</span></code>, <code class="docutils literal notranslate"><span class="pre">65.0</span> <span class="pre">30.0</span></code>) and the <code class="docutils literal notranslate"><span class="pre">=</span></code> form all parse.</p></li>
+<li><p>TeX plan: a time rounded past midnight (23:56 → 00:00) is printed under the next day.</p></li>
+<li><p>Waypoints without <code class="docutils literal notranslate"><span class="pre">--start-time</span></code> at 23:55 or later started at 00:00 of the same day; the rounding carries into the date.</p></li>
+<li><p>Forecast rows overlapped where an operation has a negative <code class="docutils literal notranslate"><span class="pre">delay_start</span></code>; the transit before the operation is now shorter instead, as in the schedule.</p></li>
+<li><p>KML forecast had no placemarks (records lacked the fields the KML writer reads).</p></li>
+<li><p>A forecast window with no operation in it (only a transit) wrote an empty plan; every format now stops with an error naming the window.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--current-position</span></code> within 0.05 nm of the anchored operation inserted a zero-length transit; it is skipped.</p></li>
+<li><p>Times in the TeX, waypoints, KML and CSV outputs are rounded on the full time, halves up (12:05 → 12:10 in the 10-minute TeX tables; 12:00:30 → 12:01 elsewhere). Before, seconds were dropped and Python’s half-to-even rounding was used, so regenerated tables of an unchanged schedule can differ by one step. The TeX time column is labelled UTC.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">forecast</span> <span class="pre">--format</span> <span class="pre">tex</span></code> prints ship time when <code class="docutils literal notranslate"><span class="pre">--start-time</span></code> carries the ship’s zone (<code class="docutils literal notranslate"><span class="pre">2026-08-30T14:00+03:00</span></code>): the rows are in that local time and the time column reads <code class="docutils literal notranslate"><span class="pre">LT</span> <span class="pre">(UTC+03:00)</span></code>. Without a zone the table is in UTC and says so (it said <code class="docutils literal notranslate"><span class="pre">LT</span></code> whatever the times were).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">forecast</span> <span class="pre">--start-time</span></code> is UTC: a time with a zone is converted, a time without one is taken as UTC; waypoints without <code class="docutils literal notranslate"><span class="pre">--start-time</span></code> start from the current UTC time. Forecast times are whole seconds (no “Discarding nonzero nanoseconds” warning).</p></li>
+<li><p>NetCDF schedule stores <code class="docutils literal notranslate"><span class="pre">delay_start</span></code> (minutes) so it round-trips; files without it still read.</p></li>
+<li><p>Missing, partial or unreadable bathymetry file: depth lookups return the fill value <code class="docutils literal notranslate"><span class="pre">-9999.0</span></code> (<code class="docutils literal notranslate"><span class="pre">DEFAULT_DEPTH</span></code>) with a WARNING naming the file and the <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">bathymetry</span></code> command, instead of formula (“mock”) depths. Maps are drawn without bathymetry. Mock mode removed.</p></li>
+<li><p>A requested bathymetry source is never silently switched for another dataset. When its file is missing the WARNING names the other sources present in the directory and the <code class="docutils literal notranslate"><span class="pre">--bathy-source</span></code> value to use one of them.</p></li>
+<li><p>A station over land (bathymetry elevation <code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">0</span></code>) was stored as a positive depth via <code class="docutils literal notranslate"><span class="pre">abs(elevation)</span></code>; it now gets the fill value <code class="docutils literal notranslate"><span class="pre">-9999.0</span></code> and a WARNING. Ocean depth is <code class="docutils literal notranslate"><span class="pre">-elevation</span></code>.</p></li>
+<li><p>Bathymetry grids stored north-to-south (descending latitude) returned the fill value for every point; the coordinate axes are flipped to ascending on load and indices are mapped back to the file on read.</p></li>
+<li><p>A fill-value depth printed as <code class="docutils literal notranslate"><span class="pre">-9999</span> <span class="pre">m</span></code>/<code class="docutils literal notranslate"><span class="pre">-9999</span></code> in the LaTeX letsgo table and the HTML mooring table; both now show <code class="docutils literal notranslate"><span class="pre">fill</span></code>, as the other tables already did.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_depth</span></code> returned a fill-value <code class="docutils literal notranslate"><span class="pre">operation_depth</span></code> in preference to a valid <code class="docutils literal notranslate"><span class="pre">water_depth</span></code>, and a mooring carrying an <code class="docutils literal notranslate"><span class="pre">operation_depth</span></code> was timed as a CTD cast; the fill value is skipped and moorings take the mooring-duration path.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">bathymetry</span> <span class="pre">--bathy-source</span> <span class="pre">gebco2023</span></code> downloaded ETOPO 2022. <code class="docutils literal notranslate"><span class="pre">gebco2023</span></code> is no longer a download choice (no download location); <code class="docutils literal notranslate"><span class="pre">download_bathymetry</span></code> raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> for it and for unknown sources. It stays a lookup source for a hand-placed <code class="docutils literal notranslate"><span class="pre">GEBCO_2023.nc</span></code>.</p></li>
+<li><p>Enriched YAML dropped <code class="docutils literal notranslate"><span class="pre">start_date</span></code>, <code class="docutils literal notranslate"><span class="pre">start_time</span></code>, <code class="docutils literal notranslate"><span class="pre">default_vessel_speed</span></code>, <code class="docutils literal notranslate"><span class="pre">default_distance_between_stations</span></code>, CTD rates and day hours, so <code class="docutils literal notranslate"><span class="pre">run</span></code> scheduled from defaults (e.g. a 1970 start). It also wrote the ports catalog under <code class="docutils literal notranslate"><span class="pre">port:</span></code>.</p></li>
+<li><p>Mooring or yo-yo cast without <code class="docutils literal notranslate"><span class="pre">duration</span></code> got 60 min in <code class="docutils literal notranslate"><span class="pre">schedule</span></code> (from a config field that does not exist) and 999 h in <code class="docutils literal notranslate"><span class="pre">enrich</span></code>. A CTD without a usable depth and an operation type without a duration rule got 0 min. All now get the 999 h fill (<code class="docutils literal notranslate"><span class="pre">DEFAULT_MOORING_DURATION_MIN</span></code>), with one WARNING per operation.</p></li>
+<li><p>Degrees-decimal-minutes output did not carry (<code class="docutils literal notranslate"><span class="pre">59°60.00'</span></code>). One <code class="docutils literal notranslate"><span class="pre">utils.coordinates.ddm_parts</span></code> with carry is used by LaTeX, HTML, CSV, bridge waypoints, forecast text, YAML decmin fields and the station picker.</p></li>
+<li><p>LaTeX letsgo table chose the depth column by label text (<code class="docutils literal notranslate"><span class="pre">ctd</span></code>, <code class="docutils literal notranslate"><span class="pre">fd-</span></code>, <code class="docutils literal notranslate"><span class="pre">ds-</span></code>, …); it now uses the record kind.</p></li>
+<li><p>HTML report put activities with an unknown leg into the first leg; they are listed under an “Unassigned” heading with a WARNING.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Leg.get_operational_entry_point</span></code> / <code class="docutils literal notranslate"><span class="pre">get_operational_exit_point</span></code> imported a removed module; they resolve through <code class="docutils literal notranslate"><span class="pre">OperationFactory</span></code>.</p></li>
+<li><p>Depth validation treated <code class="docutils literal notranslate"><span class="pre">-9999</span></code> from the bathymetry as a 9999 m depth; the fill value is reported as unverifiable.</p></li>
+<li><p>Missing-bathymetry messages referred to a <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">download</span></code> command that does not exist.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data/pycnmix-2026-v1.yaml</span></code> referenced seven activities by site name; they now name the <code class="docutils literal notranslate"><span class="pre">_recovery</span></code> / <code class="docutils literal notranslate"><span class="pre">_deployment</span></code> points.</p></li>
+</ul>
+</section>
+<section id="added">
+<h3>Added<a class="headerlink" href="#added" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cruiseplan.Timeline</span></code>, <code class="docutils literal notranslate"><span class="pre">cruiseplan.ActivityRecord</span></code> (<code class="docutils literal notranslate"><span class="pre">cruiseplan.timeline.record</span></code>): one frozen record type with <code class="docutils literal notranslate"><span class="pre">kind</span></code>, used by every writer and the forecast.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cruiseplan._deprecated</span></code>: one table each of renamed YAML keys, removed keys, record keys and API names, with the removal release; <code class="docutils literal notranslate"><span class="pre">cruiseplan.config.loader.prepare_config</span></code> applies it before validation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">transit_minutes</span></code> on a point, port, line or area: the actual minutes of the transit into it, replacing distance / speed (distance and positions unchanged; the transit’s planned minutes are kept, and its vessel speed is shown as distance / <code class="docutils literal notranslate"><span class="pre">transit_minutes</span></code>). Ignored with a warning when there is no transit into the operation.</p></li>
+<li><p>Text and TeX forecasts state the anchoring rule applied (<code class="docutils literal notranslate"><span class="pre">%</span> <span class="pre">Anchor</span> <span class="pre">=</span></code> line, a line under the TeX title).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">water_depth</span></code> accepts the fill value <code class="docutils literal notranslate"><span class="pre">-9999.0</span></code>; <code class="docutils literal notranslate"><span class="pre">enrich</span> <span class="pre">--add-depths</span></code> writes it where no depth can be looked up and retries it on the next run. The enriched YAML records <code class="docutils literal notranslate"><span class="pre">bathymetry_provenance</span></code> (source, file, found, depths from source, depths filled).</p></li>
+<li><p>Provenance in outputs: NetCDF global attributes (all files) <code class="docutils literal notranslate"><span class="pre">cruiseplan_version</span></code>, <code class="docutils literal notranslate"><span class="pre">source_config</span></code>, <code class="docutils literal notranslate"><span class="pre">source_config_sha256</span></code>, <code class="docutils literal notranslate"><span class="pre">bathymetry_source</span></code>, planning parameters and <code class="docutils literal notranslate"><span class="pre">date_created</span></code> (UTC, <code class="docutils literal notranslate"><span class="pre">Z</span></code>); the same fields as <code class="docutils literal notranslate"><span class="pre">%</span></code> comments at the top of the TeX tables and in a Provenance section of the HTML report.</p></li>
+<li><p>Fill-duration markers: <code class="docutils literal notranslate"><span class="pre">ActivityRecord.duration_is_fill</span></code>; NetCDF <code class="docutils literal notranslate"><span class="pre">duration_fill_flag</span></code> with <code class="docutils literal notranslate"><span class="pre">fill_duration_count</span></code>; CSV <code class="docutils literal notranslate"><span class="pre">Duration</span> <span class="pre">note</span></code> column; <code class="docutils literal notranslate"><span class="pre">(fill)</span></code> in HTML and TeX durations.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">utils.coordinates.ddm_parts</span></code>, <code class="docutils literal notranslate"><span class="pre">utils.coordinates.distance_nm</span></code> (one haversine; the KML, LaTeX and timeline distances use it).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data.bathymetry.shared_bathymetry</span></code> and <code class="docutils literal notranslate"><span class="pre">get_bathymetry_manager</span></code>: <code class="docutils literal notranslate"><span class="pre">run</span></code> opens each bathymetry file once.</p></li>
+<li><p>Stations expanded from a line operation carry a <code class="docutils literal notranslate"><span class="pre">history</span></code> field recording their origin (the point model now has a <code class="docutils literal notranslate"><span class="pre">history</span></code> field).</p></li>
+<li><p>Fill-duration summary line (count, <code class="docutils literal notranslate"><span class="pre">N</span> <span class="pre">x</span> <span class="pre">999</span> <span class="pre">h</span></code>, and the schedule total excluding fills) in the WARNING log and at the top of the HTML and TeX reports, so the inflated fill hours do not hide the real total.</p></li>
+</ul>
+</section>
+<section id="changed">
+<h3>Changed<a class="headerlink" href="#changed" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Documentation: units table in the YAML reference; <code class="docutils literal notranslate"><span class="pre">buffer_time_minutes</span></code> is applied (one block per leg after the last operation, before the transit to the arrival port), not “stored only”; <code class="docutils literal notranslate"><span class="pre">turnaround_time_minutes</span></code> is added to depth-based CTD casts only; migration page for 0.6.0.</p></li>
+<li><p>Test fixture <code class="docutils literal notranslate"><span class="pre">coldsnap-2028-newformat.yaml</span></code> (every activity listed twice) is kept as <code class="docutils literal notranslate"><span class="pre">coldsnap-2028-newformat_old.yaml</span></code>; <code class="docutils literal notranslate"><span class="pre">mooring_sequence_greenland.yaml</span></code> lists each activity once (84 rows, 377 h).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">forecast</span> <span class="pre">--start-index</span></code>: the row at the index starts at <code class="docutils literal notranslate"><span class="pre">--start-time</span></code> (UTC). On an operation row the transit into it is not included; on a transit row the ship is starting that transit now (it is kept, starting at <code class="docutils literal notranslate"><span class="pre">--start-time</span></code>). With <code class="docutils literal notranslate"><span class="pre">--current-position</span></code> the position wins: a transit row moves to the operation it leads to, and <code class="docutils literal notranslate"><span class="pre">--start-time</span></code> is the time at that position. The text and TeX headers state the rule applied.</p></li>
+<li><p>NetCDF <code class="docutils literal notranslate"><span class="pre">creation_date</span></code> is UTC with <code class="docutils literal notranslate"><span class="pre">Z</span></code> (was naive local time).</p></li>
+<li><p>The library no longer configures logging: API functions do not call <code class="docutils literal notranslate"><span class="pre">logging.basicConfig</span></code> (it reset the caller’s root handlers). The <code class="docutils literal notranslate"><span class="pre">cruiseplan</span></code> command line configures logging; <code class="docutils literal notranslate"><span class="pre">verbose=True</span></code> sets the <code class="docutils literal notranslate"><span class="pre">cruiseplan</span></code> logger to DEBUG for that call only. Scripts and notebooks that want the INFO messages configure logging themselves (<code class="docutils literal notranslate"><span class="pre">logging.basicConfig(level=logging.INFO)</span></code>).</p></li>
+<li><p>Bathymetry download and station-picker status messages go through <code class="docutils literal notranslate"><span class="pre">logging</span></code> instead of <code class="docutils literal notranslate"><span class="pre">print</span></code>. Log messages carry no emoji.</p></li>
+</ul>
+</section>
+<section id="removed">
+<h3>Removed<a class="headerlink" href="#removed" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">CoordConverter.decimal_degrees_to_ddm</span></code> (did not carry 60 minutes into the degrees); use <code class="docutils literal notranslate"><span class="pre">utils.coordinates.ddm_parts</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cruiseplan.timeline.routing</span></code> (<code class="docutils literal notranslate"><span class="pre">optimize_composite_route</span></code>, never called).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cruiseplan.utils.logging.configure_logging</span></code> and <code class="docutils literal notranslate"><span class="pre">get_logger</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CONVENTIONS.md</span></code>; code conventions and naming are in the developer guide.</p></li>
+</ul>
+</section>
+</section>
+<section id="id1">
+<h2><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/compare/v0.4.0...v0.5.0">0.5.0</a> - 2026-11-02<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<section id="id2">
+<h3>Breaking changes<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Python 3.10 is no longer supported; minimum is 3.11. Classifiers list 3.11–3.13.</p></li>
+</ul>
+</section>
+<section id="id3">
+<h3>Added<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">CHANGELOG.md</span></code>; breaking-change notes moved here from the README.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test</span></code> optional-dependency group (pytest, pytest-cov, pyyaml); <code class="docutils literal notranslate"><span class="pre">dev</span></code> includes it.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cruiseplan.runtime.operations.DurationRules</span></code>: protocol for the rules object passed to <code class="docutils literal notranslate"><span class="pre">calculate_duration</span></code>.</p></li>
+</ul>
+</section>
+<section id="id4">
+<h3>Changed<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Documentation updates: developer guide, YAML reference, workflows (#159).</p></li>
+<li><p>Dependencies declared in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> only; CI gates coverage at 70 %; <code class="docutils literal notranslate"><span class="pre">CITATION.cff</span></code> at v0.4.0 (#169).</p></li>
+<li><p>CI: Ubuntu tests Python 3.11–3.13; macOS and Windows test 3.11 only; separate lint (<code class="docutils literal notranslate"><span class="pre">ruff</span> <span class="pre">check</span></code>, <code class="docutils literal notranslate"><span class="pre">ruff</span> <span class="pre">format</span> <span class="pre">--check</span></code>) and coverage jobs.</p></li>
+<li><p>Ruff ruleset aligned with the sibling packages (ctdcast): annotations, numpy docstrings with all parameters documented, pathlib, bugbear, blind-except. <code class="docutils literal notranslate"><span class="pre">cruiseplan/output</span></code> is now linted (an unanchored <code class="docutils literal notranslate"><span class="pre">output/</span></code> in <code class="docutils literal notranslate"><span class="pre">.gitignore</span></code> had excluded it).</p></li>
+<li><p>Re-raised errors carry the original exception as <code class="docutils literal notranslate"><span class="pre">__cause__</span></code>. Some broad <code class="docutils literal notranslate"><span class="pre">except</span> <span class="pre">Exception</span></code> blocks are narrowed (<code class="docutils literal notranslate"><span class="pre">OSError</span></code> for directory checks; <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>/<code class="docutils literal notranslate"><span class="pre">TypeError</span></code> for NetCDF value and <code class="docutils literal notranslate"><span class="pre">start_time</span></code> parsing); other exception types from those calls now propagate instead of being wrapped or ignored.</p></li>
+</ul>
+</section>
+<section id="id5">
+<h3>Removed<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> and <code class="docutils literal notranslate"><span class="pre">requirements-dev.txt</span></code> (#169).</p></li>
+<li><p>Invalid <code class="docutils literal notranslate"><span class="pre">schedule.day</span></code> in the Dependabot config (#169).</p></li>
+<li><p>CI workaround for building <code class="docutils literal notranslate"><span class="pre">ruamel.yaml.clibz</span></code>; ruamel.yaml 0.19 only pulls it in through an optional extra.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">environment.yml</span></code>; the docs workflows create their environment (Python, pip, pandoc) inline and install <code class="docutils literal notranslate"><span class="pre">.[dev]</span></code>.</p></li>
+</ul>
+</section>
+</section>
+<section id="id6">
+<h2><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/compare/v0.3.5...v0.4.0">0.4.0</a> - 2026-08-04<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<section id="id7">
+<h3>Added<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">run</span></code> (#157), <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">list</span></code> (#149).</p></li>
+<li><p>Station plan for use on board, later renamed <code class="docutils literal notranslate"><span class="pre">forecast</span></code> (#82, #93); glider and yo-yo operations (#93).</p></li>
+<li><p>EEZ boundaries on interactive (#94) and static PNG maps (#154, #156).</p></li>
+<li><p>Map options <code class="docutils literal notranslate"><span class="pre">--max-depth</span></code>, <code class="docutils literal notranslate"><span class="pre">--no-title</span></code>, <code class="docutils literal notranslate"><span class="pre">--no-legend</span></code>, <code class="docutils literal notranslate"><span class="pre">--no-labels</span></code> (#108, #117).</p></li>
+<li><p>Multi-segment section expansion (#122).</p></li>
+</ul>
+</section>
+<section id="id8">
+<h3>Changed<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Breaking: <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">stationplan</span></code> renamed to <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">forecast</span></code> (#149).</p></li>
+<li><p>Breaking: modules renamed <code class="docutils literal notranslate"><span class="pre">cruiseplan.schema</span></code> → <code class="docutils literal notranslate"><span class="pre">cruiseplan.config</span></code>, <code class="docutils literal notranslate"><span class="pre">cruiseplan.core</span></code> → <code class="docutils literal notranslate"><span class="pre">cruiseplan.runtime</span></code>, <code class="docutils literal notranslate"><span class="pre">cruiseplan.calculators</span></code> → <code class="docutils literal notranslate"><span class="pre">cruiseplan.timeline</span></code> (#66). Earlier README notes listed this under v0.3.6, which was never tagged.</p></li>
+<li><p>Breaking: package <code class="docutils literal notranslate"><span class="pre">__init__</span></code> modules no longer re-export; import from the defining module (#67).</p></li>
+<li><p>Breaking: minimum Python is 3.10 (#118).</p></li>
+<li><p>CLI rebuilt around <code class="docutils literal notranslate"><span class="pre">build_parser</span></code> + <code class="docutils literal notranslate"><span class="pre">run</span></code> with a positional config argument (#146); CLI and API defaults made consistent (#119, #120); shared error handler and verbose logging (#121); CLI output and <code class="docutils literal notranslate"><span class="pre">--format</span></code> cleanup (#145).</p></li>
+<li><p>CLI reference rewritten (#151, #153).</p></li>
+</ul>
+</section>
+<section id="id9">
+<h3>Fixed<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Custom ports and leg-only schedules (#70).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">distance_to_next</span></code> in the scheduler (#94).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">buffer_time</span></code> handling (#152).</p></li>
+</ul>
+</section>
+</section>
+<section id="id10">
+<h2><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/compare/v0.3.4...v0.3.5">0.3.5</a> - 2026-01-17<a class="headerlink" href="#id10" title="Link to this heading"></a></h2>
+<section id="id11">
+<h3>Changed<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> contents moved into the <code class="docutils literal notranslate"><span class="pre">cruiseplan.api</span></code> module (#63).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">schema/</span></code> files renamed (#64).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">stations</span></code> has an API counterpart (#65).</p></li>
+</ul>
+</section>
+</section>
+<section id="id12">
+<h2><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/compare/v0.3.3...v0.3.4">0.3.4</a> - 2026-01-12<a class="headerlink" href="#id12" title="Link to this heading"></a></h2>
+<section id="id13">
+<h3>Changed<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Breaking: point/line/area keys and defaults extracted into <code class="docutils literal notranslate"><span class="pre">vocabulary.py</span></code> (#61).</p></li>
+<li><p>Canonical YAML structure (#62).</p></li>
+</ul>
+</section>
+</section>
+<section id="id14">
+<h2><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/compare/v0.3.2...v0.3.3">0.3.3</a> - 2026-01-11<a class="headerlink" href="#id14" title="Link to this heading"></a></h2>
+<section id="id15">
+<h3>Changed<a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Breaking: YAML uses <code class="docutils literal notranslate"><span class="pre">transects:</span></code> (was <code class="docutils literal notranslate"><span class="pre">transits:</span></code>) for line operations (#59) and <code class="docutils literal notranslate"><span class="pre">waypoints:</span></code> (was <code class="docutils literal notranslate"><span class="pre">stations:</span></code>) for point operations (#60).</p></li>
+</ul>
+</section>
+</section>
+<section id="id16">
+<h2><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/compare/v0.3.1...v0.3.2">0.3.2</a> - 2026-01-10<a class="headerlink" href="#id16" title="Link to this heading"></a></h2>
+<section id="id17">
+<h3>Changed<a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">enrich</span></code> and <code class="docutils literal notranslate"><span class="pre">validate</span></code> processing reorganized (#58); utils module reorganized (#56); further CLI abstraction (#55); validation module refactored (#53); ruff cleanup (#54).</p></li>
+</ul>
+</section>
+</section>
+<section id="id18">
+<h2><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/compare/v0.3.0...v0.3.1">0.3.1</a> - 2026-01-04<a class="headerlink" href="#id18" title="Link to this heading"></a></h2>
+<section id="id19">
+<h3>Changed<a class="headerlink" href="#id19" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Unified point operation; outputs updated (#52).</p></li>
+</ul>
+</section>
+<section id="id20">
+<h3>Fixed<a class="headerlink" href="#id20" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Scheduler bugs (#52).</p></li>
+</ul>
+</section>
+</section>
+<section id="id21">
+<h2><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/compare/v0.2.2...v0.3.0">0.3.0</a> - 2026-01-04<a class="headerlink" href="#id21" title="Link to this heading"></a></h2>
+<section id="id22">
+<h3>Changed<a class="headerlink" href="#id22" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>CLI separated from the API (#43, #44); validation and scheduler utilities refactored (#42).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">position.latitude</span></code> replaced by <code class="docutils literal notranslate"><span class="pre">latitude</span></code>; <code class="docutils literal notranslate"><span class="pre">GeoPoint</span></code> / <code class="docutils literal notranslate"><span class="pre">FlexibleLocationModel</span></code> (#41).</p></li>
+<li><p>Breaking: bathymetry flags shortened <code class="docutils literal notranslate"><span class="pre">--bathymetry-*</span></code> → <code class="docutils literal notranslate"><span class="pre">--bathy-*</span></code> (#45).</p></li>
+</ul>
+</section>
+<section id="id23">
+<h3>Removed<a class="headerlink" href="#id23" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Breaking: <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">download</span></code> and <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">pandoi</span></code> (#45).</p></li>
+</ul>
+</section>
+</section>
+<section id="id24">
+<h2><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/compare/v0.2.1...v0.2.2">0.2.2</a> - 2025-12-22<a class="headerlink" href="#id24" title="Link to this heading"></a></h2>
+<section id="id25">
+<h3>Added<a class="headerlink" href="#id25" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Python API for notebook use, parallel to the CLI (#38).</p></li>
+<li><p>Cruises without explicit legs (#39).</p></li>
+</ul>
+</section>
+</section>
+<section id="id26">
+<h2><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/compare/v0.2.0...v0.2.1">0.2.1</a> - 2025-12-21<a class="headerlink" href="#id26" title="Link to this heading"></a></h2>
+<section id="id27">
+<h3>Added<a class="headerlink" href="#id27" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">process</span></code> (#37).</p></li>
+</ul>
+</section>
+<section id="id28">
+<h3>Fixed<a class="headerlink" href="#id28" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>LaTeX generator bug (#37).</p></li>
+</ul>
+</section>
+</section>
+<section id="id29">
+<h2><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/compare/v0.1.0...v0.2.0">0.2.0</a> - 2025-12-20<a class="headerlink" href="#id29" title="Link to this heading"></a></h2>
+<section id="id30">
+<h3>Added<a class="headerlink" href="#id30" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>GEBCO 2025 bathymetry (#22); CTD section expansion (#24); buffer time (#25); DOI search (#28); map generators and demo notebook (#29, #34).</p></li>
+</ul>
+</section>
+<section id="id31">
+<h3>Changed<a class="headerlink" href="#id31" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>YAML handling switched from PyYAML to ruamel.yaml to preserve comments (#26).</p></li>
+<li><p>Timeline, activities and maps reworked (#30, #31).</p></li>
+</ul>
+</section>
+</section>
+<section id="id32">
+<h2><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/releases/tag/v0.1.0">0.1.0</a> - 2025-12-12<a class="headerlink" href="#id32" title="Link to this heading"></a></h2>
+<p>First release on PyPI.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="migrating_0_6_0.html" class="btn btn-neutral float-left" title="Upgrading from 0.5 to 0.6" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

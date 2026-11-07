@@ -1,0 +1,727 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Timeline &amp; Scheduling &mdash; CruisePlan v0.5.0 v0.5.0.post1.dev9</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=893d1c60"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="General Utilities" href="cruiseplan.utils.html" />
+    <link rel="prev" title="Runtime Classes" href="cruiseplan.runtime.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            CruisePlan v0.5.0
+              <img src="../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide/quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide/workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide/yaml-basics.html">YAML Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide/at-sea.html">Forecasts at sea</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/cli-commands.html">CLI Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/yaml-full.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/output-formats.html">Output Formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../advanced/api-examples.html">API Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demo-output.html">CruisePlan Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/developer_guide.html">CruisePlan Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/manual_testing.html">Manual Testing and Verification</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="cruiseplan.api.html">API Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cruiseplan.cli.html">Command-line-interface (CLI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cruiseplan.config.html">Configuration &amp; Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cruiseplan.data.html">Data - Bathymetry &amp; Pangaea</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cruiseplan.interactive.html">Interactive pickers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cruiseplan.output.html">Output formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cruiseplan.runtime.html">Runtime Classes</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Timeline &amp; Scheduling</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.timeline.record">cruiseplan.timeline.record module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.timeline.record.ActivityKind"><code class="docutils literal notranslate"><span class="pre">ActivityKind</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.timeline.record.ActivityRecord"><code class="docutils literal notranslate"><span class="pre">ActivityRecord</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.timeline.record.KIND_CATEGORY"><code class="docutils literal notranslate"><span class="pre">KIND_CATEGORY</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.timeline.record.KIND_OPERATION_CLASS"><code class="docutils literal notranslate"><span class="pre">KIND_OPERATION_CLASS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.timeline.record.SCIENCE_KINDS"><code class="docutils literal notranslate"><span class="pre">SCIENCE_KINDS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.timeline.record.Timeline"><code class="docutils literal notranslate"><span class="pre">Timeline</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.timeline.record.kind_of"><code class="docutils literal notranslate"><span class="pre">kind_of()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.timeline.distance">cruiseplan.timeline.distance module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.timeline.distance.haversine_distance"><code class="docutils literal notranslate"><span class="pre">haversine_distance()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.timeline.distance.route_distance"><code class="docutils literal notranslate"><span class="pre">route_distance()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.timeline.distance.to_coords"><code class="docutils literal notranslate"><span class="pre">to_coords()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.timeline.duration">cruiseplan.timeline.duration module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.timeline.duration.DurationCalculator"><code class="docutils literal notranslate"><span class="pre">DurationCalculator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.timeline.scheduler">cruiseplan.timeline.scheduler module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.timeline.scheduler.OperationFactory"><code class="docutils literal notranslate"><span class="pre">OperationFactory</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.timeline.scheduler.TimelineGenerator"><code class="docutils literal notranslate"><span class="pre">TimelineGenerator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.timeline.scheduler.apply_delays"><code class="docutils literal notranslate"><span class="pre">apply_delays()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.timeline.scheduler.calculate_timeline_statistics"><code class="docutils literal notranslate"><span class="pre">calculate_timeline_statistics()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.timeline.scheduler.fill_duration_summary"><code class="docutils literal notranslate"><span class="pre">fill_duration_summary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.timeline.scheduler.generate_timeline"><code class="docutils literal notranslate"><span class="pre">generate_timeline()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.timeline.scheduler.timeline_minutes"><code class="docutils literal notranslate"><span class="pre">timeline_minutes()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cruiseplan.utils.html">General Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../migrating_0_6_0.html">Upgrading from 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CruisePlan v0.5.0</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">CruisePlan API</a></li>
+      <li class="breadcrumb-item active">Timeline &amp; Scheduling</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="timeline-scheduling">
+<h1>Timeline &amp; Scheduling<a class="headerlink" href="#timeline-scheduling" title="Link to this heading"></a></h1>
+<p>Scheduling algorithms and timeline generation for cruise planning.</p>
+<p>cruiseplan.timeline package.</p>
+<p>This package contains scheduling and timeline generation modules for cruise planning:</p>
+<ul class="simple">
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">record</span></code>: the timeline record (<code class="xref py py-class docutils literal notranslate"><span class="pre">ActivityRecord</span></code>) and <code class="xref py py-data docutils literal notranslate"><span class="pre">Timeline</span></code></p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">distance</span></code>: Geographic distance calculations using Haversine formula</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">duration</span></code>: Time duration calculations for cruise operations and activities</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">scheduler</span></code>: Core scheduling logic for generating cruise timelines</p></li>
+</ul>
+<p>These modules provide the mathematical and algorithmic foundation for determining
+distances, durations and scheduling sequences in oceanographic cruises.</p>
+<section id="module-cruiseplan.timeline.record">
+<span id="cruiseplan-timeline-record-module"></span><h2>cruiseplan.timeline.record module<a class="headerlink" href="#module-cruiseplan.timeline.record" title="Link to this heading"></a></h2>
+<p>The timeline record: one scheduled activity, and the timeline type.</p>
+<p>Every stage after the scheduler works from <a class="reference internal" href="#cruiseplan.timeline.record.ActivityRecord" title="cruiseplan.timeline.record.ActivityRecord"><code class="xref py py-class docutils literal notranslate"><span class="pre">ActivityRecord</span></code></a>: the
+writers (CSV, HTML, LaTeX, KML, NetCDF, maps) and the forecast, which reads
+records back from the NetCDF schedule.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="cruiseplan.timeline.record.ActivityKind">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.record.</span></span><span class="sig-name descname"><span class="pre">ActivityKind</span></span><a class="headerlink" href="#cruiseplan.timeline.record.ActivityKind" title="Link to this definition"></a></dt>
+<dd><p>a point operation (station or mooring), a line, an area,
+a navigational transit, a port call, a contingency buffer or waiting before
+an operation (its positive <code class="docutils literal notranslate"><span class="pre">delay_start_minutes</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>What a record is</p>
+</dd>
+</dl>
+<p>alias of <code class="xref py py-obj docutils literal notranslate"><span class="pre">Literal</span></code>[‘station’, ‘mooring’, ‘line’, ‘area’, ‘transit’, ‘port’, ‘buffer’, ‘wait’]</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cruiseplan.timeline.record.ActivityRecord">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.record.</span></span><span class="sig-name descname"><span class="pre">ActivityRecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'station'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'mooring'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'line'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'area'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'transit'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'port'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'buffer'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'wait'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leg_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operation_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entry_lat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entry_lon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exit_lat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exit_lon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration_minutes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planned_duration_minutes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_nm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vessel_speed_kt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operation_depth_m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">water_depth_m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay_start_minutes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration_is_fill</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transit_dist_nm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/timeline/record.html#ActivityRecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.record.ActivityRecord" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>One scheduled activity of a cruise timeline.</p>
+<p>Records are immutable: a change (for example an operation that ended
+early) makes a new record with <a class="reference internal" href="#cruiseplan.timeline.record.ActivityRecord.replace" title="cruiseplan.timeline.record.ActivityRecord.replace"><code class="xref py py-meth docutils literal notranslate"><span class="pre">replace()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kind</strong> (<em>str</em>) – One of <code class="xref py py-data docutils literal notranslate"><span class="pre">KINDS</span></code>.</p></li>
+<li><p><strong>activity</strong> (<em>str</em>) – Display type: <code class="docutils literal notranslate"><span class="pre">Station</span></code>, <code class="docutils literal notranslate"><span class="pre">Mooring</span></code>, <code class="docutils literal notranslate"><span class="pre">Port</span></code>, <code class="docutils literal notranslate"><span class="pre">Waypoint</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Line</span></code>, <code class="docutils literal notranslate"><span class="pre">Area</span></code>, <code class="docutils literal notranslate"><span class="pre">Transit</span></code> or <code class="docutils literal notranslate"><span class="pre">Buffer</span></code>.</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – Name shown in outputs.</p></li>
+<li><p><strong>leg_name</strong> (<em>str</em>) – Name of the leg the activity belongs to.</p></li>
+<li><p><strong>op_type</strong> (<em>str</em>) – Operation type (<code class="docutils literal notranslate"><span class="pre">CTD</span></code>, <code class="docutils literal notranslate"><span class="pre">mooring</span></code>, <code class="docutils literal notranslate"><span class="pre">port</span></code>, <code class="docutils literal notranslate"><span class="pre">transit</span></code>, …).</p></li>
+<li><p><strong>operation_class</strong> (<em>str</em>) – Implementation class the record was made from.</p></li>
+<li><p><strong>entry_lat</strong> (<em>float</em>) – Where the activity starts, in decimal degrees.</p></li>
+<li><p><strong>entry_lon</strong> (<em>float</em>) – Where the activity starts, in decimal degrees.</p></li>
+<li><p><strong>exit_lat</strong> (<em>float</em>) – Where the activity ends, in decimal degrees.</p></li>
+<li><p><strong>exit_lon</strong> (<em>float</em>) – Where the activity ends, in decimal degrees.</p></li>
+<li><p><strong>start_time</strong> (<em>datetime</em>) – Start and end (UTC, no time zone attached).</p></li>
+<li><p><strong>end_time</strong> (<em>datetime</em>) – Start and end (UTC, no time zone attached).</p></li>
+<li><p><strong>duration_minutes</strong> (<em>float</em>) – Actual duration: <code class="docutils literal notranslate"><span class="pre">end_time</span> <span class="pre">-</span> <span class="pre">start_time</span></code>.</p></li>
+<li><p><strong>planned_duration_minutes</strong> (<em>float</em>) – Duration from the planning rules, before delays of the next
+operation.</p></li>
+<li><p><strong>dist_nm</strong> (<em>float</em>) – Distance covered by the activity in nautical miles.</p></li>
+<li><p><strong>vessel_speed_kt</strong> (<em>float</em>) – Vessel speed in knots.</p></li>
+<li><p><strong>action</strong> (<em>str</em><em> or </em><em>None</em>) – Action (<code class="docutils literal notranslate"><span class="pre">profile</span></code>, <code class="docutils literal notranslate"><span class="pre">deployment</span></code>, <code class="docutils literal notranslate"><span class="pre">mob</span></code>, …).</p></li>
+<li><p><strong>operation_depth_m</strong> (<em>float</em><em> or </em><em>None</em>) – Target depth of the operation in meters.</p></li>
+<li><p><strong>water_depth_m</strong> (<em>float</em><em> or </em><em>None</em>) – Water depth at the location in meters.</p></li>
+<li><p><strong>delay_start_minutes</strong> (<em>float</em><em> or </em><em>None</em>) – The operation’s own delay in minutes as configured: positive, a wait
+record just before it; negative, taken off the transit into it, then
+the operation before. None for transits, buffers and waits.</p></li>
+<li><p><strong>comment</strong> (<em>str</em><em> or </em><em>None</em>) – Comment from the configuration.</p></li>
+<li><p><strong>duration_is_fill</strong> (<em>bool</em>) – True when the duration is the fill value.</p></li>
+<li><p><strong>transit_dist_nm</strong> (<em>float</em><em> or </em><em>None</em>) – Distance to the next waypoint in nautical miles, where known.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.timeline.record.ActivityRecord.__getitem__">
+<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">object</span></span></span><a class="reference internal" href="../_modules/cruiseplan/timeline/record.html#ActivityRecord.__getitem__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.record.ActivityRecord.__getitem__" title="Link to this definition"></a></dt>
+<dd><p>Return the attribute for a dictionary key, with a deprecation warning.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.timeline.record.ActivityRecord.__post_init__">
+<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/timeline/record.html#ActivityRecord.__post_init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.record.ActivityRecord.__post_init__" title="Link to this definition"></a></dt>
+<dd><p>Check the kind.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cruiseplan.timeline.record.ActivityRecord.category">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">category</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#cruiseplan.timeline.record.ActivityRecord.category" title="Link to this definition"></a></dt>
+<dd><p>from <a class="reference internal" href="#cruiseplan.timeline.record.KIND_CATEGORY" title="cruiseplan.timeline.record.KIND_CATEGORY"><code class="xref py py-data docutils literal notranslate"><span class="pre">KIND_CATEGORY</span></code></a>, <code class="docutils literal notranslate"><span class="pre">other</span></code> for a waypoint.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>NetCDF category</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cruiseplan.timeline.record.ActivityRecord.depth_m">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">depth_m</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#cruiseplan.timeline.record.ActivityRecord.depth_m" title="Link to this definition"></a></dt>
+<dd><p>Operation depth if given, otherwise water depth, otherwise None.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cruiseplan.timeline.record.ActivityRecord.is_science">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_science</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#cruiseplan.timeline.record.ActivityRecord.is_science" title="Link to this definition"></a></dt>
+<dd><p>True for scientific operations (stations, moorings, lines, areas).</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cruiseplan.timeline.record.ActivityRecord.is_waypoint">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_waypoint</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#cruiseplan.timeline.record.ActivityRecord.is_waypoint" title="Link to this definition"></a></dt>
+<dd><p>True for a navigational waypoint (a point record that is not work).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.timeline.record.ActivityRecord.replace">
+<span class="sig-name descname"><span class="pre">replace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">changes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cruiseplan.timeline.record.ActivityRecord" title="cruiseplan.timeline.record.ActivityRecord"><span class="pre">ActivityRecord</span></a></span></span><a class="reference internal" href="../_modules/cruiseplan/timeline/record.html#ActivityRecord.replace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.record.ActivityRecord.replace" title="Link to this definition"></a></dt>
+<dd><p>Return a copy with the given fields changed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>**changes</strong> (<em>object</em>) – Field names and their new values.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The new record.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cruiseplan.timeline.record.ActivityRecord" title="cruiseplan.timeline.record.ActivityRecord">ActivityRecord</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.timeline.record.ActivityRecord.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">object</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/timeline/record.html#ActivityRecord.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.record.ActivityRecord.to_dict" title="Link to this definition"></a></dt>
+<dd><p>Return the record as a plain dictionary of its fields.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Field name to value.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="cruiseplan.timeline.record.KIND_CATEGORY">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.record.</span></span><span class="sig-name descname"><span class="pre">KIND_CATEGORY</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'area':</span> <span class="pre">'area_operation',</span> <span class="pre">'buffer':</span> <span class="pre">'other',</span> <span class="pre">'line':</span> <span class="pre">'line_operation',</span> <span class="pre">'mooring':</span> <span class="pre">'point_operation',</span> <span class="pre">'port':</span> <span class="pre">'point_operation',</span> <span class="pre">'station':</span> <span class="pre">'point_operation',</span> <span class="pre">'transit':</span> <span class="pre">'transit',</span> <span class="pre">'wait':</span> <span class="pre">'other'}</span></span><a class="headerlink" href="#cruiseplan.timeline.record.KIND_CATEGORY" title="Link to this definition"></a></dt>
+<dd><p>NetCDF <code class="docutils literal notranslate"><span class="pre">category</span></code> of each kind (a waypoint is <code class="docutils literal notranslate"><span class="pre">other</span></code>).</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="cruiseplan.timeline.record.KIND_OPERATION_CLASS">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.record.</span></span><span class="sig-name descname"><span class="pre">KIND_OPERATION_CLASS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'area':</span> <span class="pre">'AreaOperation',</span> <span class="pre">'buffer':</span> <span class="pre">'Buffer',</span> <span class="pre">'line':</span> <span class="pre">'LineOperation',</span> <span class="pre">'mooring':</span> <span class="pre">'PointOperation',</span> <span class="pre">'port':</span> <span class="pre">'PointOperation',</span> <span class="pre">'station':</span> <span class="pre">'PointOperation',</span> <span class="pre">'transit':</span> <span class="pre">'NavigationalTransit',</span> <span class="pre">'wait':</span> <span class="pre">'Waiting'}</span></span><a class="headerlink" href="#cruiseplan.timeline.record.KIND_OPERATION_CLASS" title="Link to this definition"></a></dt>
+<dd><p>Implementation class of each kind (<code class="docutils literal notranslate"><span class="pre">operation_class</span></code> on records).</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="cruiseplan.timeline.record.SCIENCE_KINDS">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.record.</span></span><span class="sig-name descname"><span class="pre">SCIENCE_KINDS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">frozenset({'area',</span> <span class="pre">'line',</span> <span class="pre">'mooring',</span> <span class="pre">'station'})</span></span><a class="headerlink" href="#cruiseplan.timeline.record.SCIENCE_KINDS" title="Link to this definition"></a></dt>
+<dd><p>Kinds that count as scientific operations.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="cruiseplan.timeline.record.Timeline">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.record.</span></span><span class="sig-name descname"><span class="pre">Timeline</span></span><a class="headerlink" href="#cruiseplan.timeline.record.Timeline" title="Link to this definition"></a></dt>
+<dd><p>records in schedule order.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A cruise timeline</p>
+</dd>
+</dl>
+<p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<a class="reference internal" href="#cruiseplan.timeline.record.ActivityRecord" title="cruiseplan.timeline.record.ActivityRecord"><code class="xref py py-class docutils literal notranslate"><span class="pre">ActivityRecord</span></code></a>]</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.timeline.record.kind_of">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.record.</span></span><span class="sig-name descname"><span class="pre">kind_of</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operation_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/cruiseplan/timeline/record.html#kind_of"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.record.kind_of" title="Link to this definition"></a></dt>
+<dd><p>Return the record kind for an operation class and operation type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>operation_class</strong> (<em>str</em>) – Implementation class name: <code class="docutils literal notranslate"><span class="pre">PointOperation</span></code>, <code class="docutils literal notranslate"><span class="pre">LineOperation</span></code>,
+<code class="docutils literal notranslate"><span class="pre">AreaOperation</span></code>, <code class="docutils literal notranslate"><span class="pre">NavigationalTransit</span></code>, <code class="docutils literal notranslate"><span class="pre">Buffer</span></code> or <code class="docutils literal notranslate"><span class="pre">Waiting</span></code>.</p></li>
+<li><p><strong>op_type</strong> (<em>str</em><em> or </em><em>None</em>) – Operation type from the configuration (<code class="docutils literal notranslate"><span class="pre">CTD</span></code>, <code class="docutils literal notranslate"><span class="pre">mooring</span></code>,
+<code class="docutils literal notranslate"><span class="pre">port</span></code>, …).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>One of <code class="xref py py-data docutils literal notranslate"><span class="pre">KINDS</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the operation class is not known.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-cruiseplan.timeline.distance">
+<span id="cruiseplan-timeline-distance-module"></span><h2>cruiseplan.timeline.distance module<a class="headerlink" href="#module-cruiseplan.timeline.distance" title="Link to this heading"></a></h2>
+<p>Geographic distance calculations for cruise planning.</p>
+<p>This module provides functions for calculating distances between geographic points
+using the Haversine formula, which gives Great Circle distances on a spherical Earth.
+Includes utilities for route distance calculation and unit conversions between
+kilometers and nautical miles.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.timeline.distance.haversine_distance">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.distance.</span></span><span class="sig-name descname"><span class="pre">haversine_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">GeoPoint</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">GeoPoint</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/timeline/distance.html#haversine_distance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.distance.haversine_distance" title="Link to this definition"></a></dt>
+<dd><p>Calculate Great Circle distance between two points using Haversine formula.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> (<em>GeoPoint</em><em> or </em><em>tuple</em><em> of </em><em>float</em>) – Starting point coordinates.</p></li>
+<li><p><strong>end</strong> (<em>GeoPoint</em><em> or </em><em>tuple</em><em> of </em><em>float</em>) – Ending point coordinates.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Distance in kilometers.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.timeline.distance.route_distance">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.distance.</span></span><span class="sig-name descname"><span class="pre">route_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">GeoPoint</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/timeline/distance.html#route_distance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.distance.route_distance" title="Link to this definition"></a></dt>
+<dd><p>Calculate total distance of a path connecting multiple points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>points</strong> (<em>list</em><em> of </em><em>GeoPoint</em><em> or </em><em>tuple</em><em> of </em><em>float</em>) – Ordered list of points defining the route.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Total route distance in kilometers.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.timeline.distance.to_coords">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.distance.</span></span><span class="sig-name descname"><span class="pre">to_coords</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">GeoPoint</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/timeline/distance.html#to_coords"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.distance.to_coords" title="Link to this definition"></a></dt>
+<dd><p>Extract (latitude, longitude) coordinates from various input types.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>point</strong> (<em>GeoPoint</em><em> or </em><em>tuple</em><em> of </em><em>float</em>) – Input point as either a GeoPoint object or (lat, lon) tuple.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>(latitude, longitude) coordinates in decimal degrees.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple of float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-cruiseplan.timeline.duration">
+<span id="cruiseplan-timeline-duration-module"></span><h2>cruiseplan.timeline.duration module<a class="headerlink" href="#module-cruiseplan.timeline.duration" title="Link to this heading"></a></h2>
+<p>Duration calculations for cruise operations and activities.</p>
+<p>This module provides time duration calculations for various cruise operations
+including CTD profiling, vessel transit, and operational constraints based on
+day/night windows. Uses configuration parameters for vessel speeds and CTD rates.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="cruiseplan.timeline.duration.DurationCalculator">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.duration.</span></span><span class="sig-name descname"><span class="pre">DurationCalculator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">turnaround_time_minutes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/timeline/duration.html#DurationCalculator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.duration.DurationCalculator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Calculates time durations for cruise operations and activities.</p>
+<p>This class provides methods to calculate operation durations based on
+cruise configuration parameters including vessel speeds, CTD rates,
+and operational time windows.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.timeline.duration.DurationCalculator.config">
+<span class="sig-name descname"><span class="pre">config</span></span><a class="headerlink" href="#cruiseplan.timeline.duration.DurationCalculator.config" title="Link to this definition"></a></dt>
+<dd><p>Cruise configuration object containing operational parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>CruiseConfig</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.timeline.duration.DurationCalculator.turnaround_time_minutes">
+<span class="sig-name descname"><span class="pre">turnaround_time_minutes</span></span><a class="headerlink" href="#cruiseplan.timeline.duration.DurationCalculator.turnaround_time_minutes" title="Link to this definition"></a></dt>
+<dd><p>Turnaround added to each CTD cast: the leg value when given, else the
+cruise value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.timeline.duration.DurationCalculator.day_start_hour">
+<span class="sig-name descname"><span class="pre">day_start_hour</span></span><a class="headerlink" href="#cruiseplan.timeline.duration.DurationCalculator.day_start_hour" title="Link to this definition"></a></dt>
+<dd><p>Hour when daytime operations begin (0-23).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.timeline.duration.DurationCalculator.day_end_hour">
+<span class="sig-name descname"><span class="pre">day_end_hour</span></span><a class="headerlink" href="#cruiseplan.timeline.duration.DurationCalculator.day_end_hour" title="Link to this definition"></a></dt>
+<dd><p>Hour when daytime operations end (0-23).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.timeline.duration.DurationCalculator.calculate_ctd_time">
+<span class="sig-name descname"><span class="pre">calculate_ctd_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/timeline/duration.html#DurationCalculator.calculate_ctd_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.duration.DurationCalculator.calculate_ctd_time" title="Link to this definition"></a></dt>
+<dd><p>Calculate CTD profiling duration including descent, ascent, and turnaround.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>depth</strong> (<em>float</em>) – Water depth in meters.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Total duration in minutes.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Formula: (Depth / Descent) + (Depth / Ascent) + Turnaround</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.timeline.duration.DurationCalculator.calculate_transit_time">
+<span class="sig-name descname"><span class="pre">calculate_transit_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance_km</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">speed_knots</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/timeline/duration.html#DurationCalculator.calculate_transit_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.duration.DurationCalculator.calculate_transit_time" title="Link to this definition"></a></dt>
+<dd><p>Calculate vessel transit duration based on distance and speed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>distance_km</strong> (<em>float</em>) – Distance to travel in kilometers.</p></li>
+<li><p><strong>speed_knots</strong> (<em>float</em><em>, </em><em>optional</em>) – Vessel speed in knots. If None, uses config default.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Transit duration in minutes.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.timeline.duration.DurationCalculator.calculate_wait_time">
+<span class="sig-name descname"><span class="pre">calculate_wait_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arrival_dt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration_minutes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required_window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'day'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'night'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/timeline/duration.html#DurationCalculator.calculate_wait_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.duration.DurationCalculator.calculate_wait_time" title="Link to this definition"></a></dt>
+<dd><p>Calculate wait time to align operations with day/night windows.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arrival_dt</strong> (<em>datetime</em>) – Arrival time at the operation location.</p></li>
+<li><p><strong>duration_minutes</strong> (<em>float</em>) – Duration of the operation in minutes.</p></li>
+<li><p><strong>required_window</strong> (<em>{&quot;day&quot;</em><em>, </em><em>&quot;night&quot;}</em><em>, </em><em>optional</em>) – Required time window for the operation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Wait time in minutes before operation can begin.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-cruiseplan.timeline.scheduler">
+<span id="cruiseplan-timeline-scheduler-module"></span><h2>cruiseplan.timeline.scheduler module<a class="headerlink" href="#module-cruiseplan.timeline.scheduler" title="Link to this heading"></a></h2>
+<p>Clean scheduler implementation with unified operations model.</p>
+<p>The scheduler treats every activity as an operation with entry and exit
+coordinates:
+- Operations (science) are kept separate from navigational transits (connections)
+- All distances are computed in one coordinate system</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.OperationFactory">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.scheduler.</span></span><span class="sig-name descname"><span class="pre">OperationFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/timeline/scheduler.html#OperationFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.scheduler.OperationFactory" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Factory for creating operation objects from configuration data.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.OperationFactory.create_operation">
+<span class="sig-name descname"><span class="pre">create_operation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leg_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cruiseplan.runtime.html#cruiseplan.runtime.operations.BaseOperation" title="cruiseplan.runtime.operations.BaseOperation"><span class="pre">BaseOperation</span></a></span></span><a class="reference internal" href="../_modules/cruiseplan/timeline/scheduler.html#OperationFactory.create_operation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.scheduler.OperationFactory.create_operation" title="Link to this definition"></a></dt>
+<dd><p>Create operation from configuration using catalog-based type detection.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.TimelineGenerator">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.scheduler.</span></span><span class="sig-name descname"><span class="pre">TimelineGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/timeline/scheduler.html#TimelineGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.scheduler.TimelineGenerator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Generates cruise timeline from operations and legs.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.TimelineGenerator.generate_timeline">
+<span class="sig-name descname"><span class="pre">generate_timeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">legs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cruiseplan.runtime.html#cruiseplan.runtime.organizational.Leg" title="cruiseplan.runtime.organizational.Leg"><span class="pre">Leg</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cruiseplan.timeline.record.ActivityRecord" title="cruiseplan.timeline.record.ActivityRecord"><span class="pre">ActivityRecord</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/timeline/scheduler.html#TimelineGenerator.generate_timeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.scheduler.TimelineGenerator.generate_timeline" title="Link to this definition"></a></dt>
+<dd><p>Generate the cruise timeline.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>legs</strong> (<em>list</em><em> of </em><a class="reference internal" href="cruiseplan.runtime.html#cruiseplan.runtime.organizational.Leg" title="cruiseplan.runtime.organizational.Leg"><em>Leg</em></a><em>, </em><em>optional</em>) – Runtime legs; built from the configuration when not given.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Records in schedule order.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cruiseplan.timeline.record.Timeline" title="cruiseplan.timeline.record.Timeline">Timeline</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.apply_delays">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.scheduler.</span></span><span class="sig-name descname"><span class="pre">apply_delays</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cruiseplan.timeline.record.ActivityRecord" title="cruiseplan.timeline.record.ActivityRecord"><span class="pre">ActivityRecord</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leg_delays</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_leg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">insert_waits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cruiseplan.timeline.record.ActivityRecord" title="cruiseplan.timeline.record.ActivityRecord"><span class="pre">ActivityRecord</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/timeline/scheduler.html#apply_delays"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.scheduler.apply_delays" title="Link to this definition"></a></dt>
+<dd><p>Apply each operation’s <code class="docutils literal notranslate"><span class="pre">delay_start_minutes</span></code>.</p>
+<p>A positive delay is waiting before the operation starts (for weather, a
+daylight start, …). It becomes its own <code class="docutils literal notranslate"><span class="pre">wait</span></code> record at the
+operation’s position, just before it, so no other record gets longer.</p>
+<p>A negative delay means the operation started earlier than planned. The
+time comes out of the transit into the operation first (it was faster),
+then, if the delay is longer than that transit, out of the operation
+before it (it ended early). An actual duration never goes below zero; the
+part that cannot be absorbed is dropped, with a warning that says how to
+start the leg earlier when the leg start is reached. A negative delay is
+a quick fix and always warns: setting <code class="docutils literal notranslate"><span class="pre">transit_minutes</span></code> or
+<code class="docutils literal notranslate"><span class="pre">duration_minutes</span></code> on the record that was actually shorter states what
+happened.</p>
+<p><code class="docutils literal notranslate"><span class="pre">planned_duration_minutes</span></code> keeps the plan; <code class="docutils literal notranslate"><span class="pre">duration_minutes</span></code> is the
+actual duration. Within a leg every record starts where the one before it
+ends; between legs the leg delay is kept.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>timeline</strong> (<a class="reference internal" href="#cruiseplan.timeline.record.Timeline" title="cruiseplan.timeline.record.Timeline"><em>Timeline</em></a>) – Records in schedule order, before delays are applied.</p></li>
+<li><p><strong>leg_delays</strong> (<em>Mapping</em><em> of </em><em>str to float</em><em>, </em><em>optional</em>) – Leg-level <code class="docutils literal notranslate"><span class="pre">delay_start_minutes</span></code> by leg name, used in the warning.
+When not given, it is taken from the gap before the leg.</p></li>
+<li><p><strong>first_leg</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the cruise’s first leg, used in the warning. When not given,
+the leg of the first record is taken as the first leg.</p></li>
+<li><p><strong>insert_waits</strong> (<em>bool</em><em>, </em><em>optional</em>) – Add a <code class="docutils literal notranslate"><span class="pre">wait</span></code> record for each positive delay (default). With False
+the wait is left as a gap before the operation, which keeps the
+record count (used for schedules read from older files).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new list with actual durations and times.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cruiseplan.timeline.record.Timeline" title="cruiseplan.timeline.record.Timeline">Timeline</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.calculate_timeline_statistics">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.scheduler.</span></span><span class="sig-name descname"><span class="pre">calculate_timeline_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cruiseplan.timeline.record.ActivityRecord" title="cruiseplan.timeline.record.ActivityRecord"><span class="pre">ActivityRecord</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/timeline/scheduler.html#calculate_timeline_statistics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.scheduler.calculate_timeline_statistics" title="Link to this definition"></a></dt>
+<dd><p>Calculate summary statistics for cruise timeline activities.</p>
+<p>Groups records into scientific operations (stations, surveys, areas) and
+supporting operations (transits, ports) for summary reporting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>timeline</strong> (<a class="reference internal" href="#cruiseplan.timeline.record.Timeline" title="cruiseplan.timeline.record.Timeline"><em>Timeline</em></a>) – Records from the scheduler.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Statistics for each activity type with keys ‘stations’, ‘surveys’,
+‘areas’, ‘moorings’, ‘within_area_transits’, ‘port_transits’, the
+per-leg counts, and the grouped record lists.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.fill_duration_summary">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.scheduler.</span></span><span class="sig-name descname"><span class="pre">fill_duration_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cruiseplan.timeline.record.ActivityRecord" title="cruiseplan.timeline.record.ActivityRecord"><span class="pre">ActivityRecord</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/timeline/scheduler.html#fill_duration_summary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.scheduler.fill_duration_summary" title="Link to this definition"></a></dt>
+<dd><p>Return a one-line summary of operations scheduled at the fill duration.</p>
+<p>Names how many operations use the fill duration and the schedule total with
+those operations excluded, so the inflated fill hours do not hide the real
+total.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>timeline</strong> (<a class="reference internal" href="#cruiseplan.timeline.record.Timeline" title="cruiseplan.timeline.record.Timeline"><em>Timeline</em></a>) – Records making up the schedule.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The summary line, or None when no operation uses the fill duration.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.generate_timeline">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.scheduler.</span></span><span class="sig-name descname"><span class="pre">generate_timeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cruise</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cruiseplan.runtime.html#cruiseplan.runtime.cruise.CruiseInstance" title="cruiseplan.runtime.cruise.CruiseInstance"><span class="pre">CruiseInstance</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">legs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cruiseplan.runtime.html#cruiseplan.runtime.organizational.Leg" title="cruiseplan.runtime.organizational.Leg"><span class="pre">Leg</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cruiseplan.timeline.record.ActivityRecord" title="cruiseplan.timeline.record.ActivityRecord"><span class="pre">ActivityRecord</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/timeline/scheduler.html#generate_timeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.scheduler.generate_timeline" title="Link to this definition"></a></dt>
+<dd><p>Generate cruise timeline directly from CruiseInstance object.</p>
+<p>This function eliminates the need for YAML serialization/deserialization
+by working directly with the CruiseInstance object’s validated configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cruise</strong> (<a class="reference internal" href="cruiseplan.runtime.html#cruiseplan.runtime.cruise.CruiseInstance" title="cruiseplan.runtime.cruise.CruiseInstance"><em>cruiseplan.runtime.cruise.CruiseInstance</em></a>) – CruiseInstance object with enhanced data</p></li>
+<li><p><strong>legs</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>Any</em><em>]</em><em>]</em>) – Runtime legs (if None, will be created from config)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Records in schedule order.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cruiseplan.timeline.record.Timeline" title="cruiseplan.timeline.record.Timeline">Timeline</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.timeline_minutes">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.scheduler.</span></span><span class="sig-name descname"><span class="pre">timeline_minutes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cruiseplan.timeline.record.ActivityRecord" title="cruiseplan.timeline.record.ActivityRecord"><span class="pre">ActivityRecord</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/timeline/scheduler.html#timeline_minutes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.scheduler.timeline_minutes" title="Link to this definition"></a></dt>
+<dd><p>Return the elapsed time of a timeline: last end minus first start.</p>
+<p>Waiting from a positive <code class="docutils literal notranslate"><span class="pre">delay_start_minutes</span></code> lies between records, so
+this total includes it where a sum of durations would not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>timeline</strong> (<a class="reference internal" href="#cruiseplan.timeline.record.Timeline" title="cruiseplan.timeline.record.Timeline"><em>Timeline</em></a>) – Records in schedule order.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Minutes from the first start to the last end (0 for an empty timeline).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cruiseplan.runtime.html" class="btn btn-neutral float-left" title="Runtime Classes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cruiseplan.utils.html" class="btn btn-neutral float-right" title="General Utilities" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
