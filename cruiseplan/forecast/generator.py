@@ -370,6 +370,13 @@ def anchor_rule(
     when = parse_start_time(start_time).strftime("%Y-%m-%d %H:%M")
     if current_position is not None:
         lat, lon = current_position
+        nm = _position_transit_nm(schedule, anchor, current_position)
+        if nm < MIN_POSITION_TRANSIT_NM:
+            # No transit is inserted (see generate_forecast)
+            return (
+                f"Ship at {lat:.4f}, {lon:.4f} at {when} UTC, at row {anchor} "
+                f"({name}); the ship is there"
+            )
         return (
             f"Ship at {lat:.4f}, {lon:.4f} at {when} UTC; transit from there to "
             f"row {anchor} ({name}), then the plan"
@@ -402,6 +409,21 @@ def _leg_speed(schedule: xr.Dataset, anchor: int) -> float:
         if np.isfinite(speed) and speed > 0:
             return speed
     return 10.0
+
+
+def _position_transit_nm(
+    schedule: xr.Dataset,
+    anchor: int,
+    current_position: tuple[float, float] | None,
+) -> float:
+    """Distance (nm) from the current position to the anchored row; 0 without one."""
+    if current_position is None:
+        return 0.0
+    target = (
+        float(schedule.latitude[anchor].values),
+        float(schedule.longitude[anchor].values),
+    )
+    return _gc_nm(tuple(current_position), target)
 
 
 def _gc_nm(a: tuple[float, float], b: tuple[float, float]) -> float:
@@ -476,13 +498,7 @@ def generate_forecast(
     forecast_activities = []
 
     anchor_time = new_start_time
-    nm = 0.0
-    if current_position is not None:
-        target = (
-            float(schedule.latitude[anchor].values),
-            float(schedule.longitude[anchor].values),
-        )
-        nm = _gc_nm(tuple(current_position), target)
+    nm = _position_transit_nm(schedule, anchor, current_position)
     if nm >= MIN_POSITION_TRANSIT_NM:
         hours = nm / _leg_speed(schedule, anchor)
         forecast_activities.append(

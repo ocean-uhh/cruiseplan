@@ -143,3 +143,19 @@ def test_offset_forms_in_the_docs(start, label):
     assert time_zone_label(ship_time_offset(start)) == label
     if label != "LT (UTC-02:30)" and label != "LT (UTC+13:00)":
         assert str(parse_start_time(start)) == "2026-08-30 17:00:00"
+
+
+def test_anchor_note_at_the_station(schedule_nc):
+    """At the station itself no transit is inserted, and the note says so."""
+    from cruiseplan.forecast.generator import anchor_rule
+
+    index = _row(schedule_nc, "station")
+    ds = read_schedule(schedule_nc)
+    here = (float(ds.latitude[index]), float(ds.longitude[index]))
+    rows = generate_forecast(ds, index, "2026-12-01T12:00", 3, here)
+    assert rows[0][0] == index
+    note = anchor_rule(ds, index, "2026-12-01T12:00", here)
+    assert "the ship is there" in note
+    assert "transit" not in note
+    away = (here[0] + 1.0, here[1])
+    assert "transit from there" in anchor_rule(ds, index, "2026-12-01T12:00", away)
