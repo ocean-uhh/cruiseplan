@@ -519,9 +519,11 @@ Static format mode (no start params):
     )
     p.add_argument(
         "--start-time",
-        help="Start time in UTC of the anchored row, or of the ship at "
-        "--current-position if given (ISO format: '2026-08-30T14:00:00'; a time "
-        "without a zone is taken as UTC); required with --start-index",
+        help="Start time of the anchored row, or of the ship at "
+        "--current-position if given (ISO format). Without a zone it is UTC "
+        "('2026-08-30T14:00:00'); with the ship's zone it is ship time "
+        "('2026-08-30T14:00+03:00') and the TeX table is printed in ship time; "
+        "required with --start-index",
     )
     p.add_argument(
         "--duration",

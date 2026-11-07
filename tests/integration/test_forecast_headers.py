@@ -98,3 +98,24 @@ def test_empty_window_names_one_row(schedule_nc):
     message = str(error.value)
     assert f"from row {transit + 1} (--start-index {transit} is the transit" in message
     assert "the transit from --current-position is" in message
+
+
+def test_tex_forecast_in_ship_time(schedule_nc, tmp_path):
+    """With the ship's zone, the TeX rows are ship time and say so."""
+    from cruiseplan.api.stationplan_api import stationplan_forecast_tex
+
+    index = _row(schedule_nc, "station")
+    local = tmp_path / "local.tex"
+    utc = tmp_path / "utc.tex"
+    assert stationplan_forecast_tex(schedule_nc, index, ZONED, 6, local).success
+    assert stationplan_forecast_tex(
+        schedule_nc, index, "2026-11-30T23:00", 6, utc
+    ).success
+    local_tex, utc_tex = local.read_text(), utc.read_text()
+    assert "LT (UTC+13:00)" in local_tex
+    assert "\\ UTC &" in utc_tex
+    # The anchored operation: 12:00 ship time on 1 Dec, 23:00 UTC on 30 Nov
+    assert "12:00" in local_tex
+    assert "23:00" in utc_tex
+    assert "01.12.2026" in local_tex
+    assert "30.11.2026" in utc_tex

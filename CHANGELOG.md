@@ -17,6 +17,7 @@ versions follow [Semantic Versioning](https://semver.org/).
 - A forecast window with no operation in it (only a transit) wrote an empty plan; every format now stops with an error naming the window.
 - `--current-position` within 0.05 nm of the anchored operation inserted a zero-length transit; it is skipped.
 - Times in the TeX, waypoints, KML and CSV outputs are rounded on the full time, halves up (12:05 → 12:10 in the 10-minute TeX tables; 12:00:30 → 12:01 elsewhere). Before, seconds were dropped and Python's half-to-even rounding was used, so regenerated tables of an unchanged schedule can differ by one step. The TeX time column is labelled UTC.
+- `forecast --format tex` prints ship time when `--start-time` carries the ship's zone (`2026-08-30T14:00+03:00`): the rows are in that local time and the time column reads `LT (UTC+03:00)`. Without a zone the table is in UTC and says so (it said `LT` whatever the times were).
 - `forecast --start-time` is UTC: a time with a zone is converted, a time without one is taken as UTC; waypoints without `--start-time` start from the current UTC time. Forecast times are whole seconds (no "Discarding nonzero nanoseconds" warning).
 - NetCDF schedule stores `delay_start` (minutes) so it round-trips; files without it still read.
 

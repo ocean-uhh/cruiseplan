@@ -561,6 +561,7 @@ class LaTeXGenerator:
         workplan_number: str | None = None,
         cruise_title: str | None = None,
         anchor_note: str | None = None,
+        time_label: str = "UTC",
     ) -> str:
         """
         Generate TeX table in letsgo.m format from ActivityRecord objects.
@@ -587,6 +588,9 @@ class LaTeXGenerator:
             Cruise title printed in the TeX header (e.g. ``"MSM142"``).
         anchor_note : str, optional
             How the forecast is anchored, printed under the title.
+        time_label : str, optional
+            Label of the time column: ``"UTC"`` (default) or ship time,
+            e.g. ``"LT (UTC+03:00)"``, when the record times are ship time.
 
         Returns
         -------
@@ -854,7 +858,7 @@ class LaTeXGenerator:
 \\begin{{tabular}}{{lllllp{{2in}}}}
 \\toprule
 Time & Position & Depth & Distance & Station & Comment \\\\
-\\ UTC & &\\quad m & \\quad nm & \\\\
+\\ {time_label} & &\\quad m & \\quad nm & \\\\
 \\midrule
 {table_content}
 \\bottomrule

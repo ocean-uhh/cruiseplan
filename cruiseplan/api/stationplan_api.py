@@ -5,6 +5,7 @@ This module provides the main API functions for reading cruise schedules
 and generating station plan outputs for real-time cruise operations.
 """
 
+import dataclasses
 import logging
 from dataclasses import dataclass
 from datetime import timedelta
@@ -20,6 +21,8 @@ from cruiseplan.forecast.generator import (
     generate_forecast,
     list_activities,
     parse_start_time,
+    ship_time_offset,
+    time_zone_label,
 )
 from cruiseplan.forecast.reader import read_schedule
 from cruiseplan.output.kml_generator import KMLGenerator
@@ -144,8 +147,8 @@ def stationplan_forecast(
         is used)
     start_time : str
         Start time of the anchored operation, or of the ship at
-        ``current_position`` (ISO format, UTC: "2026-08-30T14:00:00"; a time
-        without a zone is taken as UTC)
+        ``current_position`` (ISO format). A time without a zone is UTC; with
+        the ship's zone (``"2026-08-30T14:00+03:00"``) it is ship time
     duration_hours : float, optional
         Forecast duration in hours (default: 24.0)
     transit_speed : float, optional
@@ -437,7 +440,9 @@ def stationplan_forecast_tex(
     Generate TeX station forecast starting from specified activity.
 
     Combines forecast generation with TeX formatting - generates a time-shifted
-    forecast and outputs it as a complete LaTeX document.
+    forecast and outputs it as a complete LaTeX document. When ``start_time``
+    carries the ship's zone, the table is printed in that ship time and the
+    time column is labelled with it; otherwise it is in UTC.
 
     Parameters
     ----------
@@ -450,8 +455,8 @@ def stationplan_forecast_tex(
         is used)
     start_time : str
         Start time of the anchored operation, or of the ship at
-        ``current_position`` (ISO format, UTC: "2026-08-30T14:00:00"; a time
-        without a zone is taken as UTC)
+        ``current_position`` (ISO format). A time without a zone is UTC; with
+        the ship's zone (``"2026-08-30T14:00+03:00"``) it is ship time
     duration_hours : float
         Forecast duration in hours (default: 24.0)
     output_path : str or Path, optional
@@ -508,6 +513,16 @@ def stationplan_forecast_tex(
             is not None
         ]
 
+        # Ship time: the table is printed in the clock of --start-time
+        offset = ship_time_offset(start_time)
+        if offset is not None:
+            activity_records = [
+                dataclasses.replace(
+                    r, start_time=r.start_time + offset, end_time=r.end_time + offset
+                )
+                for r in activity_records
+            ]
+
         # Determine output path
         if output_path is None:
             output_file = schedule_path.with_name(f"{schedule_path.stem}_forecast.tex")
@@ -526,6 +541,7 @@ def stationplan_forecast_tex(
             anchor_note=anchor_rule(
                 schedule, start_index, start_time, current_position
             ),
+            time_label=time_zone_label(offset),
         )
 
         # Write to file

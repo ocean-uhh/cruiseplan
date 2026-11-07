@@ -224,6 +224,38 @@ def parse_start_time(start_time: str) -> pd.Timestamp:
     return moment.floor("s")
 
 
+def ship_time_offset(start_time: str) -> pd.Timedelta | None:
+    """
+    UTC offset of the ship's clock, from the zone of a forecast start time.
+
+    ``2026-08-30T14:00+03:00`` means 14:00 ship time with the clock at
+    UTC+3. A time without a zone gives None (times are shown in UTC).
+
+    Parameters
+    ----------
+    start_time : str
+        ISO time as given to ``--start-time``.
+
+    Returns
+    -------
+    pandas.Timedelta or None
+        Offset of ship time from UTC, or None without a zone.
+    """
+    moment = pd.to_datetime(start_time)
+    if moment.tzinfo is None:
+        return None
+    return pd.Timedelta(moment.utcoffset())
+
+
+def time_zone_label(offset: pd.Timedelta | None) -> str:
+    """Column label for times in UTC (no offset) or in ship time."""
+    if offset is None:
+        return "UTC"
+    sign = "-" if offset < pd.Timedelta(0) else "+"
+    minutes = int(abs(offset).total_seconds() // 60)
+    return f"LT (UTC{sign}{minutes // 60:02d}:{minutes % 60:02d})"
+
+
 def _time_offsets(schedule: xr.Dataset) -> list[pd.Timedelta]:
     """Row start times as offsets from the first row."""
     time_data = schedule.time.values
