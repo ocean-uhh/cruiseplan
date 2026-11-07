@@ -192,8 +192,9 @@ class PointDefinition(FlexibleLocationModel):
     duration_minutes : Optional[float]
         Manual duration override in minutes.
     delay_start_minutes : Optional[float]
-        Change to the actual duration of the previous operation in the leg,
-        in minutes: positive, it ran long; negative, it ended early.
+        Minutes before this operation starts: positive, waiting at it (its own
+        "Waiting before" record); negative, it started earlier (taken from the
+        transit into it, then the operation before; warns).
     transit_minutes : Optional[float]
         Actual duration of the transit into this operation in minutes,
         replacing distance / speed (e.g. a faster or slower passage).

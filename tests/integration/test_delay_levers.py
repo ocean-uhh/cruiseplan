@@ -56,13 +56,20 @@ def test_transit_minutes_on_a_catalog_port(tmp_path):
     assert transit.planned_duration_minutes == pytest.approx(2576.0, abs=0.5)
 
 
+def _transit_to_niss() -> float:
+    """Minutes of the transit from the Leg2 departure port to NISS."""
+    timeline = _schedule(PYCNMIX, format=None).timeline
+    return next(r for r in timeline if r.label == "Transit to NISS").duration_minutes
+
+
 def _leg_delay_cases(cfg, leg_delay):
+    """NISS starts 45 min earlier than the transit in can give."""
     cfg["legs"][1]["delay_start_minutes"] = leg_delay
-    _point(cfg, "NISS")["delay_start_minutes"] = -45.0
+    _point(cfg, "NISS")["delay_start_minutes"] = -(_transit_to_niss() + 45.0)
 
 
 def test_lever_splits_between_leg_delay_and_previous_leg(tmp_path, caplog):
-    """Leg delay 30 min, delay -45 at the leg start: 30 from one, 15 from the other."""
+    """Leg delay 30 min, 45 min left at the leg start: 30 from one, 15 from the other."""
     path = _write(tmp_path, lambda cfg: _leg_delay_cases(cfg, 30.0))
     with caplog.at_level(logging.WARNING):
         _schedule(path, format=None)
@@ -102,3 +109,32 @@ def test_transit_minutes_zero_has_no_speed(tmp_path):
         speeds = [row["Vessel speed [kt]"] for row in csv.DictReader(f)]
     assert speeds
     assert all(len(s.split(".")[-1]) <= 1 for s in speeds if "." in s)
+
+
+def test_wait_row_in_csv_and_netcdf(tmp_path):
+    """NISS +30: a 30 min "Waiting before NISS" row in the CSV and the NetCDF."""
+    import xarray as xr
+
+    from cruiseplan.forecast.reader import read_schedule, stored_kind
+
+    def edit(cfg):
+        _point(cfg, "NISS")["delay_start_minutes"] = 30.0
+
+    out = tmp_path / "out"
+    result = _schedule(_write(tmp_path, edit), format="csv,netcdf", output_dir=str(out))
+    csv_file = next(Path(f) for f in result.files_created if str(f).endswith(".csv"))
+    with csv_file.open() as f:
+        rows = list(csv.DictReader(f))
+    labels = [row["label"] for row in rows]
+    k = labels.index("Waiting before NISS")
+    assert labels[k + 1] == "NISS"
+    assert labels[k - 1] == "Transit to NISS"
+    assert float(rows[k]["Duration [hrs]"]) == pytest.approx(0.5)
+    nc = next(Path(f) for f in result.files_created if str(f).endswith(".nc"))
+    ds = read_schedule(nc)
+    names = [str(n) for n in ds.name.values]
+    i = names.index("Waiting before NISS")
+    assert stored_kind(ds, i) == "wait"
+    assert float(ds.duration.values[i]) == pytest.approx(30.0)
+    with xr.open_dataset(nc) as raw:
+        assert str(raw.category.values[i]) == "other"

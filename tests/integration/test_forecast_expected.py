@@ -403,40 +403,48 @@ def with_delays(delays: dict[str, float]) -> dict:
 
 
 @pytest.mark.parametrize(
-    ("delays", "label", "prev_label", "prev_minutes"),
+    ("delays", "label", "prev_label", "transit_change", "wait"),
     [
-        # Option_E (1080 min) ran 90 min long / ended 60 min early
-        ({"NIWA_DITN": 90.0}, "NIWA_DITN", "Option_E", 1080.0 + 90.0),
-        ({"NIWA_DITN": -60.0}, "NIWA_DITN", "Option_E", 1080.0 - 60.0),
-        # the Leg2 departure port (0 min) cannot end 45 min early: clamped at 0
-        ({"NISS": -45.0}, "NISS", "Jangbogo Station", 0.0),
+        # waited 90 min at NIWA_DITN before starting
+        ({"NIWA_DITN": 90.0}, "NIWA_DITN", "Option_E", 0.0, 90.0),
+        # the 193.08 nm transit into NIWA_DITN took 60 min less
+        ({"NIWA_DITN": -60.0}, "NIWA_DITN", "Option_E", -60.0, 0.0),
+        # the transit from the Leg2 departure port took 45 min less
+        ({"NISS": -45.0}, "NISS", "Jangbogo Station", -45.0, 0.0),
     ],
 )
 def test_delay_survives_into_forecast(
-    tmp_path, delays, label, prev_label, prev_minutes
+    tmp_path, delays, label, prev_label, transit_change, wait
 ):
     """
-    Anchor on the operation before the transit at T: op starts T + prev + transit.
+    Anchor on the record before the transit at T; the operation starts after
+    the previous record, the transit (planned + change) and any wait.
 
-    The delay is in the previous operation's actual duration; the transit
-    keeps its planned length and the forecast reads both from the NetCDF.
+    The forecast reads the actual durations and the wait row from the NetCDF.
     """
     cfg = with_delays(delays)
     hand = hand_schedule(cfg)
     nc_path = netcdf_for(tmp_path, cfg, "delay")
     k = index_of(hand, label)
-    k_tr = k - 1
+    k_tr = index_of(hand, f"Transit to {label}")
     k_prev = k_tr - 1
-    assert hand[k_tr].kind == "transit"
     assert hand[k_prev].name == prev_label
-    assert hand[k_prev].minutes == pytest.approx(prev_minutes)
+    planned = hand_schedule(load("pycnmix"))
+    planned_transit = planned[index_of(planned, f"Transit to {label}")].minutes
+    assert hand[k_tr].minutes == pytest.approx(planned_transit + transit_change)
+    if wait:
+        assert hand[k - 1].name == f"Waiting before {label}"
+        assert hand[k - 1].minutes == pytest.approx(wait)
+    else:
+        assert k == k_tr + 1
     t0 = datetime(2026, 3, 10, 6, 0)
     rows = {row[0]: row for row in forecast_rows(nc_path, k_prev, t0)}
-    planned_transit = hand_schedule(load("pycnmix"))[k_tr].minutes
-    assert hand[k_tr].minutes == pytest.approx(planned_transit)
-    assert rows[k_prev][5] * 60 == pytest.approx(prev_minutes, abs=0.5)
-    assert rows[k_tr][5] * 60 == pytest.approx(planned_transit, abs=0.5)
-    expected = t0 + timedelta(minutes=prev_minutes + planned_transit)
+    assert rows[k_tr][5] * 60 == pytest.approx(
+        planned_transit + transit_change, abs=0.5
+    )
+    expected = t0 + timedelta(
+        minutes=hand[k_prev].minutes + planned_transit + transit_change + wait
+    )
     assert seconds(rows[k][1], expected) <= T_TOL_S
     assert (
         seconds(rows[k + 1][1], expected + timedelta(minutes=hand[k].minutes))

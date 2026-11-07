@@ -102,13 +102,15 @@ warns; the keys that changed name:
 
 Each record has ``duration_minutes`` (actual: end minus start) and
 ``planned_duration_minutes`` (from the planning rules). An operation's
-``delay_start_minutes`` (either sign) now changes the actual duration of the
-operation before it in the same leg (the departure port when there is none);
-the transit between them keeps its length and moves in time. Records no longer
-overlap or leave gaps, and the forecast uses the same durations. Schedules
-written before 0.6.0 are retimed this way when read: the delay is the stored
-``delay_start``, or, in files written by 0.5.0 (which store none), the gap or
-overlap before the operation. Operation start times do not change.
+positive ``delay_start_minutes`` is now waiting: a row "Waiting before <name>"
+at the operation's position, just before it. A negative one comes out of the
+transit into the operation first, then out of the operation before that
+transit, and logs a warning (it is a quick fix; ``transit_minutes`` or
+``duration_minutes`` on the record that was shorter says what happened).
+Records no longer overlap or leave gaps, and the forecast uses the same
+durations. Schedules written before 0.6.0 keep their rows and times when
+read: a positive delay stays a gap before the operation, a negative one
+shortens the transit into it.
 
 Renamed API names (removed in 0.7.0)
 ------------------------------------

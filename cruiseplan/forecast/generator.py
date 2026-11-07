@@ -468,7 +468,7 @@ def generate_forecast(
 
     Durations are the actual ones stored in the schedule: an operation's
     ``delay_start_minutes`` is already in the duration of the operation
-    before it (``cruiseplan.timeline.scheduler.absorb_delays``).
+    before it (``cruiseplan.timeline.scheduler.apply_delays``).
 
     Parameters
     ----------
@@ -564,7 +564,9 @@ def generate_forecast(
 
     in_window = [row[0] for row in forecast_activities if row[0] >= 0]
     # Ports count (a window may end the cruise); transits and buffers do not
-    if all(stored_kind(schedule, i) in {"transit", "buffer"} for i in in_window):
+    if all(
+        stored_kind(schedule, i) in {"transit", "buffer", "wait"} for i in in_window
+    ):
         where = f"row {anchor}"
         if anchor != start_index:
             where += f" (--start-index {start_index} is the transit into it)"

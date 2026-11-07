@@ -14,9 +14,9 @@ back to Reykjavik (0.5.0 key names), with a delay on STN_002:
   by 0.5.0: STN_002 starts 30 min before the transit into it ends.
 
 The transit into STN_002 ends at 22:07; STN_002 starts at 23:37 (+90) or
-21:37 (-30). Read in the current layout, the delay is part of STN_001 (the
-transit keeps its length and moves), whether ``delay_start`` is stored or
-taken from the gap.
+21:37 (-30). Read in the current layout, no row is added or moved: a
+positive delay stays the gap before STN_002 (the wait), and a negative one
+shortens the transit into STN_002 so it ends when STN_002 starts.
 """
 
 from pathlib import Path
@@ -53,33 +53,40 @@ def test_operation_start_times_unchanged(name, delay, stn2_start):
     assert str(schedule.time.values[stn2])[:16] == stn2_start
 
 
-@pytest.mark.parametrize(("name", "delay", "stn2_start"), CASES)
-def test_transit_into_delayed_station_moves(name, delay, stn2_start):
-    """Only the transit into STN_002 moves, by the delay."""
+def _read(name):
     path = SCHEDULES / name
     with xr.open_dataset(path) as raw:
         stored = _minutes(raw.time.values)
-    schedule = read_schedule(path)
-    shift = _minutes(schedule.time.values) - stored
-    transit = list(schedule.name.values).index("Transit to STN_002")
-    assert shift[transit] == delay
-    assert np.count_nonzero(shift) == 1
+        stored_minutes = raw.duration.values * 60.0  # 0.5.0: hours
+    return stored, stored_minutes, read_schedule(path)
 
 
 @pytest.mark.parametrize(("name", "delay", "stn2_start"), CASES)
-def test_records_are_contiguous(name, delay, stn2_start):
-    """Each record ends where the next one starts: no gaps, no overlaps."""
-    schedule = read_schedule(SCHEDULES / name)
+def test_no_row_moves(name, delay, stn2_start):
+    """Every start time, transits included, is the stored one."""
+    stored, _, schedule = _read(name)
+    np.testing.assert_array_equal(_minutes(schedule.time.values), stored)
+    assert schedule.sizes["obs"] == len(stored)
+
+
+@pytest.mark.parametrize(("name", "delay", "stn2_start"), CASES)
+def test_delay_where_it_happened(name, delay, stn2_start):
+    """+90: a 90 min gap before STN_002; -30: the transit into it is 30 min shorter."""
+    _, stored_minutes, schedule = _read(name)
+    names = list(schedule.name.values)
+    transit = names.index("Transit to STN_002")
+    stn2 = names.index("STN_002")
     start = _minutes(schedule.time.values)
     end = start + np.round(schedule.duration.values).astype(np.int64)
-    np.testing.assert_allclose(end[:-1], start[1:], atol=1)
-
-
-@pytest.mark.parametrize(("name", "delay", "stn2_start"), CASES)
-def test_delay_moves_into_the_station_before(name, delay, stn2_start):
-    """The delay changes the actual duration of STN_001 by its value."""
-    schedule = read_schedule(SCHEDULES / name)
-    stn1 = list(schedule.name.values).index("STN_001")
-    planned = float(schedule.planned_duration.values[stn1])
-    actual = float(schedule.duration.values[stn1])
-    assert actual - planned == pytest.approx(delay, abs=0.01)
+    change = float(schedule.duration.values[transit]) - stored_minutes[transit]
+    gap = start[stn2] - end[transit]
+    if delay > 0:
+        assert change == pytest.approx(0.0, abs=0.01)
+        assert gap == pytest.approx(delay, abs=1)
+    else:
+        assert change == pytest.approx(delay, abs=0.01)
+        assert gap == pytest.approx(0, abs=1)
+    stn1 = names.index("STN_001")
+    assert float(schedule.duration.values[stn1]) == pytest.approx(
+        stored_minutes[stn1], abs=0.01
+    )

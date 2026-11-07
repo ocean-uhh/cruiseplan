@@ -85,14 +85,16 @@ configurable. Keys written before 0.6.0 without the unit (``duration``,
        value for that leg's casts. Not a gap between other operations
    * - ``delay_start_minutes`` (point, port)
      - minutes
-     - Changes the actual duration of the previous operation in the same
-       leg (the nearest earlier one that is not a transit or buffer; the
-       departure port when there is none): positive, it ran long; negative,
-       it ended early. The transit between them keeps its length and moves
-       in time. The duration never goes below zero; what a negative value
-       cannot take off is dropped with a warning (at the start of a leg, the
-       warning says how to start the leg earlier). ``planned_duration_minutes``
-       in the outputs keeps the plan
+     - Positive: waiting before this operation starts (weather, daylight).
+       It is scheduled as its own row, "Waiting before <name>", at this
+       operation's position, so no other record gets longer. Negative: the
+       operation started earlier; the time comes out of the transit into it,
+       then out of the operation before that transit. A negative value is a
+       quick fix and always warns: prefer ``transit_minutes`` or
+       ``duration_minutes`` on the record that was actually shorter. No
+       duration goes below zero; what cannot be taken off is dropped with a
+       warning (at the start of a leg, the warning says how to start the leg
+       earlier). ``planned_duration_minutes`` in the outputs keeps the plan
    * - ``transit_minutes`` (point, port, line, area)
      - minutes
      - Actual duration of the transit into this operation, replacing
@@ -115,8 +117,9 @@ configurable. Keys written before 0.6.0 without the unit (``duration``,
      - percent
      - Allowable depth difference between planned and bathymetric depth
 
-Use ``transit_minutes`` when a transit was faster or slower than planned; use
-``delay_start_minutes`` when the previous operation ran long or ended early.
+Use ``delay_start_minutes`` for waiting before an operation; use
+``transit_minutes`` when a transit was faster or slower than planned and
+``duration_minutes`` when an operation took longer or shorter.
 
 ``delay_end`` is no longer read (it never changed the schedule): use
 ``delay_start_minutes`` on the next operation, ``buffer_time_minutes`` on the
@@ -197,7 +200,7 @@ Optional Fields
        water_depth_m: 3500            # Water depth at seafloor in metres (auto-filled by 'process')
        operation_depth_m: 2000        # Target cast depth in metres (default: full water column)
        duration_minutes: 45                 # Override cast time in minutes (suppresses depth-based calculation)
-       delay_start_minutes: 60      # The previous operation took 60 min longer
+       delay_start_minutes: 60      # Waited 60 min here before starting (weather)
        transit_minutes: 150         # The transit into this station took 150 min
        equipment: "SBE911plus"      # Equipment note (informational only, not used in scheduling)
        comment: "Deep water station"

@@ -11,10 +11,11 @@ from datetime import datetime
 from typing import Literal, get_args
 
 ActivityKind = Literal[
-    "station", "mooring", "line", "area", "transit", "port", "buffer"
+    "station", "mooring", "line", "area", "transit", "port", "buffer", "wait"
 ]
 """What a record is: a point operation (station or mooring), a line, an area,
-a navigational transit, a port call or a contingency buffer."""
+a navigational transit, a port call, a contingency buffer or waiting before
+an operation (its positive ``delay_start_minutes``)."""
 
 KINDS: tuple[str, ...] = get_args(ActivityKind)
 
@@ -30,6 +31,7 @@ KIND_OPERATION_CLASS = {
     "area": "AreaOperation",
     "transit": "NavigationalTransit",
     "buffer": "Buffer",
+    "wait": "Waiting",
 }
 """Implementation class of each kind (``operation_class`` on records)."""
 
@@ -41,6 +43,7 @@ KIND_CATEGORY = {
     "area": "area_operation",
     "transit": "transit",
     "buffer": "other",
+    "wait": "other",
 }
 """NetCDF ``category`` of each kind (a waypoint is ``other``)."""
 
@@ -56,7 +59,7 @@ def kind_of(operation_class: str, op_type: str | None) -> str:
     ----------
     operation_class : str
         Implementation class name: ``PointOperation``, ``LineOperation``,
-        ``AreaOperation``, ``NavigationalTransit`` or ``Buffer``.
+        ``AreaOperation``, ``NavigationalTransit``, ``Buffer`` or ``Waiting``.
     op_type : str or None
         Operation type from the configuration (``CTD``, ``mooring``,
         ``port``, ...).
@@ -82,6 +85,7 @@ def kind_of(operation_class: str, op_type: str | None) -> str:
         "AreaOperation": "area",
         "NavigationalTransit": "transit",
         "Buffer": "buffer",
+        "Waiting": "wait",
     }
     if operation_class not in by_class:
         raise ValueError(f"Unknown operation class: {operation_class!r}")

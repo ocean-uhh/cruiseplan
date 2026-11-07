@@ -177,7 +177,7 @@ def _gap_delays(schedule: xr.Dataset) -> np.ndarray:
 
 
 def _absorb_stored_delays(schedule: xr.Dataset) -> xr.Dataset:
-    """Retime a pre-0.6.0 schedule so each delay is in the operation before it."""
+    """Retime a pre-0.6.0 schedule by its delays (negative ones overlapped)."""
     if "delay_start" not in schedule.variables:
         schedule = schedule.assign(
             delay_start=("obs", _gap_delays(schedule), {"units": "minute"})
@@ -185,9 +185,10 @@ def _absorb_stored_delays(schedule: xr.Dataset) -> xr.Dataset:
     delays = np.nan_to_num(schedule.delay_start.values.astype(float))
     if not delays.any():
         return schedule
-    from cruiseplan.timeline.scheduler import absorb_delays
+    from cruiseplan.timeline.scheduler import apply_delays
 
-    records = absorb_delays(netcdf_to_activity_records(schedule))
+    # No rows are added: a positive delay stays a gap before the operation
+    records = apply_delays(netcdf_to_activity_records(schedule), insert_waits=False)
     times = np.array([r.start_time for r in records], dtype="datetime64[us]")
     ends = np.array([r.end_time for r in records], dtype="datetime64[us]")
     minutes = np.array([r.duration_minutes for r in records], dtype=float)
@@ -365,8 +366,8 @@ def stored_kind(schedule: xr.Dataset, index: int) -> str:
     category = text("category")
     if category in _KIND_BY_CATEGORY:
         return _KIND_BY_CATEGORY[category]
-    if op_type == "buffer":
-        return "buffer"
+    if op_type in {"buffer", "wait"}:
+        return op_type
     return kind_of("PointOperation", op_type)
 
 

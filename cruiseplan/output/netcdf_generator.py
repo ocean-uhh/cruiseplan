@@ -497,9 +497,9 @@ class NetCDFGenerator:
                             "units": "minute",
                             "comment": (
                                 "From the planning rules. Differs from duration "
-                                "when the next operation's delay_start changed "
-                                "this one (longer or shorter) or, for a transit, "
-                                "when transit_minutes set its time"
+                                "for a transit set by transit_minutes or "
+                                "shortened by a negative delay_start, and for "
+                                "a record a negative delay_start shortened"
                             ),
                             "coordinates": "time latitude longitude water_depth",
                         },

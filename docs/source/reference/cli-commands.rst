@@ -629,9 +629,9 @@ Two modes of operation:
 - The text forecast (``% Anchor =`` line) and the TeX plan (under the title)
   state the rule applied.
 - Every later row keeps its offset from the anchored row in the schedule,
-  with the durations stored there: a ``delay_start_minutes`` is in the actual
-  duration of the operation before it, so rows neither overlap nor leave
-  gaps.
+  with the durations stored there: a positive ``delay_start_minutes`` is a
+  "Waiting before" row, a negative one is in the shorter transit before the
+  operation, so rows neither overlap nor leave gaps.
 - The TeX plan rounds times to 10 minutes. Re-anchoring with a time read off
   a printed plan can shift the new plan by up to 5 minutes; take the start
   time from the clock or from the text forecast instead.

@@ -8,11 +8,12 @@ files with ``yaml.safe_load`` and every number follows the written rules:
 - transit minutes: nm / knots * 60
 - CTD cast minutes: depth / (descent * 60) + depth / (ascent * 60) + turnaround
 - a leg starts at the previous leg's end + the leg's ``delay_start``
-- an operation's ``delay_start`` (either sign) is added to the actual minutes
-  of the operation before it in the same leg (the nearest earlier row that
-  is not a transit or a buffer; the departure port when there is none), never
-  below zero; within a leg each row starts where the one before ends, so the
-  transit between them keeps its length and only moves (``hand_actual``)
+- an operation's positive ``delay_start`` is waiting: a row "Waiting before
+  <name>" of that many minutes at the operation's entry, just before it
+- a negative ``delay_start`` comes out of the transit into the operation
+  first, then out of the operation (or port) before that transit (same leg;
+  a buffer in between is skipped), each never below zero; within a leg each row starts where the one before ends
+  (``hand_actual``)
 - a leg's ``buffer_time`` is a stationary block at the last operation's exit
   position, after the last operation and before the transit to the arrival port
 - an area is entered at its first corner and left at its last corner; a line
@@ -356,25 +357,46 @@ def hand_schedule(cfg: dict, **kwargs: bool) -> list[Row]:
 
 
 def hand_actual(rows: list[Row]) -> list[Row]:
-    """Move each operation's delay into the operation before it (same leg)."""
+    """Apply delays: waits before operations, negative delays from before them."""
     minutes = [r.minutes for r in rows]
-    prev_op = None
+    first = [i == 0 or rows[i].leg != rows[i - 1].leg for i in range(len(rows))]
     for i, row in enumerate(rows):
-        if i == 0 or row.leg != rows[i - 1].leg:
-            prev_op = None
-        if row.kind in ("transit", "buffer"):
+        if first[i] or row.kind in ("transit", "buffer") or row.delay >= 0:
             continue
-        if row.delay and prev_op is not None:
-            minutes[prev_op] = max(0.0, minutes[prev_op] + row.delay)
-        prev_op = i
+        # Back through the leg: the transit in, skipping a buffer, then the
+        # first operation (or port) reached
+        left = -row.delay
+        j = i - 1
+        while left > 0 and j >= 0 and rows[j].leg == row.leg:
+            if rows[j].kind != "buffer":
+                taken = min(minutes[j], left)
+                minutes[j] -= taken
+                left -= taken
+                if rows[j].kind != "transit":
+                    break
+            j -= 1
     out: list[Row] = []
     for i, row in enumerate(rows):
         if i == 0:
             start = row.start
-        elif row.leg != rows[i - 1].leg:
+        elif first[i]:
             gap = row.start - rows[i - 1].end
             start = out[-1].end + max(gap, timedelta(0))
         else:
+            start = out[-1].end
+        if not first[i] and row.kind not in ("transit", "buffer") and row.delay > 0:
+            out.append(
+                Row(
+                    f"Waiting before {row.name}",
+                    "wait",
+                    row.leg,
+                    start,
+                    start + timedelta(minutes=row.delay),
+                    row.delay,
+                    entry=row.entry,
+                    planned=0.0,
+                )
+            )
             start = out[-1].end
         planned = row.planned
         if planned is None and minutes[i] != row.minutes:
