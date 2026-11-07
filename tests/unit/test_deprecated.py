@@ -28,6 +28,7 @@ from cruiseplan.runtime.cruise import CruiseInstance
 
 FIXTURES = Path(__file__).parents[1] / "fixtures"
 PYCNMIX = Path(__file__).parents[2] / "data" / "pycnmix-2026-v1.yaml"
+PAGE = Path(__file__).parents[2] / "docs" / "source" / "migrating_0_6_0.rst"
 MODELS = (
     CruiseConfig,
     LegDefinition,
@@ -38,6 +39,8 @@ MODELS = (
     GeoPoint,
 )
 UNIT_SUFFIXES = ("_minutes", "_m_s", "_kt", "_km", "_m")
+# Fields new in 0.6.0 that had no unit-less name before
+NEW_KEYS = {"transit_minutes"}
 
 
 def _fields() -> set[str]:
@@ -63,7 +66,7 @@ def test_yaml_key_table_covers_every_renamed_key():
     for name in fields:
         for suffix in UNIT_SUFFIXES:
             stem = name.removesuffix(suffix)
-            if stem != name and stem not in fields:
+            if stem != name and stem not in fields and name not in NEW_KEYS:
                 assert _deprecated.RENAMED_KEYS.get(stem) == name, name
                 break
     for old, new in _deprecated.RENAMED_KEYS.items():
@@ -179,3 +182,28 @@ def test_repeated_activity_in_a_leg_warns(caplog):
     tl = cruiseplan.timeline.generate_timeline(cruise)
     labels = [r.label for r in tl if r.leg_name == "Leg_Survey_Duplicate2"]
     assert labels.count("STN_002") == 2
+
+
+def _table_pairs(text: str) -> set[tuple[str, str]]:
+    """(old, new) pairs from the two-column list tables of an RST page."""
+    pairs = re.findall(r"\* - ``([^`]+)``\n\s+- ``([^`]+)``", text)
+    return set(pairs)
+
+
+@pytest.mark.parametrize(
+    "table",
+    [_deprecated.RENAMED_KEYS, _deprecated.RECORD_KEYS, _deprecated.RENAMED],
+    ids=["yaml keys", "record keys", "api names"],
+)
+def test_migration_page_lists_every_entry(table):
+    """The migration page has a row old -> new for each entry of the table."""
+    pairs = _table_pairs(PAGE.read_text(encoding="utf-8"))
+    for old, new in table.items():
+        assert (old, new) in pairs, f"{old} -> {new} missing from {PAGE.name}"
+
+
+def test_migration_page_lists_removed_keys():
+    """Each removed key is on the page with its advice."""
+    page = PAGE.read_text(encoding="utf-8")
+    for old in _deprecated.REMOVED_KEYS:
+        assert f"* - ``{old}``" in page

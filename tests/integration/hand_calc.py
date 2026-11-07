@@ -7,16 +7,20 @@ files with ``yaml.safe_load`` and every number follows the written rules:
 - distance: haversine on a sphere of radius 6371 km, nm = km / 1.852
 - transit minutes: nm / knots * 60
 - CTD cast minutes: depth / (descent * 60) + depth / (ascent * 60) + turnaround
-- an operation starts at arrival + its ``delay_start``; a leg starts at the
-  previous leg's end + the leg's ``delay_start``
+- a leg starts at the previous leg's end + the leg's ``delay_start``
+- an operation's positive ``delay_start`` is waiting: a row "Waiting before
+  <name>" of that many minutes at the operation's entry, just before it
+- a negative ``delay_start`` comes out of the transit into the operation
+  first, then out of the operation (or port) before that transit (same leg;
+  a buffer in between is skipped), each never below zero; within a leg each row starts where the one before ends
+  (``hand_actual``)
 - a leg's ``buffer_time`` is a stationary block at the last operation's exit
   position, after the last operation and before the transit to the arrival port
 - an area is entered at its first corner and left at its last corner; a line
   is entered at its first route point and left at its last
 - a transit of zero length is not scheduled
-- a row that runs past the next row's start (the next operation has a
-  negative ``delay_start_minutes``) is shortened to end there, never below
-  zero length; its planned minutes are kept (``hand_trim``)
+- an operation's ``transit_minutes`` replaces the minutes of the transit
+  into it (distance unchanged; planned minutes kept)
 
 Forecast (at-sea re-anchoring), ``hand_forecast``:
 
@@ -26,8 +30,7 @@ Forecast (at-sea re-anchoring), ``hand_forecast``:
 - with a current position the position wins: a transit row anchors on the
   row after it, and a transit from the position to the anchored row's entry
   (at the leg speed) comes first
-- every later row keeps its planned offset from the anchored row
-- a row that runs past the next row's start is shortened to end there
+- every later row keeps its offset from the anchored row in the schedule
 """
 
 import math
@@ -105,6 +108,7 @@ class Stop:
     depth: float | None = None
     is_fill: bool = False
     speed: float | None = None  # line operations: own speed
+    transit: float | None = None  # transit_minutes: actual minutes of the transit in
 
 
 @dataclass
@@ -121,7 +125,8 @@ class Row:
     depth: float | None = None
     is_fill: bool = False
     entry: tuple[float, float] | None = None
-    planned: float | None = None  # planned minutes, when trimmed
+    delay: float = 0.0  # the row's own delay_start (operations and ports)
+    planned: float | None = None  # planned minutes, when the actual differs
 
 
 @dataclass
@@ -162,6 +167,9 @@ def run_legs(start: datetime, legs: list[HandLeg]) -> list[Row]:
                 nm = gc_nm(src, stop.entry)
                 minutes = transit_min(nm, leg.speed)
                 if minutes > 0:
+                    planned = None
+                    if stop.transit is not None:
+                        planned, minutes = minutes, stop.transit
                     out.append(
                         Row(
                             f"Transit to {stop.name}",
@@ -172,6 +180,7 @@ def run_legs(start: datetime, legs: list[HandLeg]) -> list[Row]:
                             minutes,
                             nm,
                             entry=src,
+                            planned=planned,
                         )
                     )
                     t += timedelta(minutes=minutes)
@@ -192,6 +201,7 @@ def run_legs(start: datetime, legs: list[HandLeg]) -> list[Row]:
                     stop.depth,
                     stop.is_fill,
                     stop.entry,
+                    stop.delay,
                 )
             )
             t = end
@@ -283,6 +293,15 @@ def activity_stop(
     raise KeyError(name)
 
 
+def transit_override(cfg: dict, name: str) -> float | None:
+    """``transit_minutes`` of the point, line, area or port called *name*."""
+    for catalog in ("points", "lines", "areas", "ports"):
+        for item in cfg.get(catalog) or []:
+            if item.get("name") == name:
+                return key(item, "transit_minutes")
+    return None
+
+
 def leg_activities(leg: dict) -> list[str]:
     """Activities of a leg in order: cluster lists concatenated, else activities."""
     if leg.get("clusters"):
@@ -303,6 +322,13 @@ def hand_legs(cfg: dict, leg_speed_for_lines: bool = True) -> list[HandLeg]:
             activity_stop(cfg, a, line_speed, turnaround) for a in leg_activities(leg)
         ]
         stops.append(port_stop(cfg, leg["arrival_port"]))
+        for stop, name in zip(
+            stops[1:],
+            [*leg_activities(leg), leg["arrival_port"]],
+            strict=True,
+        ):
+            if isinstance(name, str):
+                stop.transit = transit_override(cfg, name)
         legs.append(
             HandLeg(
                 leg["name"],
@@ -327,18 +353,63 @@ def cruise_start(cfg: dict) -> datetime:
 
 def hand_schedule(cfg: dict, **kwargs: bool) -> list[Row]:
     """Full hand schedule for a YAML config dict."""
-    return run_legs(cruise_start(cfg), hand_legs(cfg, **kwargs))
+    return hand_actual(run_legs(cruise_start(cfg), hand_legs(cfg, **kwargs)))
 
 
-def hand_trim(rows: list[Row]) -> list[Row]:
-    """Rows with each one ended where the next starts, if it ran past it."""
-    out = list(rows)
-    for i in range(1, len(out)):
-        prev, row = out[i - 1], out[i]
-        if row.start < prev.end:
-            end = max(row.start, prev.start)
-            minutes = (end - prev.start).total_seconds() / 60.0
-            out[i - 1] = replace(prev, end=end, minutes=minutes, planned=prev.minutes)
+def hand_actual(rows: list[Row]) -> list[Row]:
+    """Apply delays: waits before operations, negative delays from before them."""
+    minutes = [r.minutes for r in rows]
+    first = [i == 0 or rows[i].leg != rows[i - 1].leg for i in range(len(rows))]
+    for i, row in enumerate(rows):
+        if first[i] or row.kind in ("transit", "buffer") or row.delay >= 0:
+            continue
+        # Back through the leg: the transit in, skipping a buffer, then the
+        # first operation (or port) reached
+        left = -row.delay
+        j = i - 1
+        while left > 0 and j >= 0 and rows[j].leg == row.leg:
+            if rows[j].kind != "buffer":
+                taken = min(minutes[j], left)
+                minutes[j] -= taken
+                left -= taken
+                if rows[j].kind != "transit":
+                    break
+            j -= 1
+    out: list[Row] = []
+    for i, row in enumerate(rows):
+        if i == 0:
+            start = row.start
+        elif first[i]:
+            gap = row.start - rows[i - 1].end
+            start = out[-1].end + max(gap, timedelta(0))
+        else:
+            start = out[-1].end
+        if not first[i] and row.kind not in ("transit", "buffer") and row.delay > 0:
+            out.append(
+                Row(
+                    f"Waiting before {row.name}",
+                    "wait",
+                    row.leg,
+                    start,
+                    start + timedelta(minutes=row.delay),
+                    row.delay,
+                    entry=row.entry,
+                    planned=0.0,
+                )
+            )
+            start = out[-1].end
+        planned = row.planned
+        if planned is None and minutes[i] != row.minutes:
+            planned = row.minutes
+        out.append(
+            replace(
+                row,
+                start=start,
+                end=start + timedelta(minutes=minutes[i]),
+                minutes=minutes[i],
+                planned=planned,
+            )
+        )
     return out
 
 
@@ -383,9 +454,7 @@ def hand_forecast(
         out.append(ForecastRow(-1, start, minutes))
         t_k = start + timedelta(minutes=minutes)
     for j in range(k, len(rows)):
-        minutes = rows[j].minutes
-        if j + 1 < len(rows):
-            gap = (rows[j + 1].start - rows[j].start).total_seconds() / 60.0
-            minutes = max(0.0, min(minutes, gap))
-        out.append(ForecastRow(j, t_k + (rows[j].start - rows[k].start), minutes))
+        out.append(
+            ForecastRow(j, t_k + (rows[j].start - rows[k].start), rows[j].minutes)
+        )
     return out

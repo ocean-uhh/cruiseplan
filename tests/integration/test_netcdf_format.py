@@ -167,3 +167,55 @@ def test_forecast_reads_units_from_the_attribute(tmp_path):
     np.testing.assert_allclose(
         to_current_format(seconds).duration.values, ds.duration.values
     )
+
+
+def test_pre_0_6_schedule_with_delays_is_retimed(tmp_path):
+    """
+    A schedule in the old layout (planned durations, a start moved by its
+    delay) reads like a new file.
+
+    pycnmix with NIWA_DITN -60: NIWA_DITN starts 60 min before the planned
+    transit into it ends; the transit is read as 1158.5 - 60 min, Option_E
+    keeps its 1080 min.
+    """
+    import yaml
+
+    raw = yaml.safe_load(PYCNMIX.read_text())
+    for p in raw["points"]:
+        if p["name"] == "NIWA_DITN":
+            p["delay_start_minutes"] = -60.0
+    config = tmp_path / "neg.yaml"
+    config.write_text(yaml.safe_dump(raw, sort_keys=False))
+    (path,) = _write(tmp_path, config)
+    with xr.open_dataset(path) as ds:
+        ds = ds.load()
+    names = [str(n) for n in ds.name.values]
+    k_opt, k_tr = names.index("Option_E"), names.index("Transit to NIWA_DITN")
+    # rebuild the old layout: planned durations in hours; the times are the
+    # same (the transit starts when Option_E ends, NIWA_DITN at its delayed
+    # start, so the planned transit overlaps it by 60 min)
+    planned = ds.planned_duration.values
+    old = ds.drop_vars(["planned_duration"]).rename({"distance": "dist_nm"})
+    old = old.assign(
+        duration=("obs", planned / 60.0, {"units": "hour"}),
+        end_time=(
+            "obs",
+            ds.time.values + (planned * 60e6).astype("timedelta64[us]"),
+            ds.end_time.attrs,
+        ),
+    )
+    old.attrs.pop("schedule_format")
+    assert float(old.duration[k_opt]) * 60 == pytest.approx(1080)
+    old_path = tmp_path / "old.nc"
+    old.to_netcdf(old_path)
+    read = read_schedule(old_path)
+    try:
+        assert float(read.duration[k_opt]) == pytest.approx(1080, abs=0.01)
+        assert float(read.duration[k_tr]) == pytest.approx(
+            float(planned[k_tr]) - 60, abs=0.01
+        )
+        np.testing.assert_allclose(read.duration.values, ds.duration.values, atol=0.01)
+        diff = (read.time.values - ds.time.values) / np.timedelta64(1, "s")
+        assert np.abs(diff).max() < 1
+    finally:
+        read.close()

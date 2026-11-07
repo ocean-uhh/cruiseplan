@@ -374,7 +374,7 @@ class CruiseInstance:
                         )
                         # Create enriched port with action
                         # A copy keeps the catalog entry's other fields
-                        # (timezone, equipment, delay_start_minutes, ...)
+                        # (timezone, equipment, delay_start_minutes, transit_minutes, ...)
                         enriched_port = PointDefinition.model_validate(
                             {
                                 **port_definition.model_dump(exclude_none=True),
@@ -414,7 +414,7 @@ class CruiseInstance:
                         )
                         # Create enriched port with action
                         # A copy keeps the catalog entry's other fields
-                        # (timezone, equipment, delay_start_minutes, ...)
+                        # (timezone, equipment, delay_start_minutes, transit_minutes, ...)
                         enriched_port = PointDefinition.model_validate(
                             {
                                 **port_definition.model_dump(exclude_none=True),

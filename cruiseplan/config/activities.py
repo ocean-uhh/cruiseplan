@@ -192,8 +192,12 @@ class PointDefinition(FlexibleLocationModel):
     duration_minutes : Optional[float]
         Manual duration override in minutes.
     delay_start_minutes : Optional[float]
-        Time to wait before operation begins in minutes (e.g., for daylight);
-        negative when the previous activity ended early.
+        Minutes before this operation starts: positive, waiting at it (its own
+        "Waiting before" record); negative, it started earlier (taken from the
+        transit into it, then the operation before; warns).
+    transit_minutes : Optional[float]
+        Actual duration of the transit into this operation in minutes,
+        replacing distance / speed (e.g. a faster or slower passage).
     comment : Optional[str]
         Human-readable comment or description.
     equipment : Optional[str]
@@ -221,6 +225,9 @@ class PointDefinition(FlexibleLocationModel):
     )
     duration_minutes: float | None = None
     delay_start_minutes: float | None = None  # wait before the operation begins
+    transit_minutes: float | None = Field(
+        None, ge=0, description="Actual minutes of the transit into this point"
+    )
     comment: str | None = None
     equipment: str | None = None
     position_string: str | None = None
@@ -301,6 +308,8 @@ class LineDefinition(BaseModel):
         Human-readable comment or description.
     vessel_speed_kt : Optional[float]
         Speed for this transect in knots.
+    transit_minutes : Optional[float]
+        Actual duration of the transit into this line in minutes.
     operation_type : Optional[LineOperationTypeEnum]
         Type of operation for scientific transects.
     action : Optional[ActionEnum]
@@ -315,6 +324,9 @@ class LineDefinition(BaseModel):
     operation_type: LineOperationTypeEnum | None = None
     action: ActionEnum | None = None
     distance_between_stations_km: float | None = None
+    transit_minutes: float | None = Field(
+        None, ge=0, description="Actual minutes of the transit into this line"
+    )
     max_depth: float | None = None  # Override default depth for CTD sections
 
     @field_validator("route", mode="before")
@@ -377,6 +389,8 @@ class AreaDefinition(BaseModel):
         Specific action for the area operation.
     duration_minutes : Optional[float]
         Duration for the area operation in minutes.
+    transit_minutes : Optional[float]
+        Actual duration of the transit into this area in minutes.
     """
 
     name: str
@@ -385,6 +399,9 @@ class AreaDefinition(BaseModel):
     operation_type: AreaOperationTypeEnum | None = AreaOperationTypeEnum.SURVEY
     action: ActionEnum | None = None
     duration_minutes: float | None = None
+    transit_minutes: float | None = Field(
+        None, ge=0, description="Actual minutes of the transit into this area"
+    )
 
     @field_validator("duration_minutes")
     @classmethod

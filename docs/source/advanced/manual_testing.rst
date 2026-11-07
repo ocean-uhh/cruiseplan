@@ -76,15 +76,15 @@ Test Case 1: Single Station (tc1_single.yaml)
 
 .. code-block:: yaml
 
-   turnaround_time: 30.0
-   ctd_descent_rate: 1.0
-   ctd_ascent_rate: 1.0
+   turnaround_time_minutes: 30.0
+   ctd_descent_rate_m_s: 1.0
+   ctd_ascent_rate_m_s: 1.0
 
 
 **TC1_Single_Test_schedule.html**
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-4. |uncheck| Verify that the CTD takes **2.1 hours**, based on a 30 minute "turnaround_time" (the default from `cruiseplan/config/values.py`) and the 2850 m ``water_depth`` stated in the fixture, with `DEFAULT_CTD_RATE_M_S` in `cruiseplan/config/values.py`, which is 47.5 minutes down and 47.5 minutes up, plus 30 minutes turnaround = 125 minutes or 2.1 hours.
+4. |uncheck| Verify that the CTD takes **2.1 hours**, based on a 30 minute ``turnaround_time_minutes`` (the default from `cruiseplan/config/values.py`) and the 2850 m ``water_depth_m`` stated in the fixture, with `DEFAULT_CTD_RATE_M_S` in `cruiseplan/config/values.py`, which is 47.5 minutes down and 47.5 minutes up, plus 30 minutes turnaround = 125 minutes or 2.1 hours.
 
 5. |uncheck| Verify that the total cruise duration is **262.4 hours / 10.9 days**.
 
@@ -255,13 +255,13 @@ Test Case 5: Sections (tc5_sections.yaml)
    -  #  expanded by cruiseplan enrich --expand-sections
       name: SEC_001_Stn001
       coordinates_ddm: 45 00.00'N, 050 00.00'W
-      water_depth: 58.0
+      water_depth_m: 58.0
       operation_type: CTD
       action: profile
       latitude: 45.0
       longitude: -50.0
       comment: Station 1/14 on SEC_001 section
-      duration: 120.0
+      duration_minutes: 120.0
 
 2. |uncheck| Verify that the `_map.png` shows all 14 stations from the section `TC5_Sections_Test_map.png <../_static/fixtures/TC5_Sections_Test_map.png>`_
 

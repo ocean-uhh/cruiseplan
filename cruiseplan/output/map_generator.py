@@ -348,7 +348,7 @@ def extract_points_from_timeline(
     points = []
     for i, record in enumerate(timeline):
         # Lines and areas are drawn by the track and area layers, not as points
-        skip = {"transit", "buffer", "line", "area"}
+        skip = {"transit", "buffer", "wait", "line", "area"}
         if record.kind in skip or not _has_position(record):
             continue
         if record.kind == "port":

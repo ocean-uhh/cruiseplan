@@ -26,7 +26,6 @@ from hand_calc import (
     ctd_min,
     gc_nm,
     hand_schedule,
-    hand_trim,
     transit_min,
 )
 
@@ -49,6 +48,8 @@ CONFIGS = {
     # the same activities listed once, K1 first in West Greenland: 84 rows
     "mooring_sequence": FIXTURES / "mooring_sequence_greenland.yaml",
     "pycnmix": ROOT / "data" / "pycnmix-2026-v1.yaml",
+    # Leg1 10 kt, Leg2 5 kt, Leg3 15 kt
+    "pycnmix_leg_speeds": FIXTURES / "pycnmix_leg_speeds.yaml",
 }
 HALIFAX_FILE = "gebco2025_halifax_subset.nc"
 T_TOL_S = 30.0
@@ -372,24 +373,53 @@ def test_delay_start_every_row(tmp_path):
 
 
 def test_delay_start_effects(tmp_path):
-    """Each delay moves the operation's start by its value; duration is unchanged."""
+    """
+    A positive delay is waiting at the operation, in its own row before it.
+
+    SouthCapeAdair +45 (first op of Leg1 and Leg3): "Waiting before
+    SouthCapeAdair" lasts 45 min after the transit in. NISS +30 (first op of
+    Leg2, after a 120 min leg delay): 30 min waiting. LDEO_heavy_shallow_
+    deployment +90: 90 min waiting after the 120 min recovery, which keeps
+    its length. Transits and ports keep their length.
+    """
     base = timeline(CONFIGS["pycnmix"])
     tl = timeline(write(tmp_path, pycnmix_with_delays(), "delays"))
 
     def shift(label, nth=0):
         a, b = by_label(base, label, nth), by_label(tl, label, nth)
-        assert a.duration_minutes == b.duration_minutes
         return (b.start_time - a.start_time).total_seconds() / 60
 
-    # Leg1: SouthCapeAdair is the first op
+    def wait(label, nth=0):
+        w = by_label(tl, f"Waiting before {label}", nth)
+        op = by_label(tl, label, nth)
+        assert w.kind == "wait"
+        assert w.end_time == op.start_time
+        assert (w.entry_lat, w.entry_lon) == (op.entry_lat, op.entry_lon)
+        return w.duration_minutes
+
+    assert wait("SouthCapeAdair") == pytest.approx(45)
+    assert shift("Transit to SouthCapeAdair") == pytest.approx(0)
     assert shift("SouthCapeAdair") == pytest.approx(45)
-    # Leg2 starts 45 later (Leg1) + 120 leg delay; NISS adds its own 30
+    assert by_label(tl, "Lyttelton").duration_minutes == 0.0
+    # Leg2 starts 45 later (Leg1) + 120 leg delay; NISS waits 30 more
     assert shift("Jangbogo Station", 1) == pytest.approx(45 + 120)
+    assert by_label(tl, "Jangbogo Station", 1).duration_minutes == 0.0
+    assert shift("Transit to NISS") == pytest.approx(45 + 120)
+    assert wait("NISS") == pytest.approx(30)
     assert shift("NISS") == pytest.approx(45 + 120 + 30)
+    # The recovery keeps its 120 min; the deployment waits 90
+    rec = by_label(tl, "LDEO_heavy_shallow_recovery")
     assert shift("LDEO_heavy_shallow_recovery") == pytest.approx(195)
+    assert (rec.duration_minutes, rec.planned_duration_minutes) == (120, 120)
+    assert wait("LDEO_heavy_shallow_deployment") == pytest.approx(90)
     assert shift("LDEO_heavy_shallow_deployment") == pytest.approx(195 + 90)
-    # Leg3: SouthCapeAdair again (shared definition)
+    # Leg3: SouthCapeAdair again (shared definition) waits 45 again
+    assert wait("SouthCapeAdair", 1) == pytest.approx(45)
     assert shift("SouthCapeAdair", 1) == pytest.approx(285 + 45)
+    for label in ("Transit to NISS", "Transit to LDEO_heavy_shallow_recovery"):
+        assert by_label(tl, label).duration_minutes == pytest.approx(
+            by_label(base, label).duration_minutes
+        )
     assert by_label(tl, "LDEO_heavy_shallow_deployment").delay_start_minutes == 90.0
 
 
@@ -407,17 +437,16 @@ def pycnmix_with_negative_delays() -> dict:
 
 
 def test_negative_delay_start_every_row(tmp_path):
-    """Negative delays: start = arrival + delay, the row before ends there (hand_trim)."""
+    """Negative delays: the operation before ends early; every row matches the hand schedule."""
     cfg = pycnmix_with_negative_delays()
-    assert_rows_match(
-        timeline(write(tmp_path, cfg, "neg")), hand_trim(hand_schedule(cfg))
-    )
+    assert_rows_match(timeline(write(tmp_path, cfg, "neg")), hand_schedule(cfg))
 
 
-def test_negative_delay_start_effects(tmp_path):
-    """A negative delay moves the operation and everything after it earlier."""
+def test_negative_delay_start_effects(tmp_path, caplog):
+    """A negative delay shortens the transit in, else the operation before it."""
     base = timeline(CONFIGS["pycnmix"])
-    tl = timeline(write(tmp_path, pycnmix_with_negative_delays(), "neg"))
+    with caplog.at_level(logging.WARNING, logger="cruiseplan.timeline.scheduler"):
+        tl = timeline(write(tmp_path, pycnmix_with_negative_delays(), "neg"))
 
     def shift(label):
         a, b = by_label(base, label), by_label(tl, label)
@@ -429,38 +458,146 @@ def test_negative_delay_start_effects(tmp_path):
     assert shift("NIWA_WBAT") == pytest.approx(-90)
     # The model accepts the negative value and the record carries it
     assert by_label(tl, "NIWA_DITN").delay_start_minutes == -60.0
-    # The recovery ended 30 min early: its record ends where the deployment
-    # starts, 120 - 30 = 90 min actual, 120 min planned
+    # The recovery ended 30 min early: 120 - 30 = 90 min actual, 120 planned
     rec = by_label(tl, "LDEO_heavy_shallow_recovery")
     dep = by_label(tl, "LDEO_heavy_shallow_deployment")
     assert rec.end_time == dep.start_time
     assert rec.duration_minutes == pytest.approx(120 - 30)
     assert rec.planned_duration_minutes == pytest.approx(120)
-    # The transit into NIWA_DITN is 60 min shorter than planned
+    # NIWA_DITN -60: the 193.08 nm transit into it (1158.5 min at 10 kt)
+    # took 60 min less; Option_E before it keeps its 1080 min
+    opt = by_label(tl, "Option_E")
+    assert opt.duration_minutes == pytest.approx(1080)
     transit = by_label(tl, "Transit to NIWA_DITN")
-    planned = by_label(base, "Transit to NIWA_DITN").duration_minutes
-    assert transit.planned_duration_minutes == pytest.approx(planned)
-    assert transit.duration_minutes == pytest.approx(planned - 60)
+    assert transit.dist_nm == pytest.approx(193.08, abs=NM_TOL)
+    assert transit.planned_duration_minutes == pytest.approx(193.08 * 6, abs=MIN_TOL)
+    assert transit.duration_minutes == pytest.approx(193.08 * 6 - 60, abs=MIN_TOL)
+    # the speed it was actually run at: 193.08 nm in 1098.5 min
+    assert transit.vessel_speed_kt == pytest.approx(
+        193.08 / ((193.08 * 6 - 60) / 60), abs=0.01
+    )
+    assert transit.start_time == opt.end_time
     assert transit.end_time == by_label(tl, "NIWA_DITN").start_time
-    # Totals stay right: the durations add up to the elapsed time
+    assert shift("Transit to NIWA_DITN") == pytest.approx(-30)
+    # Every negative delay warns that it is a quick fix
+    quick = [m for m in caplog.messages if "is a quick fix" in m]
+    assert any(
+        "NIWA_DITN" in m and "Transit to NIWA_DITN by 60.0 min" in m for m in quick
+    )
+    assert any(
+        "LDEO_heavy_shallow_deployment" in m
+        and "LDEO_heavy_shallow_recovery by 30.0 min" in m
+        for m in quick
+    )
+    # No gaps or overlaps: the durations add up to the elapsed time
     span_min = (tl[-1].end_time - tl[0].start_time).total_seconds() / 60
     assert sum(r.duration_minutes for r in tl) == pytest.approx(span_min, abs=0.01)
 
 
-def test_total_duration_includes_delays(tmp_path):
-    """The schedule total (CLI and result summary) is the elapsed span, waiting included.
+def test_negative_delay_longer_than_the_operation_before(tmp_path, caplog):
+    """LDEO_heavy_shallow_deployment -150 after a 120 min recovery: 0 min, 30 min lost."""
+    cfg = load("pycnmix")
+    for p in cfg["points"]:
+        if p["name"] == "LDEO_heavy_shallow_deployment":
+            p["delay_start_minutes"] = -150.0
+    base = timeline(CONFIGS["pycnmix"])
+    with caplog.at_level(logging.WARNING, logger="cruiseplan.timeline.scheduler"):
+        tl = timeline(write(tmp_path, cfg, "clamp"))
+    rec = by_label(tl, "LDEO_heavy_shallow_recovery")
+    assert rec.duration_minutes == 0.0
+    assert rec.planned_duration_minutes == pytest.approx(120)
+    dep = by_label(tl, "LDEO_heavy_shallow_deployment")
+    shift = (dep.start_time - by_label(base, dep.label).start_time).total_seconds()
+    assert shift / 60 == pytest.approx(-120)
+    assert any(
+        "LDEO_heavy_shallow_deployment" in m
+        and "LDEO_heavy_shallow_recovery" in m
+        and "30.0 min of its negative delay_start_minutes could not be absorbed" in m
+        and "(LDEO_heavy_shallow_recovery is at 0 min)" in m
+        for m in caplog.messages
+    )
+    assert_rows_match(tl, hand_schedule(cfg))
 
-    pycnmix with positive delays of 45 + 120 + 30 + 90 + 45 = 330 min: the sum
-    of the durations is 330 min short of the span, the reported total is not.
+
+@pytest.mark.parametrize(
+    ("op", "leg", "leg2_delay", "lever"),
+    [
+        (
+            "NISS",
+            "Leg2",
+            None,
+            "To start leg Leg2 earlier, end the previous leg (Leg1) 45.0 min earlier",
+        ),
+        (
+            "NISS",
+            "Leg2",
+            120.0,
+            "To start leg Leg2 earlier, reduce the delay_start_minutes of leg Leg2 "
+            "(120 min) by 45.0 min",
+        ),
+        (
+            "SouthCapeAdair",
+            "Leg1",
+            None,
+            "To start leg Leg1 earlier, start the cruise 45.0 min earlier "
+            "(cruise start_date / start_time)",
+        ),
+    ],
+)
+def test_negative_delay_at_leg_start_names_the_lever(
+    tmp_path, caplog, op, leg, leg2_delay, lever
+):
+    """
+    A leg's first operation, 45 min more negative than the transit in.
+
+    The transit from the port goes to 0 min, the 0 min port cannot give
+    more, and the warning says how to start the leg earlier.
+    """
+    cfg = load("pycnmix")
+    transit_in = by_label(
+        timeline(CONFIGS["pycnmix"]), f"Transit to {op}"
+    ).duration_minutes
+    for p in cfg["points"]:
+        if p["name"] == op:
+            p["delay_start_minutes"] = -(transit_in + 45.0)
+    if leg2_delay is not None:
+        for leg_def in cfg["legs"]:
+            if leg_def["name"] == "Leg2":
+                leg_def["delay_start_minutes"] = leg2_delay
+    with caplog.at_level(logging.WARNING, logger="cruiseplan.timeline.scheduler"):
+        tl = timeline(write(tmp_path, cfg, "leg_start"))
+    expected = (
+        f"Operation {op}: 45.0 min of its negative delay_start_minutes in leg "
+        f"{leg} could not be absorbed; nothing earlier in the leg is long enough. "
+        f"{lever}"
+    )
+    assert expected in caplog.messages
+    assert by_label(tl, f"Transit to {op}").duration_minutes == 0.0
+    assert_rows_match(tl, hand_schedule(cfg))
+
+
+def test_total_duration_includes_delays(tmp_path):
+    """
+    The durations add up to the elapsed span, less the leg delay between legs.
+
+    pycnmix with delays 45 + 30 + 90 + 45 = 210 min on operations (absorbed in
+    the operations before them) and a 120 min Leg2 delay (a gap between legs).
+    The reported total (CLI, result summary) is the span.
     """
     path = write(tmp_path, pycnmix_with_delays(), "delays")
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         result = cruiseplan.schedule(config_file=path, format=None)
     tl = result.timeline
+    base = timeline(CONFIGS["pycnmix"])
     span_min = (tl[-1].end_time - tl[0].start_time).total_seconds() / 60
+    base_span = (base[-1].end_time - base[0].start_time).total_seconds() / 60
+    assert span_min - base_span == pytest.approx(210 + 120, abs=0.01)
     durations = sum(r.duration_minutes for r in tl)
-    assert span_min - durations == pytest.approx(330, abs=0.01)
+    assert durations - sum(r.duration_minutes for r in base) == pytest.approx(
+        210, abs=0.01
+    )
+    assert span_min - durations == pytest.approx(120, abs=0.01)
     assert result.summary["total_duration_hours"] * 60 == pytest.approx(
         span_min, abs=0.01
     )
@@ -651,3 +788,60 @@ def test_netcdf_values(tmp_path, name):
             assert float(ds.planned_duration[i]) == pytest.approx(h.minutes, abs=0.01)
             assert float(ds.distance[i]) == pytest.approx(h.nm, abs=NM_TOL)
             assert int(ds.duration_fill_flag[i]) == int(h.is_fill)
+
+
+# =============================================================================
+# transit_minutes (actual transit time into an operation)
+# =============================================================================
+
+
+def pycnmix_with_transit_minutes() -> dict:
+    """pycnmix: Transit to NISS (33.61 nm, 201.65 min at 10 kt) took 150 min."""
+    cfg = load("pycnmix")
+    for p in cfg["points"]:
+        if p["name"] == "NISS":
+            p["transit_minutes"] = 150.0
+    return cfg
+
+
+def test_transit_minutes_every_row(tmp_path):
+    """All rows of the copy match the hand schedule."""
+    cfg = pycnmix_with_transit_minutes()
+    assert_rows_match(timeline(write(tmp_path, cfg, "tm")), hand_schedule(cfg))
+
+
+def test_transit_minutes_moves_later_rows_and_shows_its_speed(tmp_path):
+    """NISS and every later row 201.65 - 150 = 51.65 min earlier; 33.61 nm / 2.5 h."""
+    base = timeline(CONFIGS["pycnmix"])
+    tl = timeline(write(tmp_path, pycnmix_with_transit_minutes(), "tm"))
+    nm = gc_nm((-74.621, 164.224), (-75.14, 163.42))
+    assert nm == pytest.approx(33.61, abs=0.01)
+    planned = transit_min(nm, 10.0)
+    assert planned == pytest.approx(201.65, abs=0.01)
+    transit = by_label(tl, "Transit to NISS")
+    assert transit.duration_minutes == pytest.approx(150.0)
+    assert transit.planned_duration_minutes == pytest.approx(planned, abs=MIN_TOL)
+    assert transit.dist_nm == pytest.approx(nm, abs=NM_TOL)
+    assert transit.vessel_speed_kt == pytest.approx(nm / 2.5, abs=0.01)  # 13.44 kt
+    k = next(i for i, r in enumerate(tl) if r.label == "NISS")
+    for a, b in zip(base[k:], tl[k:], strict=True):
+        shift = (b.start_time - a.start_time).total_seconds() / 60
+        assert shift == pytest.approx(150.0 - planned, abs=0.01), b.label
+    for a, b in zip(base[:k], tl[:k], strict=True):
+        assert a.start_time == b.start_time
+
+
+def test_transit_minutes_without_a_transit_is_ignored(tmp_path, caplog):
+    """LDEO_heavy_shallow_deployment sits on the recovery: no transit, a warning."""
+    cfg = load("pycnmix")
+    for p in cfg["points"]:
+        if p["name"] == "LDEO_heavy_shallow_deployment":
+            p["transit_minutes"] = 30.0
+    with caplog.at_level(logging.WARNING, logger="cruiseplan.timeline.scheduler"):
+        tl = timeline(write(tmp_path, cfg, "tm0"))
+    base = timeline(CONFIGS["pycnmix"])
+    assert [r.start_time for r in tl] == [r.start_time for r in base]
+    assert any(
+        "LDEO_heavy_shallow_deployment" in m and "transit_minutes 30 is ignored" in m
+        for m in caplog.messages
+    )

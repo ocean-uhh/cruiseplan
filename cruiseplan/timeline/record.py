@@ -11,10 +11,11 @@ from datetime import datetime
 from typing import Literal, get_args
 
 ActivityKind = Literal[
-    "station", "mooring", "line", "area", "transit", "port", "buffer"
+    "station", "mooring", "line", "area", "transit", "port", "buffer", "wait"
 ]
 """What a record is: a point operation (station or mooring), a line, an area,
-a navigational transit, a port call or a contingency buffer."""
+a navigational transit, a port call, a contingency buffer or waiting before
+an operation (its positive ``delay_start_minutes``)."""
 
 KINDS: tuple[str, ...] = get_args(ActivityKind)
 
@@ -30,6 +31,7 @@ KIND_OPERATION_CLASS = {
     "area": "AreaOperation",
     "transit": "NavigationalTransit",
     "buffer": "Buffer",
+    "wait": "Waiting",
 }
 """Implementation class of each kind (``operation_class`` on records)."""
 
@@ -41,6 +43,7 @@ KIND_CATEGORY = {
     "area": "area_operation",
     "transit": "transit",
     "buffer": "other",
+    "wait": "other",
 }
 """NetCDF ``category`` of each kind (a waypoint is ``other``)."""
 
@@ -56,7 +59,7 @@ def kind_of(operation_class: str, op_type: str | None) -> str:
     ----------
     operation_class : str
         Implementation class name: ``PointOperation``, ``LineOperation``,
-        ``AreaOperation``, ``NavigationalTransit`` or ``Buffer``.
+        ``AreaOperation``, ``NavigationalTransit``, ``Buffer`` or ``Waiting``.
     op_type : str or None
         Operation type from the configuration (``CTD``, ``mooring``,
         ``port``, ...).
@@ -82,6 +85,7 @@ def kind_of(operation_class: str, op_type: str | None) -> str:
         "AreaOperation": "area",
         "NavigationalTransit": "transit",
         "Buffer": "buffer",
+        "Waiting": "wait",
     }
     if operation_class not in by_class:
         raise ValueError(f"Unknown operation class: {operation_class!r}")
@@ -93,8 +97,8 @@ class ActivityRecord:
     """
     One scheduled activity of a cruise timeline.
 
-    Records are immutable: a change (for example trimming an activity that
-    ended early) makes a new record with :meth:`replace`.
+    Records are immutable: a change (for example an operation that ended
+    early) makes a new record with :meth:`replace`.
 
     Parameters
     ----------
@@ -120,7 +124,8 @@ class ActivityRecord:
     duration_minutes : float
         Actual duration: ``end_time - start_time``.
     planned_duration_minutes : float
-        Duration from the planning rules, before any trimming.
+        Duration from the planning rules, before delays of the next
+        operation.
     dist_nm : float
         Distance covered by the activity in nautical miles.
     vessel_speed_kt : float
@@ -132,8 +137,9 @@ class ActivityRecord:
     water_depth_m : float or None
         Water depth at the location in meters.
     delay_start_minutes : float or None
-        Delay before the activity starts in minutes (negative: the previous
-        activity ended early); None for transits and buffers.
+        The operation's own delay in minutes as configured: positive, a wait
+        record just before it; negative, taken off the transit into it, then
+        the operation before. None for transits, buffers and waits.
     comment : str or None
         Comment from the configuration.
     duration_is_fill : bool

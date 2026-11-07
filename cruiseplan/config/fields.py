@@ -86,6 +86,7 @@ YAML_FIELD_ORDER = [
     ("bathymetry_source", "bathymetry_source"),
     # Timing and spacing fields
     (DURATION_FIELD, "duration_minutes"),
+    ("transit_minutes", "transit_minutes"),
     (VESSEL_SPEED_FIELD, "vessel_speed_kt"),
     (STATION_SPACING_FIELD, "distance_between_stations_km"),
     (REVERSIBLE_FIELD, "reversible"),
@@ -130,6 +131,7 @@ POINT_ALLOWED_FIELDS = {
     "duration_minutes",
     "delay_start_minutes",
     "history",
+    "transit_minutes",
 }
 
 LINE_ALLOWED_FIELDS = {
@@ -146,6 +148,7 @@ LINE_ALLOWED_FIELDS = {
     "reversible",
     "history",
     "delay_start_minutes",
+    "transit_minutes",
 }
 
 AREA_ALLOWED_FIELDS = {
@@ -158,6 +161,7 @@ AREA_ALLOWED_FIELDS = {
     "corners",
     "history",
     "delay_start_minutes",
+    "transit_minutes",
 }
 
 CLUSTER_ALLOWED_FIELDS = {

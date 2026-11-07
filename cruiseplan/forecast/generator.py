@@ -405,9 +405,25 @@ def _leg_speed(schedule: xr.Dataset, anchor: int) -> float:
             continue
         if legs is not None and legs[i] != legs[anchor]:
             continue
+        if "planned_duration" in schedule.variables and not np.isclose(
+            float(schedule.duration[i].values),
+            float(schedule.planned_duration[i].values),
+        ):
+            continue  # a transit_minutes override: its speed is not the leg's
         speed = float(schedule.vessel_speed[i].values)
         if np.isfinite(speed) and speed > 0:
             return speed
+    # every transit of the leg was overridden: planned distance over planned time
+    for i in [*range(anchor - 1, -1, -1), *range(anchor + 1, n)]:
+        if _category(schedule, i) != "transit":
+            continue
+        if legs is not None and legs[i] != legs[anchor]:
+            continue
+        if "distance" in schedule.variables and "planned_duration" in schedule:
+            planned_h = float(schedule.planned_duration[i].values) / 60.0
+            if planned_h > 0:
+                return float(schedule.distance[i].values) / planned_h
+    logger.warning("No transit speed for this leg in the schedule; using 10 kt")
     return 10.0
 
 
@@ -447,13 +463,13 @@ def generate_forecast(
     starting that transit now. With ``current_position``, ``start_time`` is
     the time at that position: a transit from it to the anchored operation,
     at the leg's speed, is inserted first and the operation starts when it
-    ends. Every later row keeps its planned offset from the anchored row. The
-    anchored operation's own ``delay_start_minutes`` is replaced by the
-    anchor time.
+    ends. Every later row keeps its offset from the anchored row in the
+    schedule.
 
-    A row that runs past the start of the next row (the next operation has a
-    negative ``delay_start_minutes``: the previous activity ended early) is shortened
-    to end where the next row starts.
+    Durations are the actual ones stored in the schedule: an operation's
+    ``delay_start_minutes`` is already in it, as a wait row before the
+    operation or a shorter transit into it
+    (``cruiseplan.timeline.scheduler.apply_delays``).
 
     Parameters
     ----------
@@ -524,10 +540,6 @@ def generate_forecast(
         absolute_time = exact_time.floor("s")
 
         duration = float(schedule.duration[i].values) / 60.0
-        if i + 1 < num_activities:
-            gap_hours = (time_offsets[i + 1] - time_offsets[i]).total_seconds() / 3600
-            if gap_hours < duration:
-                duration = max(gap_hours, 0.0)
 
         forecast_activities.append(
             (
@@ -553,7 +565,9 @@ def generate_forecast(
 
     in_window = [row[0] for row in forecast_activities if row[0] >= 0]
     # Ports count (a window may end the cruise); transits and buffers do not
-    if all(stored_kind(schedule, i) in {"transit", "buffer"} for i in in_window):
+    if all(
+        stored_kind(schedule, i) in {"transit", "buffer", "wait"} for i in in_window
+    ):
         where = f"row {anchor}"
         if anchor != start_index:
             where += f" (--start-index {start_index} is the transit into it)"

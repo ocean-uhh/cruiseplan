@@ -586,7 +586,8 @@ def _activity_to_waypoint_lines(
         name,
     ) = activity
 
-    if category == "transit":
+    # Waypoints are where work is done: no transits, waits or contingency
+    if category == "transit" or activity_type in {"wait", "buffer"}:
         return []
 
     work_code = _map_activity_to_work_code(category, activity_type, name)
@@ -1195,8 +1196,8 @@ def stationplan_forecast_png(
                 name,
             ) = activity_tuple
 
-            # Skip transit activities for map visualization (focus on science operations)
-            if category == "transit":
+            # Operations only: no transits, waits or contingency on the map
+            if category == "transit" or activity_type in {"wait", "buffer"}:
                 continue
 
             water_depth, operation_depth, _ = _lookup_schedule_depth_data(
