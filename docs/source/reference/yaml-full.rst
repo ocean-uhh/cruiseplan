@@ -95,10 +95,10 @@ configurable. Keys written before 0.6.0 without the unit (``duration``,
        duration goes below zero; what cannot be taken off is dropped with a
        warning (at the start of a leg, the warning says how to start the leg
        earlier). ``planned_duration_minutes`` in the outputs keeps the plan.
-       On a leg's departure port a delay acts like the leg's own
-       ``delay_start_minutes`` (time before the leg departs, no wait row). A
-       port from the ``ports:`` catalog carries its delay to every leg that
-       uses it
+       On a leg's departure port a positive delay is added to the leg's
+       "Waiting before <departure port>" row (with the leg's own
+       ``delay_start_minutes`` and any wait for its given start). A port from
+       the ``ports:`` catalog carries its delay to every leg that uses it
    * - ``transit_minutes`` (point, port, line, area)
      - minutes
      - Actual duration of the transit into this operation, replacing
@@ -108,7 +108,23 @@ configurable. Keys written before 0.6.0 without the unit (``duration``,
        Ignored, with a warning, when there is no transit into the operation
    * - ``delay_start_minutes`` (leg)
      - minutes
-     - Wait before the leg departs (e.g. port clearance); not negative
+     - Wait before the leg departs (e.g. port clearance); not negative. A
+       "Waiting before <departure port>" row at the start of the leg
+   * - ``start_date``, ``start_time`` (leg)
+     - ``YYYY-MM-DD``, ``HH:MM`` (UTC)
+     - When the leg departs (time default 08:00); the departure port's
+       ``duration_minutes`` (time in port) fits in before it. Quote both in YAML
+       (``start_time: "12:00"``). ``start_date`` can instead be a full ISO
+       time such as ``"2026-03-17T12:00:00+13:00"``; the offset is converted
+       to UTC. The ship waits at the departure port until then, in the same
+       "Waiting before" row as the leg's ``delay_start_minutes`` (which comes
+       on top). When the previous leg arrives too late for this (after its
+       delays and the time in port), the leg departs as soon as it can, with
+       a warning. A leg scheduled on its own (``--leg``) departs at its given
+       start
+   * - ``end_date``, ``end_time`` (leg)
+     - ``YYYY-MM-DD``, ``HH:MM`` (UTC)
+     - When the leg should end; an arrival later than this warns
    * - ``buffer_time_minutes`` (leg)
      - minutes
      - Contingency block, applied once per leg: a stationary record at the

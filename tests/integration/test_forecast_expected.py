@@ -143,9 +143,12 @@ def test_anchors_i_and_i_plus_k_agree(tmp_path, name):
             for k in range(3)
         ]
         common = set(runs[0]) & set(runs[1]) & set(runs[2])
-        for j in common:  # times are floored to whole seconds
-            assert seconds(runs[0][j], runs[1][j]) <= 1
-            assert seconds(runs[0][j], runs[2][j]) <= 1
+        # The start time and each row are floored to whole seconds: two
+        # floors, so up to 2 s apart (e.g. a row on 15:00:00 after a wait
+        # that ends exactly at a leg's given start)
+        for j in common:
+            assert seconds(runs[0][j], runs[1][j]) <= 2
+            assert seconds(runs[0][j], runs[2][j]) <= 2
 
 
 @pytest.mark.parametrize("name", list(CONFIGS))

@@ -90,3 +90,38 @@ def test_delay_where_it_happened(name, delay, stn2_start):
     assert float(schedule.duration.values[stn1]) == pytest.approx(
         stored_minutes[stn1], abs=0.01
     )
+
+
+def test_delay_on_the_first_row_keeps_its_time(tmp_path):
+    """A pre-0.6.0 file with delay_start 60 on the departure port: no row moves."""
+    path = SCHEDULES / "delay_mid_leg_schedule_0.5.0_with_delay_start.nc"
+    with xr.open_dataset(path) as raw:
+        ds = raw.load()
+    ds["delay_start"].values[0] = 60.0
+    edited = tmp_path / "first_row_delay.nc"
+    ds.to_netcdf(edited)
+    stored = _minutes(ds.time.values)
+    schedule = read_schedule(edited)
+    np.testing.assert_array_equal(_minutes(schedule.time.values), stored)
+
+
+def test_leg_start_never_before_the_previous_leg_ends():
+    """An older file whose Leg2 is stored starting before Leg1 ends: no overlap."""
+    import dataclasses
+    import warnings
+    from datetime import timedelta
+
+    import cruiseplan
+    from cruiseplan.timeline.scheduler import apply_delays
+
+    pycnmix = Path(__file__).parents[2] / "data" / "pycnmix-2026-v1.yaml"
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        timeline = cruiseplan.schedule(config_file=pycnmix, format=None).timeline
+    records = [r for r in timeline if r.kind != "wait"]
+    k = next(i for i, r in enumerate(records) if r.leg_name == "Leg2")
+    early = records[k - 1].end_time - timedelta(hours=2)
+    records[k] = dataclasses.replace(records[k], start_time=early)
+    out = apply_delays(records, insert_waits=False)
+    assert all(b.start_time >= a.end_time for a, b in zip(out, out[1:], strict=False))
+    assert out[k].start_time == out[k - 1].end_time

@@ -75,7 +75,7 @@ Timeline records (removed in 0.7.0)
 ``cruiseplan.schedule(...).timeline`` and ``generate_timeline`` return a
 ``Timeline``: a list of ``ActivityRecord`` objects, frozen, with a ``kind``
 (``station``, ``mooring``, ``line``, ``area``, ``transit``, ``port``,
-``buffer``). Read fields as attributes: ``record.label``,
+``buffer``, ``wait``). Read fields as attributes: ``record.label``,
 ``record.duration_minutes``. Reading a record like a dictionary still works and
 warns; the keys that changed name:
 

@@ -10,7 +10,7 @@ coordinates:
 import logging
 from collections.abc import Mapping
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
 from cruiseplan.config.activities import (
@@ -161,8 +161,9 @@ def timeline_minutes(timeline: Timeline) -> float:
     """
     Return the elapsed time of a timeline: last end minus first start.
 
-    Waiting from a positive ``delay_start_minutes`` lies between records, so
-    this total includes it where a sum of durations would not.
+    Every wait is its own record, so in a new schedule this equals the sum
+    of the durations; for a schedule read from an older file it also counts
+    the gaps between records.
 
     Parameters
     ----------
@@ -426,6 +427,8 @@ def apply_delays(
     leg_delays: Mapping[str, float] | None = None,
     first_leg: str | None = None,
     insert_waits: bool = True,
+    leg_starts: Mapping[str, datetime] | None = None,
+    leg_ends: Mapping[str, datetime] | None = None,
 ) -> Timeline:
     """
     Apply each operation's ``delay_start_minutes``.
@@ -444,9 +447,16 @@ def apply_delays(
     ``duration_minutes`` on the record that was actually shorter states what
     happened.
 
+    Before a leg departs the ship waits at the departure port: until the
+    leg's given start (when that is later than the ship is ready), then for
+    the leg's ``delay_start_minutes`` and the departure port's own positive
+    delay. That is one wait record at the start of the leg. A given start
+    earlier than when the ship is ready warns, as does an arrival after the
+    leg's given end. When the first record belongs to a later leg scheduled
+    on its own, that leg starts at its given start.
+
     ``planned_duration_minutes`` keeps the plan; ``duration_minutes`` is the
-    actual duration. Within a leg every record starts where the one before it
-    ends; between legs the leg delay is kept.
+    actual duration. Every record starts where the one before it ends.
 
     Parameters
     ----------
@@ -461,7 +471,12 @@ def apply_delays(
     insert_waits : bool, optional
         Add a ``wait`` record for each positive delay (default). With False
         the wait is left as a gap before the operation, which keeps the
-        record count (used for schedules read from older files).
+        record count, and every leg keeps its stored start (used for
+        schedules read from older files).
+    leg_starts : Mapping of str to datetime, optional
+        Given start of each leg (``start_date`` / ``start_time``), UTC.
+    leg_ends : Mapping of str to datetime, optional
+        Given end of each leg (``end_date`` / ``end_time``), UTC.
 
     Returns
     -------
@@ -476,8 +491,6 @@ def apply_delays(
         for i in range(len(timeline))
     ]
     wait_before = [0.0] * len(timeline)
-    # Minutes a negative delay on a leg's first record would move it earlier
-    undo = [0.0] * len(timeline)
     leg_start = 0
     for i, record in enumerate(timeline):
         if first_of_leg[i]:
@@ -485,35 +498,136 @@ def apply_delays(
         if record.kind in _NOT_OPERATIONS:
             continue
         delay = record.delay_start_minutes or 0.0
-        if delay > 0 and not first_of_leg[i]:
+        if delay > 0:
             wait_before[i] = delay
         elif delay < 0 and first_of_leg[i]:
-            undo[i] = -delay
+            # Nothing earlier in the leg: the leg is not moved
             _warn_leg_start(
-                timeline, leg_start, record.label, -delay, leg_delays, first_leg
+                timeline,
+                leg_start,
+                record.label,
+                -delay,
+                leg_delays,
+                first_leg,
+                leg_starts,
             )
         elif delay < 0:
             _shorten_before(
-                timeline, actual, i, leg_start, -delay, leg_delays, first_leg
+                timeline,
+                actual,
+                i,
+                leg_start,
+                -delay,
+                leg_delays,
+                first_leg,
+                leg_starts,
             )
     out: Timeline = []
     for i, record in enumerate(timeline):
-        planned_start = record.start_time + timedelta(minutes=undo[i])
-        if i == 0:
-            start = planned_start
-        elif first_of_leg[i]:
-            # leg delay (and a departure-port delay) between legs is kept
-            gap = planned_start - timeline[i - 1].end_time
-            start = out[-1].end_time + max(gap, timedelta(0))
+        own = record.delay_start_minutes or 0.0
+        if record.kind in _NOT_OPERATIONS:
+            own = 0.0
+        if not insert_waits and (i == 0 or first_of_leg[i]):
+            # an older file: every leg keeps its stored start (never
+            # before the previous leg's end)
+            start = record.start_time
+            if out:
+                start = max(start, out[-1].end_time)
+        elif i == 0:
+            # the planned start includes the record's own delay
+            start = record.start_time - timedelta(minutes=own)
         else:
             start = out[-1].end_time
-        if wait_before[i]:
+        if insert_waits and first_of_leg[i]:
+            start = _leg_wait(
+                out, record, i, start, own, leg_delays, first_leg, leg_starts
+            )
+        elif wait_before[i] and not first_of_leg[i]:
+            # (an older file keeps the wait before a leg in its stored start)
             wait = _wait_record(record, start, wait_before[i])
             if insert_waits:
                 out.append(wait)
             start = wait.end_time
         out.append(_with_actual(record, start, actual[i]))
+    if insert_waits and leg_ends:
+        _warn_leg_ends(out, leg_ends)
     return out
+
+
+def _leg_wait(
+    out: Timeline,
+    record: ActivityRecord,
+    index: int,
+    ready: datetime,
+    own: float,
+    leg_delays: Mapping[str, float] | None,
+    first_leg: str | None,
+    leg_starts: Mapping[str, datetime] | None,
+) -> datetime:
+    """
+    Add the wait before a leg departs to *out*; return when the leg starts.
+
+    *ready* is when the ship is ready (the end of the previous leg, or the
+    cruise start); *record* is the leg's first record, *own* its delay. The
+    given start is when the ship departs: the time in the departure port
+    (its ``duration_minutes``) fits in before it.
+    """
+    leg = record.leg_name
+    given = (leg_starts or {}).get(leg)
+    in_port = _port_minutes(record)
+    if index == 0 and given is not None and first_leg not in (None, leg):
+        # a later leg scheduled on its own departs at its given start
+        ready = given - timedelta(minutes=in_port)
+    minutes = 0.0
+    reasons = []
+    if given is not None:
+        arrive_by = given - timedelta(minutes=in_port)
+        if arrive_by > ready:
+            minutes += (arrive_by - ready).total_seconds() / 60.0
+            reasons.append(f"leg start {given:%Y-%m-%d %H:%M}")
+        elif arrive_by < ready - timedelta(minutes=1):
+            after = f"the end of leg {out[-1].leg_name}" if out else "the cruise start"
+            departs = ready + timedelta(minutes=in_port)
+            logger.warning(
+                f"Leg {leg}: given start {given:%Y-%m-%d %H:%M} is before the "
+                f"ship can depart ({departs:%Y-%m-%d %H:%M}, from {after}); the "
+                f"leg departs then"
+            )
+    leg_delay = (leg_delays or {}).get(leg, 0.0) or 0.0
+    if leg_delay > 0:
+        minutes += leg_delay
+        reasons.append(f"delay_start_minutes {leg_delay:g} of leg {leg}")
+    if own > 0:
+        minutes += own
+        reasons.append(f"delay_start_minutes {own:g} of {record.label}")
+    if minutes <= 0:
+        return ready
+    wait = _wait_record(
+        record, ready, minutes, comment=f"before leg {leg}: " + "; ".join(reasons)
+    )
+    out.append(wait)
+    return wait.end_time
+
+
+def _port_minutes(record: ActivityRecord) -> float:
+    """Planned minutes of a departure-port record (0 for any other kind)."""
+    if record.kind != "port":
+        return 0.0
+    return float(record.planned_duration_minutes or 0.0)
+
+
+def _warn_leg_ends(timeline: Timeline, leg_ends: Mapping[str, datetime]) -> None:
+    """Warn for each leg that arrives after its given end."""
+    last: dict[str, ActivityRecord] = {}
+    for record in timeline:
+        last[record.leg_name] = record
+    for leg, end in leg_ends.items():
+        arrival = last.get(leg)
+        if arrival is not None and arrival.end_time > end + timedelta(minutes=1):
+            logger.warning(
+                f"Leg {leg} arrives {arrival.end_time:%Y-%m-%d %H:%M}, after its "
+                f"given end {end:%Y-%m-%d %H:%M}"
+            )
 
 
 def _shorten_before(
@@ -524,6 +638,7 @@ def _shorten_before(
     minutes: float,
     leg_delays: Mapping[str, float] | None,
     first_leg: str | None,
+    leg_starts: Mapping[str, datetime] | None = None,
 ) -> None:
     """Take *minutes* (a negative delay) from the transit, then the operation, before *index*."""
     record = timeline[index]
@@ -552,8 +667,13 @@ def _shorten_before(
     )
     if left <= 0:
         return
-    if j < leg_start or j == leg_start:
-        _warn_leg_start(timeline, leg_start, record.label, left, leg_delays, first_leg)
+    # Only waits (and buffers) before j: the leg start is reached
+    if all(
+        timeline[k].kind in _NOT_OPERATIONS for k in range(leg_start, max(j, leg_start))
+    ):
+        _warn_leg_start(
+            timeline, leg_start, record.label, left, leg_delays, first_leg, leg_starts
+        )
     else:
         at_zero = f"{timeline[j].label} is"
         if walked_transit:
@@ -565,7 +685,10 @@ def _shorten_before(
 
 
 def _wait_record(
-    record: ActivityRecord, start: datetime, minutes: float
+    record: ActivityRecord,
+    start: datetime,
+    minutes: float,
+    comment: str | None = None,
 ) -> ActivityRecord:
     """Return a wait of *minutes* at *record*'s position before it starts."""
     return ActivityRecord(
@@ -586,7 +709,7 @@ def _wait_record(
         op_type="wait",
         operation_class="Waiting",
         water_depth_m=record.water_depth_m,
-        comment=f"delay_start_minutes of {record.label}",
+        comment=comment or f"delay_start_minutes of {record.label}",
     )
 
 
@@ -614,39 +737,51 @@ def _warn_leg_start(
     minutes: float,
     leg_delays: Mapping[str, float] | None,
     first_leg: str | None = None,
+    leg_starts: Mapping[str, datetime] | None = None,
 ) -> None:
     """Warn that a negative delay at the start of a leg is not absorbed."""
     leg = timeline[leg_start].leg_name
     is_first = leg == first_leg if first_leg is not None else leg_start == 0
-    if is_first:
-        lever = (
-            f"start the cruise {minutes:.1f} min earlier (cruise start_date / "
-            f"start_time)"
-        )
+    if leg_delays is not None:
+        leg_delay = leg_delays.get(leg, 0.0) or 0.0
+    elif leg_start > 0:
+        gap = timeline[leg_start].start_time - timeline[leg_start - 1].end_time
+        leg_delay = max(gap.total_seconds() / 60.0, 0.0)
     else:
-        if leg_delays is not None:
-            leg_delay = leg_delays.get(leg, 0.0) or 0.0
-        elif leg_start > 0:
-            gap = timeline[leg_start].start_time - timeline[leg_start - 1].end_time
-            leg_delay = max(gap.total_seconds() / 60.0, 0.0)
-        else:
-            leg_delay = 0.0
-        previous = (
-            f"the previous leg ({timeline[leg_start - 1].leg_name})"
-            if leg_start > 0
-            else "the previous leg"
+        leg_delay = 0.0
+    given = (leg_starts or {}).get(leg)
+    if given is None:
+        held = False
+    elif leg_start > 0:
+        arrive_by = given - timedelta(minutes=_port_minutes(timeline[leg_start]))
+        held = arrive_by > timeline[leg_start - 1].end_time
+    else:
+        # scheduled on its own, or the first leg starting after the cruise start
+        own = timeline[0].delay_start_minutes or 0.0
+        ready = timeline[0].start_time - timedelta(minutes=max(own, 0.0))
+        in_port = timedelta(minutes=_port_minutes(timeline[0]))
+        held = not is_first or given - in_port > ready
+    if held:
+        rest_lever = f"set the start_date / start_time of leg {leg}"
+    elif is_first:
+        rest_lever = "start the cruise"
+    elif leg_start > 0:
+        rest_lever = f"end the previous leg ({timeline[leg_start - 1].leg_name})"
+    else:
+        rest_lever = "end the previous leg"
+    from_delay = min(leg_delay, minutes)
+    rest = minutes - from_delay
+    parts = []
+    if from_delay > 0:
+        parts.append(
+            f"reduce the delay_start_minutes of leg {leg} "
+            f"({leg_delay:g} min) by {from_delay:.1f} min"
         )
-        from_delay = min(leg_delay, minutes)
-        rest = minutes - from_delay
-        parts = []
-        if from_delay > 0:
-            parts.append(
-                f"reduce the delay_start_minutes of leg {leg} "
-                f"({leg_delay:g} min) by {from_delay:.1f} min"
-            )
-        if rest > 0:
-            parts.append(f"end {previous} {rest:.1f} min earlier")
-        lever = " and ".join(parts)
+    if rest > 0:
+        parts.append(f"{rest_lever} {rest:.1f} min earlier")
+    lever = " and ".join(parts)
+    if is_first and not held and rest > 0:
+        lever += " (cruise start_date / start_time)"
     logger.warning(
         f"Operation {label}: {minutes:.1f} min of its negative delay_start_minutes "
         f"in leg {leg} could not be absorbed; nothing earlier in the leg is long "
@@ -688,10 +823,20 @@ class TimelineGenerator:
             leg_activities = self._process_leg(leg)
             timeline.extend(leg_activities)
         config_legs = self.config.legs or []
+        given = {
+            which: {
+                leg.name: moment
+                for leg in legs
+                if (moment := _leg_given_time(self._leg_definition(leg.name), which))
+            }
+            for which in ("start", "end")
+        }
         timeline = apply_delays(
             timeline,
             {leg.name: getattr(leg, "delay_start", None) or 0.0 for leg in legs},
             first_leg=config_legs[0].name if config_legs else None,
+            leg_starts=given["start"],
+            leg_ends=given["end"],
         )
 
         for name, reason in self._fill_reasons.items():
@@ -743,11 +888,9 @@ class TimelineGenerator:
         # Initialize current_time if not set
         if self.current_time is None:
             self.current_time = self._parse_start_datetime()
-
-        # Apply leg-level delay (e.g. port clearance wait before departure)
-        leg_delay = getattr(leg, "delay_start", None) or 0.0
-        if leg_delay:
-            self.current_time = self.current_time + timedelta(minutes=leg_delay)
+        # The wait before the leg (its given start, its delay) is added by
+        # apply_delays, which chains the records from the ship's ready time
+        leg_def = self._leg_definition(leg.name)
 
         activities = []
 
@@ -758,11 +901,8 @@ class TimelineGenerator:
 
         # Get leg activities - check both runtime leg and config leg
         leg_activities = self._extract_activities_from_leg(leg)
-        if not leg_activities and hasattr(self.config, "legs"):
-            for config_leg in self.config.legs:
-                if config_leg.name == leg.name and hasattr(config_leg, "activities"):
-                    leg_activities = config_leg.activities
-                    break
+        if not leg_activities and leg_def is not None:
+            leg_activities = getattr(leg_def, "activities", None)
 
         scientific_activities.extend(leg_activities or [])
 
@@ -800,6 +940,13 @@ class TimelineGenerator:
             logger.exception("Failed to process arrival port")
 
         return activities
+
+    def _leg_definition(self, name: str) -> object | None:
+        """Return the configured leg called *name*, or None."""
+        for leg_def in getattr(self.config, "legs", None) or []:
+            if leg_def.name == name:
+                return leg_def
+        return None
 
     def _create_buffer_activity(
         self, leg: "Leg", last_operation: BaseOperation, duration_minutes: float
@@ -1057,18 +1204,12 @@ class TimelineGenerator:
 
     def _extract_activities_from_config_leg(self, leg: "Leg") -> list[str]:
         """Extract activities from matching config leg."""
-        activities = []
-        if hasattr(self.config, "legs"):
-            for config_leg in self.config.legs:
-                if config_leg.name == leg.name:
-                    if hasattr(config_leg, "clusters") and config_leg.clusters:
-                        activities.extend(
-                            self._extract_activities_from_clusters(config_leg.clusters)
-                        )
-                    elif hasattr(config_leg, "activities") and config_leg.activities:
-                        activities.extend(config_leg.activities)
-                    break
-        return activities
+        config_leg = self._leg_definition(leg.name)
+        if config_leg is None:
+            return []
+        if getattr(config_leg, "clusters", None):
+            return self._extract_activities_from_clusters(config_leg.clusters)
+        return list(getattr(config_leg, "activities", None) or [])
 
     def _extract_activities_from_leg(self, leg: "Leg") -> list[str]:
         """Extract activity names from leg definition."""
@@ -1092,16 +1233,48 @@ class TimelineGenerator:
     def _parse_start_datetime(self) -> datetime:
         """Parse start datetime from config."""
         try:
-            start_date = getattr(self.config, "start_date", "1970-01-01T00:00:00+00:00")
-            if "T" in start_date:
-                start_date_clean = start_date.replace("Z", "").replace("+00:00", "")
-                return datetime.fromisoformat(start_date_clean)
-            start_time = getattr(self.config, "start_time", "08:00")
-            return datetime.strptime(f"{start_date} {start_time}", "%Y-%m-%d %H:%M")
+            return parse_date_time(
+                getattr(self.config, "start_date", "1970-01-01T00:00:00+00:00"),
+                getattr(self.config, "start_time", "08:00"),
+            )
         except (ValueError, AttributeError):
             logger.exception("Invalid start_date or start_time format")
             # Return a default datetime instead of None
             return datetime(1970, 1, 1, 8, 0, 0)
+
+
+def parse_date_time(date: str, time: str | None = "08:00") -> datetime:
+    """
+    Combine a ``start_date`` / ``start_time`` pair into a UTC datetime.
+
+    Parameters
+    ----------
+    date : str
+        ``YYYY-MM-DD``, or a full ISO time (then *time* is not used); an
+        offset or ``Z`` is converted to UTC.
+    time : str or None, optional
+        ``HH:MM`` (default 08:00).
+
+    Returns
+    -------
+    datetime
+        Naive datetime, UTC.
+    """
+    date = str(date)
+    if "T" in date:
+        moment = datetime.fromisoformat(date.replace("Z", "+00:00"))
+        if moment.tzinfo is not None:
+            moment = moment.astimezone(UTC).replace(tzinfo=None)
+        return moment
+    return datetime.strptime(f"{date} {time or '08:00'}", "%Y-%m-%d %H:%M")
+
+
+def _leg_given_time(leg_def: object | None, which: str) -> datetime | None:
+    """Return a leg's given ``start`` or ``end`` time, or None when not set."""
+    date = getattr(leg_def, f"{which}_date", None)
+    if not date:
+        return None
+    return parse_date_time(date, getattr(leg_def, f"{which}_time", None))
 
 
 # =============================================================================

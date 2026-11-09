@@ -18,6 +18,7 @@ Old names keep working until 0.7.0, with a warning. See the migration page, `doc
 - `forecast` anchored on a transit row starts that transit at `--start-time` (it started the operation after it).
 
 ### Fixed
+- A leg's `start_date` / `start_time` were accepted in the YAML and then ignored; each leg started at the previous leg's arrival. The given start is when the leg departs: the ship waits at the departure port so that its time in port ends then; when the previous leg arrives too late, the leg departs as soon as it can, with a warning. `end_date` / `end_time` warn when the leg arrives later. The wait is worked out from the ship's actual arrival (after delays). A leg scheduled on its own (`--leg`) starts at its given time. A `start_date` with an offset is converted to UTC; a leg time that cannot be read fails `validate`. `enrich` keeps the leg times. For pycnmix, Leg3 now waits at Jangbogo until 2026-03-17 12:00.
 
 - A leg's `turnaround_time_minutes` was read but CTD casts always used the cruise value; the leg value now applies to its casts.
 - The schedule total (CLI, HTML, result summary) left out waiting from positive `delay_start_minutes`; it is the elapsed time.
@@ -72,6 +73,7 @@ Old names keep working until 0.7.0, with a warning. See the migration page, `doc
 - Fill-duration summary line (count, `N x 999 h`, and the schedule total excluding fills) in the WARNING log and at the top of the HTML and TeX reports, so the inflated fill hours do not hide the real total.
 
 ### Changed
+- Every wait is a row: a leg's `delay_start_minutes`, a later given leg start and a departure-port delay are a "Waiting before <port>" row at the start of the leg, like an operation's positive delay. There are no gaps between records; the LaTeX work-days table has no "Waiting between legs" line.
 
 - Documentation: units table in the YAML reference; `buffer_time_minutes` is applied (one block per leg after the last operation, before the transit to the arrival port), not "stored only"; `turnaround_time_minutes` is added to depth-based CTD casts only; migration page for 0.6.0.
 - Test fixture `coldsnap-2028-newformat.yaml` (every activity listed twice) is kept as `coldsnap-2028-newformat_old.yaml`; `mooring_sequence_greenland.yaml` lists each activity once (84 rows, 377 h).

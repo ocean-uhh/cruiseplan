@@ -7,6 +7,7 @@ configuration file. This is the top-level YAML structure that contains
 all cruise metadata, global catalog definitions, and schedule organization.
 """
 
+import datetime
 from typing import Any, Self
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -150,7 +151,14 @@ class LegDefinition(BaseModel):
         Contingency block in minutes, scheduled once after the leg's last
         operation and before the transit to the arrival port.
     delay_start_minutes : Optional[float]
-        Delay before the leg departs in minutes (e.g. port clearance).
+        Delay before the leg departs in minutes (e.g. port clearance); a
+        "Waiting before" record at the departure port.
+    start_date, start_time : Optional[str]
+        When the leg starts (``YYYY-MM-DD`` and ``HH:MM``, UTC; time default
+        08:00). The leg waits at its departure port until then; a start
+        before the previous leg's arrival is used with a warning.
+    end_date, end_time : Optional[str]
+        When the leg should end; a later arrival warns.
     activities : Optional[List[dict]]
         Unified list of all activities (points, lines, areas) in this leg.
     clusters : Optional[List[ClusterDefinition]]
@@ -200,6 +208,12 @@ class LegDefinition(BaseModel):
         ge=0,
         description="Delay before the leg departs (minutes), e.g. for port clearance",
     )
+    start_date: str | None = Field(
+        None, description="Date the leg starts (YYYY-MM-DD, or a full ISO time)"
+    )
+    start_time: str | None = Field(None, description="Time the leg starts (HH:MM)")
+    end_date: str | None = Field(None, description="Date the leg should end")
+    end_time: str | None = Field(None, description="Time the leg should end (HH:MM)")
 
     # Activity organization
     activities: list[str | dict[str, Any]] | None = Field(
@@ -211,6 +225,48 @@ class LegDefinition(BaseModel):
     )
 
     model_config = ConfigDict(extra="allow")
+
+    @field_validator("start_date", "start_time", "end_date", "end_time", mode="before")
+    @classmethod
+    def leg_time_as_text(cls, v: object) -> object:
+        """Read unquoted YAML dates and times (date and time objects) as text."""
+        if isinstance(v, datetime.datetime):
+            return v.isoformat()
+        if isinstance(v, datetime.date):
+            return v.isoformat()
+        if isinstance(v, datetime.time):
+            return v.strftime("%H:%M")
+        if isinstance(v, int) and not isinstance(v, bool):
+            msg = "Write the time in quotes, e.g. start_time: '12:00'"
+            raise ValueError(msg)
+        return v
+
+    @model_validator(mode="after")
+    def validate_leg_times(self) -> Self:
+        """Check the given start and end: a date with an optional HH:MM time."""
+        for which in ("start", "end"):
+            date = getattr(self, f"{which}_date")
+            time = getattr(self, f"{which}_time")
+            if time is not None and date is None:
+                msg = f"Leg {self.name}: {which}_time needs a {which}_date"
+                raise ValueError(msg)
+            if date is None:
+                continue
+            try:
+                if "T" in date:
+                    datetime.datetime.fromisoformat(date.replace("Z", "+00:00"))
+                else:
+                    datetime.datetime.strptime(date, "%Y-%m-%d")
+                if time is not None:
+                    datetime.datetime.strptime(time, "%H:%M")
+            except ValueError:
+                msg = (
+                    f"Leg {self.name}: {which}_date / {which}_time must be "
+                    f"YYYY-MM-DD and HH:MM, or a full ISO time "
+                    f"(got {date!r}, {time!r})"
+                )
+                raise ValueError(msg) from None
+        return self
 
     @field_validator("departure_port", "arrival_port")
     @classmethod

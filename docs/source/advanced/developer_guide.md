@@ -154,7 +154,7 @@ def generate_timeline(
 # cruiseplan/timeline/record.py
 @dataclass(frozen=True, kw_only=True, slots=True)
 class ActivityRecord:
-    kind: str  # station, mooring, line, area, transit, port, buffer
+    kind: str  # station, mooring, line, area, transit, port, buffer, wait
     label: str
     start_time: datetime  # UTC, no zone attached
     end_time: datetime
