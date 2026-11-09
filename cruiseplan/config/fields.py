@@ -92,6 +92,10 @@ YAML_FIELD_ORDER = [
     (REVERSIBLE_FIELD, "reversible"),
     (TURNAROUND_TIME_FIELD, "turnaround_time_minutes"),
     # Timing fields
+    (START_DATE_FIELD, "start_date"),
+    ("start_time", "start_time"),
+    ("end_date", "end_date"),
+    ("end_time", "end_time"),
     (DELAY_START_FIELD, "delay_start_minutes"),
     (BUFFER_TIME_FIELD, "buffer_time_minutes"),
     # Geographic fields
@@ -188,6 +192,10 @@ LEG_ALLOWED_FIELDS = {
     "clusters",
     "buffer_time_minutes",
     "delay_start_minutes",
+    "start_date",
+    "start_time",
+    "end_date",
+    "end_time",
     "distance_between_stations_km",
     "turnaround_time_minutes",
     "strategy",

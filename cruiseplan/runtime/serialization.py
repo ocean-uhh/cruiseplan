@@ -66,6 +66,9 @@ CRUISE_PARAMETER_FIELDS = (
     "day_end_hour",
 )
 
+# Given start and end of a leg; the cruise has a start_date / start_time too
+_LEG_TIME_FIELDS = ("start_date", "start_time", "end_date", "end_time")
+
 
 def deserialize_inline_definition(
     definition_dict: dict,
@@ -374,6 +377,8 @@ def to_commented_dict(cruise_instance: "CruiseInstance") -> dict[str, Any]:
 
     # Serialize cruise-level fields in canonical order using YAML_FIELD_ORDER
     for yaml_field, pydantic_field in YAML_FIELD_ORDER:
+        if pydantic_field in _LEG_TIME_FIELDS:
+            continue  # the cruise start goes with the planning parameters
         if hasattr(cruise_instance.config, pydantic_field):
             value = getattr(cruise_instance.config, pydantic_field)
             if value is not None:

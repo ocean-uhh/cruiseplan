@@ -121,9 +121,22 @@ def test_schedule_variables_and_encoding(tmp_path):
         assert float(raw.time[0]) == pytest.approx(1771934400.0)
 
 
+def _without_leg_times(tmp_path):
+    """pycnmix without the legs' given times, which 0.5.0 did not read."""
+    import yaml
+
+    raw = yaml.safe_load(PYCNMIX.read_text())
+    for leg in raw["legs"]:
+        for k in ("start_date", "start_time", "end_date", "end_time"):
+            leg.pop(k, None)
+    config = tmp_path / "pycnmix_free_legs.yaml"
+    config.write_text(yaml.safe_dump(raw, sort_keys=False))
+    return config
+
+
 def test_old_format_file_reads_and_forecasts_the_same(tmp_path):
     """The 0.5.0 file (hours, dist_nm) gives the records and forecast of a new file."""
-    (path,) = _write(tmp_path, PYCNMIX)
+    (path,) = _write(tmp_path, _without_leg_times(tmp_path))
     with xr.open_dataset(OLD_FILE) as raw:
         assert raw.duration.attrs["units"] == "hour"
         assert "dist_nm" in raw.variables
@@ -180,7 +193,7 @@ def test_pre_0_6_schedule_with_delays_is_retimed(tmp_path):
     """
     import yaml
 
-    raw = yaml.safe_load(PYCNMIX.read_text())
+    raw = yaml.safe_load(_without_leg_times(tmp_path).read_text())
     for p in raw["points"]:
         if p["name"] == "NIWA_DITN":
             p["delay_start_minutes"] = -60.0

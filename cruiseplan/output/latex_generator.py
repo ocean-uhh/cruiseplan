@@ -375,24 +375,6 @@ class LaTeXGenerator:
                 if row["transit_h"] and row["transit_h"] != "":
                     total_transit_h += float(row["transit_h"])
 
-        # Leg delays lie between the legs: add them so the total is elapsed time
-        between_h = (
-            timeline_minutes(timeline) / 60.0
-            - total_operation_duration_h
-            - total_transit_h
-        )
-        if between_h >= 0.05:
-            all_summary_rows.append(
-                {
-                    "area": "",
-                    "activity": "Waiting between legs",
-                    "duration_h": f"{between_h:.1f}",
-                    "transit_h": "",
-                    "notes": "Leg delays",
-                }
-            )
-            total_operation_duration_h += float(f"{between_h:.1f}")
-
         total_duration_h = total_operation_duration_h + total_transit_h
         total_days = hours_to_days(total_duration_h)
 
@@ -515,7 +497,7 @@ class LaTeXGenerator:
                 }
             )
 
-        # Waiting (leg delays) and contingency (buffers): the rest of the
+        # Waiting (wait rows) and contingency (buffers): the rest of the
         # elapsed time, so the rows add up to the schedule total
         listed_h = sum(_row_hours(row) for row in summary_rows) + transit_from_area_h
         remainder_h = timeline_minutes(timeline) / 60.0 - listed_h
@@ -526,7 +508,7 @@ class LaTeXGenerator:
                     "activity": "Waiting and contingency",
                     "duration_h": f"{remainder_h:.1f}",
                     "transit_h": "",
-                    "notes": "Leg delays and buffer time",
+                    "notes": "Waits before the leg and operations; buffer time",
                 }
             )
 

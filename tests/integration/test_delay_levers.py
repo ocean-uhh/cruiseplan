@@ -81,10 +81,29 @@ def test_lever_splits_between_leg_delay_and_previous_leg(tmp_path, caplog):
 
 
 def test_lever_for_a_later_leg_scheduled_alone(tmp_path, caplog):
-    """--leg Leg2: the lever is the previous leg, not the cruise start."""
+    """--leg Leg2: Leg2 starts at its given start, which is the lever."""
     path = _write(tmp_path, lambda cfg: _leg_delay_cases(cfg, 0.0))
     with caplog.at_level(logging.WARNING):
-        _schedule(path, format=None, leg="Leg2")
+        timeline = _schedule(path, format=None, leg="Leg2").timeline
+    (message,) = [
+        r.getMessage() for r in caplog.records if "could not be" in r.getMessage()
+    ]
+    assert "start the cruise" not in message
+    assert "set the start_date / start_time of leg Leg2 45.0 min earlier" in message
+    assert f"{timeline[0].start_time:%Y-%m-%d %H:%M}" == "2026-03-05 12:00"
+
+
+def test_lever_for_a_later_leg_without_a_given_start(tmp_path, caplog):
+    """--leg Leg2 with no given start: the lever is the previous leg."""
+
+    def edit(cfg):
+        _leg_delay_cases(cfg, 0.0)
+        for leg in cfg["legs"]:
+            for k in ("start_date", "start_time", "end_date", "end_time"):
+                leg.pop(k, None)
+
+    with caplog.at_level(logging.WARNING):
+        _schedule(_write(tmp_path, edit), format=None, leg="Leg2")
     (message,) = [
         r.getMessage() for r in caplog.records if "could not be" in r.getMessage()
     ]

@@ -158,14 +158,15 @@ def test_delay_end_is_dropped_with_advice(tmp_path, caplog):
 
 
 def test_unknown_keys_warn_once_per_key_per_file(caplog):
-    """pycnmix legs carry start_date (3 legs): one warning names it and the legs."""
+    """pycnmix areas carry description (4 areas): one warning names it and them."""
     with caplog.at_level(logging.WARNING, logger="cruiseplan.config.loader"):
         CruiseInstance(PYCNMIX)
-    hits = [m for m in caplog.messages if "unknown key 'start_date'" in m]
+    hits = [m for m in caplog.messages if "unknown key 'description'" in m]
     assert len(hits) == 1
-    assert "leg 'Leg1'" in hits[0]
+    assert "areas 'Option_AD'" in hits[0]
     assert "pycnmix-2026-v1.yaml" in hits[0]
-    assert any("unknown key 'description'" in m for m in caplog.messages)
+    # leg start and end times are known keys
+    assert not any("unknown key 'start_date'" in m for m in caplog.messages)
 
 
 def test_repeated_activity_in_a_leg_warns(caplog):

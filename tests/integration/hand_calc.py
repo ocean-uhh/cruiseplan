@@ -7,7 +7,13 @@ files with ``yaml.safe_load`` and every number follows the written rules:
 - distance: haversine on a sphere of radius 6371 km, nm = km / 1.852
 - transit minutes: nm / knots * 60
 - CTD cast minutes: depth / (descent * 60) + depth / (ascent * 60) + turnaround
-- a leg starts at the previous leg's end + the leg's ``delay_start``
+- a leg's given start (``start_date`` + ``start_time``) is when it departs:
+  the ship waits at its departure port until the given start less the port's
+  ``duration_minutes`` (if later than the ship is ready: the previous leg's
+  actual end, or the cruise start), then for the leg's ``delay_start``, then
+  for the port's own positive ``delay_start``: one row "Waiting before <port>"
+- a later leg scheduled on its own departs at its given start
+- a given start with an offset (or ``Z``) is converted to UTC
 - an operation's positive ``delay_start`` is waiting: a row "Waiting before
   <name>" of that many minutes at the operation's entry, just before it
 - a negative ``delay_start`` comes out of the transit into the operation
@@ -35,7 +41,7 @@ Forecast (at-sea re-anchoring), ``hand_forecast``:
 
 import math
 from dataclasses import dataclass, field, replace
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 R_EARTH_KM = 6371.0
 KM_PER_NM = 1.852
@@ -138,6 +144,7 @@ class HandLeg:
     speed: float = 10.0
     buffer: float | None = None
     delay: float = 0.0
+    start: datetime | None = None  # given leg start
     rows: list[Row] = field(default_factory=list)
 
 
@@ -146,7 +153,6 @@ def run_legs(start: datetime, legs: list[HandLeg]) -> list[Row]:
     t = start
     out: list[Row] = []
     for leg in legs:
-        t += timedelta(minutes=leg.delay)
         stops = list(leg.stops)
         if leg.buffer:
             last = stops[-2]
@@ -336,9 +342,24 @@ def hand_legs(cfg: dict, leg_speed_for_lines: bool = True) -> list[HandLeg]:
                 speed,
                 key(leg, "buffer_time_minutes"),
                 float(key(leg, "delay_start_minutes") or 0.0),
+                given_start(leg),
             )
         )
     return legs
+
+
+def given_start(leg: dict) -> datetime | None:
+    """A leg's start_date (+ start_time, default 08:00) in UTC, or None."""
+    if not leg.get("start_date"):
+        return None
+    date = str(leg["start_date"])
+    if "T" in date:
+        moment = datetime.fromisoformat(date.replace("Z", "+00:00"))
+        if moment.tzinfo is not None:
+            moment = moment.astimezone(UTC).replace(tzinfo=None)
+        return moment
+    time = leg.get("start_time") or "08:00"
+    return datetime.strptime(f"{date} {time}", "%Y-%m-%d %H:%M")
 
 
 def cruise_start(cfg: dict) -> datetime:
@@ -351,24 +372,45 @@ def cruise_start(cfg: dict) -> datetime:
     )
 
 
-def hand_schedule(cfg: dict, **kwargs: bool) -> list[Row]:
-    """Full hand schedule for a YAML config dict."""
-    return hand_actual(run_legs(cruise_start(cfg), hand_legs(cfg, **kwargs)))
+def hand_schedule(cfg: dict, only: str | None = None, **kwargs: bool) -> list[Row]:
+    """Full hand schedule for a YAML config dict (*only*: one leg on its own)."""
+    legs = hand_legs(cfg, **kwargs)
+    first_leg = legs[0].name
+    if only is not None:
+        legs = [leg for leg in legs if leg.name == only]
+    return hand_actual(
+        run_legs(cruise_start(cfg), legs),
+        {leg.name: leg.start for leg in legs if leg.start is not None},
+        {leg.name: leg.delay for leg in legs},
+        first_leg,
+    )
 
 
-def hand_actual(rows: list[Row]) -> list[Row]:
-    """Apply delays: waits before operations, negative delays from before them."""
+def hand_actual(
+    rows: list[Row],
+    leg_starts: dict[str, datetime] | None = None,
+    leg_delays: dict[str, float] | None = None,
+    first_leg: str | None = None,
+) -> list[Row]:
+    """
+    Apply delays: waits before legs and operations, negative delays from before them.
+
+    *rows* are planned rows with no waiting (``run_legs``); each starts
+    where the one before it ends.
+    """
+    leg_starts = leg_starts or {}
+    leg_delays = leg_delays or {}
     minutes = [r.minutes for r in rows]
     first = [i == 0 or rows[i].leg != rows[i - 1].leg for i in range(len(rows))]
     for i, row in enumerate(rows):
-        if first[i] or row.kind in ("transit", "buffer") or row.delay >= 0:
+        if first[i] or row.kind in ("transit", "buffer", "wait") or row.delay >= 0:
             continue
         # Back through the leg: the transit in, skipping a buffer, then the
         # first operation (or port) reached
         left = -row.delay
         j = i - 1
         while left > 0 and j >= 0 and rows[j].leg == row.leg:
-            if rows[j].kind != "buffer":
+            if rows[j].kind not in ("buffer", "wait"):
                 taken = min(minutes[j], left)
                 minutes[j] -= taken
                 left -= taken
@@ -377,14 +419,32 @@ def hand_actual(rows: list[Row]) -> list[Row]:
             j -= 1
     out: list[Row] = []
     for i, row in enumerate(rows):
-        if i == 0:
-            start = row.start
-        elif first[i]:
-            gap = row.start - rows[i - 1].end
-            start = out[-1].end + max(gap, timedelta(0))
-        else:
-            start = out[-1].end
-        if not first[i] and row.kind not in ("transit", "buffer") and row.delay > 0:
+        start = row.start - timedelta(minutes=row.delay) if i == 0 else out[-1].end
+        if first[i]:
+            # One wait at the departure port: given start, leg delay, port delay
+            given = leg_starts.get(row.leg)
+            if given is not None and row.kind == "port":
+                given -= timedelta(minutes=row.minutes)  # in port before departing
+            if i == 0 and given is not None and row.leg != first_leg:
+                start = given
+            wait = leg_delays.get(row.leg, 0.0) + max(row.delay, 0.0)
+            if given is not None and given > start:
+                wait += (given - start).total_seconds() / 60
+            if wait > 0:
+                out.append(
+                    Row(
+                        f"Waiting before {row.name}",
+                        "wait",
+                        row.leg,
+                        start,
+                        start + timedelta(minutes=wait),
+                        wait,
+                        entry=row.entry,
+                        planned=0.0,
+                    )
+                )
+                start = out[-1].end
+        elif row.kind not in ("transit", "buffer", "wait") and row.delay > 0:
             out.append(
                 Row(
                     f"Waiting before {row.name}",
